@@ -1,34 +1,35 @@
 # Dependencies
 node_modules/
-npm-debug.log*
 
-# Environment variables
+# Builds
+/dist/
+
+# Env files
 .env
-.env.local
-.env.production
+.env.*
 
-# Firebase
-.firebase/
-firebase-debug.log
-firestore-debug.log
+# Firebase service account key (keep secure!)
+serviceAccountKey.json
 
-# Netlify
-.netlify/
-
-# System files
+# OS/editor
 .DS_Store
-Thumbs.db
-
-# IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # Logs
-logs/
-*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Temporary files
-tmp/
-temp/
+# Local Netlify folder
+.netlify
+
+# Firebase cache
+.firebase/
+
+# Content backup/export files (contain data, should not be committed)
+*-backup-*.json
+firebase-current-state.json
+firebase-export.json
+my-backup.json

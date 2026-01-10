@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import AnimatedText from '../components/AnimatedText';
 
 const HomePage: React.FC = () => {
   return (
@@ -11,11 +12,7 @@ const HomePage: React.FC = () => {
           <div className="hero-content">
             <h1 className="hero-title">Discover The Compassion Course</h1>
             <p className="hero-subtitle">Changing lives in over 120 Countries</p>
-            <div className="animated-text">
-              <div className="animated-text-content">
-                Build lasting empathy practices
-              </div>
-            </div>
+            <AnimatedText />
 
             <div className="hero-buttons">
               <a href="#learn-more" className="btn-primary">Learn More About The Course</a>

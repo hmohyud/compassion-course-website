@@ -79,28 +79,12 @@ jobs:
               if 'private_key' in parsed:
                   parsed['private_key'] = parsed['private_key'].replace('\\n', '\n')
               
-              # Write JSON file manually to preserve actual newlines in private_key
-              # json.dump() would escape them, but gcloud needs actual newlines
+              # Write JSON file - use json.dump which handles escaping correctly
+              # The private_key now has actual newlines, json.dump will escape them as \n
+              # which is correct JSON format that gcloud can parse
               output_file = os.path.expanduser('~/firebase-service-account.json')
               with open(output_file, 'w') as f:
-                  f.write('{\n')
-                  f.write(f'  "type": {json.dumps(parsed["type"])},\n')
-                  f.write(f'  "project_id": {json.dumps(parsed["project_id"])},\n')
-                  f.write(f'  "private_key_id": {json.dumps(parsed["private_key_id"])},\n')
-                  # Write private_key with actual newlines (not JSON-escaped)
-                  # We need to escape it properly for JSON but keep newlines
-                  private_key_json = json.dumps(parsed["private_key"])
-                  # Replace the escaped \n with actual newlines in the file
-                  private_key_for_file = private_key_json.replace('\\\\n', '\\n')
-                  f.write(f'  "private_key": {private_key_for_file},\n')
-                  f.write(f'  "client_email": {json.dumps(parsed["client_email"])},\n')
-                  f.write(f'  "client_id": {json.dumps(parsed["client_id"])},\n')
-                  f.write(f'  "auth_uri": {json.dumps(parsed["auth_uri"])},\n')
-                  f.write(f'  "token_uri": {json.dumps(parsed["token_uri"])},\n')
-                  f.write(f'  "auth_provider_x509_cert_url": {json.dumps(parsed["auth_provider_x509_cert_url"])},\n')
-                  f.write(f'  "client_x509_cert_url": {json.dumps(parsed["client_x509_cert_url"])},\n')
-                  f.write(f'  "universe_domain": {json.dumps(parsed["universe_domain"])}\n')
-                  f.write('}\n')
+                  json.dump(parsed, f, indent=2)
               
               # Set proper permissions
               os.chmod(output_file, 0o600)

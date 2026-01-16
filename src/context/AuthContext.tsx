@@ -5,7 +5,9 @@ import {
   createUserWithEmailAndPassword,
   signOut, 
   onAuthStateChanged,
-  getIdTokenResult
+  getIdTokenResult,
+  signInWithPopup,
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -22,6 +24,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -298,6 +301,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      console.log('Google sign-in successful:', userCredential.user.email);
+      
+      // Auto-create user profile
+      try {
+        const existingProfile = await getUserProfile(userCredential.user.uid);
+        if (!existingProfile) {
+          await createUserProfile(
+            userCredential.user.uid,
+            userCredential.user.email || '',
+            userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'User',
+            userCredential.user.photoURL
+          );
+          console.log('User profile created from Google sign-in');
+        }
+      } catch (profileError) {
+        console.error('Error creating user profile:', profileError);
+      }
+      
+      return userCredential;
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
@@ -308,6 +340,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     login,
     register,
+    signInWithGoogle,
     logout
   };
 

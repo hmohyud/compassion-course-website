@@ -79,33 +79,32 @@ jobs:
               if 'private_key' in parsed:
                   parsed['private_key'] = parsed['private_key'].replace('\\n', '\n')
               
-              # Write JSON file first
+              # Write JSON file manually to control exactly how private_key is written
+              # gcloud needs the private_key to have actual newlines, not JSON-escaped \n
               output_file = os.path.expanduser('~/firebase-service-account.json')
               with open(output_file, 'w') as f:
-                  json.dump(parsed, f, indent=2)
-              
-              # Post-process: Replace escaped \\n in private_key with actual newlines
-              # gcloud expects actual newlines in the file, not JSON-escaped ones
-              import re
-              with open(output_file, 'r') as f:
-                  content = f.read()
-              
-              # Find the private_key value and replace \\n with actual newlines
-              # Pattern matches: "private_key": "..." where ... may contain escaped newlines
-              def fix_private_key(match):
-                  # Get the full match
-                  full_match = match.group(0)
-                  # Replace \\n (escaped backslash-n in the file) with actual newline
-                  # In the file, json.dump writes \n as \\n (backslash, backslash, n)
-                  # We need to replace that with actual newline
-                  return full_match.replace('\\\\n', '\n')
-              
-              # Match the entire private_key line(s) - it might span multiple lines
-              pattern = r'"private_key":\s*"[^"]*(?:\\.[^"]*)*"'
-              content = re.sub(pattern, fix_private_key, content, flags=re.DOTALL)
-              
-              with open(output_file, 'w') as f:
-                  f.write(content)
+                  f.write('{\n')
+                  f.write(f'  "type": {json.dumps(parsed["type"])},\n')
+                  f.write(f'  "project_id": {json.dumps(parsed["project_id"])},\n')
+                  f.write(f'  "private_key_id": {json.dumps(parsed["private_key_id"])},\n')
+                  # Write private_key with actual newlines preserved
+                  # We need to escape it for JSON but keep the newlines as actual newlines
+                  f.write('  "private_key": ')
+                  # Write the private key value with actual newlines
+                  # Escape quotes and backslashes, but keep newlines
+                  private_key_escaped = parsed["private_key"].replace('\\', '\\\\').replace('"', '\\"')
+                  # Write as a multi-line string with actual newlines
+                  f.write('"')
+                  f.write(private_key_escaped.replace('\n', '\\n'))  # Convert newlines to \n for JSON
+                  f.write('",\n')
+                  f.write(f'  "client_email": {json.dumps(parsed["client_email"])},\n')
+                  f.write(f'  "client_id": {json.dumps(parsed["client_id"])},\n')
+                  f.write(f'  "auth_uri": {json.dumps(parsed["auth_uri"])},\n')
+                  f.write(f'  "token_uri": {json.dumps(parsed["token_uri"])},\n')
+                  f.write(f'  "auth_provider_x509_cert_url": {json.dumps(parsed["auth_provider_x509_cert_url"])},\n')
+                  f.write(f'  "client_x509_cert_url": {json.dumps(parsed["client_x509_cert_url"])},\n')
+                  f.write(f'  "universe_domain": {json.dumps(parsed["universe_domain"])}\n')
+                  f.write('}\n')
               
               # Set proper permissions
               os.chmod(output_file, 0o600)

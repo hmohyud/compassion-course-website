@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build
         run: npm run build
         env:
@@ -31,64 +31,62 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
-      
+
       - name: Install Firebase CLI and gcloud
         run: |
           npm install -g firebase-tools
-          # Install gcloud SDK for service account authentication
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
-      
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-cli
+
+      # IMPORTANT:
+      # - Your secret must be BASE64-encoded JSON (full service account key JSON)
+      # - Secret name used here: FIREBASE_SERVICE_ACCOUNT (keep your current name)
       - name: Decode and normalize Firebase service account JSON
         shell: bash
         run: |
           set -euo pipefail
-          
-          # Decode base64 secret to raw JSON
+
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > /home/runner/firebase-service-account.raw.json
-          
-          # Normalize private_key: convert literal "\n" into real newlines
+
           python3 - <<'PY'
-          import json
-          
+          import json, os
+
           raw_path = "/home/runner/firebase-service-account.raw.json"
           out_path = "/home/runner/firebase-service-account.json"
-          
+
           with open(raw_path, "r", encoding="utf-8") as f:
               data = json.load(f)
-          
+
+          # Convert literal backslash-n sequences to real newlines in the PEM
           if "private_key" in data and isinstance(data["private_key"], str):
               data["private_key"] = data["private_key"].replace("\\n", "\n")
-          
+
           with open(out_path, "w", encoding="utf-8") as f:
               json.dump(data, f, ensure_ascii=False, indent=2)
-          
-          # Set proper permissions
-          import os
+
           os.chmod(out_path, 0o600)
           PY
-      
+
       - name: Validate private key formatting
         shell: bash
         run: |
           python3 - <<'PY'
           import json
-          
+
           path = "/home/runner/firebase-service-account.json"
           data = json.load(open(path))
           pk = data.get("private_key", "")
-          
-          assert "-----BEGIN PRIVATE KEY-----" in pk, "Private key must start with -----BEGIN PRIVATE KEY-----"
+
+          assert "-----BEGIN PRIVATE KEY-----" in pk, "Missing PEM header"
           assert "\n" in pk, "private_key must contain real newlines"
-          assert pk.endswith("-----\n") or pk.endswith("-----"), f"Private key must end with -----. Ends with: {repr(pk[-20:])}"
-          print("✓ Service account key formatting OK")
+          assert "-----END PRIVATE KEY-----" in pk, "Missing PEM footer"
+          print("Service account key formatting OK")
           PY
-      
+
       - name: Authenticate with gcloud
         run: |
           gcloud auth activate-service-account --key-file=/home/runner/firebase-service-account.json
           gcloud config set project compassion-course-websit-937d6
-      
+
       - name: Deploy to Firebase
         run: firebase deploy --only hosting --project compassion-course-websit-937d6

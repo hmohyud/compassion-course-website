@@ -80,9 +80,23 @@ jobs:
                   parsed['private_key'] = parsed['private_key'].replace('\\n', '\n')
               
               # Write the JSON to file
+              # We write it manually to preserve actual newlines in private_key
+              # json.dump() would escape them back to \n
               output_file = os.path.expanduser('~/firebase-service-account.json')
               with open(output_file, 'w') as f:
-                  json.dump(parsed, f, indent=2)
+                  f.write('{\n')
+                  f.write(f'  "type": {json.dumps(parsed["type"])},\n')
+                  f.write(f'  "project_id": {json.dumps(parsed["project_id"])},\n')
+                  f.write(f'  "private_key_id": {json.dumps(parsed["private_key_id"])},\n')
+                  f.write(f'  "private_key": {json.dumps(parsed["private_key"])},\n')
+                  f.write(f'  "client_email": {json.dumps(parsed["client_email"])},\n')
+                  f.write(f'  "client_id": {json.dumps(parsed["client_id"])},\n')
+                  f.write(f'  "auth_uri": {json.dumps(parsed["auth_uri"])},\n')
+                  f.write(f'  "token_uri": {json.dumps(parsed["token_uri"])},\n')
+                  f.write(f'  "auth_provider_x509_cert_url": {json.dumps(parsed["auth_provider_x509_cert_url"])},\n')
+                  f.write(f'  "client_x509_cert_url": {json.dumps(parsed["client_x509_cert_url"])},\n')
+                  f.write(f'  "universe_domain": {json.dumps(parsed["universe_domain"])}\n')
+                  f.write('}\n')
               
               # Set proper permissions
               os.chmod(output_file, 0o600)

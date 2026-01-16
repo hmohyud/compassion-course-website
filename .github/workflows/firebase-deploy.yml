@@ -40,103 +40,55 @@ jobs:
           curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
           sudo apt-get update && sudo apt-get install -y google-cloud-sdk
       
-      - name: Setup Firebase Service Account
+      - name: Decode and normalize Firebase service account JSON
+        shell: bash
         run: |
-          # Decode base64-encoded service account JSON and write to file
-          # This avoids GitHub Secrets' multi-line formatting issues
-          python3 << 'EOF'
+          set -euo pipefail
+          
+          # Decode base64 secret to raw JSON
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > /home/runner/firebase-service-account.raw.json
+          
+          # Normalize private_key: convert literal "\n" into real newlines
+          python3 - <<'PY'
           import json
-          import base64
+          
+          raw_path = "/home/runner/firebase-service-account.raw.json"
+          out_path = "/home/runner/firebase-service-account.json"
+          
+          with open(raw_path, "r", encoding="utf-8") as f:
+              data = json.load(f)
+          
+          if "private_key" in data and isinstance(data["private_key"], str):
+              data["private_key"] = data["private_key"].replace("\\n", "\n")
+          
+          with open(out_path, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+          
+          # Set proper permissions
           import os
-          import sys
+          os.chmod(out_path, 0o600)
+          PY
+      
+      - name: Validate private key formatting
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
           
-          secret_b64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT', '')
+          path = "/home/runner/firebase-service-account.json"
+          data = json.load(open(path))
+          pk = data.get("private_key", "")
           
-          if not secret_b64:
-              print("ERROR: FIREBASE_SERVICE_ACCOUNT environment variable is empty")
-              sys.exit(1)
-          
-          # Strip leading/trailing whitespace
-          secret_b64 = secret_b64.strip()
-          
-          # Debug: Show encoded secret info
-          print(f"Base64 secret length: {len(secret_b64)} characters")
-          print(f"First 50 chars of base64: {secret_b64[:50]}")
-          print(f"Last 50 chars of base64: {secret_b64[-50:]}")
-          
-          try:
-              # Decode base64 to get the JSON string
-              secret_json = base64.b64decode(secret_b64).decode('utf-8')
-              
-              print(f"Decoded JSON length: {len(secret_json)} characters")
-              print(f"First 50 chars of JSON: {secret_json[:50]}")
-              print(f"Last 50 chars of JSON: {secret_json[-50:]}")
-              
-              # Parse JSON
-              parsed = json.loads(secret_json)
-              
-              # The private_key in the JSON string has \n as literal characters (backslash-n)
-              # json.loads() should convert JSON escape sequences to actual characters
-              # But if they're literal \n (not escaped), we need to convert them
-              if 'private_key' in parsed:
-                  # Check if private_key has literal \n (backslash-n) or actual newlines
-                  # If it has literal \n, convert to actual newlines
-                  if '\\n' in parsed['private_key'] and '\n' not in parsed['private_key'].replace('\\n', ''):
-                      # Has literal \n, convert to actual newlines
-                      parsed['private_key'] = parsed['private_key'].replace('\\n', '\n')
-              
-              # Write JSON file - json.dump() will properly escape newlines as \n
-              # When gcloud reads and parses the JSON, it will convert \n back to newlines
-              output_file = os.path.expanduser('~/firebase-service-account.json')
-              with open(output_file, 'w') as f:
-                  json.dump(parsed, f, indent=2)
-              
-              # Verify the file and debug private_key format
-              with open(output_file, 'r') as f:
-                  verify_content = f.read()
-                  verify_parsed = json.loads(verify_content)
-                  
-                  # Debug private_key
-                  if 'private_key' in verify_parsed:
-                      pk = verify_parsed['private_key']
-                      print(f"Private key length: {len(pk)}")
-                      print(f"Private key starts with: {pk[:50]}")
-                      print(f"Private key ends with: {pk[-50:]}")
-                      print(f"Has actual newlines: {'\\n' in pk}")
-                      print(f"Has literal backslash-n: {'\\\\n' in pk or '\\n' in repr(pk)}")
-                      # Check if it starts with BEGIN and ends with END
-                      if not pk.startswith('-----BEGIN'):
-                          print("ERROR: Private key does not start with -----BEGIN")
-                      if not pk.endswith('-----\n') and not pk.endswith('-----'):
-                          print(f"ERROR: Private key does not end correctly. Ends with: {repr(pk[-20:])}")
-              
-              # Set proper permissions
-              os.chmod(output_file, 0o600)
-              
-              print(f"Successfully decoded and wrote service account JSON to {output_file}")
-              
-          except base64.binascii.Error as e:
-              print(f"ERROR: Invalid base64 encoding: {e}")
-              print("Please ensure the FIREBASE_SERVICE_ACCOUNT secret contains a valid base64-encoded string")
-              sys.exit(1)
-          except json.JSONDecodeError as e:
-              print(f"ERROR: Invalid JSON format after decoding: {e}")
-              print(f"Error at position {e.pos}: {e.msg}")
-              print(f"First 500 chars of decoded JSON: {secret_json[:500] if 'secret_json' in locals() else 'N/A'}")
-              sys.exit(1)
-          except Exception as e:
-              print(f"ERROR: Unexpected error: {e}")
-              import traceback
-              traceback.print_exc()
-              sys.exit(1)
-          EOF
-          
-          # Activate service account using gcloud
-          gcloud auth activate-service-account --key-file=$HOME/firebase-service-account.json
-          # Set the project
+          assert "-----BEGIN PRIVATE KEY-----" in pk, "Private key must start with -----BEGIN PRIVATE KEY-----"
+          assert "\n" in pk, "private_key must contain real newlines"
+          assert pk.endswith("-----\n") or pk.endswith("-----"), f"Private key must end with -----. Ends with: {repr(pk[-20:])}"
+          print("✓ Service account key formatting OK")
+          PY
+      
+      - name: Authenticate with gcloud
+        run: |
+          gcloud auth activate-service-account --key-file=/home/runner/firebase-service-account.json
           gcloud config set project compassion-course-websit-937d6
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       
       - name: Deploy to Firebase
         run: firebase deploy --only hosting --project compassion-course-websit-937d6

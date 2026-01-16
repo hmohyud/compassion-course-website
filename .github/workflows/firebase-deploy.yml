@@ -47,7 +47,7 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: compassion-course-websit-937d6
+          project_id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
 
       - name: Deploy to Firebase
-        run: firebase deploy --only hosting --project compassion-course-websit-937d6
+        run: firebase deploy --only hosting --project ${{ secrets.VITE_FIREBASE_PROJECT_ID }}

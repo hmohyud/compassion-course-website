@@ -1,45 +1,3 @@
-name: Deploy to Firebase Hosting
-
-on:
-  push:
-    branches:
-      - main
-      - master
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build
-        run: npm run build
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
-      
-      - name: Install Firebase CLI and gcloud
-        run: |
-          npm install -g firebase-tools
-          # Install gcloud SDK for service account authentication
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
-      
       - name: Setup Firebase Service Account
         run: |
           # Decode base64-encoded service account JSON and write to file
@@ -72,15 +30,14 @@ jobs:
               print(f"First 50 chars of JSON: {secret_json[:50]}")
               print(f"Last 50 chars of JSON: {secret_json[-50:]}")
               
-              # Validate JSON format
+              # Parse JSON
               parsed = json.loads(secret_json)
               
               # Convert \n escape sequences to actual newlines in private_key
-              # This is needed because gcloud expects actual newlines, not escape sequences
               if 'private_key' in parsed:
                   parsed['private_key'] = parsed['private_key'].replace('\\n', '\n')
               
-              # Write the parsed JSON to file (this ensures proper formatting)
+              # Write the JSON to file
               output_file = os.path.expanduser('~/firebase-service-account.json')
               with open(output_file, 'w') as f:
                   json.dump(parsed, f, indent=2)
@@ -112,6 +69,3 @@ jobs:
           gcloud config set project compassion-course-websit-937d6
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-      
-      - name: Deploy to Firebase
-        run: firebase deploy --only hosting --project compassion-course-websit-937d6

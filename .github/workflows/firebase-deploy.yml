@@ -42,6 +42,83 @@ jobs:
       
       - name: Setup Firebase Service Account
         run: |
+          # Decode base64-encoded service account JSON and write to file
+          # This avoids GitHub Secrets' multi-line formatting issues
+          python3 << 'EOF'
+          import json
+          import base64
+          import os
+          import sys
+          
+          secret_b64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT', '')
+          
+          if not secret_b64:
+              print("ERROR: FIREBASE_SERVICE_ACCOUNT environment variable is empty")
+              sys.exit(1)
+          
+          # Strip leading/trailing whitespace
+          secret_b64 = secret_b64.strip()
+          
+          # Debug: Show encoded secret info
+          print(f"Base64 secret length: {len(secret_b64)} characters")
+          print(f"First 50 chars of base64: {secret_b64[:50]}")
+          print(f"Last 50 chars of base64: {secret_b64[-50:]}")
+          
+          try:
+              # Decode base64 to get the JSON string
+              secret_json = base64.b64decode(secret_b64).decode('utf-8')
+              
+              print(f"Decoded JSON length: {len(secret_json)} characters")
+              print(f"First 50 chars of JSON: {secret_json[:50]}")
+              print(f"Last 50 chars of JSON: {secret_json[-50:]}")
+              
+              # Validate JSON format
+              parsed = json.loads(secret_json)
+              
+              # Write the parsed JSON to file (this ensures proper formatting)
+              output_file = os.path.expanduser('~/firebase-service-account.json')
+              with open(output_file, 'w') as f:
+                  json.dump(parsed, f, indent=2)
+              
+              # Set proper permissions
+              os.chmod(output_file, 0o600)
+              
+              print(f"Successfully decoded and wrote service account JSON to {output_file}")
+              
+          except base64.binascii.Error as e:
+              print(f"ERROR: Invalid base64 encoding: {e}")
+              print("Please ensure the FIREBASE_SERVICE_ACCOUNT secret contains a valid base64-encoded string")
+              sys.exit(1)
+          except json.JSONDecodeError as e:
+              print(f"ERROR: Invalid JSON format after decoding: {e}")
+              print(f"Error at position {e.pos}: {e.msg}")
+              print(f"First 500 chars of decoded JSON: {secret_json[:500] if 'secret_json' in locals() else 'N/A'}")
+              sys.exit(1)
+          except Exception as e:
+              print(f"ERROR: Unexpected error: {e}")
+              import traceback
+              traceback.print_exc()
+              sys.exit(1)
+          EOF
+          
+          # Activate service account using gcloud
+          gcloud auth activate-service-account --key-file=$HOME/firebase-service-account.json
+          # Set the project
+          gcloud config set project compassion-course-websit-937d6
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      
+      - name: Deploy to Firebase
+        run: firebase deploy --only hosting --project compassion-course-websit-937d6
+        run: |
+          npm install -g firebase-tools
+          # Install gcloud SDK for service account authentication
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
+      
+      - name: Setup Firebase Service Account
+        run: |
           # Write the service account JSON to a file using base64 to preserve all characters
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 -d > $HOME/firebase-service-account.json 2>/dev/null || echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > $HOME/firebase-service-account.json
           chmod 600 $HOME/firebase-service-account.json

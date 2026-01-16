@@ -91,15 +91,24 @@ jobs:
               with open(output_file, 'w') as f:
                   json.dump(parsed, f, indent=2)
               
-              # Verify the file is valid JSON and can be read back
+              # Verify the file and debug private_key format
               with open(output_file, 'r') as f:
                   verify_content = f.read()
                   verify_parsed = json.loads(verify_content)
-                  # Check if private_key has newlines when parsed
+                  
+                  # Debug private_key
                   if 'private_key' in verify_parsed:
-                      if '\n' not in verify_parsed['private_key']:
-                          print("WARNING: private_key does not contain newlines after JSON parsing")
-                          print(f"First 100 chars: {verify_parsed['private_key'][:100]}")
+                      pk = verify_parsed['private_key']
+                      print(f"Private key length: {len(pk)}")
+                      print(f"Private key starts with: {pk[:50]}")
+                      print(f"Private key ends with: {pk[-50:]}")
+                      print(f"Has actual newlines: {'\\n' in pk}")
+                      print(f"Has literal backslash-n: {'\\\\n' in pk or '\\n' in repr(pk)}")
+                      # Check if it starts with BEGIN and ends with END
+                      if not pk.startswith('-----BEGIN'):
+                          print("ERROR: Private key does not start with -----BEGIN")
+                      if not pk.endswith('-----\n') and not pk.endswith('-----'):
+                          print(f"ERROR: Private key does not end correctly. Ends with: {repr(pk[-20:])}")
               
               # Set proper permissions
               os.chmod(output_file, 0o600)

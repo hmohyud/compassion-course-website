@@ -31,15 +31,40 @@ const AdminManagement: React.FC = () => {
     setError('');
     try {
       const adminsRef = collection(db, 'admins');
-      const querySnapshot = await getDocs(adminsRef);
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Loading admins timed out after 10 seconds')), 10000)
+      );
+      
+      const querySnapshot = await Promise.race([
+        getDocs(adminsRef),
+        timeoutPromise
+      ]);
+      
       const adminList: AdminRecord[] = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as AdminRecord));
+      
       setAdmins(adminList);
     } catch (error: any) {
       console.error('Error loading admins:', error);
-      setError('Failed to load admins. Please try again.');
+      const isOfflineError = error?.code === 'unavailable' || 
+                            error?.message?.includes('offline') ||
+                            error?.message?.includes('network') ||
+                            error?.message?.includes('timeout');
+      
+      if (isOfflineError) {
+        setError('Unable to load admins. Please check your internet connection and try again.');
+      } else if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
+        setError('Permission denied. You may not have access to view admins.');
+      } else {
+        setError(error.message || 'Failed to load admins. Please try again.');
+      }
+      
+      // Set empty array on error so UI doesn't stay in loading state
+      setAdmins([]);
     } finally {
       setLoading(false);
     }

@@ -20,10 +20,13 @@ import CirclePage from './pages/CirclePage'
 // Platform Pages
 import PlatformDashboard from './pages/platform/PlatformDashboard'
 import UserProfilePage from './pages/platform/UserProfilePage'
+import WebcastsPage from './pages/platform/WebcastsPage'
+import WebcastJoinPage from './pages/platform/WebcastJoinPage'
 
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import WebcastManagement from './pages/admin/WebcastManagement'
 
 import './App.css'
 
@@ -65,6 +68,16 @@ function App() {
                   <UserProfilePage />
                 </UserProtectedRoute>
               } />
+              <Route path="/platform/webcasts" element={
+                <UserProtectedRoute>
+                  <WebcastsPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/platform/webcasts/:id/join" element={
+                <UserProtectedRoute>
+                  <WebcastJoinPage />
+                </UserProtectedRoute>
+              } />
               
               {/* Admin Routes */}
               <Route path="/admin/login-4f73b2c" element={<LoginPage />} />
@@ -72,6 +85,11 @@ function App() {
               <Route path="/admin" element={
                 <ProtectedRoute>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/webcasts" element={
+                <ProtectedRoute>
+                  <WebcastManagement />
                 </ProtectedRoute>
               } />
             </Routes>

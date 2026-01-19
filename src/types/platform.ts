@@ -166,6 +166,13 @@ export interface Webcast {
   translationLanguages: string[]; // Language codes
   hostId: string;
   accessType: 'free' | 'paid' | 'member-only';
+  meetUrl?: string; // Google Meet link (manual or auto-generated)
+  recurrencePattern?: {
+    type: 'none' | 'daily' | 'weekly' | 'monthly';
+    interval: number; // e.g., every 2 weeks
+    endDate?: Date;
+  };
+  autoGenerateMeetLink?: boolean; // Flag for auto-generation
   createdAt: Date;
   updatedAt: Date;
 }

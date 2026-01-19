@@ -5,6 +5,7 @@ import {
   getDocs, 
   setDoc, 
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy
@@ -25,7 +26,10 @@ export async function createWebcast(
   currency: string = 'USD',
   duration?: number,
   translationLanguages: string[] = [],
-  accessType: 'free' | 'paid' | 'member-only' = 'free'
+  accessType: 'free' | 'paid' | 'member-only' = 'free',
+  meetUrl?: string,
+  recurrencePattern?: Webcast['recurrencePattern'],
+  autoGenerateMeetLink?: boolean
 ): Promise<Webcast> {
   try {
     const webcastRef = doc(collection(db, WEBCASTS_COLLECTION));
@@ -42,6 +46,9 @@ export async function createWebcast(
       translationLanguages,
       hostId,
       accessType,
+      meetUrl,
+      recurrencePattern,
+      autoGenerateMeetLink,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -51,7 +58,16 @@ export async function createWebcast(
       scheduledAt: webcast.scheduledAt,
       createdAt: webcast.createdAt,
       updatedAt: webcast.updatedAt,
+      recurrencePattern: webcast.recurrencePattern ? {
+        ...webcast.recurrencePattern,
+        endDate: webcast.recurrencePattern.endDate || undefined,
+      } : undefined,
     });
+
+    // If recurring, create instances
+    if (recurrencePattern && recurrencePattern.type !== 'none') {
+      await createRecurringWebcastInstances(webcast);
+    }
 
     return webcast;
   } catch (error) {
@@ -84,7 +100,7 @@ export async function getWebcast(webcastId: string): Promise<Webcast | null> {
 
 export async function updateWebcast(
   webcastId: string,
-  updates: Partial<Pick<Webcast, 'title' | 'description' | 'scheduledAt' | 'status' | 'recordingUrl' | 'duration'>>
+  updates: Partial<Pick<Webcast, 'title' | 'description' | 'scheduledAt' | 'status' | 'recordingUrl' | 'duration' | 'meetUrl' | 'recurrencePattern' | 'translationLanguages' | 'autoGenerateMeetLink'>>
 ): Promise<void> {
   try {
     const docRef = doc(db, WEBCASTS_COLLECTION, webcastId);
@@ -97,11 +113,159 @@ export async function updateWebcast(
       updateData.scheduledAt = updates.scheduledAt;
     }
     
+    if (updates.recurrencePattern) {
+      updateData.recurrencePattern = {
+        ...updates.recurrencePattern,
+        endDate: updates.recurrencePattern.endDate || undefined,
+      };
+    }
+    
     await updateDoc(docRef, updateData);
   } catch (error) {
     console.error('Error updating webcast:', error);
     throw error;
   }
+}
+
+export async function updateWebcastMeetUrl(
+  webcastId: string,
+  meetUrl: string
+): Promise<void> {
+  try {
+    await updateWebcast(webcastId, { meetUrl });
+  } catch (error) {
+    console.error('Error updating webcast Meet URL:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generate a Google Meet link
+ * Placeholder for future Google Calendar API integration
+ * For now, returns a placeholder URL that admin can replace manually
+ */
+export async function generateMeetLink(): Promise<string> {
+  // TODO: Integrate with Google Calendar API to auto-generate Meet links
+  // For now, return a placeholder
+  return 'https://meet.google.com/new';
+}
+
+/**
+ * Get all recurring webcasts
+ */
+export async function getRecurringWebcasts(orgId?: string): Promise<Webcast[]> {
+  try {
+    const webcastsRef = collection(db, WEBCASTS_COLLECTION);
+    let q = query(
+      webcastsRef,
+      orderBy('scheduledAt', 'asc')
+    );
+    
+    if (orgId) {
+      q = query(
+        webcastsRef,
+        where('orgId', '==', orgId),
+        orderBy('scheduledAt', 'asc')
+      );
+    }
+    
+    const querySnapshot = await getDocs(q);
+    
+    const allWebcasts = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      scheduledAt: doc.data().scheduledAt?.toDate() || new Date(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      recurrencePattern: doc.data().recurrencePattern ? {
+        ...doc.data().recurrencePattern,
+        endDate: doc.data().recurrencePattern.endDate?.toDate(),
+      } : undefined,
+    })) as Webcast[];
+    
+    // Filter for recurring webcasts
+    return allWebcasts.filter(w => 
+      w.recurrencePattern && w.recurrencePattern.type !== 'none'
+    );
+  } catch (error) {
+    console.error('Error getting recurring webcasts:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create recurring webcast instances based on recurrence pattern
+ */
+export async function createRecurringWebcastInstances(
+  baseWebcast: Webcast
+): Promise<Webcast[]> {
+  if (!baseWebcast.recurrencePattern || baseWebcast.recurrencePattern.type === 'none') {
+    return [];
+  }
+
+  const instances: Webcast[] = [];
+  const { type, interval, endDate } = baseWebcast.recurrencePattern;
+  const end = endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // Default to 1 year
+  let currentDate = new Date(baseWebcast.scheduledAt);
+
+  const addDays = (date: Date, days: number): Date => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  const addWeeks = (date: Date, weeks: number): Date => {
+    return addDays(date, weeks * 7);
+  };
+
+  const addMonths = (date: Date, months: number): Date => {
+    const result = new Date(date);
+    result.setMonth(result.getMonth() + months);
+    return result;
+  };
+
+  let instanceCount = 0;
+  const maxInstances = 100; // Safety limit
+
+  while (currentDate <= end && instanceCount < maxInstances) {
+    if (instanceCount > 0) { // Skip first instance (already created)
+      const instanceRef = doc(collection(db, WEBCASTS_COLLECTION));
+      const instance: Webcast = {
+        ...baseWebcast,
+        id: instanceRef.id,
+        scheduledAt: new Date(currentDate),
+        recurrencePattern: undefined, // Instances don't have recurrence
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(instanceRef, {
+        ...instance,
+        scheduledAt: instance.scheduledAt,
+        createdAt: instance.createdAt,
+        updatedAt: instance.updatedAt,
+      });
+
+      instances.push(instance);
+    }
+
+    // Calculate next date
+    switch (type) {
+      case 'daily':
+        currentDate = addDays(currentDate, interval);
+        break;
+      case 'weekly':
+        currentDate = addWeeks(currentDate, interval);
+        break;
+      case 'monthly':
+        currentDate = addMonths(currentDate, interval);
+        break;
+    }
+
+    instanceCount++;
+  }
+
+  return instances;
 }
 
 export async function getWebcastsByOrganization(orgId: string): Promise<Webcast[]> {
@@ -219,6 +383,16 @@ export async function getWebcastSessions(webcastId: string): Promise<WebcastSess
     })) as WebcastSession[];
   } catch (error) {
     console.error('Error getting webcast sessions:', error);
+    throw error;
+  }
+}
+
+export async function deleteWebcast(webcastId: string): Promise<void> {
+  try {
+    const docRef = doc(db, WEBCASTS_COLLECTION, webcastId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting webcast:', error);
     throw error;
   }
 }

@@ -233,7 +233,11 @@ p {
     object-fit: contain;
     display: block;
     margin-top: -20px;
-    margin-bottom: -20px;
+    margin-bottom: -15px;
+    border: 2px solid #1e3a8a;
+    border-radius: 8px;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
 .nav-menu {

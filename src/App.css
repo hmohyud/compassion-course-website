@@ -225,6 +225,14 @@ p {
     font-size: 1.8rem;
 }
 
+.nav-logo-img {
+    height: 50px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    display: block;
+}
+
 .nav-menu {
     display: flex;
     list-style: none;

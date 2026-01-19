@@ -1336,6 +1336,7 @@ button:focus {
     width: 150px;
     height: 150px;
     object-fit: cover;
+    object-position: center;
     border-radius: 12px;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

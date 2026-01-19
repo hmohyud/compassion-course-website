@@ -17,7 +17,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/TMB-2018.jpg" 
+                  src="/team-photos/TMB-2018.jpg" 
                   alt="Thom Bond"
                   className="team-member-photo"
                   onError={(e) => {
@@ -38,7 +38,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/IMG_2522%202.jpg" 
+                  src="/team-photos/IMG_2522-2.jpg" 
                   alt="Antonio Espinoza"
                   className="team-member-photo"
                   onError={(e) => {
@@ -59,7 +59,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/Doreen-Poulin.jpg" 
+                  src="/team-photos/Doreen-Poulin.jpg" 
                   alt="Doreen Poulin"
                   className="team-member-photo"
                   onError={(e) => {
@@ -85,7 +85,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/9e219d42-ff4f-47fc-b972-58caa8d78f19.jpg" 
+                  src="/team-photos/gabriele-vana.jpg" 
                   alt="Gabriele Vana"
                   className="team-member-photo"
                   onError={(e) => {
@@ -107,7 +107,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/hs_sabinebends_deutsch.jpg" 
+                  src="/team-photos/sabine-bends.jpg" 
                   alt="Sabine Bends"
                   className="team-member-photo"
                   onError={(e) => {
@@ -132,7 +132,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/67333_345172352311034_6042994648089873584_n.jpg" 
+                  src="/team-photos/shahinaz-el-hennawi.jpg" 
                   alt="Shahinaz El Hennawi"
                   className="team-member-photo"
                   onError={(e) => {
@@ -157,7 +157,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/foto-CNV.jpg" 
+                  src="/team-photos/celeste-de-vita.jpg" 
                   alt="Celeste De Vita"
                   className="team-member-photo"
                   onError={(e) => {
@@ -179,7 +179,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="https://www.compassioncourse.org/Me09-264x300.png" 
+                  src="/team-photos/angelica-maeireizo-tokeshi.png" 
                   alt="Angélica Maeireizo·Tokeshi"
                   className="team-member-photo"
                   onError={(e) => {

@@ -19,6 +19,7 @@ const AdminManagement: React.FC = () => {
   const [email, setEmail] = useState('');
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [granting, setGranting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -72,11 +73,15 @@ const AdminManagement: React.FC = () => {
 
   const grantAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔵 Grant admin button clicked');
+    
     setError('');
     setSuccess('');
+    setGranting(true);
 
     if (!email) {
       setError('Please enter an email address');
+      setGranting(false);
       return;
     }
 
@@ -84,19 +89,23 @@ const AdminManagement: React.FC = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
+      setGranting(false);
       return;
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    console.log('🔵 Granting admin to:', normalizedEmail);
 
     // Check if admin already exists
     const existingAdmin = admins.find(a => a.email.toLowerCase() === normalizedEmail);
     if (existingAdmin) {
       setError('This email already has admin rights');
+      setGranting(false);
       return;
     }
 
     try {
+      console.log('🔵 Creating admin document...');
       // Create admin document with email as ID for management
       // Note: The user will need to log in once for the system to create a UID-based document
       const adminRef = doc(db, 'admins', normalizedEmail);
@@ -110,12 +119,28 @@ const AdminManagement: React.FC = () => {
         lookupByEmail: true
       });
 
+      console.log('✅ Admin document created successfully');
       setSuccess(`Admin rights granted to ${normalizedEmail}. They will have admin access when they log in.`);
       setEmail('');
-      loadAdmins();
+      await loadAdmins();
     } catch (error: any) {
-      console.error('Error granting admin:', error);
-      setError(error.message || 'Failed to grant admin rights. Please try again.');
+      console.error('❌ Error granting admin:', error);
+      console.error('Error code:', error?.code);
+      console.error('Error message:', error?.message);
+      
+      const isPermissionError = error?.code === 'permission-denied' || 
+                               error?.code === 'PERMISSION_DENIED' ||
+                               error?.message?.includes('permission');
+      
+      if (isPermissionError) {
+        setError('Permission denied. You may not have permission to grant admin rights. Check Firestore security rules.');
+      } else if (error?.code === 'unavailable') {
+        setError('Unable to connect to Firebase. Please check your internet connection.');
+      } else {
+        setError(error.message || 'Failed to grant admin rights. Please try again.');
+      }
+    } finally {
+      setGranting(false);
     }
   };
 
@@ -256,18 +281,20 @@ const AdminManagement: React.FC = () => {
             <button
               type="submit"
               className="btn btn-primary"
+              disabled={granting}
               style={{
                 padding: '10px 20px',
-                background: '#002B4D',
+                background: granting ? '#6b7280' : '#002B4D',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                cursor: 'pointer'
+                cursor: granting ? 'not-allowed' : 'pointer',
+                opacity: granting ? 0.7 : 1
               }}
             >
-              Grant Admin Rights
+              {granting ? 'Granting...' : 'Grant Admin Rights'}
             </button>
           </form>
         </div>

@@ -206,7 +206,7 @@ p {
     top: 0;
     width: 100%;
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 1.5rem 0;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -216,7 +216,8 @@ p {
     padding: 0 20px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 0.5rem;
 }
 
 .nav-logo h2 {
@@ -226,11 +227,13 @@ p {
 }
 
 .nav-logo-img {
-    height: 50px;
+    height: 150px;
     width: auto;
-    max-width: 200px;
+    max-width: none;
     object-fit: contain;
     display: block;
+    margin-top: -30px;
+    margin-bottom: -30px;
 }
 
 .nav-menu {

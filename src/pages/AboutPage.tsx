@@ -20,7 +20,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/TMB-2018.jpg" 
                   alt="Thom Bond"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -41,7 +43,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/IMG_2522-2.jpg" 
                   alt="Antonio Espinoza"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -62,7 +66,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/Doreen-Poulin.jpg" 
                   alt="Doreen Poulin"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -88,7 +94,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/gabriele-vana.jpg" 
                   alt="Gabriele Vana"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -110,7 +118,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/sabine-bends.jpg" 
                   alt="Sabine Bends"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -135,7 +145,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/shahinaz-el-hennawi.jpg" 
                   alt="Shahinaz El Hennawi"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -160,7 +172,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/celeste-de-vita.jpg" 
                   alt="Celeste De Vita"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
@@ -182,7 +196,9 @@ const AboutPage: React.FC = () => {
                   src="/team-photos/angelica-maeireizo-tokeshi.png" 
                   alt="Angélica Maeireizo·Tokeshi"
                   className="team-member-photo"
+                  loading="lazy"
                   onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
                     e.currentTarget.style.display = 'none';
                   }}
                 />

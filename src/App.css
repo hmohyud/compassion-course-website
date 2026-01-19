@@ -227,13 +227,13 @@ p {
 }
 
 .nav-logo-img {
-    height: 150px;
+    height: 120px;
     width: auto;
-    max-width: none;
+    max-width: 400px;
     object-fit: contain;
     display: block;
-    margin-top: -30px;
-    margin-bottom: -30px;
+    margin-top: -20px;
+    margin-bottom: -20px;
 }
 
 .nav-menu {

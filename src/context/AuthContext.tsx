@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               user.uid,
               user.email || '',
               user.displayName || user.email?.split('@')[0] || 'User',
-              user.photoURL
+              user.photoURL || undefined  // Convert null to undefined
             );
             console.log('User profile created on login');
           }
@@ -257,7 +257,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         };
         
-        await checkAdmin();
+        try {
+          await checkAdmin();
+        } catch (adminError) {
+          console.error('Error in checkAdmin:', adminError);
+          setIsAdmin(false);
+        }
       } else {
         setIsAdmin(false);
       }
@@ -303,7 +308,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             userCredential.user.uid,
             email,
             userCredential.user.displayName || email.split('@')[0],
-            userCredential.user.photoURL
+            userCredential.user.photoURL || undefined  // Convert null to undefined
           );
           console.log('User profile created successfully');
         }
@@ -334,7 +339,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             userCredential.user.uid,
             userCredential.user.email || '',
             userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'User',
-            userCredential.user.photoURL
+            userCredential.user.photoURL || undefined  // Convert null to undefined
           );
           console.log('User profile created from Google sign-in');
         }

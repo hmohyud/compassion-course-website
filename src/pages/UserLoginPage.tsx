@@ -22,7 +22,7 @@ const UserLoginPage: React.FC = () => {
     return (
       <div className="login-page">
         <div className="login-container">
-          <h2>Compassion Course Login</h2>
+          <h2>Global Compassion Network</h2>
           <p>Logging in...</p>
         </div>
       </div>

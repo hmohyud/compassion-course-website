@@ -240,7 +240,7 @@ const UserRegisterPage: React.FC = () => {
           </button>
         </div>
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          <p>Already have an account? <Link to="/login">Login here</Link></p>
+          <p>Already have an account?<br /><Link to="/login">Login here</Link></p>
         </div>
       </div>
     </div>

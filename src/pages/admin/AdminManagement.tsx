@@ -72,15 +72,17 @@ const AdminManagement: React.FC = () => {
     }
 
     try {
-      // Create admin document
-      // Use email as document ID for easier lookup
+      // Create admin document with email as ID for management
+      // Note: The user will need to log in once for the system to create a UID-based document
       const adminRef = doc(db, 'admins', normalizedEmail);
       await setDoc(adminRef, {
         email: normalizedEmail,
         role: 'admin',
         grantedBy: user?.email || 'unknown',
         grantedAt: new Date().toISOString(),
-        status: 'active'
+        status: 'active',
+        // Flag to indicate this is an email-based record
+        lookupByEmail: true
       });
 
       setSuccess(`Admin rights granted to ${normalizedEmail}. They will have admin access when they log in.`);
@@ -101,7 +103,43 @@ const AdminManagement: React.FC = () => {
     setSuccess('');
 
     try {
+      // Delete the document by the provided ID (could be email or UID)
       await deleteDoc(doc(db, 'admins', adminId));
+      
+      // Also try to delete by email if the ID was a UID (to clean up email-based records)
+      // and by UID if the ID was an email (to clean up UID-based records)
+      const normalizedEmail = adminEmail.toLowerCase().trim();
+      if (adminId !== normalizedEmail) {
+        try {
+          // Try deleting by email (in case adminId was a UID)
+          await deleteDoc(doc(db, 'admins', normalizedEmail));
+        } catch (emailDeleteError) {
+          // Ignore if email-based document doesn't exist
+        }
+      }
+      
+      // Also try to find and delete any UID-based documents for this email
+      // by querying all admins and finding matching emails
+      try {
+        const adminsRef = collection(db, 'admins');
+        const querySnapshot = await getDocs(adminsRef);
+        const matchingDocs = querySnapshot.docs.filter(doc => {
+          const data = doc.data();
+          return data.email && data.email.toLowerCase() === normalizedEmail && doc.id !== adminId;
+        });
+        
+        // Delete any matching documents
+        for (const matchingDoc of matchingDocs) {
+          try {
+            await deleteDoc(doc(db, 'admins', matchingDoc.id));
+          } catch (deleteError) {
+            console.warn('Could not delete matching admin document:', deleteError);
+          }
+        }
+      } catch (queryError) {
+        console.warn('Could not query for matching admin documents:', queryError);
+      }
+      
       setSuccess(`Admin rights revoked from ${adminEmail}`);
       loadAdmins();
     } catch (error: any) {

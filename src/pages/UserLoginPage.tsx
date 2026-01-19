@@ -10,27 +10,28 @@ const UserLoginPage: React.FC = () => {
   const { user, loading: authLoading, login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to portal when user is authenticated
+  // Redirect to portal when user is authenticated (after initial check completes)
   useEffect(() => {
     if (user && !authLoading) {
       navigate('/portal', { replace: true });
     }
   }, [user, authLoading, navigate]);
 
-  // Show loading state while checking auth
-  if (authLoading) {
+  // Show loading state only during active login attempt
+  if (loading) {
     return (
       <div className="login-page">
         <div className="login-container">
           <h2>Compassion Course Login</h2>
-          <p>Checking authentication...</p>
+          <p>Logging in...</p>
         </div>
       </div>
     );
   }
 
-  // Redirect if already logged in
-  if (user) {
+  // Show login form immediately - don't wait for initial auth check
+  // If user is already logged in, redirect will happen via useEffect
+  if (user && !authLoading) {
     return null; // useEffect will handle navigation
   }
 

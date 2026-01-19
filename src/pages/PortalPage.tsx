@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 
 const PortalPage: React.FC = () => {
@@ -69,6 +69,15 @@ const PortalPage: React.FC = () => {
                 color: 'inherit',
                 display: 'block',
                 cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f9fafb';
+                e.currentTarget.style.borderColor = '#e5e7eb';
               }}
             >
               <h3 style={{ color: '#002B4D', marginBottom: '10px' }}>Platform</h3>
@@ -76,6 +85,34 @@ const PortalPage: React.FC = () => {
                 Access communities, courses, and webcasts
               </p>
             </a>
+            
+            <Link 
+              to="/portal/circle"
+              style={{ 
+                padding: '20px', 
+                background: '#f9fafb', 
+                borderRadius: '8px',
+                border: '1px solid #e5e7eb',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f9fafb';
+                e.currentTarget.style.borderColor = '#e5e7eb';
+              }}
+            >
+              <h3 style={{ color: '#002B4D', marginBottom: '10px' }}>Circle Community</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                Connect, learn, and grow with fellow participants
+              </p>
+            </Link>
             
             <div style={{ 
               padding: '20px', 
@@ -86,18 +123,6 @@ const PortalPage: React.FC = () => {
               <h3 style={{ color: '#002B4D', marginBottom: '10px' }}>Progress Tracking</h3>
               <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
                 View your learning progress and achievements
-              </p>
-            </div>
-            
-            <div style={{ 
-              padding: '20px', 
-              background: '#f9fafb', 
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <h3 style={{ color: '#002B4D', marginBottom: '10px' }}>Community</h3>
-              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                Connect with other participants
               </p>
             </div>
           </div>

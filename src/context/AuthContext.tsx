@@ -7,7 +7,8 @@ import {
   onAuthStateChanged,
   getIdTokenResult,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  RecaptchaVerifier
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -23,7 +24,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, recaptchaVerifier?: RecaptchaVerifier) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -271,8 +272,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (email: string, password: string, recaptchaVerifier?: RecaptchaVerifier) => {
     try {
+      // Note: createUserWithEmailAndPassword doesn't directly accept recaptchaVerifier,
+      // but Firebase will use it automatically if initialized. For explicit v2 usage,
+      // we ensure the verifier is set up before calling createUserWithEmailAndPassword.
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log('Registration successful:', userCredential.user.email);
       

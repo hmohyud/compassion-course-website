@@ -15,6 +15,7 @@ import ContactPage from './pages/ContactPage'
 import UserLoginPage from './pages/UserLoginPage'
 import UserRegisterPage from './pages/UserRegisterPage'
 import PortalPage from './pages/PortalPage'
+import CirclePage from './pages/CirclePage'
 
 // Platform Pages
 import PlatformDashboard from './pages/platform/PlatformDashboard'
@@ -45,6 +46,11 @@ function App() {
               <Route path="/portal" element={
                 <UserProtectedRoute>
                   <PortalPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/portal/circle" element={
+                <UserProtectedRoute>
+                  <CirclePage />
                 </UserProtectedRoute>
               } />
               

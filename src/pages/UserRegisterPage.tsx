@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { RecaptchaVerifier } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
 
 const UserRegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +12,7 @@ const UserRegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { user, loading: authLoading, register, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   // Redirect to portal when user is authenticated
   useEffect(() => {
@@ -17,6 +20,43 @@ const UserRegisterPage: React.FC = () => {
       navigate('/portal', { replace: true });
     }
   }, [user, authLoading, navigate]);
+
+  // Initialize reCAPTCHA verifier on component mount
+  useEffect(() => {
+    try {
+      // Clear any existing verifier
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+      }
+
+      // Initialize new reCAPTCHA verifier
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'normal',
+        callback: () => {
+          // reCAPTCHA solved
+          console.log('reCAPTCHA verified');
+        },
+        'expired-callback': () => {
+          // reCAPTCHA expired
+          console.log('reCAPTCHA expired');
+          setError('reCAPTCHA expired. Please verify again.');
+        }
+      });
+
+      recaptchaVerifierRef.current = verifier;
+
+      // Cleanup on unmount
+      return () => {
+        if (recaptchaVerifierRef.current) {
+          recaptchaVerifierRef.current.clear();
+          recaptchaVerifierRef.current = null;
+        }
+      };
+    } catch (error) {
+      console.error('Error initializing reCAPTCHA:', error);
+      setError('Failed to initialize reCAPTCHA. Please refresh the page.');
+    }
+  }, []);
 
   // Show loading state while checking auth
   if (authLoading) {
@@ -51,10 +91,16 @@ const UserRegisterPage: React.FC = () => {
       return;
     }
 
+    // Check if reCAPTCHA is initialized
+    if (!recaptchaVerifierRef.current) {
+      setError('reCAPTCHA is not ready. Please refresh the page.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register(email, password);
+      await register(email, password, recaptchaVerifierRef.current);
       // Navigation will be handled by useEffect
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -67,6 +113,27 @@ const UserRegisterPage: React.FC = () => {
         setError('Password is too weak. Please choose a stronger password.');
       } else if (error.code === 'auth/network-request-failed') {
         setError('Network error. Please check your internet connection.');
+      } else if (error.code === 'auth/captcha-check-failed') {
+        setError('reCAPTCHA verification failed. Please try again.');
+        // Reset reCAPTCHA
+        if (recaptchaVerifierRef.current) {
+          recaptchaVerifierRef.current.clear();
+          try {
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+              size: 'normal',
+              callback: () => {
+                console.log('reCAPTCHA verified');
+              },
+              'expired-callback': () => {
+                console.log('reCAPTCHA expired');
+                setError('reCAPTCHA expired. Please verify again.');
+              }
+            });
+            recaptchaVerifierRef.current = verifier;
+          } catch (recaptchaError) {
+            console.error('Error reinitializing reCAPTCHA:', recaptchaError);
+          }
+        }
       } else {
         setError(error.message || 'Failed to create account. Please try again.');
       }
@@ -136,6 +203,9 @@ const UserRegisterPage: React.FC = () => {
               className="form-input"
               minLength={6}
             />
+          </div>
+          <div className="form-group">
+            <div id="recaptcha-container"></div>
           </div>
           <button type="submit" disabled={loading} className="btn btn-primary">
             {loading ? 'Creating account...' : 'Register'}

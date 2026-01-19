@@ -44,27 +44,36 @@ export async function createUserProfile(
   bio?: string
 ): Promise<UserProfile> {
   try {
-    const profile: Omit<UserProfile, 'id'> = {
+    // Build profile object, only including fields that are not undefined
+    const profileData: any = {
       name,
       email,
-      avatar,
-      bio,
       organizations: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
+    // Only add avatar and bio if they are defined (not undefined)
+    if (avatar !== undefined) {
+      profileData.avatar = avatar;
+    }
+    if (bio !== undefined) {
+      profileData.bio = bio;
+    }
+
     const docRef = doc(db, COLLECTION_NAME, userId);
-    await setDoc(docRef, {
-      ...profile,
-      createdAt: profile.createdAt,
-      updatedAt: profile.updatedAt,
-    });
+    await setDoc(docRef, profileData);
 
     return {
       id: userId,
-      ...profile,
-    };
+      name,
+      email,
+      avatar: avatar || undefined,
+      bio: bio || undefined,
+      organizations: [],
+      createdAt: profileData.createdAt,
+      updatedAt: profileData.updatedAt,
+    } as UserProfile;
   } catch (error) {
     console.error('Error creating user profile:', error);
     throw error;
@@ -76,11 +85,24 @@ export async function updateUserProfile(
   updates: Partial<Pick<UserProfile, 'name' | 'avatar' | 'bio'>>
 ): Promise<void> {
   try {
-    const docRef = doc(db, COLLECTION_NAME, userId);
-    await updateDoc(docRef, {
-      ...updates,
+    // Filter out undefined values - Firestore doesn't allow undefined
+    const updateData: any = {
       updatedAt: new Date(),
-    });
+    };
+
+    // Only include fields that are not undefined
+    if (updates.name !== undefined) {
+      updateData.name = updates.name;
+    }
+    if (updates.avatar !== undefined) {
+      updateData.avatar = updates.avatar;
+    }
+    if (updates.bio !== undefined) {
+      updateData.bio = updates.bio;
+    }
+
+    const docRef = doc(db, COLLECTION_NAME, userId);
+    await updateDoc(docRef, updateData);
   } catch (error) {
     console.error('Error updating user profile:', error);
     throw error;

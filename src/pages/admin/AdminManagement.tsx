@@ -28,22 +28,24 @@ const AdminManagement: React.FC = () => {
     loadAdmins();
   }, []);
 
-  const loadAdmins = async () => {
+  const loadAdmins = async (retryCount = 0) => {
     setLoading(true);
     setError('');
     try {
       const adminsRef = collection(db, 'admins');
       
-      // Add timeout to prevent hanging (reduced to 5 seconds for faster feedback)
+      // Add timeout to prevent hanging (increased to 8 seconds to account for network latency)
       const timeoutPromise = new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Loading admins timed out after 5 seconds')), 5000)
+        setTimeout(() => reject(new Error('Loading admins timed out after 8 seconds')), 8000)
       );
       
+      console.log('🔄 Loading admins... (attempt ' + (retryCount + 1) + ')');
       const querySnapshot = await Promise.race([
         getDocs(adminsRef),
         timeoutPromise
       ]);
       
+      console.log('✅ Loaded ' + querySnapshot.docs.length + ' admin documents');
       const adminList: AdminRecord[] = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -51,16 +53,33 @@ const AdminManagement: React.FC = () => {
       
       setAdmins(adminList);
     } catch (error: any) {
-      console.error('Error loading admins:', error);
+      console.error('❌ Error loading admins:', error);
+      console.error('Error code:', error?.code);
+      console.error('Error message:', error?.message);
+      
       const isOfflineError = error?.code === 'unavailable' || 
                             error?.message?.includes('offline') ||
-                            error?.message?.includes('network') ||
-                            error?.message?.includes('timeout');
+                            error?.message?.includes('network');
+      
+      const isTimeoutError = error?.message?.includes('timeout') || 
+                            error?.message?.includes('timed out');
+      
+      const isPermissionError = error?.code === 'permission-denied' || 
+                               error?.code === 'PERMISSION_DENIED';
+      
+      // Retry on timeout or offline errors (up to 2 retries)
+      if ((isTimeoutError || isOfflineError) && retryCount < 2) {
+        console.log('🔄 Retrying loadAdmins...');
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        return loadAdmins(retryCount + 1);
+      }
       
       if (isOfflineError) {
         setError('Unable to load admins. Please check your internet connection and try again.');
-      } else if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
-        setError('Permission denied. You may not have access to view admins.');
+      } else if (isTimeoutError) {
+        setError('Loading admins timed out. This may be due to network issues or Firestore permissions. Please check your connection and try again.');
+      } else if (isPermissionError) {
+        setError('Permission denied. You may not have access to view admins. Check Firestore security rules.');
       } else {
         setError(error.message || 'Failed to load admins. Please try again.');
       }
@@ -352,7 +371,29 @@ const AdminManagement: React.FC = () => {
           </div>
           
           {loading ? (
-            <p style={{ color: '#6b7280' }}>Loading admins...</p>
+            <div>
+              <p style={{ color: '#6b7280' }}>Loading admins...</p>
+            </div>
+          ) : error ? (
+            <div>
+              <p style={{ color: '#dc2626', marginBottom: '12px' }}>{error}</p>
+              <button
+                onClick={() => loadAdmins()}
+                className="btn btn-primary"
+                style={{
+                  padding: '8px 16px',
+                  background: '#002B4D',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
+            </div>
           ) : admins.length === 0 ? (
             <p style={{ color: '#6b7280' }}>No admins found. Grant admin rights using the form above.</p>
           ) : (

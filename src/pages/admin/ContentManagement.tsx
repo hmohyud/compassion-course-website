@@ -256,11 +256,11 @@ const ContentManagement: React.FC = () => {
   }, [activeSection]); // Only depend on activeSection, not loadedSections to avoid loops
 
   // Helper function for retry logic with exponential backoff
-  const loadWithRetry = async <T>(
-    queryFn: () => Promise<T>,
+  const loadWithRetry = async (
+    queryFn: () => Promise<any>,
     maxRetries: number = 2,
     operationName: string
-  ): Promise<T> => {
+  ): Promise<any> => {
     const startTime = Date.now();
     console.log(`🔄 Starting ${operationName}...`);
     
@@ -665,18 +665,6 @@ const ContentManagement: React.FC = () => {
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };
 
-  const getContentForSection = (sectionId: SectionId): ContentSection[] => {
-    const sectionDef = SECTIONS.find(s => s.id === sectionId);
-    if (!sectionDef) return [];
-    
-    return sections.filter(s => sectionDef.contentSections.includes(s.section));
-  };
-
-  const getContentItem = (section: string, key: string): ContentItem | null => {
-    const sectionData = sections.find(s => s.section === section);
-    if (!sectionData) return null;
-    return sectionData.items.find(item => item.key === key) || null;
-  };
 
   const handlePhotoFileSelect = async (file: File) => {
     const validation = validateImageFile(file);
@@ -828,8 +816,8 @@ const ContentManagement: React.FC = () => {
     return JSON.stringify(item.value, null, 2);
   };
 
-  // Helper function to get content value by section and key
-  const getContent = (section: string, key: string, defaultValue: string = ''): string => {
+  // Helper function to get content value by section and key from local sections state
+  const getLocalContent = (section: string, key: string, defaultValue: string = ''): string => {
     const sectionData = sections.find(s => s.section === section);
     if (!sectionData) return defaultValue;
     const item = sectionData.items.find(i => i.key === key && i.isActive !== false);
@@ -1204,17 +1192,17 @@ const ContentManagement: React.FC = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                 <h1 style={{ fontSize: '2.5rem', color: '#002B4D', marginBottom: '10px' }}>
-                  {getContent('hero', 'title', 'Discover The Compassion Course')}
+                  {getLocalContent('hero', 'title', 'Discover The Compassion Course')}
                 </h1>
                 <p style={{ fontSize: '1.25rem', color: '#6b7280', marginBottom: '20px' }}>
-                  {getContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
+                  {getLocalContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
                 </p>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button className="btn btn-primary" style={{ pointerEvents: 'none' }}>
-                    {getContent('hero', 'ctaPrimary', 'Learn More About The Course')}
+                    {getLocalContent('hero', 'ctaPrimary', 'Learn More About The Course')}
                   </button>
                   <button className="btn btn-secondary" style={{ pointerEvents: 'none' }}>
-                    {getContent('hero', 'ctaSecondary', 'Watch an Interactive Introduction')}
+                    {getLocalContent('hero', 'ctaSecondary', 'Watch an Interactive Introduction')}
                   </button>
                 </div>
               </div>
@@ -1244,26 +1232,26 @@ const ContentManagement: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                 <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                   <h4 style={{ color: '#002B4D', marginBottom: '10px' }}>
-                    {getContent('hero-stats', 'stat1-title', 'Global Leader')}
+                    {getLocalContent('hero-stats', 'stat1-title', 'Global Leader')}
                   </h4>
                   <p style={{ color: '#6b7280', fontSize: '0.9rem' }} dangerouslySetInnerHTML={renderHTML(
-                    getContent('hero-stats', 'stat1-description', 'Compassion Course is an internationally recognized...')
+                    getLocalContent('hero-stats', 'stat1-description', 'Compassion Course is an internationally recognized...')
                   )} />
                 </div>
                 <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                   <h4 style={{ color: '#002B4D', marginBottom: '10px' }}>
-                    {getContent('hero-stats', 'stat2-title', 'Leading-Edge Methodology')}
+                    {getLocalContent('hero-stats', 'stat2-title', 'Leading-Edge Methodology')}
                   </h4>
                   <p style={{ color: '#6b7280', fontSize: '0.9rem' }} dangerouslySetInnerHTML={renderHTML(
-                    getContent('hero-stats', 'stat2-description', 'Our industry-leading approach...')
+                    getLocalContent('hero-stats', 'stat2-description', 'Our industry-leading approach...')
                   )} />
                 </div>
                 <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                   <h4 style={{ color: '#002B4D', marginBottom: '10px' }}>
-                    {getContent('hero-stats', 'stat3-title', 'Individualized Impact')}
+                    {getLocalContent('hero-stats', 'stat3-title', 'Individualized Impact')}
                   </h4>
                   <p style={{ color: '#6b7280', fontSize: '0.9rem' }} dangerouslySetInnerHTML={renderHTML(
-                    getContent('hero-stats', 'stat3-description', 'Designed to make a unique difference...')
+                    getLocalContent('hero-stats', 'stat3-description', 'Designed to make a unique difference...')
                   )} />
                 </div>
               </div>
@@ -1292,10 +1280,10 @@ const ContentManagement: React.FC = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                 <h2 style={{ color: '#002B4D', marginBottom: '15px' }}>
-                  {getContent('programs', 'title', 'After The Compassion Course - A World of Possibilities')}
+                  {getLocalContent('programs', 'title', 'After The Compassion Course - A World of Possibilities')}
                 </h2>
                 <p style={{ color: '#6b7280' }} dangerouslySetInnerHTML={renderHTML(
-                  getContent('programs', 'description', 'Discover a world of possibilities...')
+                  getLocalContent('programs', 'description', 'Discover a world of possibilities...')
                 )} />
               </div>
             </div>
@@ -1323,7 +1311,7 @@ const ContentManagement: React.FC = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                 <h2 style={{ color: '#002B4D', marginBottom: '15px' }}>
-                  {getContent('testimonials', 'title', 'What People Say')}
+                  {getLocalContent('testimonials', 'title', 'What People Say')}
                 </h2>
               </div>
             </div>
@@ -1351,17 +1339,17 @@ const ContentManagement: React.FC = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
                 <h2 style={{ color: '#002B4D', marginBottom: '15px' }}>
-                  {getContent('cta', 'title', 'Ready to Transform Your Life?')}
+                  {getLocalContent('cta', 'title', 'Ready to Transform Your Life?')}
                 </h2>
                 <p style={{ color: '#6b7280', marginBottom: '20px' }} dangerouslySetInnerHTML={renderHTML(
-                  getContent('cta', 'description', 'Join thousands of participants worldwide...')
+                  getLocalContent('cta', 'description', 'Join thousands of participants worldwide...')
                 )} />
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button className="btn btn-primary" style={{ pointerEvents: 'none' }}>
-                    {getContent('cta', 'buttonPrimary', 'Enroll Now')}
+                    {getLocalContent('cta', 'buttonPrimary', 'Enroll Now')}
                   </button>
                   <button className="btn btn-secondary" style={{ pointerEvents: 'none' }}>
-                    {getContent('cta', 'buttonSecondary', 'Explore Programs')}
+                    {getLocalContent('cta', 'buttonSecondary', 'Explore Programs')}
                   </button>
                 </div>
               </div>

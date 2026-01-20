@@ -36,10 +36,39 @@ const ContentManagement: React.FC = () => {
   const loadContent = async () => {
     try {
       setLoading(true);
-      const [content, members] = await Promise.all([
-        getAllContent(),
-        getAllTeamMembers()
-      ]);
+      setError(null);
+      
+      // Load content and team members separately to handle errors independently
+      let content: ContentSection[] = [];
+      let members: TeamMember[] = [];
+      
+      try {
+        content = await getAllContent();
+      } catch (contentError: any) {
+        console.error('Error loading content:', contentError);
+        // Check if it's an index error
+        if (contentError?.code === 'failed-precondition' || contentError?.message?.includes('index')) {
+          setError('Firestore index required. Please check the browser console for index creation link, or contact support.');
+        } else {
+          setError('Failed to load content: ' + (contentError.message || 'Unknown error'));
+        }
+      }
+      
+      try {
+        members = await getAllTeamMembers();
+      } catch (memberError: any) {
+        console.error('Error loading team members:', memberError);
+        // Don't fail completely if team members fail to load
+        if (memberError?.code === 'failed-precondition' || memberError?.message?.includes('index')) {
+          console.warn('Team members index may be missing, but continuing...');
+        } else {
+          // Only show error if content also failed
+          if (content.length === 0) {
+            setError('Failed to load content and team members: ' + (memberError.message || 'Unknown error'));
+          }
+        }
+      }
+      
       setSections(content);
       setTeamMembers(members);
       
@@ -48,7 +77,8 @@ const ContentManagement: React.FC = () => {
         setExpandedSections(new Set([content[0].section]));
       }
     } catch (err: any) {
-      setError('Failed to load content: ' + err.message);
+      console.error('Unexpected error loading content:', err);
+      setError('Failed to load content: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }

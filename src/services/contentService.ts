@@ -107,7 +107,8 @@ export const getContentItem = async (section: string, key: string): Promise<Cont
 export const getAllContent = async (): Promise<ContentSection[]> => {
   try {
     const contentRef = collection(db, 'content');
-    const q = query(contentRef, orderBy('section', 'asc'), orderBy('order', 'asc'));
+    // Remove composite orderBy - we'll sort in memory instead to avoid requiring Firestore indexes
+    const q = query(contentRef);
     
     const snapshot = await getDocs(q);
     const items = snapshot.docs.map(doc => ({
@@ -116,6 +117,14 @@ export const getAllContent = async (): Promise<ContentSection[]> => {
       createdAt: doc.data().createdAt?.toDate(),
       updatedAt: doc.data().updatedAt?.toDate(),
     })) as ContentItem[];
+    
+    // Sort in memory: first by section, then by order
+    items.sort((a, b) => {
+      if (a.section !== b.section) {
+        return a.section.localeCompare(b.section);
+      }
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
     
     // Group by section
     const sections: { [key: string]: ContentItem[] } = {};
@@ -234,15 +243,26 @@ export const getTeamMembers = async (): Promise<TeamMember[]> => {
 export const getAllTeamMembers = async (): Promise<TeamMember[]> => {
   try {
     const teamRef = collection(db, 'teamMembers');
-    const q = query(teamRef, orderBy('teamSection', 'asc'), orderBy('order', 'asc'));
+    // Remove composite orderBy - we'll sort in memory instead to avoid requiring Firestore indexes
+    const q = query(teamRef);
     
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    const members = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate(),
       updatedAt: doc.data().updatedAt?.toDate(),
     })) as TeamMember[];
+    
+    // Sort in memory: first by teamSection, then by order
+    members.sort((a, b) => {
+      if (a.teamSection !== b.teamSection) {
+        return a.teamSection.localeCompare(b.teamSection);
+      }
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+    
+    return members;
   } catch (error) {
     console.error('Error fetching all team members:', error);
     throw error;

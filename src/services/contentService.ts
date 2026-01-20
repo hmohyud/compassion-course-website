@@ -9,6 +9,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
@@ -112,13 +113,78 @@ export const getContentItem = async (section: string, key: string): Promise<Cont
 };
 
 /**
+ * Get content items for specific sections only
+ */
+export const getContentBySections = async (sectionNames: string[]): Promise<ContentSection[]> => {
+  try {
+    if (sectionNames.length === 0) return [];
+    
+    const contentRef = collection(db, 'content');
+    // Query for specific sections - use 'in' operator (max 10 sections per query)
+    const queries = [];
+    for (let i = 0; i < sectionNames.length; i += 10) {
+      const batch = sectionNames.slice(i, i + 10);
+      const q = query(
+        contentRef,
+        where('section', 'in', batch),
+        limit(500) // Safety limit
+      );
+      queries.push(getDocs(q));
+    }
+    
+    const snapshots = await Promise.all(queries);
+    const items: ContentItem[] = [];
+    
+    snapshots.forEach(snapshot => {
+      snapshot.docs.forEach(doc => {
+        items.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate(),
+          updatedAt: doc.data().updatedAt?.toDate(),
+        } as ContentItem);
+      });
+    });
+    
+    // Sort in memory: first by section, then by order
+    items.sort((a, b) => {
+      if (a.section !== b.section) {
+        return a.section.localeCompare(b.section);
+      }
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+    
+    // Group by section
+    const sections: { [key: string]: ContentItem[] } = {};
+    items.forEach(item => {
+      if (!sections[item.section]) {
+        sections[item.section] = [];
+      }
+      sections[item.section].push(item);
+    });
+    
+    return sectionNames.map(section => ({
+      section,
+      items: sections[section] || [],
+    }));
+  } catch (error) {
+    console.error('Error fetching content by sections:', error);
+    throw error;
+  }
+};
+
+/**
  * Get all content items (admin only - includes inactive)
+ * Note: This is kept for backward compatibility but should be avoided in favor of getContentBySections
  */
 export const getAllContent = async (): Promise<ContentSection[]> => {
   try {
     const contentRef = collection(db, 'content');
-    // Remove composite orderBy - we'll sort in memory instead to avoid requiring Firestore indexes
-    const q = query(contentRef);
+    // Add limit for safety and filter by isActive if possible
+    const q = query(
+      contentRef,
+      limit(1000) // Safety limit
+    );
     
     const snapshot = await getDocs(q);
     const items = snapshot.docs.map(doc => ({
@@ -249,12 +315,16 @@ export const getTeamMembers = async (): Promise<TeamMember[]> => {
 
 /**
  * Get all team members (admin - includes inactive)
+ * Optimized with limit for better performance
  */
 export const getAllTeamMembers = async (): Promise<TeamMember[]> => {
   try {
     const teamRef = collection(db, 'teamMembers');
-    // Remove composite orderBy - we'll sort in memory instead to avoid requiring Firestore indexes
-    const q = query(teamRef);
+    // Add limit for safety - most sites won't have more than 500 team members
+    const q = query(
+      teamRef,
+      limit(500)
+    );
     
     const snapshot = await getDocs(q);
     const members = snapshot.docs.map(doc => ({
@@ -372,11 +442,16 @@ export const hardDeleteTeamMember = async (id: string): Promise<void> => {
 
 /**
  * Get all language sections (admin - includes inactive)
+ * Optimized with limit for better performance
  */
 export const getAllLanguageSections = async (): Promise<TeamLanguageSection[]> => {
   try {
     const sectionsRef = collection(db, 'teamLanguageSections');
-    const q = query(sectionsRef);
+    // Add limit for safety - most sites won't have more than 50 language sections
+    const q = query(
+      sectionsRef,
+      limit(50)
+    );
     
     const snapshot = await getDocs(q);
     const sections = snapshot.docs.map(doc => ({

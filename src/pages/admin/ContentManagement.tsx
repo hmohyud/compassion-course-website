@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   getAllContent, 
+  getContentBySections,
   saveContentItem, 
   deleteContentItem,
   getContentStructure,
@@ -219,10 +220,11 @@ const ContentManagement: React.FC = () => {
   const [sections, setSections] = useState<ContentSection[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [languageSections, setLanguageSections] = useState<TeamLanguageSection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [contentLoading, setContentLoading] = useState(true);
-  const [membersLoading, setMembersLoading] = useState(true);
-  const [sectionsLoading, setSectionsLoading] = useState(true);
+  const [loadedSections, setLoadedSections] = useState<Set<SectionId>>(new Set()); // Track which sections have been loaded
+  const [loading, setLoading] = useState(false); // Don't block UI on initial load
+  const [contentLoading, setContentLoading] = useState(false);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [sectionsLoading, setSectionsLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [editingLanguageSection, setEditingLanguageSection] = useState<TeamLanguageSection | null>(null);
@@ -245,113 +247,150 @@ const ContentManagement: React.FC = () => {
     })
   );
 
+  // Load data for active section when it changes
   useEffect(() => {
-    loadContent();
-  }, []);
+    if (!loadedSections.has(activeSection)) {
+      loadSectionData(activeSection);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSection]); // Only depend on activeSection, not loadedSections to avoid loops
 
-  const loadContent = async () => {
+  const loadSectionData = async (sectionId: SectionId) => {
+    const sectionDef = SECTIONS.find(s => s.id === sectionId);
+    if (!sectionDef) return;
+    
     try {
-      setLoading(true);
-      setContentLoading(true);
-      setMembersLoading(true);
-      setSectionsLoading(true);
       setError(null);
+      const timeout = 8000; // 8 second timeout
       
-      // Show UI immediately, load data progressively
-      setLoading(false);
-      
-      // Load data with timeouts to prevent hanging
-      const timeout = 10000; // 10 second timeout
-      
-      // Load content (needed for home section)
-      const loadContentData = async () => {
+      // Load only data needed for this section
+      if (sectionId === 'home') {
+        setContentLoading(true);
         try {
           const timeoutPromise = new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('Content loading timeout')), timeout)
           );
           
-          const content = await Promise.race([getAllContent(), timeoutPromise]);
-          setSections(content);
+          // Only load content for home section's content sections
+          const content = await Promise.race([
+            getContentBySections(sectionDef.contentSections),
+            timeoutPromise
+          ]);
           
-          // Expand first section by default for home section
-          if (activeSection === 'home' && content.length > 0) {
-            const homeSections = content.filter(s => SECTIONS.find(sec => sec.id === 'home')?.contentSections.includes(s.section));
-            if (homeSections.length > 0) {
-              setExpandedSections(new Set([homeSections[0].section]));
-            }
+          // Merge with existing sections (don't overwrite other sections)
+          setSections(prev => {
+            const existing = prev.filter(s => !sectionDef.contentSections.includes(s.section));
+            return [...existing, ...content];
+          });
+          
+          // Expand first section by default
+          if (content.length > 0) {
+            setExpandedSections(new Set([content[0].section]));
           }
         } catch (contentError: any) {
           console.error('Error loading content:', contentError);
           if (contentError?.code === 'failed-precondition' || contentError?.message?.includes('index')) {
-            setError('Firestore index required. Please check the browser console for index creation link, or contact support.');
+            setError('Firestore index required. Please check the browser console for index creation link.');
           } else if (!contentError?.message?.includes('timeout')) {
             setError('Failed to load content: ' + (contentError.message || 'Unknown error'));
           }
         } finally {
           setContentLoading(false);
         }
-      };
-      
-      // Load team members (needed for about section)
-      const loadMembersData = async () => {
+      } else if (sectionId === 'about') {
+        setMembersLoading(true);
+        setSectionsLoading(true);
+        
+        // Load team members
+        const loadMembers = async () => {
+          try {
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Team members loading timeout')), timeout)
+            );
+            
+            const members = await Promise.race([getAllTeamMembers(), timeoutPromise]);
+            setTeamMembers(members);
+          } catch (memberError: any) {
+            console.error('Error loading team members:', memberError);
+            if (!memberError?.message?.includes('timeout')) {
+              console.warn('Failed to load team members: ' + (memberError.message || 'Unknown error'));
+            }
+          } finally {
+            setMembersLoading(false);
+          }
+        };
+        
+        // Load language sections
+        const loadLangSections = async () => {
+          try {
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Language sections loading timeout')), timeout)
+            );
+            
+            const langSections = await Promise.race([getAllLanguageSections(), timeoutPromise]);
+            setLanguageSections(langSections);
+            
+            // Expand first language section by default
+            if (langSections.length > 0) {
+              setExpandedLanguageSections(new Set([langSections[0].id || '']));
+            }
+          } catch (langError: any) {
+            console.error('Error loading language sections:', langError);
+            if (!langError?.message?.includes('timeout')) {
+              console.warn('Could not load language sections:', langError);
+            }
+          } finally {
+            setSectionsLoading(false);
+          }
+        };
+        
+        Promise.allSettled([loadMembers(), loadLangSections()]);
+      } else if (sectionId === 'programs' || sectionId === 'contact') {
+        setContentLoading(true);
         try {
           const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Team members loading timeout')), timeout)
+            setTimeout(() => reject(new Error('Content loading timeout')), timeout)
           );
           
-          const members = await Promise.race([getAllTeamMembers(), timeoutPromise]);
-          setTeamMembers(members);
-        } catch (memberError: any) {
-          console.error('Error loading team members:', memberError);
-          if (memberError?.code === 'failed-precondition' || memberError?.message?.includes('index')) {
-            console.warn('Team members index may be missing, but continuing...');
-          } else if (!memberError?.message?.includes('timeout')) {
-            console.warn('Failed to load team members: ' + (memberError.message || 'Unknown error'));
+          // Only load content for this section
+          const content = await Promise.race([
+            getContentBySections(sectionDef.contentSections),
+            timeoutPromise
+          ]);
+          
+          // Merge with existing sections
+          setSections(prev => {
+            const existing = prev.filter(s => !sectionDef.contentSections.includes(s.section));
+            return [...existing, ...content];
+          });
+        } catch (contentError: any) {
+          console.error('Error loading content:', contentError);
+          if (!contentError?.message?.includes('timeout')) {
+            setError('Failed to load content: ' + (contentError.message || 'Unknown error'));
           }
         } finally {
-          setMembersLoading(false);
+          setContentLoading(false);
         }
-      };
+      }
       
-      // Load language sections (needed for about section)
-      const loadSectionsData = async () => {
-        try {
-          const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Language sections loading timeout')), timeout)
-          );
-          
-          const langSections = await Promise.race([getAllLanguageSections(), timeoutPromise]);
-          setLanguageSections(langSections);
-          
-          // Expand first language section by default if viewing about section
-          if (activeSection === 'about' && langSections.length > 0) {
-            setExpandedLanguageSections(new Set([langSections[0].id || '']));
-          }
-        } catch (langError: any) {
-          console.error('Error loading language sections:', langError);
-          if (langError?.code !== 'failed-precondition' && !langError?.message?.includes('timeout')) {
-            console.warn('Could not load language sections:', langError);
-          }
-        } finally {
-          setSectionsLoading(false);
-        }
-      };
-      
-      // Load all data in parallel but don't wait for all
-      Promise.allSettled([
-        loadContentData(),
-        loadMembersData(),
-        loadSectionsData()
-      ]);
+      // Mark this section as loaded
+      setLoadedSections(prev => new Set([...prev, sectionId]));
       
     } catch (err: any) {
-      console.error('Unexpected error loading content:', err);
-      setError('Failed to load content: ' + (err.message || 'Unknown error'));
-      setLoading(false);
-      setContentLoading(false);
-      setMembersLoading(false);
-      setSectionsLoading(false);
+      console.error('Unexpected error loading section data:', err);
+      setError('Failed to load section data: ' + (err.message || 'Unknown error'));
     }
+  };
+
+  // Legacy function for refreshing data after saves/deletes
+  const loadContent = async () => {
+    // Refresh the current active section
+    setLoadedSections(prev => {
+      const updated = new Set(prev);
+      updated.delete(activeSection);
+      return updated;
+    });
+    await loadSectionData(activeSection);
   };
 
   const toggleSection = (section: string) => {

@@ -40,6 +40,45 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useNavigate } from 'react-router-dom';
+import { useContent } from '../../context/ContentContext';
+import { renderHTML } from '../../utils/contentUtils';
+
+// Section definitions
+type SectionId = 'home' | 'about' | 'programs' | 'contact';
+
+interface SectionDefinition {
+  id: SectionId;
+  name: string;
+  description: string;
+  contentSections: string[]; // Content sections that belong to this page section
+}
+
+const SECTIONS: SectionDefinition[] = [
+  {
+    id: 'home',
+    name: 'Home',
+    description: 'Edit hero, stats, programs, testimonials, and CTA sections',
+    contentSections: ['hero', 'hero-stats', 'programs', 'testimonials', 'cta']
+  },
+  {
+    id: 'about',
+    name: 'About Us',
+    description: 'Manage team members and language sections',
+    contentSections: []
+  },
+  {
+    id: 'programs',
+    name: 'Programs',
+    description: 'Edit programs page content',
+    contentSections: ['programs-page']
+  },
+  {
+    id: 'contact',
+    name: 'Contact',
+    description: 'Edit contact page content',
+    contentSections: ['contact-page']
+  }
+];
 
 // Sortable Person Item Component
 interface SortablePersonItemProps {
@@ -186,7 +225,8 @@ const ContentManagement: React.FC = () => {
   const [editingLanguageSection, setEditingLanguageSection] = useState<TeamLanguageSection | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedLanguageSections, setExpandedLanguageSections] = useState<Set<string>>(new Set());
-  const [showTeamMembers, setShowTeamMembers] = useState(false);
+  const [activeSection, setActiveSection] = useState<SectionId>('home');
+  const { getContent } = useContent();
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -265,14 +305,17 @@ const ContentManagement: React.FC = () => {
       setTeamMembers(members);
       setLanguageSections(langSections);
       
-      // Expand first language section by default if showing team members
-      if (showTeamMembers && langSections.length > 0) {
+      // Expand first language section by default if viewing about section
+      if (activeSection === 'about' && langSections.length > 0) {
         setExpandedLanguageSections(new Set([langSections[0].id || '']));
       }
       
-      // Expand first section by default
-      if (content.length > 0) {
-        setExpandedSections(new Set([content[0].section]));
+      // Expand first section by default for home section
+      if (activeSection === 'home' && content.length > 0) {
+        const homeSections = content.filter(s => SECTIONS.find(sec => sec.id === 'home')?.contentSections.includes(s.section));
+        if (homeSections.length > 0) {
+          setExpandedSections(new Set([homeSections[0].section]));
+        }
       }
     } catch (err: any) {
       console.error('Unexpected error loading content:', err);
@@ -469,6 +512,19 @@ const ContentManagement: React.FC = () => {
     return teamMembers
       .filter(m => m.teamSection === sectionName && m.isActive !== false)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  };
+
+  const getContentForSection = (sectionId: SectionId): ContentSection[] => {
+    const sectionDef = SECTIONS.find(s => s.id === sectionId);
+    if (!sectionDef) return [];
+    
+    return sections.filter(s => sectionDef.contentSections.includes(s.section));
+  };
+
+  const getContentItem = (section: string, key: string): ContentItem | null => {
+    const sectionData = sections.find(s => s.section === section);
+    if (!sectionData) return null;
+    return sectionData.items.find(item => item.key === key) || null;
   };
 
   const handlePhotoFileSelect = async (file: File) => {
@@ -692,32 +748,72 @@ const ContentManagement: React.FC = () => {
           </div>
         )}
 
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-          <Link to="/admin" style={{ color: '#002B4D', textDecoration: 'none' }}>
-            ← Back to Dashboard
-          </Link>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={() => {
-                setShowTeamMembers(true);
-                // Scroll to top if needed
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="btn btn-primary"
-              style={{
-                backgroundColor: showTeamMembers ? '#002B4D' : '#6b7280',
-              }}
-            >
-              {showTeamMembers ? '✓ About Us' : 'About Us'}
-            </button>
-            {showTeamMembers && (
+        {/* Section Navigation */}
+        <div style={{ marginBottom: '30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <Link to="/admin" style={{ color: '#002B4D', textDecoration: 'none' }}>
+              ← Back to Dashboard
+            </Link>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '15px',
+            marginBottom: '20px'
+          }}>
+            {SECTIONS.map((section) => (
               <button
-                onClick={() => setShowTeamMembers(false)}
-                className="btn btn-secondary"
+                key={section.id}
+                onClick={() => {
+                  setActiveSection(section.id);
+                  if (section.id === 'about') {
+                    // Expand first language section if available
+                    if (languageSections.length > 0) {
+                      setExpandedLanguageSections(new Set([languageSections[0].id || '']));
+                    }
+                  }
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  padding: '20px',
+                  border: '2px solid',
+                  borderColor: activeSection === section.id ? '#002B4D' : '#e5e7eb',
+                  borderRadius: '12px',
+                  backgroundColor: activeSection === section.id ? '#002B4D' : '#ffffff',
+                  color: activeSection === section.id ? '#ffffff' : '#002B4D',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease',
+                  boxShadow: activeSection === section.id ? '0 4px 12px rgba(0, 43, 77, 0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  if (activeSection !== section.id) {
+                    e.currentTarget.style.borderColor = '#002B4D';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (activeSection !== section.id) {
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }
+                }}
               >
-                View General Content
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem' }}>
+                  {activeSection === section.id && '✓ '}
+                  {section.name}
+                </h3>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '0.875rem', 
+                  opacity: 0.9,
+                  color: activeSection === section.id ? '#ffffff' : '#6b7280'
+                }}>
+                  {section.description}
+                </p>
               </button>
-            )}
+            ))}
           </div>
         </div>
 
@@ -859,8 +955,8 @@ const ContentManagement: React.FC = () => {
           </div>
         )}
 
-        {/* Team Member Management Section */}
-        {showTeamMembers && (
+        {/* About Us Section Editor */}
+        {activeSection === 'about' && (
           <div style={{
             backgroundColor: '#ffffff',
             borderRadius: '12px',
@@ -869,7 +965,7 @@ const ContentManagement: React.FC = () => {
             padding: '20px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ margin: 0, color: '#002B4D' }}>Team Members</h2>
+              <h2 style={{ margin: 0, color: '#002B4D' }}>About Us - Team Members</h2>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={handleAddNewLanguageSection}
@@ -1380,8 +1476,100 @@ const ContentManagement: React.FC = () => {
           </div>
         )}
 
-        {/* Content Sections */}
-        {sections.map((section) => {
+        {/* Programs Section Editor */}
+        {activeSection === 'programs' && (
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            padding: '30px',
+            marginBottom: '20px',
+          }}>
+            <h2 style={{ marginTop: 0, color: '#002B4D', marginBottom: '20px' }}>Programs Page Editor</h2>
+            <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+              Edit content for the Programs page. Add or edit content items below.
+            </p>
+            
+            {getContentForSection('programs').length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
+                <p>No content items found for Programs page.</p>
+                <p style={{ fontSize: '0.875rem', marginTop: '10px' }}>
+                  Use the content structure below to add new content items.
+                </p>
+              </div>
+            ) : (
+              getContentForSection('programs').map((section) => (
+                <div key={section.section} style={{ marginBottom: '20px', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px' }}>
+                  <h3 style={{ color: '#002B4D', marginBottom: '15px' }}>{section.section.replace(/-/g, ' ')}</h3>
+                  {section.items.map((item) => (
+                    <div key={item.id} style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong style={{ color: '#002B4D' }}>{item.key}</strong>
+                          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '5px 0 0 0' }}>
+                            {typeof item.value === 'string' ? item.value.substring(0, 100) : JSON.stringify(item.value).substring(0, 100)}
+                          </p>
+                        </div>
+                        <button onClick={() => handleEdit(item)} className="btn btn-small btn-secondary">
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Contact Section Editor */}
+        {activeSection === 'contact' && (
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            padding: '30px',
+            marginBottom: '20px',
+          }}>
+            <h2 style={{ marginTop: 0, color: '#002B4D', marginBottom: '20px' }}>Contact Page Editor</h2>
+            <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+              Edit content for the Contact page. Add or edit content items below.
+            </p>
+            
+            {getContentForSection('contact').length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
+                <p>No content items found for Contact page.</p>
+                <p style={{ fontSize: '0.875rem', marginTop: '10px' }}>
+                  Use the content structure below to add new content items.
+                </p>
+              </div>
+            ) : (
+              getContentForSection('contact').map((section) => (
+                <div key={section.section} style={{ marginBottom: '20px', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px' }}>
+                  <h3 style={{ color: '#002B4D', marginBottom: '15px' }}>{section.section.replace(/-/g, ' ')}</h3>
+                  {section.items.map((item) => (
+                    <div key={item.id} style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong style={{ color: '#002B4D' }}>{item.key}</strong>
+                          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '5px 0 0 0' }}>
+                            {typeof item.value === 'string' ? item.value.substring(0, 100) : JSON.stringify(item.value).substring(0, 100)}
+                          </p>
+                        </div>
+                        <button onClick={() => handleEdit(item)} className="btn btn-small btn-secondary">
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Legacy Content Sections (for backward compatibility - only show if no active section matches) */}
+        {activeSection !== 'home' && activeSection !== 'about' && activeSection !== 'programs' && activeSection !== 'contact' && sections.map((section) => {
           const sectionStructure = getContentStructureForSection(section.section);
           const isExpanded = expandedSections.has(section.section);
           

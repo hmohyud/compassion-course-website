@@ -31,6 +31,21 @@ export interface ContentSection {
   items: ContentItem[];
 }
 
+export interface TeamMember {
+  id?: string;
+  name: string;
+  role?: string; // e.g., "Compassion Course Author and Lead Trainer"
+  bio: string; // Biography paragraphs (array of strings or single string)
+  photo: string; // Path to photo, e.g., "/Team/ThomBond.png"
+  contact?: string; // Email or contact info
+  teamSection: string; // e.g., "English Team", "German Team", "Arabic Team"
+  order?: number; // For ordering within team section
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  updatedBy?: string;
+}
+
 /**
  * Get all content items for a specific section
  */
@@ -183,6 +198,144 @@ export const hardDeleteContentItem = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
   } catch (error) {
     console.error('Error hard deleting content item:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all team members
+ */
+export const getTeamMembers = async (): Promise<TeamMember[]> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    const q = query(
+      teamRef,
+      where('isActive', '==', true),
+      orderBy('teamSection', 'asc'),
+      orderBy('order', 'asc')
+    );
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    })) as TeamMember[];
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all team members (admin - includes inactive)
+ */
+export const getAllTeamMembers = async (): Promise<TeamMember[]> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    const q = query(teamRef, orderBy('teamSection', 'asc'), orderBy('order', 'asc'));
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    })) as TeamMember[];
+  } catch (error) {
+    console.error('Error fetching all team members:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get team members by section
+ */
+export const getTeamMembersBySection = async (teamSection: string): Promise<TeamMember[]> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    const q = query(
+      teamRef,
+      where('teamSection', '==', teamSection),
+      where('isActive', '==', true),
+      orderBy('order', 'asc')
+    );
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    })) as TeamMember[];
+  } catch (error) {
+    console.error(`Error fetching team members for ${teamSection}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Save a team member (create or update)
+ */
+export const saveTeamMember = async (
+  member: TeamMember,
+  updatedBy: string
+): Promise<void> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    
+    if (member.id) {
+      const docRef = doc(teamRef, member.id);
+      await updateDoc(docRef, {
+        ...member,
+        updatedAt: Timestamp.now(),
+        updatedBy,
+      });
+    } else {
+      const docRef = doc(teamRef);
+      await setDoc(docRef, {
+        ...member,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        updatedBy,
+        isActive: member.isActive !== undefined ? member.isActive : true,
+        order: member.order ?? 0,
+      });
+    }
+  } catch (error) {
+    console.error('Error saving team member:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a team member (soft delete)
+ */
+export const deleteTeamMember = async (id: string): Promise<void> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    const docRef = doc(teamRef, id);
+    await updateDoc(docRef, {
+      isActive: false,
+      updatedAt: Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error deleting team member:', error);
+    throw error;
+  }
+};
+
+/**
+ * Hard delete a team member
+ */
+export const hardDeleteTeamMember = async (id: string): Promise<void> => {
+  try {
+    const teamRef = collection(db, 'teamMembers');
+    const docRef = doc(teamRef, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error hard deleting team member:', error);
     throw error;
   }
 };

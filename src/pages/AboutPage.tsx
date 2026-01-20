@@ -17,7 +17,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="/team-photos/TMB-2018.jpg" 
+                  src="/team/ThomBond.png" 
                   alt="Thom Bond"
                   className="team-member-photo"
                   loading="lazy"
@@ -40,7 +40,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="/team-photos/IMG_2522-2.jpg" 
+                  src="/team/AntonioEspinoza.png" 
                   alt="Antonio Espinoza"
                   className="team-member-photo"
                   loading="lazy"
@@ -63,7 +63,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="/team-photos/Doreen-Poulin.jpg" 
+                  src="/team/DoreenPoulin.png" 
                   alt="Doreen Poulin"
                   className="team-member-photo"
                   loading="lazy"
@@ -115,7 +115,7 @@ const AboutPage: React.FC = () => {
             <div className="team-member">
               <div className="team-member-header">
                 <img 
-                  src="/team-photos/sabine-bends.jpg" 
+                  src="/team/SabineBends.png" 
                   alt="Sabine Bends"
                   className="team-member-photo"
                   loading="lazy"
@@ -216,6 +216,16 @@ const AboutPage: React.FC = () => {
             
             <div className="team-member">
               <div className="team-member-header">
+                <img 
+                  src="/team/LeticiaPenteado.png" 
+                  alt="Leticia Penteado"
+                  className="team-member-photo"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
                 <div className="team-member-info">
                   <h3>Leticia Penteado</h3>
                 </div>
@@ -226,6 +236,16 @@ const AboutPage: React.FC = () => {
 
             <div className="team-member">
               <div className="team-member-header">
+                <img 
+                  src="/team/DianadeHollanda.png" 
+                  alt="Diana de Hollanda"
+                  className="team-member-photo"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error('Failed to load image:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
                 <div className="team-member-info">
                   <h3>Diana de Hollanda</h3>
                 </div>

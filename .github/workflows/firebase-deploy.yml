@@ -52,13 +52,23 @@ jobs:
       - name: Setup Firebase Authentication
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/serviceAccountKey.json
+          GCP_SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
         run: |
           echo "Setting up Firebase authentication with service account..."
           # Create service account key file from secret
           SERVICE_ACCOUNT_KEY_PATH="${{ github.workspace }}/serviceAccountKey.json"
-          echo "${{ secrets.GCP_SA_KEY_JSON }}" > "$SERVICE_ACCOUNT_KEY_PATH"
+          # Write JSON using printf to handle special characters properly
+          printf '%s\n' "$GCP_SA_KEY_JSON" > "$SERVICE_ACCOUNT_KEY_PATH"
           chmod 600 "$SERVICE_ACCOUNT_KEY_PATH"
           echo "✅ Service account key file created at $SERVICE_ACCOUNT_KEY_PATH"
+          # Validate JSON format
+          if ! python3 -m json.tool "$SERVICE_ACCOUNT_KEY_PATH" > /dev/null 2>&1; then
+            echo "❌ ERROR: Service account key JSON is invalid!"
+            echo "First 200 chars of file:"
+            head -c 200 "$SERVICE_ACCOUNT_KEY_PATH"
+            exit 1
+          fi
+          echo "✅ JSON format validated"
           # Activate service account with gcloud
           gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY_PATH"
           # Set application default credentials
@@ -79,6 +89,11 @@ jobs:
           SERVICE_ACCOUNT_KEY_PATH="${{ github.workspace }}/serviceAccountKey.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
           ls -la "$GOOGLE_APPLICATION_CREDENTIALS" || echo "Service account key file not found!"
+          # Verify JSON is still valid
+          if ! python3 -m json.tool "$SERVICE_ACCOUNT_KEY_PATH" > /dev/null 2>&1; then
+            echo "❌ ERROR: Service account key JSON is invalid in deploy step!"
+            exit 1
+          fi
           # Activate service account
           gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY_PATH"
           # Verify authentication

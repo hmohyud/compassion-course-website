@@ -33,9 +33,12 @@ The workflow will now:
 
 - **Never commit the service account JSON file to the repository**
 - The JSON file contains sensitive credentials - keep it secure
-- The service account needs the following permissions:
-  - Firebase Hosting Admin (for deployment)
-  - Firebase Admin (for project access)
+- The service account needs the following IAM roles:
+  - **Firebase Admin** (for project access)
+  - **Firebase Hosting Admin** (for hosting deployment)
+  - **Firebase Storage Admin** (for storage rules deployment)
+  - **Service Usage Admin** (to enable required APIs like Firebase Storage)
+  - **Editor** or **Owner** (for full project access, recommended for CI/CD)
 
 ## Troubleshooting
 
@@ -50,6 +53,13 @@ If you need to verify or update permissions:
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Select project: **compassion-course-websit-937d6**
 3. Go to **IAM & Admin** → **Service Accounts**
-4. Find your service account and verify it has:
-   - Firebase Admin
-   - Firebase Hosting Admin
+4. Find your service account and click on it
+5. Go to the **Permissions** tab
+6. Click **Grant Access** or **Edit** to add the following roles:
+   - **Firebase Admin** (`roles/firebase.admin`)
+   - **Firebase Hosting Admin** (`roles/firebasehosting.admin`)
+   - **Firebase Storage Admin** (`roles/firebasestorage.admin`)
+   - **Service Usage Admin** (`roles/serviceusage.serviceUsageAdmin`) - **Required to enable APIs**
+   - **Editor** (`roles/editor`) - Recommended for full access
+
+**Quick Fix:** Grant the service account the **Editor** role, which includes all necessary permissions.

@@ -50,6 +50,8 @@ jobs:
           project_id: compassion-course-websit-937d6
 
       - name: Setup Firebase Authentication
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/serviceAccountKey.json
         run: |
           echo "Setting up Firebase authentication with service account..."
           # Create service account key file from secret
@@ -57,15 +59,36 @@ jobs:
           echo "${{ secrets.GCP_SA_KEY_JSON }}" > "$SERVICE_ACCOUNT_KEY_PATH"
           chmod 600 "$SERVICE_ACCOUNT_KEY_PATH"
           echo "✅ Service account key file created at $SERVICE_ACCOUNT_KEY_PATH"
-          # Set Firebase project
-          firebase use compassion-course-websit-937d6 || firebase use --add compassion-course-websit-937d6
+          # Activate service account with gcloud
+          gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY_PATH"
+          # Set application default credentials
+          export GOOGLE_APPLICATION_CREDENTIALS="$SERVICE_ACCOUNT_KEY_PATH"
+          echo "✅ Service account activated"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
+          # Verify ADC is working
+          gcloud auth application-default print-access-token > /dev/null && echo "✅ ADC working" || echo "⚠️ ADC not working"
+          # Set Firebase project (without requiring login)
+          firebase use compassion-course-websit-937d6 --non-interactive || firebase use --add compassion-course-websit-937d6 --non-interactive
 
       - name: Deploy to Firebase
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/serviceAccountKey.json
         run: |
           echo "🚀 Deploying to Firebase..."
-          echo "Using service account authentication with GOOGLE_APPLICATION_CREDENTIALS"
+          echo "Using service account authentication"
+          SERVICE_ACCOUNT_KEY_PATH="${{ github.workspace }}/serviceAccountKey.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
           ls -la "$GOOGLE_APPLICATION_CREDENTIALS" || echo "Service account key file not found!"
-          firebase deploy --only hosting,storage --project compassion-course-websit-937d6
+          # Activate service account
+          gcloud auth activate-service-account --key-file="$SERVICE_ACCOUNT_KEY_PATH"
+          # Verify authentication
+          echo "Current authenticated accounts:"
+          gcloud auth list
+          # Generate access token from service account
+          # Note: Using --token is deprecated but necessary until Firebase CLI fully supports GOOGLE_APPLICATION_CREDENTIALS
+          echo "Generating access token for Firebase CLI..."
+          FIREBASE_TOKEN=$(gcloud auth print-access-token)
+          echo "✅ Access token generated"
+          # Deploy using Firebase CLI
+          # Using --token as workaround: Firebase CLI doesn't reliably use GOOGLE_APPLICATION_CREDENTIALS yet
+          firebase deploy --only hosting,storage --project compassion-course-websit-937d6 --non-interactive --token "$FIREBASE_TOKEN"

@@ -855,6 +855,42 @@ section {
     font-weight: 400;
 }
 
+/* Compass Companion Section */
+.compass-companion {
+    background: white;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.compass-companion-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.compass-companion-link {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #002B4D 0%, #1e3a8a 100%);
+    color: white;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 43, 77, 0.2);
+}
+
+.compass-companion-link:hover {
+    background: linear-gradient(135deg, #003d6b 0%, #1e40af 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 43, 77, 0.3);
+}
+
+.compass-companion-link:active {
+    transform: translateY(0);
+}
+
 /* About Section */
 .about {
     background: white;
@@ -1157,6 +1193,17 @@ section {
         width: 100%;
         max-width: 300px;
         text-align: center;
+    }
+
+    .compass-companion {
+        padding: 3rem 0;
+    }
+
+    .compass-companion-link {
+        padding: 0.875rem 2rem;
+        font-size: 1.125rem;
+        width: 100%;
+        max-width: 300px;
     }
 
     .footer-bottom {

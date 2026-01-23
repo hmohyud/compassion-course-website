@@ -184,6 +184,22 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Compass Companion Section */}
+      <section id="compass-companion" className="compass-companion">
+        <div className="container">
+          <div className="compass-companion-content">
+            <a 
+              href="https://www.compass-companions.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="compass-companion-link"
+            >
+              Compass Companion
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* About Section */}
       <section id="about" className="about">
         <div className="container">

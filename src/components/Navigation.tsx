@@ -42,14 +42,9 @@ const Navigation: React.FC = () => {
             <a href="/#testimonials" className="nav-link">What People Say</a>
           </li>
           <li className="nav-item">
-            <a 
-              href="https://www.compass-companions.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="nav-link"
-            >
+            <Link to="/compass-companion" className={`nav-link ${isActive('/compass-companion') ? 'active' : ''}`}>
               Compass Companion
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
             <Link to="/login" className="nav-link">Portal Login</Link>

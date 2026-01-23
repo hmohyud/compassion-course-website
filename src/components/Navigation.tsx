@@ -42,6 +42,16 @@ const Navigation: React.FC = () => {
             <a href="/#testimonials" className="nav-link">What People Say</a>
           </li>
           <li className="nav-item">
+            <a 
+              href="https://www.compass-companions.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="nav-link"
+            >
+              Compass Companion
+            </a>
+          </li>
+          <li className="nav-item">
             <Link to="/login" className="nav-link">Portal Login</Link>
           </li>
         </ul>

@@ -56,10 +56,6 @@ const Navigation: React.FC = () => {
           </li>
         </ul>
         
-        <div className="nav-register">
-          <a href="/#register" className="btn-primary">Schedule</a>
-        </div>
-        
         <div className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <span className="bar"></span>
           <span className="bar"></span>

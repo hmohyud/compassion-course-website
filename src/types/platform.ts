@@ -197,6 +197,16 @@ export interface WebcastTranslation {
   createdAt: Date;
 }
 
+export interface Whiteboard {
+  id: string;
+  ownerId: string;
+  title: string;
+  snapshot: Record<string, unknown>; // tldraw document JSON
+  sharedWith: string[]; // email addresses
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type UserRole = 'Owner' | 'Admin' | 'Moderator' | 'Member' | 'Guest';
 export type Visibility = 'public' | 'private' | 'paid';
 export type AccessRule = 'public' | 'private' | 'paid';

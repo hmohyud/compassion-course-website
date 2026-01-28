@@ -23,6 +23,8 @@ import PlatformDashboard from './pages/platform/PlatformDashboard'
 import UserProfilePage from './pages/platform/UserProfilePage'
 import WebcastsPage from './pages/platform/WebcastsPage'
 import WebcastJoinPage from './pages/platform/WebcastJoinPage'
+import WhiteboardsPage from './pages/platform/WhiteboardsPage'
+import WhiteboardPage from './pages/platform/WhiteboardPage'
 
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
@@ -80,6 +82,16 @@ function App() {
               <Route path="/platform/webcasts/:id/join" element={
                 <UserProtectedRoute>
                   <WebcastJoinPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/platform/whiteboards" element={
+                <UserProtectedRoute>
+                  <WhiteboardsPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/platform/whiteboards/:id" element={
+                <UserProtectedRoute>
+                  <WhiteboardPage />
                 </UserProtectedRoute>
               } />
               

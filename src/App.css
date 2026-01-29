@@ -240,6 +240,11 @@ p {
     box-sizing: border-box;
 }
 
+/* Main content: top padding clears the fixed navbar so titles are not covered */
+.main-content {
+    padding-top: 180px;
+}
+
 .nav-menu {
     display: flex;
     list-style: none;
@@ -324,7 +329,7 @@ p {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
     color: white;
     padding: 80px 0 80px;
-    margin-top: 80px;
+    margin-top: 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -1107,6 +1112,10 @@ section {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .main-content {
+        padding-top: 200px;
+    }
+
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -1240,6 +1249,10 @@ section {
 }
 
 @media (max-width: 480px) {
+    .main-content {
+        padding-top: 200px;
+    }
+
     .hero-title {
         font-size: 2rem;
         line-height: 1.2;
@@ -1333,7 +1346,7 @@ button:focus {
 
 /* About Page Styles */
 .about-page {
-    padding: 180px 0 60px;
+    padding: 40px 0 60px;
     min-height: 100vh;
     background: #f9fafb;
 }

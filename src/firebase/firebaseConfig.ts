@@ -23,6 +23,10 @@ console.log('🔧 Firebase config:', {
   apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'MISSING',
   storageBucket: firebaseConfig.storageBucket
 });
+// Use this projectId when deploying: firebase use <projectId> && firebase deploy --only firestore
+if (firebaseConfig.projectId) {
+  console.log('📌 Firestore projectId:', firebaseConfig.projectId, '(must match firebase deploy target)');
+}
 
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
   console.error('❌ Missing Firebase env vars. Ensure VITE_FIREBASE_* are set at build time.');

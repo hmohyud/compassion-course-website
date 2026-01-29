@@ -43,7 +43,7 @@ const Navigation: React.FC = () => {
           </li>
           <li className="nav-item">
             <Link to="/compass-companion" className={`nav-link ${isActive('/compass-companion') ? 'active' : ''}`}>
-              Compass Companion
+              Compass Companions
             </Link>
           </li>
           <li className="nav-item">

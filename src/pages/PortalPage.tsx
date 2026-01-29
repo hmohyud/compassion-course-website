@@ -113,6 +113,34 @@ const PortalPage: React.FC = () => {
                 Courses, webcasts, whiteboards, profile, and progress.
               </p>
             </Link>
+
+            <Link 
+              to="/platform"
+              style={{
+                padding: '30px',
+                background: '#ffffff',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                textDecoration: 'none',
+                color: '#111827',
+                display: 'block',
+                border: '2px solid transparent',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Member Hub</h2>
+              <p style={{ color: '#6b7280' }}>
+                Videos, whiteboards, Meet, Docs, and Drive shared with your email.
+              </p>
+            </Link>
           </div>
         </div>
 

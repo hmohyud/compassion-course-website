@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Layout from '../../components/Layout';
@@ -35,6 +35,19 @@ const WhiteboardPage: React.FC = () => {
   const [shareError, setShareError] = useState('');
   const editorRef = useRef<{ store: ReturnType<typeof createTLStore> } | null>(
     null
+  );
+
+  const tldrawOverrides = useMemo(
+    () => ({
+      actions(editor: unknown, actions: Record<string, { kbd?: string } & unknown>) {
+        const focusAction = actions['toggle-focus-mode'];
+        if (focusAction && 'kbd' in focusAction) {
+          return { ...actions, 'toggle-focus-mode': { ...focusAction, kbd: undefined } };
+        }
+        return actions;
+      },
+    }),
+    []
   );
 
   const hasAccess = useCallback(
@@ -308,8 +321,10 @@ const WhiteboardPage: React.FC = () => {
         <div style={{ flex: 1, position: 'relative', minHeight: 300 }}>
           <Tldraw
             store={store}
+            overrides={tldrawOverrides}
             onMount={(editor) => {
               editorRef.current = editor;
+              editor.updateInstanceState({ isFocusMode: false });
             }}
           />
         </div>

@@ -704,7 +704,15 @@ p {
 
 .jotform-inline-container {
     margin-top: 1.5rem;
+    width: 100%;
     max-width: 100%;
+    min-height: 0;
+    background: transparent;
+}
+
+.jotform-inline-container iframe,
+.jotform-inline-container [id^="jf-form"] {
+    background: #fff !important;
 }
 
 .hero-stats {

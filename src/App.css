@@ -702,17 +702,75 @@ p {
     color: white;
 }
 
-.jotform-inline-container {
-    margin-top: 1.5rem;
-    width: 100%;
-    max-width: 100%;
-    min-height: 0;
-    background: transparent;
+.hero-buttons .jotform-popup-trigger {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.jotform-inline-container iframe,
-.jotform-inline-container [id^="jf-form"] {
-    background: #fff !important;
+/* Jotform modal popup */
+.jotform-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.jotform-modal-panel {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.jotform-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 1.5rem;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.jotform-modal-close:hover {
+    background: #d1d5db;
+    color: #111;
+}
+
+.jotform-modal-iframe-wrap {
+    padding: 3rem 1rem 1rem;
+    overflow: auto;
+    max-height: 80vh;
+}
+
+.jotform-modal-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
 }
 
 .hero-stats {
@@ -1183,7 +1241,8 @@ section {
         align-items: center;
     }
 
-    .hero-buttons a {
+    .hero-buttons a,
+    .hero-buttons .jotform-popup-trigger {
         width: 100%;
         max-width: 300px;
         text-align: center;

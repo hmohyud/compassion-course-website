@@ -29,7 +29,7 @@ export default function JotformPopup({ formId, buttonText, className = '' }: Jot
     <>
       <button
         type="button"
-        className={`btn-secondary jotform-popup-trigger ${className}`.trim()}
+        className={`btn-primary jotform-popup-trigger ${className}`.trim()}
         onClick={() => setOpen(true)}
       >
         {buttonText}

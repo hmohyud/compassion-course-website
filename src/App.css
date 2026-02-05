@@ -226,18 +226,16 @@ p {
     font-size: 1.8rem;
 }
 
-.nav-logo-img {
-    height: 80px;
-    width: auto;
-    max-width: 267px;
-    object-fit: contain;
-    display: block;
-    margin-top: -20px;
-    margin-bottom: -15px;
-    border: 2px solid #1e3a8a;
-    border-radius: 8px;
-    padding: 5px;
-    box-sizing: border-box;
+.nav-logo-text {
+    color: #1e3a8a;
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-logo-text:hover {
+    color: #2563eb;
 }
 
 /* Main content: top padding clears the fixed navbar so titles are not covered */

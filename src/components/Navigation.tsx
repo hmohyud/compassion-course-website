@@ -11,12 +11,8 @@ const Navigation: React.FC = () => {
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-logo">
-          <Link to="/">
-            <img 
-              src="/Logo-with-HSW.png" 
-              alt="Compassion Course" 
-              className="nav-logo-img"
-            />
+          <Link to="/" className="nav-logo-text">
+            The Compassion Course
           </Link>
         </div>
         

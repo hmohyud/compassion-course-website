@@ -88,15 +88,12 @@ const HomePage: React.FC = () => {
       {/* Hero Section */}
       <section id="home" className="hero" ref={heroSectionRef}>
         <div className="hero-container">
-          <img
-            src="/Logo-with-HSW.png"
-            alt="The Compassion Course"
-            className="hero-logo"
-          />
           <div className="hero-content">
-            <h1 className="hero-title">
-              {getContent('hero', 'title', 'The Compassion Course')}
-            </h1>
+            <img
+              src="/Logo-with-HSW.png"
+              alt="The Compassion Course"
+              className="hero-logo"
+            />
             <p className="hero-subtitle">
               {getContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
             </p>

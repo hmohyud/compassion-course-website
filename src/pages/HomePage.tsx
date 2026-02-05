@@ -90,7 +90,7 @@ const HomePage: React.FC = () => {
         <div className="hero-container">
           <div className="hero-content">
             <img
-              src="/Logo-3.0.png"
+              src="/Logo-30.png"
               alt="The Compassion Course"
               className="hero-logo"
             />

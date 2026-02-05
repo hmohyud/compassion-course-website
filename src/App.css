@@ -326,7 +326,7 @@ p {
 .hero {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
     color: white;
-    padding: 80px 0 80px;
+    padding: 40px 0 80px;
     margin-top: 0;
     min-height: 100vh;
     display: flex;
@@ -400,7 +400,7 @@ p {
 .animated-text {
     height: 200px;
     overflow: hidden;
-    margin: 2rem 0;
+    margin: 2rem 0 10px 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -679,7 +679,7 @@ p {
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 40px;
+    margin-top: 10px;
 }
 
 .hero-buttons .btn-primary {

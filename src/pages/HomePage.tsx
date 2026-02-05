@@ -5,6 +5,7 @@ import AnimatedText from '../components/AnimatedText';
 import JotformPopup from '../components/JotformPopup';
 import { useContent } from '../context/ContentContext';
 import { renderHTML } from '../utils/contentUtils';
+import heroLogo from '../assets/Logo-30.png';
 
 const JOTFORM_FORM_ID = import.meta.env.VITE_JOTFORM_FORM_ID || '260333329475357';
 
@@ -90,7 +91,7 @@ const HomePage: React.FC = () => {
         <div className="hero-container">
           <div className="hero-content">
             <img
-              src="/Logo-30.png"
+              src={heroLogo}
               alt="The Compassion Course"
               className="hero-logo"
             />

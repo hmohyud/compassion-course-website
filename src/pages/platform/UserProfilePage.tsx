@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../services/userProfileService';
+import { getUserEnrollments } from '../../services/enrollmentService';
 import { UserProfile } from '../../types/platform';
 import Layout from '../../components/Layout';
 
@@ -13,11 +14,19 @@ const UserProfilePage: React.FC = () => {
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
   const [saving, setSaving] = useState(false);
+  const [enrollmentCount, setEnrollmentCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
       loadProfile();
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    getUserEnrollments(user.uid)
+      .then((enrollments) => setEnrollmentCount(enrollments.length))
+      .catch(() => setEnrollmentCount(0));
   }, [user]);
 
   const loadProfile = async () => {
@@ -199,6 +208,18 @@ const UserProfilePage: React.FC = () => {
             </div>
           </div>
         )}
+
+        <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+          <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Progress Tracking</h2>
+          <p style={{ color: '#6b7280', marginBottom: '8px' }}>
+            View your learning progress and achievements.
+          </p>
+          {enrollmentCount !== null && enrollmentCount > 0 && (
+            <p style={{ color: '#111827' }}>
+              You're enrolled in {enrollmentCount} course{enrollmentCount !== 1 ? 's' : ''}.
+            </p>
+          )}
+        </section>
       </div>
     </Layout>
   );

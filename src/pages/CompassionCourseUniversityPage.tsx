@@ -49,7 +49,7 @@ const CompassionCourseUniversityPage: React.FC = () => {
           Compassion Course University
         </h1>
         <p style={{ color: '#6b7280', fontSize: '1.2rem', marginBottom: '30px' }}>
-          Courses, webcasts, whiteboards, profile, and progress.
+          Courses and profile.
         </p>
 
         <div style={{
@@ -72,42 +72,6 @@ const CompassionCourseUniversityPage: React.FC = () => {
             <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Courses</h2>
             <p style={{ color: '#6b7280' }}>
               Browse and enroll in courses to expand your knowledge.
-            </p>
-          </Link>
-
-          <Link
-            to="/platform/webcasts"
-            style={cardStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#002B4D';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Webcasts</h2>
-            <p style={{ color: '#6b7280' }}>
-              Join live webcasts with real-time translation support.
-            </p>
-          </Link>
-
-          <Link
-            to="/platform/whiteboards"
-            style={cardStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#002B4D';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Whiteboards</h2>
-            <p style={{ color: '#6b7280' }}>
-              Create whiteboards, draw lines, add sticky notes, and share by email.
             </p>
           </Link>
 
@@ -168,19 +132,6 @@ const CompassionCourseUniversityPage: React.FC = () => {
               Manage your profile and account settings.
             </p>
           </Link>
-
-          <div
-            style={{
-              ...cardStyle,
-              textDecoration: 'none',
-              cursor: 'default',
-            }}
-          >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Progress Tracking</h2>
-            <p style={{ color: '#6b7280' }}>
-              View your learning progress and achievements
-            </p>
-          </div>
         </div>
       </div>
     </Layout>

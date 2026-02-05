@@ -21,7 +21,6 @@ import CirclePage from './pages/CirclePage'
 import CompassionCourseUniversityPage from './pages/CompassionCourseUniversityPage'
 
 // Platform Pages
-import PlatformDashboard from './pages/platform/PlatformDashboard'
 import UserProfilePage from './pages/platform/UserProfilePage'
 import WebcastsPage from './pages/platform/WebcastsPage'
 import WebcastJoinPage from './pages/platform/WebcastJoinPage'
@@ -74,11 +73,7 @@ function App() {
               } />
               
               {/* Platform Routes */}
-              <Route path="/platform" element={
-                <UserProtectedRoute>
-                  <PlatformDashboard />
-                </UserProtectedRoute>
-              } />
+              <Route path="/platform" element={<Navigate to="/portal/university" replace />} />
               <Route path="/platform/profile" element={
                 <UserProtectedRoute>
                   <UserProfilePage />

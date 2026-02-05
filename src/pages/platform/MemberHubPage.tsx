@@ -245,7 +245,7 @@ const MemberHubPage: React.FC = () => {
         )}
 
         <p style={{ marginTop: '32px', fontSize: '14px', color: '#6b7280' }}>
-          <Link to="/platform" style={{ color: '#002B4D', fontWeight: 600 }}>Back to Platform</Link>
+          <Link to="/portal/university" style={{ color: '#002B4D', fontWeight: 600 }}>Back to Compassion Course University</Link>
         </p>
       </div>
     </Layout>

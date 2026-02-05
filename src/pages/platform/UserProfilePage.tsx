@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../services/userProfileService';
 import { getUserEnrollments } from '../../services/enrollmentService';
@@ -83,6 +84,12 @@ const UserProfilePage: React.FC = () => {
   return (
     <Layout>
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+        <Link
+          to="/portal/university"
+          style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
+        >
+          ← Back to Compassion Course University
+        </Link>
         <h1 style={{ marginBottom: '30px', color: '#002B4D' }}>My Profile</h1>
 
         {!editing ? (

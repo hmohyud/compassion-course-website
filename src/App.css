@@ -374,14 +374,27 @@ p {
     border-radius: 16px;
 }
 
+.hero-title-row .hero-logo {
+    margin: 0;
+}
+
 .hero-content {
     text-align: center;
     margin-bottom: 4rem;
 }
 
-.hero-subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+.hero-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 0 auto;
+}
+
+.hero-tagline {
+    font-style: italic;
+    font-size: 1.35rem;
     color: #fbbf24;
     font-weight: 600;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
@@ -1226,6 +1239,14 @@ section {
         max-height: 120px;
     }
     
+    .hero-title-row {
+        gap: 1rem;
+    }
+    
+    .hero-tagline {
+        font-size: 1.15rem;
+    }
+    
     .animated-text-content {
         font-size: 2rem;
     }
@@ -1326,6 +1347,16 @@ section {
     .hero-logo {
         max-width: 95%;
         max-height: 100px;
+    }
+    
+    .hero-title-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .hero-tagline {
+        font-size: 1rem;
     }
     
     .animated-text-content {

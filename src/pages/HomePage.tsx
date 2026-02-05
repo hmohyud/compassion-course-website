@@ -90,14 +90,16 @@ const HomePage: React.FC = () => {
       <section id="home" className="hero" ref={heroSectionRef}>
         <div className="hero-container">
           <div className="hero-content">
-            <img
-              src={heroLogo}
-              alt="The Compassion Course"
-              className="hero-logo"
-            />
-            <p className="hero-subtitle">
-              {getContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
-            </p>
+            <div className="hero-title-row">
+              <img
+                src={heroLogo}
+                alt="The Compassion Course"
+                className="hero-logo"
+              />
+              <span className="hero-tagline">
+                {getContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
+              </span>
+            </div>
             <AnimatedText />
 
             <div className="hero-buttons">

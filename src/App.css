@@ -227,9 +227,9 @@ p {
 }
 
 .nav-logo-img {
-    height: 120px;
+    height: 80px;
     width: auto;
-    max-width: 400px;
+    max-width: 267px;
     object-fit: contain;
     display: block;
     margin-top: -20px;

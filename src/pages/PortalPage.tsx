@@ -30,13 +30,26 @@ const PortalPage: React.FC = () => {
   return (
     <Layout>
       <div className="portal-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '2.5rem', color: '#002B4D', marginBottom: '10px' }}>
-            Welcome to the Compassion Course Portal
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>
-            Hello, {user.email}
-          </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '40px' }}>
+          <div style={{ textAlign: 'left' }}>
+            <h1 style={{ fontSize: '2.5rem', color: '#002B4D', marginBottom: '10px' }}>
+              Welcome to the Compassion Course Portal
+            </h1>
+            <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>
+              Hello, {user.email}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="btn btn-secondary"
+            style={{
+              padding: '12px 24px',
+              fontSize: '16px',
+              cursor: 'pointer',
+            }}
+          >
+            Logout
+          </button>
         </div>
 
         <div style={{ 
@@ -114,20 +127,6 @@ const PortalPage: React.FC = () => {
               </p>
             </Link>
           </div>
-        </div>
-
-        <div style={{ textAlign: 'center' }}>
-          <button 
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            style={{ 
-              padding: '12px 24px', 
-              fontSize: '16px',
-              cursor: 'pointer'
-            }}
-          >
-            Logout
-          </button>
         </div>
       </div>
     </Layout>

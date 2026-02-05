@@ -13,7 +13,7 @@ const Navigation: React.FC = () => {
         <div className="nav-logo">
           <Link to="/">
             <img 
-              src="/Horizontal-logo.png" 
+              src="/Logo-with-HSW.png" 
               alt="Compassion Course" 
               className="nav-logo-img"
             />

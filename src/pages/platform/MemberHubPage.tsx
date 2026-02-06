@@ -83,6 +83,22 @@ const MemberHubPage: React.FC = () => {
               <p style={{ color: '#6b7280', margin: 0 }}>Create and share whiteboards in the app.</p>
             </Link>
 
+            <a
+              href={import.meta.env.VITE_BACKLOG_URL || 'https://thatagileapp.com/the-compassion-course'}
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '8px' }}>Project backlog</h2>
+              <p style={{ color: '#6b7280', margin: 0 }}>View and manage the Compassion Course backlog.</p>
+            </a>
+
             {config?.externalWhiteboardUrl && (
               <a
                 href={config.externalWhiteboardUrl}
@@ -243,24 +259,6 @@ const MemberHubPage: React.FC = () => {
             />
           </div>
         )}
-
-        <div style={{ marginTop: '32px' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '12px', fontSize: '1.25rem' }}>Project backlog</h2>
-          <p style={{ color: '#6b7280', marginBottom: '12px', fontSize: '14px' }}>
-            View and manage the Compassion Course backlog in thatagileapp.
-          </p>
-          <iframe
-            src={import.meta.env.VITE_BACKLOG_EMBED_URL || 'https://thatagileapp.com/the-compassion-course?embed=1'}
-            title="Backlog"
-            style={{
-              width: '100%',
-              height: '800px',
-              minHeight: '600px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-            }}
-          />
-        </div>
 
         <p style={{ marginTop: '32px', fontSize: '14px', color: '#6b7280' }}>
           <Link to="/portal/university" style={{ color: '#002B4D', fontWeight: 600 }}>Back to Compassion Course University</Link>

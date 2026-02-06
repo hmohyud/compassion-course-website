@@ -27,6 +27,5 @@ ALLOWED_FILE_TYPES=image/jpeg,image/jpg,image/png,image/gif,image/webp
 # Do NOT put your Jotform login password here; the site only embeds the form by ID.
 VITE_JOTFORM_FORM_ID=260333329475357
 
-# Backlog embed (Member Hub /platform/resources): full URL of the thatagileapp instance to embed.
-# If thatagileapp.com does not load, set this to your Netlify URL, e.g. https://thatagileapp.netlify.app/the-compassion-course?embed=1
-# VITE_BACKLOG_EMBED_URL=https://thatagileapp.com/the-compassion-course?embed=1
+# Backlog card (Member Hub /platform/resources): full URL of the thatagileapp instance home page. Used for the Backlog card link.
+# VITE_BACKLOG_URL=https://thatagileapp.com/the-compassion-course

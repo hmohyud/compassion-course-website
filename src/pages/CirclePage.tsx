@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 
 const CirclePage: React.FC = () => {
   return (
-    <Layout>
+    <Layout hideNavigation>
       <div style={{ 
         padding: '20px', 
         maxWidth: '1400px', 

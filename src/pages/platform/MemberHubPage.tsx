@@ -250,7 +250,7 @@ const MemberHubPage: React.FC = () => {
             View and manage the Compassion Course backlog in thatagileapp.
           </p>
           <iframe
-            src="https://thatagileapp.com/the-compassion-course?embed=1"
+            src={import.meta.env.VITE_BACKLOG_EMBED_URL || 'https://thatagileapp.com/the-compassion-course?embed=1'}
             title="Backlog"
             style={{
               width: '100%',

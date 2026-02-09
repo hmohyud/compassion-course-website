@@ -46,7 +46,7 @@ const PortalPage: React.FC = () => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           marginBottom: '20px'
         }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '20px' }}>Your Portal</h2>
+          <h2 style={{ color: '#002B4D', marginBottom: '20px', fontSize: '22px' }}>Your Portal</h2>
           <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '20px' }}>
             Welcome to your Compassion Course portal. Here you can access your course materials, 
             track your progress, and connect with the community.

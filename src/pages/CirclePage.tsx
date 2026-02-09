@@ -45,20 +45,20 @@ const CirclePage: React.FC = () => {
             to="/portal"
             style={{
               padding: '10px 20px',
-              background: '#f9fafb',
-              border: '1px solid #e5e7eb',
+              background: '#002B4D',
+              border: 'none',
               borderRadius: '8px',
               textDecoration: 'none',
-              color: '#002B4D',
+              color: '#ffffff',
               fontWeight: 500,
               transition: 'all 0.2s ease',
               whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e5e7eb';
+              e.currentTarget.style.background = '#1e3a8a';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f9fafb';
+              e.currentTarget.style.background = '#002B4D';
             }}
           >
             ← Back to Portal

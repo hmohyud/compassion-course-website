@@ -69,8 +69,8 @@ const AdminDashboard: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Webcast Management</h2>
-            <p style={{ color: '#6b7280', marginBottom: '15px' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '26px' }}>Webcast Management</h2>
+            <p style={{ color: '#6b7280', marginBottom: '15px', fontSize: '22px' }}>
               Schedule and manage webcasts with Google Meet integration
             </p>
             <div style={{ display: 'flex', gap: '20px', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -101,8 +101,8 @@ const AdminDashboard: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Content Management</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '26px' }}>Content Management</h2>
+            <p style={{ color: '#6b7280', fontSize: '22px' }}>
               Edit website content, sections, and text dynamically
             </p>
           </Link>
@@ -129,8 +129,8 @@ const AdminDashboard: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>User Type Configuration</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '26px' }}>User Type Configuration</h2>
+            <p style={{ color: '#6b7280', fontSize: '22px' }}>
               Configure which rights Leaders and Participants have
             </p>
           </Link>
@@ -157,8 +157,8 @@ const AdminDashboard: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>User Management</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '26px' }}>User Management</h2>
+            <p style={{ color: '#6b7280', fontSize: '22px' }}>
               Manage user roles: Participant and Leader
             </p>
           </Link>

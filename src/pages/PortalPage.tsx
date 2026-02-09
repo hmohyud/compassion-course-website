@@ -54,14 +54,14 @@ const PortalPage: React.FC = () => {
           
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '20px',
-            marginTop: '30px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '10px',
+            marginTop: '15px'
           }}>
             <Link 
               to="/portal/circle"
               style={{
-                padding: '30px',
+                padding: '15px',
                 background: '#ffffff',
                 borderRadius: '12px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -80,8 +80,8 @@ const PortalPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>The Global Compassion Network</h2>
-              <p style={{ color: '#6b7280' }}>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>The Global Compassion Network</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
                 Connect and grow with fellow participants.
               </p>
             </Link>
@@ -89,7 +89,7 @@ const PortalPage: React.FC = () => {
             <Link 
               to="/portal/university"
               style={{
-                padding: '30px',
+                padding: '15px',
                 background: '#ffffff',
                 borderRadius: '12px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -108,8 +108,8 @@ const PortalPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Compassion Course University</h2>
-              <p style={{ color: '#6b7280' }}>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Compassion Course University</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
                 Courses, webcasts, whiteboards, profile, and progress.
               </p>
             </Link>

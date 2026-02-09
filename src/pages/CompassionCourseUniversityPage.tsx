@@ -75,9 +75,27 @@ const CompassionCourseUniversityPage: React.FC = () => {
             </p>
           </Link>
 
+          <Link
+            to="/platform/events"
+            style={cardStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#002B4D';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'transparent';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Events</h2>
+            <p style={{ color: '#6b7280' }}>
+              View upcoming events and sessions.
+            </p>
+          </Link>
+
           {(isAdmin || role === 'leader') && (
             <Link
-              to="/platform/resources"
+              to="/portal/backlog"
               style={cardStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#002B4D';
@@ -88,9 +106,9 @@ const CompassionCourseUniversityPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Member Hub</h2>
+              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Project backlog</h2>
               <p style={{ color: '#6b7280' }}>
-                Videos, whiteboards, Meet, Docs, and Drive shared with your email.
+                View and manage the Compassion Course backlog.
               </p>
             </Link>
           )}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../context/AuthContext';
-import { listUserProfiles, updateUserProfile } from '../../services/userProfileService';
+import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { UserProfile } from '../../types/platform';
 
 const GOOGLE_ADMIN_CONSOLE_URL = 'https://admin.google.com';
@@ -21,6 +21,9 @@ const UserManagement: React.FC = () => {
   const [grantEmail, setGrantEmail] = useState('');
   const [granting, setGranting] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'participant' | 'leader'>('all');
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -53,6 +56,37 @@ const UserManagement: React.FC = () => {
 
   const isAdmin = (profile: UserProfile) =>
     adminIds.has(profile.id) || (profile.email && adminIds.has(profile.email.toLowerCase()));
+
+  const filteredProfiles = profiles.filter((profile) => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const matchEmail = profile.email?.toLowerCase().includes(q);
+      const matchName = profile.name?.toLowerCase().includes(q);
+      if (!matchEmail && !matchName) return false;
+    }
+    if (roleFilter !== 'all') {
+      const role = profile.role ?? 'participant';
+      if (role !== roleFilter) return false;
+    }
+    return true;
+  });
+
+  const removeFromDirectory = async (profile: UserProfile) => {
+    if (!window.confirm(`Remove ${profile.email || profile.id} from the directory? This deletes their profile; they will no longer appear in the list.`)) return;
+    setError('');
+    setSuccess('');
+    setRemovingId(profile.id);
+    try {
+      await deleteUserProfile(profile.id);
+      setSuccess('User removed from directory.');
+      await loadData();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to remove user';
+      setError(message);
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   const openGrantWorkspaceModal = (email: string) => {
     if (email) {
@@ -269,12 +303,46 @@ const UserManagement: React.FC = () => {
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
         >
-          <h2 style={{ color: '#002B4D', marginBottom: '20px' }}>Users</h2>
+          <h2 style={{ color: '#002B4D', marginBottom: '20px' }}>User directory</h2>
+
+          {!loading && profiles.length > 0 && (
+            <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="Search by email or name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  minWidth: '200px',
+                }}
+              />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as 'all' | 'participant' | 'leader')}
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                }}
+              >
+                <option value="all">All roles</option>
+                <option value="participant">Participant</option>
+                <option value="leader">Leader</option>
+              </select>
+            </div>
+          )}
 
           {loading ? (
             <p style={{ color: '#6b7280' }}>Loading users...</p>
           ) : profiles.length === 0 ? (
             <p style={{ color: '#6b7280' }}>No user profiles found.</p>
+          ) : filteredProfiles.length === 0 ? (
+            <p style={{ color: '#6b7280' }}>No users match your search or filter.</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -288,7 +356,7 @@ const UserManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {profiles.map((profile) => {
+                  {filteredProfiles.map((profile) => {
                     const role = profile.role ?? 'participant';
                     const busy = updatingId === profile.id;
                     return (
@@ -372,6 +440,22 @@ const UserManagement: React.FC = () => {
                                 {revokingId === profile.id ? 'Revoking...' : 'Revoke admin'}
                               </button>
                             )}
+                            <button
+                              type="button"
+                              disabled={removingId === profile.id}
+                              onClick={() => removeFromDirectory(profile)}
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '0.875rem',
+                                background: removingId === profile.id ? '#9ca3af' : '#6b7280',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: removingId === profile.id ? 'not-allowed' : 'pointer',
+                              }}
+                            >
+                              {removingId === profile.id ? 'Removing...' : 'Remove from directory'}
+                            </button>
                           </div>
                         </td>
                         <td style={{ padding: '12px 8px' }}>

@@ -27,6 +27,7 @@ import WebcastsPage from './pages/platform/WebcastsPage'
 import WebcastJoinPage from './pages/platform/WebcastJoinPage'
 import WhiteboardsPage from './pages/platform/WhiteboardsPage'
 import WhiteboardPage from './pages/platform/WhiteboardPage'
+import EventsPage from './pages/platform/EventsPage'
 import MemberHubPage from './pages/platform/MemberHubPage'
 
 // Admin Pages
@@ -103,6 +104,11 @@ function App() {
               <Route path="/platform/whiteboards/:id" element={
                 <UserProtectedRoute>
                   <WhiteboardPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/platform/events" element={
+                <UserProtectedRoute>
+                  <EventsPage />
                 </UserProtectedRoute>
               } />
               <Route path="/platform/resources" element={

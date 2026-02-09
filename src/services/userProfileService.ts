@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { UserProfile } from '../types/platform';
 
@@ -185,6 +185,16 @@ export async function getUserProfilesByOrganization(
     });
   } catch (error) {
     console.error('Error getting user profiles by organization:', error);
+    throw error;
+  }
+}
+
+export async function deleteUserProfile(userId: string): Promise<void> {
+  try {
+    const docRef = doc(db, COLLECTION_NAME, userId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting user profile:', error);
     throw error;
   }
 }

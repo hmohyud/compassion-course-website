@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handlePortalLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <nav className="navbar">
@@ -43,7 +51,13 @@ const Navigation: React.FC = () => {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/login" className="nav-link">Portal Login</Link>
+            {user ? (
+              <button type="button" className="nav-portal-btn" onClick={handlePortalLogout}>
+                Portal Logout
+              </button>
+            ) : (
+              <Link to="/login" className="nav-portal-btn">Portal Login</Link>
+            )}
           </li>
         </ul>
         

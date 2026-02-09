@@ -273,6 +273,24 @@ p {
     color: #3b82f6;
 }
 
+.nav-portal-btn {
+    display: inline-block;
+    background: #1e3a8a;
+    color: #ffffff;
+    padding: 6px 14px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.nav-portal-btn:hover {
+    background: #1e40af;
+}
+
 .dropdown {
     position: relative;
 }

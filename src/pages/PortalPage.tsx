@@ -30,13 +30,36 @@ const PortalPage: React.FC = () => {
   return (
     <Layout>
       <div className="portal-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '2.5rem', color: '#002B4D', marginBottom: '10px' }}>
-            Welcome to the Compassion Course Portal
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>
-            Hello, {user.email}
-          </p>
+        <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h1 style={{ fontSize: '26px', color: '#002B4D', marginBottom: '10px' }}>
+              Welcome to the Compassion Course Portal
+            </h1>
+            <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>
+              Hello, {user.email}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: '#1e3a8a',
+              color: '#ffffff',
+              padding: '6px 14px',
+              fontSize: '13px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 500,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1e40af';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#1e3a8a';
+            }}
+          >
+            Logout
+          </button>
         </div>
 
         <div style={{ 
@@ -113,20 +136,6 @@ const PortalPage: React.FC = () => {
                 Courses, webcasts, whiteboards, profile, and progress.
               </p>
             </Link>
-          </div>
-
-          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
-            <button
-              onClick={handleLogout}
-              className="btn btn-secondary"
-              style={{
-                padding: '6px 12px',
-                fontSize: '13px',
-                cursor: 'pointer',
-              }}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 
 const cardStyle = {
-  padding: '30px',
+  padding: '16px',
   background: '#ffffff',
   borderRadius: '12px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -54,7 +54,7 @@ const CompassionCourseUniversityPage: React.FC = () => {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: '20px',
         }}>
           <Link
@@ -69,8 +69,8 @@ const CompassionCourseUniversityPage: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Courses</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>Courses</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
               Browse and enroll in courses to expand your knowledge.
             </p>
           </Link>
@@ -87,8 +87,8 @@ const CompassionCourseUniversityPage: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Events</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>Events</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
               View upcoming events and sessions.
             </p>
           </Link>
@@ -106,8 +106,8 @@ const CompassionCourseUniversityPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Project backlog</h2>
-              <p style={{ color: '#6b7280' }}>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>Project backlog</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
                 View and manage the Compassion Course backlog.
               </p>
             </Link>
@@ -126,8 +126,8 @@ const CompassionCourseUniversityPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Participants</h2>
-              <p style={{ color: '#6b7280' }}>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>Participants</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
                 Videos, whiteboards, Meet, Docs, and Drive shared with your email.
               </p>
             </Link>
@@ -145,8 +145,8 @@ const CompassionCourseUniversityPage: React.FC = () => {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>My Profile</h2>
-            <p style={{ color: '#6b7280' }}>
+            <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>My Profile</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
               Manage your profile and account settings.
             </p>
           </Link>

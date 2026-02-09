@@ -8,6 +8,7 @@ export interface UserProfile {
   bio?: string;
   organizations: string[]; // Organization IDs
   role?: 'participant' | 'leader'; // default 'participant' for new/legacy profiles
+  mustChangePassword?: boolean; // when true, user must change password on next login
   createdAt: Date;
   updatedAt: Date;
 }

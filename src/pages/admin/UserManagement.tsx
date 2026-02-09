@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase/firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../context/AuthContext';
 import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { UserProfile } from '../../types/platform';
@@ -25,6 +26,10 @@ const UserManagement: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<'all' | 'participant' | 'leader'>('all');
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [addUserEmail, setAddUserEmail] = useState('');
+  const [addUserName, setAddUserName] = useState('');
+  const [addingUser, setAddingUser] = useState(false);
+  const [addUserResult, setAddUserResult] = useState<{ email: string; temporaryPassword: string } | null>(null);
 
   const toggleSelected = (id: string) => {
     setSelectedIds((prev) => {
@@ -205,6 +210,39 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  const createUserByAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setAddUserResult(null);
+    const email = addUserEmail.trim();
+    if (!email) {
+      setError('Please enter an email address.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    setAddingUser(true);
+    try {
+      const createUser = httpsCallable<{ email: string; name?: string }, { uid: string; email: string; temporaryPassword: string }>(functions, 'createUserByAdmin');
+      const result = await createUser({ email, name: addUserName.trim() || undefined });
+      const data = result.data;
+      setAddUserResult({ email: data.email, temporaryPassword: data.temporaryPassword });
+      setSuccess(`User added. They must change their password on first login.`);
+      setAddUserEmail('');
+      setAddUserName('');
+      await loadData();
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message?: string }).message) : err instanceof Error ? err.message : 'Failed to add user.';
+      setError(msg);
+    } finally {
+      setAddingUser(false);
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
@@ -260,6 +298,43 @@ const UserManagement: React.FC = () => {
           }}
         >
           <h2 style={{ color: '#002B4D', marginBottom: '20px' }}>User directory</h2>
+
+          <div style={{ marginBottom: '20px', padding: '16px', background: '#f9fafb', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '1rem', color: '#002B4D', marginBottom: '12px' }}>Add user</h3>
+            <form onSubmit={createUserByAdmin} style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
+              <div>
+                <label htmlFor="add-user-email" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Email</label>
+                <input
+                  id="add-user-email"
+                  type="email"
+                  value={addUserEmail}
+                  onChange={(e) => { setAddUserEmail(e.target.value); setAddUserResult(null); }}
+                  placeholder="user@example.com"
+                  required
+                  style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', minWidth: '200px' }}
+                />
+              </div>
+              <div>
+                <label htmlFor="add-user-name" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Name (optional)</label>
+                <input
+                  id="add-user-name"
+                  type="text"
+                  value={addUserName}
+                  onChange={(e) => setAddUserName(e.target.value)}
+                  placeholder="Display name"
+                  style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', minWidth: '160px' }}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary" disabled={addingUser} style={{ padding: '8px 16px', fontSize: '14px' }}>
+                {addingUser ? 'Adding...' : 'Add user'}
+              </button>
+            </form>
+            {addUserResult && (
+              <p style={{ marginTop: '12px', marginBottom: 0, fontSize: '0.875rem', color: '#166534', fontWeight: 500 }}>
+                Temporary password (show to user once): <strong>{addUserResult.temporaryPassword}</strong>. They must change it on first login.
+              </p>
+            )}
+          </div>
 
           {!loading && profiles.length > 0 && (
             <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>

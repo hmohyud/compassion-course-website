@@ -16,6 +16,7 @@ import CompassCompanionPage from './pages/CompassCompanionPage'
 // User Pages
 import UserLoginPage from './pages/UserLoginPage'
 import UserRegisterPage from './pages/UserRegisterPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import PortalPage from './pages/PortalPage'
 import CirclePage from './pages/CirclePage'
 import BacklogPage from './pages/BacklogPage'
@@ -58,6 +59,11 @@ function App() {
               {/* User Routes */}
               <Route path="/login" element={<UserLoginPage />} />
               <Route path="/register" element={<UserRegisterPage />} />
+              <Route path="/change-password" element={
+                <UserProtectedRoute skipMustChangePasswordCheck>
+                  <ChangePasswordPage />
+                </UserProtectedRoute>
+              } />
               <Route path="/portal" element={
                 <UserProtectedRoute>
                   <PortalPage />

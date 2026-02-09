@@ -107,10 +107,13 @@ service cloud.firestore {
     match /userProfiles/{userId} {
       allow read: if request.auth != null && (isOwner(userId) || isAdminUser());
       allow create: if request.auth != null && isOwner(userId);
-      // Only admins can change role; owners can update their own name/avatar/bio without changing role
+      // Admins can update anything; owners can update without changing role, or set mustChangePassword/updatedAt only
       allow update: if request.auth != null && (
         isAdminUser() ||
-        (isOwner(userId) && request.resource.data.get('role', 'participant') == resource.data.get('role', 'participant'))
+        (isOwner(userId) && (
+          request.resource.data.get('role', 'participant') == resource.data.get('role', 'participant') ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword', 'updatedAt'])
+        ))
       );
       allow delete: if isAdminUser();
     }

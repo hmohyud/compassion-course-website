@@ -94,7 +94,7 @@ export async function createUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<UserProfile, 'name' | 'avatar' | 'bio' | 'role'>>
+  updates: Partial<Pick<UserProfile, 'name' | 'avatar' | 'bio' | 'role' | 'mustChangePassword'>>
 ): Promise<void> {
   try {
     const updateData: any = {
@@ -112,6 +112,9 @@ export async function updateUserProfile(
     }
     if (updates.role !== undefined && (updates.role === 'participant' || updates.role === 'leader')) {
       updateData.role = updates.role;
+    }
+    if (updates.mustChangePassword !== undefined) {
+      updateData.mustChangePassword = updates.mustChangePassword;
     }
 
     const docRef = doc(db, COLLECTION_NAME, userId);

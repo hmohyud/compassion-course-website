@@ -17,7 +17,7 @@ export interface LeadershipTeam {
   updatedAt: Date;
 }
 
-export type WorkItemStatus = 'todo' | 'in_progress' | 'done';
+export type WorkItemStatus = 'backlog' | 'todo' | 'in_progress' | 'done';
 
 export interface LeadershipWorkItem {
   id: string;
@@ -27,6 +27,33 @@ export interface LeadershipWorkItem {
   teamId?: string;
   status: WorkItemStatus;
   dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Board 1:1 with team; created when team is created */
+export interface LeadershipBoard {
+  id: string;
+  teamId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Working agreements for a team (one doc per team) */
+export interface LeadershipWorkingAgreement {
+  teamId: string;
+  items: string[];
+  createdAt?: Date;
+  updatedAt: Date;
+}
+
+/** Team-scoped whiteboard (tldraw snapshot) */
+export interface LeadershipTeamWhiteboard {
+  id: string;
+  teamId: string;
+  title: string;
+  snapshot: Record<string, unknown>;
+  createdBy: string;
   createdAt: Date;
   updatedAt: Date;
 }

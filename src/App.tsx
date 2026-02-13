@@ -26,6 +26,12 @@ import LibraryPage from './pages/LibraryPage'
 import LeadershipPortalPage from './pages/LeadershipPortalPage'
 import LeadershipDashboardPage from './pages/leadership/LeadershipDashboardPage'
 import TeamKanbanPage from './pages/leadership/TeamKanbanPage'
+import CreateTeamPage from './pages/leadership/CreateTeamPage'
+import LeadershipMainBacklogPage from './pages/leadership/LeadershipMainBacklogPage'
+import LeadershipTeamPage from './pages/leadership/LeadershipTeamPage'
+import TeamBoardPage from './pages/leadership/TeamBoardPage'
+import TeamWhiteboardsListPage from './pages/leadership/TeamWhiteboardsListPage'
+import TeamWhiteboardPage from './pages/leadership/TeamWhiteboardPage'
 
 // Platform Pages
 import UserProfilePage from './pages/platform/UserProfilePage'
@@ -103,6 +109,36 @@ function App() {
               <Route path="/portal/leadership/dashboard" element={
                 <LeadershipProtectedRoute>
                   <LeadershipDashboardPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/backlog" element={
+                <LeadershipProtectedRoute>
+                  <LeadershipMainBacklogPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/new" element={
+                <LeadershipProtectedRoute>
+                  <CreateTeamPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/:teamId/board" element={
+                <LeadershipProtectedRoute>
+                  <TeamBoardPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/:teamId/whiteboards/:whiteboardId" element={
+                <LeadershipProtectedRoute>
+                  <TeamWhiteboardPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/:teamId/whiteboards" element={
+                <LeadershipProtectedRoute>
+                  <TeamWhiteboardsListPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/:teamId" element={
+                <LeadershipProtectedRoute>
+                  <LeadershipTeamPage />
                 </LeadershipProtectedRoute>
               } />
               <Route path="/portal/leadership/teams" element={

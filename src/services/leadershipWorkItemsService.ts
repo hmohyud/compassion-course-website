@@ -18,14 +18,15 @@ const COLLECTION = 'leadershipWorkItems';
 
 function toWorkItem(docSnap: { id: string; data: () => Record<string, unknown> }): LeadershipWorkItem {
   const d = docSnap.data() ?? {};
-  const status = (d.status as WorkItemStatus) ?? 'todo';
+  const status = (d.status as WorkItemStatus) ?? 'backlog';
+  const validStatus: WorkItemStatus[] = ['backlog', 'todo', 'in_progress', 'done'];
   return {
     id: docSnap.id,
     title: (d.title as string) ?? '',
     description: d.description as string | undefined,
     assigneeId: d.assigneeId as string | undefined,
     teamId: d.teamId as string | undefined,
-    status: status === 'todo' || status === 'in_progress' || status === 'done' ? status : 'todo',
+    status: validStatus.includes(status) ? status : 'backlog',
     dueDate: (d.dueDate as { toDate: () => Date })?.toDate?.() ?? undefined,
     createdAt: (d.createdAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
     updatedAt: (d.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
@@ -39,6 +40,20 @@ export async function listWorkItems(teamId?: string): Promise<LeadershipWorkItem
   const items = snap.docs.map((d) => toWorkItem({ id: d.id, data: () => d.data() }));
   items.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   return items;
+}
+
+/** Main backlog: items not assigned to any team (teamId null/missing) */
+export async function listMainBacklog(): Promise<LeadershipWorkItem[]> {
+  const all = await listWorkItems();
+  const unassigned = all.filter((w) => w.teamId == null || w.teamId === '');
+  unassigned.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  return unassigned;
+}
+
+/** Team backlog: items for this team with status backlog */
+export async function listTeamBacklog(teamId: string): Promise<LeadershipWorkItem[]> {
+  const all = await listWorkItems(teamId);
+  return all.filter((w) => w.status === 'backlog').sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
 export async function listWorkItemsForUser(assigneeId: string): Promise<LeadershipWorkItem[]> {
@@ -70,7 +85,7 @@ export async function createWorkItem(data: {
     description: data.description ?? null,
     assigneeId: data.assigneeId ?? null,
     teamId: data.teamId ?? null,
-    status: data.status ?? 'todo',
+    status: data.status ?? 'backlog',
     dueDate: data.dueDate ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

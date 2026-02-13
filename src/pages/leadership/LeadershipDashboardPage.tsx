@@ -117,7 +117,12 @@ const LeadershipDashboardPage: React.FC = () => {
                         color: '#374151',
                       }}
                     >
-                      {t.name}
+                      <Link
+                        to={`/portal/leadership/teams/${t.id}`}
+                        style={{ color: '#002B4D', textDecoration: 'none', fontWeight: 500 }}
+                      >
+                        {t.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>

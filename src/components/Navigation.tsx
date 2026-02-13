@@ -53,7 +53,7 @@ const Navigation: React.FC = () => {
           <li className="nav-item">
             {user ? (
               <button type="button" className="nav-portal-btn" onClick={handlePortalLogout}>
-                Portal Logout
+                Logout
               </button>
             ) : (
               <Link to="/login" className="nav-portal-btn">Portal Login</Link>

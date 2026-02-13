@@ -9,6 +9,7 @@ const Navigation: React.FC = () => {
   const { user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+  const isInPortal = location.pathname === '/portal' || location.pathname.startsWith('/portal/');
 
   const handlePortalLogout = async () => {
     await logout();
@@ -50,9 +51,9 @@ const Navigation: React.FC = () => {
               Compass Companions
             </Link>
           </li>
-          {user && (
+          {user && !isInPortal && (
             <li className="nav-item">
-              <Link to="/portal" className={`nav-portal-btn ${isActive('/portal') || location.pathname.startsWith('/portal/') ? 'active' : ''}`}>Portal</Link>
+              <Link to="/portal" className="nav-link">Portal</Link>
             </li>
           )}
           <li className="nav-item">

@@ -45,7 +45,19 @@ const AdminDashboard: React.FC = () => {
           >
             <h2 style={{ color: '#002B4D', marginBottom: '8px', fontSize: '1.25rem' }}>User Management</h2>
             <p style={{ color: '#6b7280', fontSize: '0.95rem', margin: 0 }}>
-              User directory, team management, and create users.
+              User directory, roles, and add users.
+            </p>
+          </Link>
+
+          <Link
+            to="/admin/users?tab=teams&create=1"
+            style={cardStyle}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#002B4D'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <h2 style={{ color: '#002B4D', marginBottom: '8px', fontSize: '1.25rem' }}>Create team</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.95rem', margin: 0 }}>
+              Create a new team and manage teams.
             </p>
           </Link>
 

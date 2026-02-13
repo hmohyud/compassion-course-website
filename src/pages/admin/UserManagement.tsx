@@ -88,6 +88,13 @@ const UserManagement: React.FC = () => {
     if (activeTab === 'teams') loadTeams();
   }, [activeTab]);
 
+  // Open create-team form when arriving with ?tab=teams&create=1 (e.g. from Admin Dashboard "Create team" card)
+  useEffect(() => {
+    if (activeTab === 'teams' && (searchParams.get('create') === '1' || searchParams.get('action') === 'create')) {
+      setShowCreateTeam(true);
+    }
+  }, [activeTab, searchParams]);
+
   const loadData = async () => {
     setLoading(true);
     setError('');

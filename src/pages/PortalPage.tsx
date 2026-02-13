@@ -1,11 +1,26 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePermissions } from '../context/PermissionsContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 
+const cardStyle = {
+  padding: '15px',
+  background: '#ffffff',
+  borderRadius: '12px',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  textDecoration: 'none',
+  color: '#111827',
+  display: 'block' as const,
+  border: '2px solid transparent',
+  transition: 'all 0.2s',
+};
+
 const PortalPage: React.FC = () => {
   const { user, loading } = useAuth();
+  const { role } = usePermissions();
   const navigate = useNavigate();
+  const showLeadership = role === 'manager' || role === 'admin';
 
   if (loading) {
     return (
@@ -55,17 +70,7 @@ const PortalPage: React.FC = () => {
           }}>
             <Link 
               to="/portal/circle"
-              style={{
-                padding: '15px',
-                background: '#ffffff',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                textDecoration: 'none',
-                color: '#111827',
-                display: 'block',
-                border: '2px solid transparent',
-                transition: 'all 0.2s',
-              }}
+              style={cardStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#002B4D';
                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -75,25 +80,15 @@ const PortalPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>The Global Compassion Network</h2>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Global Compassion Network</h2>
               <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
                 Connect and grow with fellow participants.
               </p>
             </Link>
 
             <Link 
-              to="/portal/university"
-              style={{
-                padding: '15px',
-                background: '#ffffff',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                textDecoration: 'none',
-                color: '#111827',
-                display: 'block',
-                border: '2px solid transparent',
-                transition: 'all 0.2s',
-              }}
+              to="/portal/library"
+              style={cardStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#002B4D';
                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -103,11 +98,67 @@ const PortalPage: React.FC = () => {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Compassion Course University</h2>
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Library</h2>
               <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                Courses, webcasts, whiteboards, profile, and progress.
+                Browse resources and materials.
               </p>
             </Link>
+
+            <Link 
+              to="/platform/events"
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Events</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                View upcoming events and sessions.
+              </p>
+            </Link>
+
+            <Link 
+              to="/platform/courses"
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Courses</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                Browse and enroll in courses.
+              </p>
+            </Link>
+
+            {showLeadership && (
+              <Link 
+                to="/portal/leadership"
+                style={cardStyle}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#002B4D';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'transparent';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Leadership Portal</h2>
+                <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                  Tools and resources for leaders.
+                </p>
+              </Link>
+            )}
           </div>
         </div>
       </div>

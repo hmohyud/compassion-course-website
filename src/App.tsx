@@ -21,6 +21,8 @@ import PortalPage from './pages/PortalPage'
 import CirclePage from './pages/CirclePage'
 import BacklogPage from './pages/BacklogPage'
 import CompassionCourseUniversityPage from './pages/CompassionCourseUniversityPage'
+import LibraryPage from './pages/LibraryPage'
+import LeadershipPortalPage from './pages/LeadershipPortalPage'
 
 // Platform Pages
 import UserProfilePage from './pages/platform/UserProfilePage'
@@ -29,6 +31,7 @@ import WebcastJoinPage from './pages/platform/WebcastJoinPage'
 import WhiteboardsPage from './pages/platform/WhiteboardsPage'
 import WhiteboardPage from './pages/platform/WhiteboardPage'
 import EventsPage from './pages/platform/EventsPage'
+import CoursesPage from './pages/platform/CoursesPage'
 import MemberHubPage from './pages/platform/MemberHubPage'
 
 // Admin Pages
@@ -84,6 +87,16 @@ function App() {
                   <BacklogPage />
                 </UserProtectedRoute>
               } />
+              <Route path="/portal/library" element={
+                <UserProtectedRoute>
+                  <LibraryPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/portal/leadership" element={
+                <UserProtectedRoute>
+                  <LeadershipPortalPage />
+                </UserProtectedRoute>
+              } />
               
               {/* Platform Routes */}
               <Route path="/platform" element={<Navigate to="/portal/university" replace />} />
@@ -115,6 +128,11 @@ function App() {
               <Route path="/platform/events" element={
                 <UserProtectedRoute>
                   <EventsPage />
+                </UserProtectedRoute>
+              } />
+              <Route path="/platform/courses" element={
+                <UserProtectedRoute>
+                  <CoursesPage />
                 </UserProtectedRoute>
               } />
               <Route path="/platform/resources" element={

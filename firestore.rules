@@ -236,10 +236,12 @@ service cloud.firestore {
             || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
             || (resource.data.get('teamId', null) != null
                 && resource.data.teamId != ''
-                && canReadTeam(resource.data.teamId)));
+                && canReadTeam(resource.data.teamId))
+            || isAdmin());
       allow create: if request.auth != null
         && request.resource.data.ownerId == request.auth.uid
-        && (!('teamId' in request.resource.data)
+        && (isAdmin()
+            || !('teamId' in request.resource.data)
             || request.resource.data.teamId == null
             || request.resource.data.teamId == ''
             || canReadTeam(request.resource.data.teamId));

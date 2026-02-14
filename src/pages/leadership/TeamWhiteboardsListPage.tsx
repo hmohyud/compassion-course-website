@@ -6,6 +6,7 @@ import {
   createBoard,
   deleteBoard,
 } from '../../services/whiteboards/whiteboardService';
+import { messageFromCaught } from '../../services/whiteboards/whiteboardErrors';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { useAuth } from '../../context/AuthContext';
 import type { BoardDoc } from '../../services/whiteboards/whiteboardTypes';
@@ -21,6 +22,7 @@ const TeamWhiteboardsListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!teamId) return;
@@ -38,6 +40,7 @@ const TeamWhiteboardsListPage: React.FC = () => {
 
   const handleCreate = async () => {
     if (!teamId || !user?.uid) return;
+    setCreateError(null);
     setCreating(true);
     try {
       const { boardId } = await createBoard({
@@ -48,7 +51,9 @@ const TeamWhiteboardsListPage: React.FC = () => {
       });
       navigate(`/platform/whiteboards/${boardId}?teamId=${teamId}&companyId=${DEFAULT_COMPANY_ID}`);
     } catch (e) {
-      console.error(e);
+      const msg = messageFromCaught(e);
+      setCreateError(msg);
+      console.error('Create whiteboard failed:', msg, e);
     } finally {
       setCreating(false);
     }
@@ -111,6 +116,10 @@ const TeamWhiteboardsListPage: React.FC = () => {
         >
           {creating ? 'Creating…' : 'New whiteboard'}
         </button>
+
+        {createError && (
+          <p style={{ color: '#dc2626', marginBottom: '16px' }}>{createError}</p>
+        )}
 
         {loading ? (
           <p style={{ color: '#6b7280' }}>Loading…</p>

@@ -32,15 +32,10 @@ import LeadershipMainBacklogPage from './pages/leadership/LeadershipMainBacklogP
 import LeadershipTeamPage from './pages/leadership/LeadershipTeamPage'
 import TeamBoardPage from './pages/leadership/TeamBoardPage'
 import TeamBoardSettingsPage from './pages/leadership/TeamBoardSettingsPage'
-import TeamWhiteboardsListPage from './pages/leadership/TeamWhiteboardsListPage'
-import TeamWhiteboardPage from './pages/leadership/TeamWhiteboardPage'
-
 // Platform Pages
 import UserProfilePage from './pages/platform/UserProfilePage'
 import WebcastsPage from './pages/platform/WebcastsPage'
 import WebcastJoinPage from './pages/platform/WebcastJoinPage'
-import WhiteboardsPage from './pages/platform/WhiteboardsPage'
-import WhiteboardPage from './pages/platform/WhiteboardPage'
 import EventsPage from './pages/platform/EventsPage'
 import CoursesPage from './pages/platform/CoursesPage'
 import MemberHubPage from './pages/platform/MemberHubPage'
@@ -134,16 +129,6 @@ function App() {
                   <TeamBoardPage />
                 </LeadershipProtectedRoute>
               } />
-              <Route path="/portal/leadership/teams/:teamId/whiteboards/:whiteboardId" element={
-                <LeadershipProtectedRoute>
-                  <TeamWhiteboardPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams/:teamId/whiteboards" element={
-                <LeadershipProtectedRoute>
-                  <TeamWhiteboardsListPage />
-                </LeadershipProtectedRoute>
-              } />
               <Route path="/portal/leadership/teams/:teamId" element={
                 <LeadershipProtectedRoute>
                   <LeadershipTeamPage />
@@ -170,16 +155,6 @@ function App() {
               <Route path="/platform/webcasts/:id/join" element={
                 <UserProtectedRoute>
                   <WebcastJoinPage />
-                </UserProtectedRoute>
-              } />
-              <Route path="/platform/whiteboards" element={
-                <UserProtectedRoute>
-                  <WhiteboardsPage />
-                </UserProtectedRoute>
-              } />
-              <Route path="/platform/whiteboards/:id" element={
-                <UserProtectedRoute>
-                  <WhiteboardPage />
                 </UserProtectedRoute>
               } />
               <Route path="/platform/events" element={

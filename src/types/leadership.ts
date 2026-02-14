@@ -76,14 +76,3 @@ export interface LeadershipWorkingAgreement {
   createdAt?: Date;
   updatedAt: Date;
 }
-
-/** Team-scoped whiteboard (tldraw snapshot) */
-export interface LeadershipTeamWhiteboard {
-  id: string;
-  teamId: string;
-  title: string;
-  snapshot: Record<string, unknown>;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
-}

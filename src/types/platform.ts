@@ -199,16 +199,6 @@ export interface WebcastTranslation {
   createdAt: Date;
 }
 
-export interface Whiteboard {
-  id: string;
-  ownerId: string;
-  title: string;
-  snapshot: Record<string, unknown>; // tldraw document JSON
-  sharedWith: string[]; // email addresses
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 /** Portal user roles: viewer (read-only), contributor, manager, admin (full portal access) */
 export type PortalRole = 'viewer' | 'contributor' | 'manager' | 'admin';
 

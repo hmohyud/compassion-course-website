@@ -369,7 +369,7 @@ const LeadershipPortalPage: React.FC = () => {
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {teams.map((t) => (
                       <li key={t.id} style={{ padding: '6px 0' }}>
-                        <Link to={`/portal/leadership/teams/${t.id}`} style={linkStyle}>
+                        <Link to={`/portal/leadership/teams/${t.id}/board`} style={linkStyle}>
                           {t.name}
                         </Link>
                       </li>

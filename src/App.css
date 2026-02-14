@@ -1830,3 +1830,9 @@ button:focus {
         font-size: 1.25rem;
     }
 }
+
+/* ElevenLabs need-help chatbot widget - half size */
+.chatbot-widget-container elevenlabs-convai {
+    transform: scale(0.5);
+    transform-origin: bottom right;
+}

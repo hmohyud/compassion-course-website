@@ -302,8 +302,8 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ElevenLabs Chatbot Widget */}
-      <div ref={chatbotContainerRef}></div>
+      {/* ElevenLabs Chatbot Widget - scaled to 50% */}
+      <div ref={chatbotContainerRef} className="chatbot-widget-container" />
     </Layout>
   );
 };

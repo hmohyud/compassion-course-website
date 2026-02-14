@@ -56,6 +56,19 @@ export interface LeadershipBoard {
   updatedAt: Date;
 }
 
+/** Per-team board display settings (Kanban lanes and column headers) */
+export type BoardMode = 'scrum' | 'kanban';
+
+export interface TeamBoardSettings {
+  teamId: string;
+  boardMode?: BoardMode;
+  /** Which swimlanes to show; default all if unset */
+  visibleLanes?: WorkItemLane[];
+  /** Custom column labels; key = status id, value = display label. Leave blank for default. */
+  columnHeaders?: Partial<Record<WorkItemStatus, string>>;
+  updatedAt: Date;
+}
+
 /** Working agreements for a team (one doc per team) */
 export interface LeadershipWorkingAgreement {
   teamId: string;

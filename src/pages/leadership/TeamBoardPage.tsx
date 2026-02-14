@@ -15,6 +15,7 @@ import {
 import Layout from '../../components/Layout';
 import { listWorkItems, updateWorkItem, createWorkItem } from '../../services/leadershipWorkItemsService';
 import { getTeam } from '../../services/leadershipTeamsService';
+import { getTeamBoardSettings } from '../../services/teamBoardSettingsService';
 import { getUserProfile } from '../../services/userProfileService';
 import TaskForm, { type TaskFormPayload } from '../../components/leadership/TaskForm';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane } from '../../types/leadership';
@@ -114,6 +115,7 @@ const TeamBoardPage: React.FC = () => {
   const [createDefaultLane, setCreateDefaultLane] = useState<WorkItemLane>('standard');
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [boardSettings, setBoardSettings] = useState<{ visibleLanes?: WorkItemLane[]; columnHeaders?: Partial<Record<WorkItemStatus, string>> } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -122,11 +124,15 @@ const TeamBoardPage: React.FC = () => {
   const loadBoard = () => {
     if (!teamId) return;
     setLoading(true);
-    Promise.all([listWorkItems(teamId), getTeam(teamId)])
-      .then(([items, team]) => {
+    Promise.all([listWorkItems(teamId), getTeam(teamId), getTeamBoardSettings(teamId)])
+      .then(([items, team, settings]) => {
         setWorkItems(items);
         setTeamName(team?.name ?? '');
         setMemberIds(team?.memberIds ?? []);
+        setBoardSettings({
+          visibleLanes: settings.visibleLanes,
+          columnHeaders: settings.columnHeaders,
+        });
         if (team?.memberIds?.length) {
           Promise.all(
             team.memberIds.map((uid) =>
@@ -142,6 +148,7 @@ const TeamBoardPage: React.FC = () => {
         setTeamName('');
         setMemberIds([]);
         setMemberLabels({});
+        setBoardSettings(null);
       })
       .finally(() => setLoading(false));
   };
@@ -226,6 +233,16 @@ const TeamBoardPage: React.FC = () => {
       (w) => (w.lane ?? 'standard') === laneId && w.status === status
     );
 
+  const visibleLanesList =
+    boardSettings?.visibleLanes && boardSettings.visibleLanes.length > 0
+      ? LANES.filter((l) => boardSettings.visibleLanes!.includes(l.id))
+      : LANES;
+
+  const effectiveColumns = COLUMNS.map((c) => ({
+    ...c,
+    label: (boardSettings?.columnHeaders?.[c.id]?.trim() || c.label) as string,
+  }));
+
   const getAssigneeName = (assigneeId: string | undefined) =>
     assigneeId ? memberLabels[assigneeId] ?? assigneeId : null;
 
@@ -275,7 +292,7 @@ const TeamBoardPage: React.FC = () => {
               <FaUser /> Team page
             </Link>
             <Link
-              to={`/portal/leadership/teams/${teamId}`}
+              to={`/portal/leadership/teams/${teamId}/board/settings`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -300,7 +317,7 @@ const TeamBoardPage: React.FC = () => {
         ) : (
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {LANES.map((lane) => (
+              {visibleLanesList.map((lane) => (
                 <div key={lane.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 0 }}>
                   <div
                     style={{
@@ -315,7 +332,7 @@ const TeamBoardPage: React.FC = () => {
                     {lane.label}
                   </div>
                   <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '16px', flex: 1, minWidth: 0 }}>
-                    {COLUMNS.map((col) => (
+                    {effectiveColumns.map((col) => (
                       <BoardCell
                         key={`${lane.id}-${col.id}`}
                         laneId={lane.id}

@@ -30,6 +30,7 @@ import CreateTeamPage from './pages/leadership/CreateTeamPage'
 import LeadershipMainBacklogPage from './pages/leadership/LeadershipMainBacklogPage'
 import LeadershipTeamPage from './pages/leadership/LeadershipTeamPage'
 import TeamBoardPage from './pages/leadership/TeamBoardPage'
+import TeamBoardSettingsPage from './pages/leadership/TeamBoardSettingsPage'
 import TeamWhiteboardsListPage from './pages/leadership/TeamWhiteboardsListPage'
 import TeamWhiteboardPage from './pages/leadership/TeamWhiteboardPage'
 
@@ -119,6 +120,11 @@ function App() {
               <Route path="/portal/leadership/teams/new" element={
                 <LeadershipProtectedRoute>
                   <CreateTeamPage />
+                </LeadershipProtectedRoute>
+              } />
+              <Route path="/portal/leadership/teams/:teamId/board/settings" element={
+                <LeadershipProtectedRoute>
+                  <TeamBoardSettingsPage />
                 </LeadershipProtectedRoute>
               } />
               <Route path="/portal/leadership/teams/:teamId/board" element={

@@ -316,6 +316,24 @@ const TeamBoardPage: React.FC = () => {
           </h1>
           <div style={{ display: 'flex', gap: '10px' }}>
             <Link
+              to="/portal/leadership"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 14px',
+                background: '#fff',
+                color: '#002B4D',
+                border: '2px solid #002B4D',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+              }}
+            >
+              Back to Dashboard
+            </Link>
+            <Link
               to={`/portal/leadership/teams/${teamId}`}
               style={{
                 display: 'inline-flex',

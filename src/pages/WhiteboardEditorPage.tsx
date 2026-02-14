@@ -30,6 +30,15 @@ const WhiteboardEditorPage: React.FC = () => {
   const [linkCopied, setLinkCopied] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const excalidrawApiRef = useRef<ExcalidrawAPI | null>(null);
+  const initialLoadRef = useRef(true);
+
+  useEffect(() => {
+    if (loading || !board) return;
+    const t = setTimeout(() => {
+      initialLoadRef.current = false;
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [loading, board]);
 
   useEffect(() => {
     if (!boardId) return;
@@ -88,6 +97,7 @@ const WhiteboardEditorPage: React.FC = () => {
 
   const handleChange = useCallback(() => {
     if (!canEdit) return;
+    if (initialLoadRef.current) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null;

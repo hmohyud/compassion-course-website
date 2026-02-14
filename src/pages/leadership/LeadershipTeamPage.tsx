@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../../components/Layout';
-import TaskForm, { type TaskFormPayload } from '../../components/leadership/TaskForm';
+import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../../components/leadership/TaskForm';
 import { getTeam } from '../../services/leadershipTeamsService';
 import {
   getWorkingAgreementsByTeam,
@@ -12,6 +12,7 @@ import {
   updateWorkItem,
   createWorkItem,
 } from '../../services/leadershipWorkItemsService';
+import { createMentionNotifications } from '../../services/notificationService';
 import { getUserProfile } from '../../services/userProfileService';
 import type { LeadershipTeam } from '../../types/leadership';
 import type { LeadershipWorkItem } from '../../types/leadership';
@@ -126,10 +127,10 @@ const LeadershipTeamPage: React.FC = () => {
     }
   };
 
-  const handleCreateBacklogSave = async (data: TaskFormPayload) => {
+  const handleCreateBacklogSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!teamId) return;
     try {
-      await createWorkItem({
+      const created = await createWorkItem({
         title: data.title,
         description: data.description,
         teamId,
@@ -140,6 +141,22 @@ const LeadershipTeamPage: React.FC = () => {
         assigneeId: data.assigneeId,
         comments: data.comments,
       });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(
+              created.id,
+              data.title,
+              teamId,
+              c.id,
+              c.text,
+              c.userId,
+              c.userName || '',
+              c.mentionedUserIds
+            );
+          }
+        }
+      }
       setShowCreateForm(false);
       loadBacklog();
     } catch (err) {
@@ -147,7 +164,7 @@ const LeadershipTeamPage: React.FC = () => {
     }
   };
 
-  const handleEditBacklogSave = async (data: TaskFormPayload) => {
+  const handleEditBacklogSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!editingBacklogItem) return;
     try {
       await updateWorkItem(editingBacklogItem.id, {
@@ -160,6 +177,22 @@ const LeadershipTeamPage: React.FC = () => {
         assigneeId: data.assigneeId,
         comments: data.comments,
       });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(
+              editingBacklogItem.id,
+              data.title,
+              teamId ?? undefined,
+              c.id,
+              c.text,
+              c.userId,
+              c.userName || '',
+              c.mentionedUserIds
+            );
+          }
+        }
+      }
       setEditingBacklogItem(null);
       loadBacklog();
     } catch (err) {

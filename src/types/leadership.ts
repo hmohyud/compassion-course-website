@@ -29,6 +29,8 @@ export interface WorkItemComment {
   userName?: string;
   text: string;
   createdAt: Date;
+  /** User IDs mentioned in this comment (for notifications). */
+  mentionedUserIds?: string[];
 }
 
 export interface LeadershipWorkItem {

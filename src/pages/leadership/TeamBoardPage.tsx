@@ -14,11 +14,12 @@ import {
 } from '@dnd-kit/core';
 import Layout from '../../components/Layout';
 import { listWorkItems, updateWorkItem, createWorkItem } from '../../services/leadershipWorkItemsService';
+import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { getBoardByTeamId, createBoardForTeam } from '../../services/leadershipBoardsService';
 import { getTeamBoardSettings } from '../../services/teamBoardSettingsService';
 import { getUserProfile } from '../../services/userProfileService';
-import TaskForm, { type TaskFormPayload } from '../../components/leadership/TaskForm';
+import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../../components/leadership/TaskForm';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane } from '../../types/leadership';
 
 const COLUMNS: { id: WorkItemStatus; label: string; barColor: string }[] = [
@@ -195,10 +196,10 @@ const TeamBoardPage: React.FC = () => {
     }
   };
 
-  const handleCreateSave = async (data: TaskFormPayload) => {
+  const handleCreateSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!teamId) return;
     try {
-      await createWorkItem({
+      const created = await createWorkItem({
         title: data.title,
         description: data.description,
         teamId,
@@ -209,6 +210,22 @@ const TeamBoardPage: React.FC = () => {
         assigneeId: data.assigneeId,
         comments: data.comments,
       });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(
+              created.id,
+              data.title,
+              teamId,
+              c.id,
+              c.text,
+              c.userId,
+              c.userName || '',
+              c.mentionedUserIds
+            );
+          }
+        }
+      }
       setShowCreateForm(false);
       setCreateDefaultLane('standard');
       await loadBoard();
@@ -217,7 +234,7 @@ const TeamBoardPage: React.FC = () => {
     }
   };
 
-  const handleEditSave = async (data: TaskFormPayload) => {
+  const handleEditSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!editingItem) return;
     try {
       await updateWorkItem(editingItem.id, {
@@ -230,6 +247,22 @@ const TeamBoardPage: React.FC = () => {
         assigneeId: data.assigneeId,
         comments: data.comments,
       });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(
+              editingItem.id,
+              data.title,
+              teamId ?? undefined,
+              c.id,
+              c.text,
+              c.userId,
+              c.userName || '',
+              c.mentionedUserIds
+            );
+          }
+        }
+      }
       setEditingItem(null);
       await loadBoard();
     } catch (err) {

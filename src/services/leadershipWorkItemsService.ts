@@ -26,12 +26,16 @@ function parseComment(c: unknown): WorkItemComment | null {
   const text = o.text as string;
   if (!id || !userId || !text) return null;
   const createdAt = (o.createdAt as { toDate?: () => Date })?.toDate?.() ?? new Date();
+  const mentionedUserIds = Array.isArray(o.mentionedUserIds)
+    ? (o.mentionedUserIds as string[]).filter((x) => typeof x === 'string')
+    : undefined;
   return {
     id,
     userId,
     userName: o.userName as string | undefined,
     text,
     createdAt,
+    ...(mentionedUserIds?.length ? { mentionedUserIds } : {}),
   };
 }
 
@@ -115,6 +119,7 @@ export async function createWorkItem(data: {
   const commentsForFirestore = data.comments?.map((c) => ({
     ...c,
     createdAt: c.createdAt instanceof Date ? c.createdAt : new Date(c.createdAt),
+    ...(c.mentionedUserIds?.length ? { mentionedUserIds: c.mentionedUserIds } : {}),
   }));
   const docRef = await addDoc(ref, {
     title: data.title,
@@ -155,6 +160,7 @@ export async function updateWorkItem(
     data.comments = updates.comments.map((c) => ({
       ...c,
       createdAt: c.createdAt instanceof Date ? c.createdAt : new Date(c.createdAt),
+      ...(c.mentionedUserIds?.length ? { mentionedUserIds: c.mentionedUserIds } : {}),
     }));
   }
   await updateDoc(ref, data);

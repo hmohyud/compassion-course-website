@@ -244,5 +244,11 @@ service cloud.firestore {
         || isAdmin()
       );
     }
+    // User notifications (e.g. @-mentions in work item comments)
+    match /userNotifications/{id} {
+      allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
   }
 }

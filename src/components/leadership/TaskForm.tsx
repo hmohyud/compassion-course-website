@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { listUserProfiles } from '../../services/userProfileService';
+import type { UserProfile } from '../../types/platform';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane, WorkItemComment } from '../../types/leadership';
 
 const STATUS_OPTIONS: { value: WorkItemStatus; label: string }[] = [
@@ -30,6 +32,11 @@ export type TaskFormPayload = {
   comments?: WorkItemComment[];
 };
 
+export interface TaskFormSaveContext {
+  /** Comments added in this session that contain @-mentions (for creating notifications). */
+  newCommentsWithMentions: WorkItemComment[];
+}
+
 export interface TaskFormProps {
   mode: 'create' | 'edit';
   initialItem?: LeadershipWorkItem | null;
@@ -37,7 +44,7 @@ export interface TaskFormProps {
   teamId?: string;
   teamMemberIds?: string[];
   memberLabels?: Record<string, string>;
-  onSave: (data: TaskFormPayload) => void;
+  onSave: (data: TaskFormPayload, context?: TaskFormSaveContext) => void;
   onCancel: () => void;
 }
 
@@ -76,7 +83,23 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [assigneeId, setAssigneeId] = useState('');
   const [comments, setComments] = useState<WorkItemComment[]>([]);
   const [newCommentText, setNewCommentText] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [currentCommentMentionedIds, setCurrentCommentMentionedIds] = useState<string[]>([]);
+  const [managerAdminProfiles, setManagerAdminProfiles] = useState<UserProfile[]>([]);
   const [saving, setSaving] = useState(false);
+  const commentInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const addedCommentIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    listUserProfiles()
+      .then((profiles) => {
+        const managerAdmin = profiles.filter(
+          (p) => p.role === 'manager' || p.role === 'admin'
+        );
+        setManagerAdminProfiles(managerAdmin);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (mode === 'edit' && initialItem) {
@@ -100,22 +123,72 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     }
   }, [mode, initialItem, defaultLane]);
 
+  const mentionQueryStart = useMemo(() => {
+    const before = newCommentText.slice(0, cursorPosition);
+    return before.lastIndexOf('@');
+  }, [newCommentText, cursorPosition]);
+
+  const mentionQuery =
+    mentionQueryStart >= 0
+      ? newCommentText.slice(mentionQueryStart + 1, cursorPosition).trim()
+      : '';
+
+  const mentionCandidates = useMemo(() => {
+    if (!mentionQuery) return managerAdminProfiles.slice(0, 8);
+    const q = mentionQuery.toLowerCase();
+    return managerAdminProfiles
+      .filter(
+        (p) =>
+          (p.name && p.name.toLowerCase().includes(q)) ||
+          (p.email && p.email.toLowerCase().includes(q))
+      )
+      .slice(0, 8);
+  }, [managerAdminProfiles, mentionQuery]);
+
+  const showMentionDropdown = mentionQueryStart >= 0 && mentionCandidates.length > 0;
+
+  const insertMention = (profile: UserProfile) => {
+    const displayName = profile.name?.trim() || profile.email || profile.id;
+    const before = newCommentText.slice(0, mentionQueryStart);
+    const after = newCommentText.slice(cursorPosition);
+    const inserted = `${before}@${displayName} ${after}`;
+    setNewCommentText(inserted);
+    setCurrentCommentMentionedIds((prev) =>
+      prev.includes(profile.id) ? prev : [...prev, profile.id]
+    );
+    const newPos = mentionQueryStart + 1 + displayName.length + 1;
+    setCursorPosition(newPos);
+    setTimeout(() => {
+      commentInputRef.current?.focus();
+      commentInputRef.current?.setSelectionRange(newPos, newPos);
+    }, 0);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
     setSaving(true);
     try {
-      onSave({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        status,
-        lane,
-        estimate: estimate === '' ? undefined : Number(estimate),
-        blocked,
-        assigneeId: assigneeId || undefined,
-        teamId,
-        comments: comments.length > 0 ? comments : undefined,
-      });
+      const newCommentsWithMentions = comments.filter(
+        (c) => addedCommentIdsRef.current.has(c.id) && c.mentionedUserIds?.length
+      );
+      onSave(
+        {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          status,
+          lane,
+          estimate: estimate === '' ? undefined : Number(estimate),
+          blocked,
+          assigneeId: assigneeId || undefined,
+          teamId,
+          comments: comments.length > 0 ? comments : undefined,
+        },
+        newCommentsWithMentions.length
+          ? { newCommentsWithMentions }
+          : undefined
+      );
+      addedCommentIdsRef.current.clear();
     } finally {
       setSaving(false);
     }
@@ -124,17 +197,23 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const addComment = () => {
     const text = newCommentText.trim();
     if (!text || !user) return;
+    const mentionedUserIds =
+      currentCommentMentionedIds.length > 0 ? [...currentCommentMentionedIds] : undefined;
+    const id = `c-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    addedCommentIdsRef.current.add(id);
     setComments((prev) => [
       ...prev,
       {
-        id: `c-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        id,
         userId: user.uid,
         userName: user.displayName || user.email || undefined,
         text,
         createdAt: new Date(),
+        ...(mentionedUserIds?.length ? { mentionedUserIds } : {}),
       },
     ]);
     setNewCommentText('');
+    setCurrentCommentMentionedIds([]);
   };
 
   const uniqueId = mode === 'edit' && initialItem ? initialItem.id : '—';
@@ -214,16 +293,66 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                 ))}
               </ul>
             )}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
+            <div style={{ position: 'relative', flex: 1 }}>
+              <textarea
+                ref={commentInputRef}
                 value={newCommentText}
-                onChange={(e) => setNewCommentText(e.target.value)}
-                placeholder="Add a comment"
-                style={inputStyle}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addComment())}
+                onChange={(e) => {
+                  setNewCommentText(e.target.value);
+                  setCursorPosition(e.target.selectionStart ?? 0);
+                }}
+                onKeyUp={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
+                onSelect={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
+                placeholder="Add a comment (type @ to mention manager/admin)"
+                rows={2}
+                style={{ ...inputStyle, resize: 'vertical', width: '100%', boxSizing: 'border-box' }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    addComment();
+                  }
+                }}
               />
-              <button type="button" onClick={addComment} disabled={!user} style={{ padding: '8px 14px', background: '#e5e7eb', border: 'none', borderRadius: '8px', cursor: user ? 'pointer' : 'not-allowed', fontSize: '14px' }}>
+              {showMentionDropdown && (
+                <ul
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: '100%',
+                    margin: 0,
+                    marginTop: '4px',
+                    padding: '4px 0',
+                    listStyle: 'none',
+                    background: '#fff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    zIndex: 10,
+                    minWidth: '200px',
+                  }}
+                >
+                  {mentionCandidates.map((p) => (
+                    <li
+                      key={p.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => insertMention(p)}
+                      onKeyDown={(e) => e.key === 'Enter' && insertMention(p)}
+                      style={{
+                        padding: '8px 12px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        color: '#374151',
+                      }}
+                    >
+                      {p.name || p.email || p.id}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button type="button" onClick={addComment} disabled={!user} style={{ marginTop: '8px', padding: '8px 14px', background: '#e5e7eb', border: 'none', borderRadius: '8px', cursor: user ? 'pointer' : 'not-allowed', fontSize: '14px' }}>
                 Add comment
               </button>
             </div>

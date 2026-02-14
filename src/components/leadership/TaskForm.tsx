@@ -85,7 +85,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [newCommentText, setNewCommentText] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const [currentCommentMentionedIds, setCurrentCommentMentionedIds] = useState<string[]>([]);
-  const [managerAdminProfiles, setManagerAdminProfiles] = useState<UserProfile[]>([]);
+  const [mentionableProfiles, setMentionableProfiles] = useState<UserProfile[]>([]);
   const [saving, setSaving] = useState(false);
   const commentInputRef = useRef<HTMLTextAreaElement | null>(null);
   const addedCommentIdsRef = useRef<Set<string>>(new Set());
@@ -93,10 +93,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   useEffect(() => {
     listUserProfiles()
       .then((profiles) => {
-        const managerAdmin = profiles.filter(
-          (p) => p.role === 'manager' || p.role === 'admin'
+        const mentionable = profiles.filter(
+          (p) => p.role === 'manager' || p.role === 'admin' || p.role === 'contributor' || p.role === 'viewer'
         );
-        setManagerAdminProfiles(managerAdmin);
+        setMentionableProfiles(mentionable);
       })
       .catch(() => {});
   }, []);
@@ -134,16 +134,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       : '';
 
   const mentionCandidates = useMemo(() => {
-    if (!mentionQuery) return managerAdminProfiles.slice(0, 8);
+    if (!mentionQuery) return mentionableProfiles.slice(0, 8);
     const q = mentionQuery.toLowerCase();
-    return managerAdminProfiles
+    return mentionableProfiles
       .filter(
         (p) =>
           (p.name && p.name.toLowerCase().includes(q)) ||
           (p.email && p.email.toLowerCase().includes(q))
       )
       .slice(0, 8);
-  }, [managerAdminProfiles, mentionQuery]);
+  }, [mentionableProfiles, mentionQuery]);
 
   const showMentionDropdown = mentionQueryStart >= 0 && mentionCandidates.length > 0;
 
@@ -303,7 +303,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                 }}
                 onKeyUp={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
                 onSelect={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
-                placeholder="Add a comment (type @ to mention manager/admin)"
+                placeholder="Add a comment (type @ to mention someone)"
                 rows={2}
                 style={{ ...inputStyle, resize: 'vertical', width: '100%', boxSizing: 'border-box' }}
                 onKeyDown={(e) => {

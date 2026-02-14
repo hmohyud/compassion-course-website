@@ -118,7 +118,19 @@ const TeamWhiteboardsListPage: React.FC = () => {
         </button>
 
         {createError && (
-          <p style={{ color: '#dc2626', marginBottom: '16px' }}>{createError}</p>
+          <div
+            role="alert"
+            style={{
+              color: '#b91c1c',
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+            }}
+          >
+            {createError}
+          </div>
         )}
 
         {loading ? (

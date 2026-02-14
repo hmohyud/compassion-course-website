@@ -9,10 +9,22 @@ export function normalizeError(e: unknown): WhiteboardError {
     const code = e && typeof e === 'object' && 'code' in e && typeof (e as { code: string }).code === 'string'
       ? (e as { code: string }).code
       : 'unknown';
-    return { code, message: msg };
+    return { code, message: msg || fallbackMessage(code) };
   }
-  if (e instanceof Error) return { code: 'error', message: e.message };
-  return { code: 'unknown', message: String(e) };
+  if (e instanceof Error) {
+    const code = e && typeof e === 'object' && 'code' in e && typeof (e as { code: string }).code === 'string'
+      ? (e as { code: string }).code
+      : 'error';
+    return { code, message: e.message || fallbackMessage(code) };
+  }
+  return { code: 'unknown', message: String(e) || 'Something went wrong.' };
+}
+
+function fallbackMessage(code: string): string {
+  if (code === 'permission-denied') {
+    return 'Permission denied. Make sure you’re a member of this team or an admin, and that Firestore rules are deployed.';
+  }
+  return 'Something went wrong. Try again or check the console for details.';
 }
 
 export function messageFromCaught(e: unknown): string {

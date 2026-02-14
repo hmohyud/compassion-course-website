@@ -257,11 +257,13 @@ service cloud.firestore {
         && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
             || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
             || (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.get('teamId', null) != null
-                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId)));
+                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId))
+            || isAdmin());
       allow write: if request.auth != null
         && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
             || (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.get('teamId', null) != null
-                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId)));
+                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId))
+            || isAdmin());
     }
     match /whiteboards/{boardId}/state/{docId} {
       allow read: if request.auth != null

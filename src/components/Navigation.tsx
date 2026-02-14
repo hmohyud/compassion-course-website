@@ -136,6 +136,11 @@ const Navigation: React.FC = () => {
           {user && !isInPortal && (
             <Link to="/portal" className="nav-link nav-link-portal">Portal</Link>
           )}
+          {!user && (
+            <button type="button" className="nav-link nav-link-portal nav-link-btn" onClick={handleLogInClick}>
+              Portal
+            </button>
+          )}
           {user && (
             <div className="nav-avatar-wrap">
               {!profileLoading && (

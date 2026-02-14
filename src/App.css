@@ -445,6 +445,14 @@ p {
     font-size: 1rem;
 }
 
+.nav-link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+
 .nav-avatar-wrap {
     flex-shrink: 0;
 }

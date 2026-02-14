@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { listTeamsForUser, listTeams } from '../services/leadershipTeamsService';
-import { listWorkItemsForUser, listWorkItems } from '../services/leadershipWorkItemsService';
+import { listWorkItemsForUser, listWorkItems, listAllBlockedItems } from '../services/leadershipWorkItemsService';
 import { listNotificationsForUser, markNotificationRead } from '../services/notificationService';
 import type { UserNotification } from '../services/notificationService';
 import type { LeadershipTeam } from '../types/leadership';
@@ -70,6 +70,7 @@ const LeadershipPortalPage: React.FC = () => {
   const [teams, setTeams] = useState<LeadershipTeam[]>([]);
   const [allTeams, setAllTeams] = useState<LeadershipTeam[]>([]);
   const [workItems, setWorkItems] = useState<LeadershipWorkItem[]>([]);
+  const [allBlockedItems, setAllBlockedItems] = useState<LeadershipWorkItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -80,6 +81,7 @@ const LeadershipPortalPage: React.FC = () => {
       setTeams([]);
       setAllTeams([]);
       setWorkItems([]);
+      setAllBlockedItems([]);
       setLoading(false);
       return;
     }
@@ -91,6 +93,7 @@ const LeadershipPortalPage: React.FC = () => {
       listTeamsForUser(user.uid),
       listTeams(),
       listWorkItemsForUser(user.uid),
+      listAllBlockedItems(),
     ])
       .then(async (results) => {
         if (cancelled) return;
@@ -98,6 +101,7 @@ const LeadershipPortalPage: React.FC = () => {
         const r1 = results[1];
         const r2 = results[2];
         const r3 = results[3];
+        const r4 = results[4];
         if (r0.status === 'fulfilled') {
           setNotifications(r0.value);
           setNotificationsLoadFailed(false);
@@ -134,7 +138,15 @@ const LeadershipPortalPage: React.FC = () => {
             // keep finalItems as is
           }
         }
-        if (!cancelled) setWorkItems(finalItems);
+        if (!cancelled) {
+          if (r4.status === 'fulfilled') {
+            setAllBlockedItems(r4.value);
+          } else {
+            console.error('Dashboard load item failed:', 4, r4?.reason);
+            setAllBlockedItems([]);
+          }
+          setWorkItems(finalItems);
+        }
       })
       .catch((err) => {
         console.error('Dashboard load failed:', err);
@@ -155,11 +167,6 @@ const LeadershipPortalPage: React.FC = () => {
     allTeams.forEach((t) => m.set(t.id, t.name));
     return m;
   }, [allTeams]);
-
-  const blockedItems = useMemo(
-    () => workItems.filter((w) => w.blocked === true),
-    [workItems]
-  );
 
   const loadNotifications = () => {
     if (!user?.uid) return;
@@ -314,12 +321,12 @@ const LeadershipPortalPage: React.FC = () => {
               {/* Blocked Tasks */}
               <div style={widgetStyle}>
                 <h2 style={cardTitleStyle}>Blocked Tasks</h2>
-                {blockedItems.length === 0 ? (
+                {allBlockedItems.length === 0 ? (
                   <p style={{ ...secondaryTextStyle, margin: 0 }}>No blocked tasks.</p>
                 ) : (
                   <>
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {blockedItems.slice(0, 8).map((w) => {
+                      {allBlockedItems.slice(0, 8).map((w) => {
                         const teamName = w.teamId ? teamNameById.get(w.teamId) : null;
                         const subtitle = teamName
                           ? `Task · ${teamName}`

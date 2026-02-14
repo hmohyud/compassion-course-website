@@ -93,6 +93,12 @@ export async function listAllBacklogStatusItems(): Promise<LeadershipWorkItem[]>
   return all.filter((w) => w.status === 'backlog').sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
+/** All blocked items, from any team or no team */
+export async function listAllBlockedItems(): Promise<LeadershipWorkItem[]> {
+  const all = await listWorkItems();
+  return all.filter((w) => w.blocked === true).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+}
+
 export async function listWorkItemsForUser(assigneeId: string): Promise<LeadershipWorkItem[]> {
   const ref = collection(db, COLLECTION);
   const q = query(ref, where('assigneeId', '==', assigneeId));

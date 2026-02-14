@@ -28,6 +28,7 @@ function toWorkItem(docSnap: { id: string; data: () => Record<string, unknown> }
     teamId: d.teamId as string | undefined,
     status: validStatus.includes(status) ? status : 'backlog',
     dueDate: (d.dueDate as { toDate: () => Date })?.toDate?.() ?? undefined,
+    blocked: d.blocked === true,
     createdAt: (d.createdAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
     updatedAt: (d.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
   };
@@ -78,6 +79,7 @@ export async function createWorkItem(data: {
   teamId?: string;
   status?: WorkItemStatus;
   dueDate?: Date;
+  blocked?: boolean;
 }): Promise<LeadershipWorkItem> {
   const ref = collection(db, COLLECTION);
   const docRef = await addDoc(ref, {
@@ -87,6 +89,7 @@ export async function createWorkItem(data: {
     teamId: data.teamId ?? null,
     status: data.status ?? 'backlog',
     dueDate: data.dueDate ?? null,
+    blocked: data.blocked === true,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -96,7 +99,7 @@ export async function createWorkItem(data: {
 
 export async function updateWorkItem(
   id: string,
-  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'teamId' | 'status' | 'dueDate'>>
+  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'teamId' | 'status' | 'dueDate' | 'blocked'>>
 ): Promise<void> {
   const ref = doc(db, COLLECTION, id);
   const data: Record<string, unknown> = { updatedAt: serverTimestamp() };
@@ -106,6 +109,7 @@ export async function updateWorkItem(
   if (updates.teamId !== undefined) data.teamId = updates.teamId;
   if (updates.status !== undefined) data.status = updates.status;
   if (updates.dueDate !== undefined) data.dueDate = updates.dueDate;
+  if (updates.blocked !== undefined) data.blocked = updates.blocked;
   await updateDoc(ref, data);
 }
 

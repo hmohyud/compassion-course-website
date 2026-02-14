@@ -27,6 +27,7 @@ export interface LeadershipWorkItem {
   teamId?: string;
   status: WorkItemStatus;
   dueDate?: Date;
+  blocked?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

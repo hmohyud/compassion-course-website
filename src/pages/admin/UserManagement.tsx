@@ -47,12 +47,12 @@ const UserManagement: React.FC = () => {
   const [teamsLoading, setTeamsLoading] = useState(false);
   const [teamProfiles, setTeamProfiles] = useState<UserProfile[]>([]);
   const [editingTeam, setEditingTeam] = useState<LeadershipTeam | null>(null);
-  const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [teamSubTab, setTeamSubTab] = useState<'teams' | 'teamsOfTeams'>('teams');
   const [createTeamName, setCreateTeamName] = useState('');
-  const [createTeamMemberIds, setCreateTeamMemberIds] = useState<Set<string>>(new Set());
+  const [teamSaving, setTeamSaving] = useState(false);
+  const [updatingTeamId, setUpdatingTeamId] = useState<string | null>(null);
   const [editTeamName, setEditTeamName] = useState('');
   const [editTeamMemberIds, setEditTeamMemberIds] = useState<Set<string>>(new Set());
-  const [teamSaving, setTeamSaving] = useState(false);
 
   const setTab = (t: AdminUserTab) => setSearchParams(t === 'directory' ? {} : { tab: t });
 
@@ -88,12 +88,6 @@ const UserManagement: React.FC = () => {
     if (activeTab === 'teams') loadTeams();
   }, [activeTab]);
 
-  // Open create-team form when arriving with ?tab=teams&create=1 (e.g. from Admin Dashboard "Create team" card)
-  useEffect(() => {
-    if (activeTab === 'teams' && (searchParams.get('create') === '1' || searchParams.get('action') === 'create')) {
-      setShowCreateTeam(true);
-    }
-  }, [activeTab, searchParams]);
 
   const loadData = async () => {
     setLoading(true);
@@ -269,11 +263,9 @@ const UserManagement: React.FC = () => {
     if (!name) return;
     setTeamSaving(true);
     try {
-      const team = await createTeam(name, Array.from(createTeamMemberIds));
+      const team = await createTeam(name, []);
       await createBoardForTeam(team.id);
-      setShowCreateTeam(false);
       setCreateTeamName('');
-      setCreateTeamMemberIds(new Set());
       await loadTeams();
     } catch (err) {
       console.error(err);
@@ -281,6 +273,36 @@ const UserManagement: React.FC = () => {
       setTeamSaving(false);
     }
   };
+
+  const addMemberToTeam = async (teamId: string, userId: string) => {
+    const team = teams.find((t) => t.id === teamId);
+    if (!team || team.memberIds.includes(userId)) return;
+    setUpdatingTeamId(teamId);
+    try {
+      await updateTeam(teamId, { memberIds: [...team.memberIds, userId] });
+      await loadTeams();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingTeamId(null);
+    }
+  };
+
+  const removeMemberFromTeam = async (teamId: string, userId: string) => {
+    const team = teams.find((t) => t.id === teamId);
+    if (!team) return;
+    setUpdatingTeamId(teamId);
+    try {
+      await updateTeam(teamId, { memberIds: team.memberIds.filter((id) => id !== userId) });
+      await loadTeams();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingTeamId(null);
+    }
+  };
+
+  const getMemberDisplayName = (profile: UserProfile) => profile.name || profile.email || profile.id;
 
   const handleUpdateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -590,42 +612,157 @@ const UserManagement: React.FC = () => {
 
         {activeTab === 'teams' && (
         <div style={{ marginBottom: '24px' }}>
-          {teamsLoading ? (
-            <p style={{ color: '#6b7280' }}>Loading teams…</p>
-          ) : (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-                <h2 style={{ color: '#002B4D', margin: 0 }}>Teams</h2>
+          <div style={{ marginBottom: '16px', borderBottom: '1px solid #e5e7eb' }}>
+            <nav style={{ display: 'flex', gap: '0' }}>
+              {(['teams', 'teamsOfTeams'] as const).map((st) => (
                 <button
+                  key={st}
                   type="button"
-                  onClick={() => { setShowCreateTeam(true); setCreateTeamName(''); setCreateTeamMemberIds(new Set()); }}
-                  className="btn btn-primary"
+                  onClick={() => setTeamSubTab(st)}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: teamSubTab === st ? '3px solid #002B4D' : '3px solid transparent',
+                    color: teamSubTab === st ? '#002B4D' : '#6b7280',
+                    fontWeight: teamSubTab === st ? 600 : 500,
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                  }}
                 >
-                  Create team
+                  {st === 'teams' ? 'Teams' : 'Teams of Teams'}
                 </button>
-              </div>
-              {teams.length === 0 ? (
+              ))}
+            </nav>
+          </div>
+
+          {teamSubTab === 'teams' && (
+            <>
+              <form onSubmit={handleCreateTeam} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  value={createTeamName}
+                  onChange={(e) => setCreateTeamName(e.target.value)}
+                  placeholder="Team name"
+                  required
+                  style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', minWidth: '200px' }}
+                />
+                <button
+                  type="submit"
+                  disabled={teamSaving}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#e5e7eb',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: teamSaving ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {teamSaving ? 'Creating…' : 'Create team'}
+                </button>
+              </form>
+
+              {teamsLoading ? (
+                <p style={{ color: '#6b7280' }}>Loading teams…</p>
+              ) : teams.length === 0 ? (
                 <p style={{ color: '#6b7280' }}>No teams yet. Create one to get started.</p>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 120px', gap: '16px', alignItems: 'center', borderBottom: '2px solid #e5e7eb', padding: '12px 8px', color: '#002B4D', fontSize: '0.875rem', fontWeight: 600 }}>
-                    <div>Name</div>
-                    <div>Members</div>
-                    <div>Actions</div>
-                  </div>
-                  {teams.map((t) => (
-                    <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto 120px', gap: '16px', alignItems: 'center', borderBottom: '1px solid #e5e7eb', padding: '12px 8px' }}>
-                      <div style={{ fontWeight: 500 }}>{t.name}</div>
-                      <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{t.memberIds.length}</div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button type="button" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => { setEditingTeam(t); setEditTeamName(t.name); setEditTeamMemberIds(new Set(t.memberIds)); }}>Edit</button>
-                        <button type="button" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: '6px', cursor: 'pointer' }} onClick={async () => { if (!window.confirm(`Delete team "${t.name}"?`)) return; setTeamSaving(true); try { await deleteTeam(t.id); await loadTeams(); } catch (e) { console.error(e); } finally { setTeamSaving(false); }}} disabled={teamSaving}>Delete</button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {teams.map((t) => {
+                    const memberProfiles = t.memberIds
+                      .map((id) => teamProfiles.find((p) => p.id === id))
+                      .filter((p): p is UserProfile => p != null);
+                    const availableToAdd = teamProfiles.filter((p) => !t.memberIds.includes(p.id));
+                    const isUpdating = updatingTeamId === t.id;
+                    return (
+                      <div
+                        key={t.id}
+                        style={{
+                          background: '#ffffff',
+                          borderRadius: '12px',
+                          padding: '20px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          border: '1px solid #e5e7eb',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                          <h3 style={{ color: '#002B4D', margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{t.name}</h3>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button type="button" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => { setEditingTeam(t); setEditTeamName(t.name); setEditTeamMemberIds(new Set(t.memberIds)); }}>Edit</button>
+                            <button type="button" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: '6px', cursor: 'pointer' }} onClick={async () => { if (!window.confirm(`Delete team "${t.name}"?`)) return; setTeamSaving(true); try { await deleteTeam(t.id); await loadTeams(); } catch (e) { console.error(e); } finally { setTeamSaving(false); }}} disabled={teamSaving}>Delete</button>
+                          </div>
+                        </div>
+                        <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '0 0 12px 0' }}>
+                          Members: {memberProfiles.length === 0 ? 'None' : memberProfiles.map((p) => getMemberDisplayName(p)).join(', ')}
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.875rem', color: '#374151', fontWeight: 500 }}>Add member:</span>
+                          <select
+                            value=""
+                            onChange={(e) => {
+                              const uid = e.target.value;
+                              if (uid) {
+                                addMemberToTeam(t.id, uid);
+                                e.target.value = '';
+                              }
+                            }}
+                            disabled={isUpdating}
+                            style={{ padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', minWidth: '140px' }}
+                          >
+                            <option value="">Select user...</option>
+                            {availableToAdd.map((p) => (
+                              <option key={p.id} value={p.id}>{getMemberDisplayName(p)}</option>
+                            ))}
+                          </select>
+                          {memberProfiles.map((p) => (
+                            <span
+                              key={p.id}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '4px 10px',
+                                background: '#f3f4f6',
+                                borderRadius: '9999px',
+                                fontSize: '0.875rem',
+                                color: '#374151',
+                              }}
+                            >
+                              {getMemberDisplayName(p)}
+                              <button
+                                type="button"
+                                aria-label={`Remove ${getMemberDisplayName(p)}`}
+                                disabled={isUpdating}
+                                onClick={() => removeMemberFromTeam(t.id, p.id)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  marginLeft: '2px',
+                                  cursor: isUpdating ? 'not-allowed' : 'pointer',
+                                  color: '#6b7280',
+                                  fontSize: '1rem',
+                                  lineHeight: 1,
+                                }}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>
+          )}
+
+          {teamSubTab === 'teamsOfTeams' && (
+            <p style={{ color: '#6b7280', padding: '24px 0' }}>Teams of Teams coming soon.</p>
           )}
         </div>
         )}
@@ -883,35 +1020,6 @@ const UserManagement: React.FC = () => {
                 Close
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {showCreateTeam && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateTeam(false)}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', maxWidth: 480, width: '90%', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ color: '#002B4D', marginBottom: '16px' }}>Create team</h3>
-            <form onSubmit={handleCreateTeam}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, color: '#374151' }}>Team name</label>
-                <input type="text" value={createTeamName} onChange={(e) => setCreateTeamName(e.target.value)} placeholder="e.g. Product Team" required style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px' }} />
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, color: '#374151' }}>Members</label>
-                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px' }}>
-                  {teamProfiles.map((p) => (
-                    <label key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={createTeamMemberIds.has(p.id)} onChange={() => setCreateTeamMemberIds((prev) => { const next = new Set(prev); if (next.has(p.id)) next.delete(p.id); else next.add(p.id); return next; })} />
-                      <span>{p.name || p.email || p.id}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="submit" className="btn btn-primary" disabled={teamSaving}>{teamSaving ? 'Creating…' : 'Create'}</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowCreateTeam(false)}>Cancel</button>
-              </div>
-            </form>
           </div>
         </div>
       )}

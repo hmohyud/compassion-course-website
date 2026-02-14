@@ -1,26 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { getUpcomingWebcasts } from '../../services/webcastService';
 import AdminLayout from '../../components/AdminLayout';
 
 const AdminDashboard: React.FC = () => {
-  const [upcomingCount, setUpcomingCount] = useState(0);
-  const [liveCount, setLiveCount] = useState(0);
-
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
-    try {
-      const webcasts = await getUpcomingWebcasts();
-      setUpcomingCount(webcasts.filter(w => w.status === 'scheduled').length);
-      setLiveCount(webcasts.filter(w => w.status === 'live').length);
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  };
-
   const cardStyle = {
     padding: '24px',
     background: '#ffffff',
@@ -59,17 +41,6 @@ const AdminDashboard: React.FC = () => {
             <p style={{ color: '#6b7280', fontSize: '0.95rem', margin: 0 }}>
               Create a new team and manage teams.
             </p>
-          </Link>
-
-          <Link to="/admin/webcasts" style={cardStyle} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#002B4D'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <h2 style={{ color: '#002B4D', marginBottom: '8px', fontSize: '1.25rem' }}>Webcast Management</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.95rem', margin: 0 }}>
-              Schedule and manage webcasts with Google Meet integration.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', fontSize: '0.875rem', color: '#6b7280', marginTop: '8px' }}>
-              <span><strong>{upcomingCount}</strong> Upcoming</span>
-              <span><strong>{liveCount}</strong> Live</span>
-            </div>
           </Link>
 
           <Link to="/admin/content" style={cardStyle} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#002B4D'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.transform = 'translateY(0)'; }}>

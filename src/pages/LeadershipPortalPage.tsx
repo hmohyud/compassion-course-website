@@ -132,6 +132,26 @@ const LeadershipPortalPage: React.FC = () => {
 
           {isAdmin && (
             <Link
+              to="/admin/webcasts"
+              style={{ ...cardStyle, maxWidth: '280px' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Webcast Management</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: 0 }}>
+                Schedule and manage webcasts with Google Meet integration.
+              </p>
+            </Link>
+          )}
+
+          {isAdmin && (
+            <Link
               to="/admin"
               style={{
                 ...cardStyle,
@@ -169,7 +189,7 @@ const LeadershipPortalPage: React.FC = () => {
           }}
         >
           <p style={{ color: '#6b7280', margin: 0 }}>
-            Use the links above to open My Dashboard, Main backlog, Teams, or Admin portal (admins).
+            Use the links above to open My Dashboard, Main backlog, Teams, Webcast Management (admins), or Admin portal (admins).
           </p>
         </div>
 

@@ -164,6 +164,7 @@ const TeamBoardPage: React.FC = () => {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     loadBoard();
   }, [teamId]);
 

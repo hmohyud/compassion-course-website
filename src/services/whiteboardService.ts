@@ -6,7 +6,6 @@ import {
   setDoc,
   updateDoc,
   query,
-  where,
   orderBy,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -21,7 +20,6 @@ export interface WhiteboardMeta {
   createdAt: Date;
   updatedAt: Date;
   isArchived?: boolean;
-  teamId?: string;
 }
 
 export interface CanvasState {
@@ -60,7 +58,6 @@ function fromDoc(id: string, data: Record<string, unknown>): WhiteboardMeta {
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),
     isArchived: data.isArchived === true,
-    teamId: data.teamId != null && data.teamId !== '' ? (data.teamId as string) : undefined,
   };
 }
 
@@ -73,7 +70,7 @@ export async function listWhiteboards(): Promise<WhiteboardMeta[]> {
   return snap.docs.map((d) => fromDoc(d.id, d.data()));
 }
 
-export async function createWhiteboard(title: string, ownerId?: string, teamId?: string): Promise<string> {
+export async function createWhiteboard(title: string, ownerId?: string): Promise<string> {
   const ref = doc(collection(db, COLLECTION));
   const boardId = ref.id;
   await setDoc(ref, {
@@ -82,19 +79,8 @@ export async function createWhiteboard(title: string, ownerId?: string, teamId?:
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     canvasState: { elements: [], appState: {} },
-    ...(teamId != null && teamId !== '' ? { teamId } : {}),
   });
   return boardId;
-}
-
-export async function listWhiteboardsForTeam(teamId: string): Promise<WhiteboardMeta[]> {
-  const q = query(
-    collection(db, COLLECTION),
-    where('teamId', '==', teamId),
-    orderBy('updatedAt', 'desc')
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => fromDoc(d.id, d.data()));
 }
 
 export async function getWhiteboard(boardId: string): Promise<WhiteboardDoc | null> {

@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { getWhiteboard, updateWhiteboard } from '../services/whiteboardService';
-import { getTeam } from '../services/leadershipTeamsService';
 import { ExcalidrawShell } from '../components/whiteboard/ExcalidrawShell';
 import type { ExcalidrawAPI } from '../components/whiteboard/ExcalidrawShell';
 
@@ -54,16 +53,7 @@ const WhiteboardEditorPage: React.FC = () => {
         }
         setBoard(doc);
         setTitle(doc.title);
-        if (!doc.teamId) {
-          setCanEdit(isAdmin);
-          return;
-        }
-        getTeam(doc.teamId).then((team) => {
-          if (cancelled) return;
-          setCanEdit(isAdmin || (team != null && user?.uid != null && team.memberIds.includes(user.uid)));
-        }).catch(() => {
-          if (!cancelled) setCanEdit(isAdmin);
-        });
+        setCanEdit(isAdmin);
       })
       .catch((e) => {
         if (!cancelled) {
@@ -76,7 +66,7 @@ const WhiteboardEditorPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [boardId, isAdmin, user?.uid]);
+  }, [boardId, isAdmin]);
 
   const persistState = useCallback(async () => {
     if (!board || !boardId || !excalidrawApiRef.current) return;

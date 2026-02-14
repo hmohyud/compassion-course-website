@@ -32,7 +32,6 @@ import LeadershipMainBacklogPage from './pages/leadership/LeadershipMainBacklogP
 import LeadershipTeamPage from './pages/leadership/LeadershipTeamPage'
 import TeamBoardPage from './pages/leadership/TeamBoardPage'
 import TeamBoardSettingsPage from './pages/leadership/TeamBoardSettingsPage'
-import TeamWhiteboardsListPage from './pages/leadership/TeamWhiteboardsListPage'
 // Platform Pages
 import UserProfilePage from './pages/platform/UserProfilePage'
 import WebcastsPage from './pages/platform/WebcastsPage'
@@ -130,11 +129,6 @@ function App() {
               <Route path="/portal/leadership/teams/:teamId/board" element={
                 <LeadershipProtectedRoute>
                   <TeamBoardPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams/:teamId/whiteboards" element={
-                <LeadershipProtectedRoute>
-                  <TeamWhiteboardsListPage />
                 </LeadershipProtectedRoute>
               } />
               <Route path="/portal/leadership/teams/:teamId" element={

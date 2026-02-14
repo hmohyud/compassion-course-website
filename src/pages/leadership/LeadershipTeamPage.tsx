@@ -215,19 +215,6 @@ const LeadershipTeamPage: React.FC = () => {
               >
                 Team board
               </Link>
-              <Link
-                to={`/portal/leadership/teams/${teamId}/whiteboards`}
-                style={{
-                  padding: '10px 20px',
-                  background: '#002B4D',
-                  color: '#fff',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  fontWeight: 600,
-                }}
-              >
-                Whiteboards
-              </Link>
             </div>
 
             <div style={sectionStyle}>

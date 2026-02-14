@@ -204,7 +204,7 @@ const LeadershipPortalPage: React.FC = () => {
           >
             <h2 style={{ color: '#002B4D', marginBottom: '12px', fontSize: '1.1rem' }}>Teams</h2>
             <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '12px' }}>
-              Open a team page for backlog, board, and working agreements.
+              Open a team page for backlog, board, working agreements, and whiteboards.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {teams.map((t) => (

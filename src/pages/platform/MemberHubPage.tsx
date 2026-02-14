@@ -68,6 +68,22 @@ const MemberHubPage: React.FC = () => {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
             <Link
+              to="/platform/whiteboards"
+              style={cardStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#002B4D';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <h2 style={{ color: '#002B4D', marginBottom: '8px' }}>Whiteboards</h2>
+              <p style={{ color: '#6b7280', margin: 0 }}>Create and share whiteboards in the app.</p>
+            </Link>
+
+            <Link
               to="/portal/backlog"
               style={cardStyle}
               onMouseEnter={(e) => {

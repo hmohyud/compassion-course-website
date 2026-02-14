@@ -20,7 +20,8 @@ import { logAuthDiagnostics, isDomainBlockingError, getDomainBlockingErrorMessag
 
 // Temporary fallback admin emails (used when Firestore is offline)
 const ADMIN_EMAILS: string[] = [
-  'info@compassioncf.com'
+  'info@compassioncf.com',
+  'jaybond@compassioncf.com'
 ];
 
 /** True if the user has email/password as a sign-in method (so they can log in with password). */

@@ -29,7 +29,7 @@ service cloud.firestore {
     function isTrustedAdminEmail() {
       return request.auth != null && 
              request.auth.token.email != null &&
-             request.auth.token.email == 'info@compassioncf.com';
+             request.auth.token.email in ['info@compassioncf.com', 'jaybond@compassioncf.com'];
     }
     
     // Helper: user's profile has portal role manager or admin (for listing userProfiles in Create Team)
@@ -112,17 +112,17 @@ service cloud.firestore {
     // ============================================
     
     match /userProfiles/{userId} {
-      allow read: if request.auth != null && (isOwner(userId) || isAdminUser() || isManagerOrAdmin());
+      allow read: if request.auth != null && (isOwner(userId) || isAdminUser() || isManagerOrAdmin() || isTrustedAdminEmail());
       allow create: if request.auth != null && isOwner(userId);
       // Admins can update anything; owners can update without changing role, or set mustChangePassword/updatedAt only
       allow update: if request.auth != null && (
-        isAdminUser() ||
+        isAdminUser() || isTrustedAdminEmail() ||
         (isOwner(userId) && (
           request.resource.data.get('role', 'viewer') == resource.data.get('role', 'viewer') ||
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword', 'updatedAt'])
         ))
       );
-      allow delete: if isAdminUser();
+      allow delete: if isAdminUser() || isTrustedAdminEmail();
     }
     
     // ============================================

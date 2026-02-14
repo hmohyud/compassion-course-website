@@ -68,7 +68,7 @@ const MemberHubPage: React.FC = () => {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
             <Link
-              to="/platform/whiteboards"
+              to="/whiteboards"
               style={cardStyle}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#002B4D';

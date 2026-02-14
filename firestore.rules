@@ -211,95 +211,14 @@ service cloud.firestore {
     }
     
     // ============================================
-    // HELPERS: company (single-tenant) and team membership
+    // WHITEBOARDS (site-scoped; authenticated read, admin write)
     // ============================================
-    function canAccessCompany(companyId) {
+    function isSignedIn() {
       return request.auth != null;
     }
-    function isTeamMember(teamId) {
-      return request.auth != null
-        && teamId != null
-        && teamId != ''
-        && exists(/databases/$(database)/documents/teams/$(teamId))
-        && request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.get('memberIds', []);
-    }
-    function canReadTeam(teamId) {
-      return isTeamMember(teamId);
-    }
-
-    // ============================================
-    // WHITEBOARDS (top-level: whiteboards/{boardId}, members, state)
-    // ============================================
     match /whiteboards/{boardId} {
-      allow read: if request.auth != null
-        && (resource.data.ownerId == request.auth.uid
-            || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
-            || (resource.data.get('teamId', null) != null
-                && resource.data.teamId != ''
-                && canReadTeam(resource.data.teamId))
-            || isAdmin());
-      allow create: if request.auth != null
-        && request.resource.data.ownerId == request.auth.uid
-        && (isAdmin()
-            || !('teamId' in request.resource.data)
-            || request.resource.data.teamId == null
-            || request.resource.data.teamId == ''
-            || canReadTeam(request.resource.data.teamId));
-      allow update, delete: if request.auth != null
-        && (resource.data.ownerId == request.auth.uid
-            || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
-            || (resource.data.get('teamId', null) != null
-                && resource.data.teamId != ''
-                && canReadTeam(resource.data.teamId)));
-    }
-    match /whiteboards/{boardId}/members/{userId} {
-      allow read: if request.auth != null
-        && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
-            || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
-            || (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.get('teamId', null) != null
-                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId))
-            || isAdmin());
-      allow write: if request.auth != null
-        && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
-            || (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.get('teamId', null) != null
-                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId))
-            || isAdmin());
-    }
-    match /whiteboards/{boardId}/state/{docId} {
-      allow read: if request.auth != null
-        && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
-            || exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
-            || (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.get('teamId', null) != null
-                && canReadTeam(get(/databases/$(database)/documents/whiteboards/$(boardId)).data.teamId)));
-      allow write: if request.auth != null
-        && (get(/databases/$(database)/documents/whiteboards/$(boardId)).data.ownerId == request.auth.uid
-            || (exists(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid))
-                && get(/databases/$(database)/documents/whiteboards/$(boardId)/members/$(request.auth.uid)).data.role in ['owner', 'editor']));
-    }
-    match /userWhiteboards/{userId}/boards/{boardId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ============================================
-    // COMPANY WHITEBOARDS (legacy companies/{companyId}/whiteboards – deprecated)
-    // ============================================
-    match /companies/{companyId}/whiteboards/{boardId} {
-      allow read: if canAccessCompany(companyId)
-        && (!resource.exists
-            || resource.data.get('teamId', null) == null
-            || resource.data.teamId == ''
-            || isTeamMember(resource.data.teamId));
-      allow create: if canAccessCompany(companyId)
-        && request.resource.data.ownerId == request.auth.uid
-        && (!('teamId' in request.resource.data)
-            || request.resource.data.teamId == null
-            || request.resource.data.teamId == ''
-            || isTeamMember(request.resource.data.teamId));
-      allow update, delete: if canAccessCompany(companyId)
-        && (resource.data.ownerId == request.auth.uid
-            || (resource.data.get('teamId', null) != null
-                && resource.data.teamId != ''
-                && isTeamMember(resource.data.teamId)));
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
     }
 
     // ============================================
@@ -325,17 +244,6 @@ service cloud.firestore {
     match /leadershipWorkingAgreements/{teamId} {
       allow read, write: if request.auth != null && (
         request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.memberIds
-        || isAdmin()
-      );
-    }
-    // Team whiteboards: allow if user is in team or admin (create uses request.resource.data.teamId)
-    match /leadershipTeamWhiteboards/{whiteboardId} {
-      allow read, update, delete: if request.auth != null && (
-        request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.memberIds
-        || isAdmin()
-      );
-      allow create: if request.auth != null && (
-        request.auth.uid in get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.memberIds
         || isAdmin()
       );
     }

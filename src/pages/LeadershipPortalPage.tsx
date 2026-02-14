@@ -184,7 +184,7 @@ const LeadershipPortalPage: React.FC = () => {
           ← Back to Portal
         </Link>
         <h1 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '1.75rem', fontWeight: 700 }}>
-          Leader Dashboard
+          My Leader Dashboard
         </h1>
         <p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '24px' }}>
           Tools and resources for leaders.

@@ -211,12 +211,42 @@ service cloud.firestore {
     }
     
     // ============================================
-    // WHITEBOARDS (Owner + shared-by-email access)
+    // WHITEBOARDS (Legacy top-level; kept for reference, new whiteboards use companies/)
     // ============================================
-    // Any authenticated user can read/write for now so whiteboards work even
-    // before admin doc exists. Tighten to owner/shared/admin after confirming deploy.
     match /whiteboards/{whiteboardId} {
       allow read, write: if request.auth != null;
+    }
+
+    // ============================================
+    // COMPANY WHITEBOARDS (companies/{companyId}/whiteboards/{boardId})
+    // ============================================
+    function canAccessCompany(companyId) {
+      return request.auth != null;
+    }
+    function isTeamMember(teamId) {
+      return request.auth != null
+        && teamId != null
+        && teamId != ''
+        && exists(/databases/$(database)/documents/teams/$(teamId))
+        && request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.get('memberIds', []);
+    }
+    match /companies/{companyId}/whiteboards/{boardId} {
+      allow read: if canAccessCompany(companyId)
+        && (!resource.exists
+            || resource.data.get('teamId', null) == null
+            || resource.data.teamId == ''
+            || isTeamMember(resource.data.teamId));
+      allow create: if canAccessCompany(companyId)
+        && request.resource.data.ownerId == request.auth.uid
+        && (!('teamId' in request.resource.data)
+            || request.resource.data.teamId == null
+            || request.resource.data.teamId == ''
+            || isTeamMember(request.resource.data.teamId));
+      allow update, delete: if canAccessCompany(companyId)
+        && (resource.data.ownerId == request.auth.uid
+            || (resource.data.get('teamId', null) != null
+                && resource.data.teamId != ''
+                && isTeamMember(resource.data.teamId)));
     }
 
     // ============================================

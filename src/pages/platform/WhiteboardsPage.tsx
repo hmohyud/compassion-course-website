@@ -3,13 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Layout from '../../components/Layout';
 import {
-  listWhiteboardsForUser,
+  listWhiteboards,
+  createWhiteboard,
   deleteWhiteboard,
+  DEFAULT_COMPANY_ID,
 } from '../../services/whiteboardService';
 import { getMemberHubConfig } from '../../services/memberHubService';
-import { Whiteboard } from '../../types/platform';
+import type { Whiteboard } from '../../types/whiteboard';
 
-const cardStyle = {
+const cardStyle: React.CSSProperties = {
   padding: '30px',
   background: '#ffffff',
   borderRadius: '12px',
@@ -26,6 +28,7 @@ const WhiteboardsPage: React.FC = () => {
   const navigate = useNavigate();
   const [whiteboards, setWhiteboards] = useState<Whiteboard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [externalWhiteboardUrl, setExternalWhiteboardUrl] = useState<string | null>(null);
   const [externalWhiteboardEmbedUrl, setExternalWhiteboardEmbedUrl] = useState<string | null>(null);
@@ -36,10 +39,7 @@ const WhiteboardsPage: React.FC = () => {
     (async () => {
       setLoading(true);
       try {
-        const list = await listWhiteboardsForUser(
-          user.uid,
-          user.email ?? null
-        );
+        const list = await listWhiteboards(DEFAULT_COMPANY_ID);
         if (!cancelled) setWhiteboards(list);
       } catch (e) {
         if (!cancelled) console.error('Failed to list whiteboards', e);
@@ -50,7 +50,7 @@ const WhiteboardsPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [user?.uid, user?.email]);
+  }, [user?.uid]);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +67,19 @@ const WhiteboardsPage: React.FC = () => {
     };
   }, []);
 
+  const handleCreate = async () => {
+    if (!user?.uid) return;
+    setCreating(true);
+    try {
+      const wb = await createWhiteboard(DEFAULT_COMPANY_ID, user.uid, { title: 'Untitled whiteboard' });
+      navigate(`/platform/whiteboards/${wb.id}`);
+    } catch (e) {
+      console.error('Create whiteboard failed', e);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleDelete = async (e: React.MouseEvent, wb: Whiteboard) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,7 +87,7 @@ const WhiteboardsPage: React.FC = () => {
     if (!window.confirm(`Delete "${wb.title}"?`)) return;
     setDeletingId(wb.id);
     try {
-      await deleteWhiteboard(wb.id, user!.uid);
+      await deleteWhiteboard(DEFAULT_COMPANY_ID, wb.id);
       setWhiteboards((prev) => prev.filter((w) => w.id !== wb.id));
     } catch (err) {
       console.error('Delete failed', err);
@@ -106,22 +119,25 @@ const WhiteboardsPage: React.FC = () => {
           }}
         >
           <h1 style={{ color: '#002B4D', margin: 0 }}>Whiteboards</h1>
-          <Link
-            to="/platform/whiteboards/new"
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={creating}
             style={{
               ...cardStyle,
               padding: '12px 24px',
               maxWidth: 'fit-content',
               fontWeight: 600,
+              cursor: creating ? 'not-allowed' : 'pointer',
+              border: '2px solid #002B4D',
             }}
           >
-            New whiteboard
-          </Link>
+            {creating ? 'Creating…' : 'New whiteboard'}
+          </button>
         </div>
 
         <p style={{ color: '#6b7280', fontSize: '18px', marginBottom: '24px' }}>
-          Create and share whiteboards. Draw lines and add sticky notes; share
-          access by email.
+          Create and edit whiteboards. Draw and add shapes; changes are saved automatically.
         </p>
 
         {externalWhiteboardUrl && (
@@ -184,15 +200,21 @@ const WhiteboardsPage: React.FC = () => {
             <p style={{ color: '#6b7280', marginBottom: '16px' }}>
               No whiteboards yet.
             </p>
-            <Link
-              to="/platform/whiteboards/new"
+            <button
+              type="button"
+              onClick={handleCreate}
+              disabled={creating}
               style={{
                 color: '#002B4D',
                 fontWeight: 600,
+                background: 'none',
+                border: 'none',
+                cursor: creating ? 'not-allowed' : 'pointer',
+                fontSize: '1rem',
               }}
             >
               Create your first whiteboard
-            </Link>
+            </button>
           </div>
         ) : (
           <div
@@ -232,37 +254,20 @@ const WhiteboardsPage: React.FC = () => {
                     }
                   }}
                 >
-                  <div
+                  <h2
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: '8px',
+                      color: '#002B4D',
+                      marginBottom: '8px',
+                      fontSize: '1.1rem',
+                      flex: 1,
                     }}
                   >
-                    <h2
-                      style={{
-                        color: '#002B4D',
-                        marginBottom: '8px',
-                        fontSize: '1.1rem',
-                        flex: 1,
-                      }}
-                    >
-                      {wb.title}
-                    </h2>
-                    {wb.ownerId !== user?.uid && (
-                      <span
-                        style={{
-                          fontSize: '12px',
-                          color: '#6b7280',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Shared
-                      </span>
-                    )}
-                  </div>
+                    {wb.title}
+                  </h2>
                   <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+                    Owner: {wb.ownerId}
+                  </p>
+                  <p style={{ color: '#6b7280', fontSize: '14px', margin: '4px 0 0 0' }}>
                     Updated {formatDate(wb.updatedAt)}
                   </p>
                 </Link>

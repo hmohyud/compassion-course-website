@@ -1,75 +1,55 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import {
-  getTeamWhiteboard,
-  updateTeamWhiteboard,
-} from '../../services/leadershipTeamWhiteboardsService';
-import type { LeadershipTeamWhiteboard } from '../../types/leadership';
-import { Tldraw, getSnapshot, loadSnapshot, createTLStore } from 'tldraw';
-import 'tldraw/tldraw.css';
+  getWhiteboard,
+  updateWhiteboard,
+  DEFAULT_COMPANY_ID,
+} from '../../services/whiteboardService';
+import type { Whiteboard, WhiteboardCanvasState } from '../../types/whiteboard';
+import { Excalidraw } from '@excalidraw/excalidraw';
 
-type StoreWithStatus =
-  | { status: 'loading' }
-  | { status: 'ready'; store: ReturnType<typeof createTLStore> }
-  | { status: 'error'; message: string };
+function normalizeInitialData(canvasState: WhiteboardCanvasState): { elements: readonly unknown[]; appState: Record<string, unknown> } {
+  const elements = Array.isArray(canvasState?.elements) ? canvasState.elements : [];
+  const appState = canvasState?.appState != null && typeof canvasState.appState === 'object' && !Array.isArray(canvasState.appState)
+    ? canvasState.appState as Record<string, unknown>
+    : {};
+  return { elements, appState };
+}
 
 const TeamWhiteboardPage: React.FC = () => {
   const { teamId, whiteboardId } = useParams<{ teamId: string; whiteboardId: string }>();
-  const [whiteboard, setWhiteboard] = useState<LeadershipTeamWhiteboard | null>(null);
+  const [whiteboard, setWhiteboard] = useState<Whiteboard | null>(null);
   const [loading, setLoading] = useState(true);
-  const [storeWithStatus, setStoreWithStatus] = useState<StoreWithStatus>({ status: 'loading' });
+  const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState('');
-  const [saving, setSaving] = useState(false);
-  const editorRef = useRef<{ store: ReturnType<typeof createTLStore> } | null>(null);
-
-  const tldrawOverrides = useMemo(
-    () => ({
-      actions(editor: unknown, actions: Record<string, { kbd?: string } & unknown>) {
-        const focusAction = actions['toggle-focus-mode'];
-        if (focusAction && 'kbd' in focusAction) {
-          return { ...actions, 'toggle-focus-mode': { ...focusAction, kbd: undefined } };
-        }
-        return actions;
-      },
-    }),
-    []
-  );
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<WhiteboardCanvasState | null>(null);
 
   useEffect(() => {
     if (!whiteboardId || !teamId) return;
     let cancelled = false;
     setLoading(true);
+    setError(null);
     (async () => {
       try {
-        const wb = await getTeamWhiteboard(whiteboardId);
+        const wb = await getWhiteboard(DEFAULT_COMPANY_ID, whiteboardId);
         if (cancelled) return;
-        if (!wb || wb.teamId !== teamId) {
-          setStoreWithStatus({ status: 'error', message: 'Whiteboard not found' });
-          setLoading(false);
+        if (!wb) {
+          setError('Whiteboard not found');
+          return;
+        }
+        if (wb.teamId !== teamId) {
+          setError('Whiteboard not found for this team');
           return;
         }
         setWhiteboard(wb);
         setTitle(wb.title);
-
-        const store = createTLStore();
-        const docSnapshot = wb.snapshot && Object.keys(wb.snapshot).length > 0
-          ? wb.snapshot
-          : undefined;
-        if (docSnapshot) {
-          try {
-            loadSnapshot(store, { document: docSnapshot as Record<string, unknown> });
-          } catch (e) {
-            console.warn('Load snapshot failed, using empty', e);
-          }
-        }
-        if (!cancelled) {
-          setStoreWithStatus({ status: 'ready', store });
-        }
       } catch (e) {
         if (!cancelled) {
           console.error('Load team whiteboard failed', e);
-          setStoreWithStatus({ status: 'error', message: 'Failed to load' });
+          setError('Failed to load');
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -80,33 +60,50 @@ const TeamWhiteboardPage: React.FC = () => {
     };
   }, [whiteboardId, teamId]);
 
-  const handleSave = useCallback(async () => {
-    if (!whiteboard || !whiteboardId) return;
-    const editor = editorRef.current;
-    if (!editor?.store) return;
-    setSaving(true);
-    try {
-      const { document: doc } = getSnapshot(editor.store);
-      await updateTeamWhiteboard(whiteboardId, {
-        snapshot: doc as Record<string, unknown>,
-        title: title.trim() || whiteboard.title,
-      });
-      setWhiteboard((prev) =>
-        prev
-          ? {
-              ...prev,
-              title: title.trim() || prev.title,
-              snapshot: doc as Record<string, unknown>,
-              updatedAt: new Date(),
-            }
-          : null
-      );
-    } catch (e) {
-      console.error('Save failed', e);
-    } finally {
-      setSaving(false);
-    }
-  }, [whiteboard, whiteboardId, title]);
+  const persistCanvas = useCallback(
+    async (canvasState: WhiteboardCanvasState) => {
+      if (!whiteboard || !whiteboardId) return;
+      if (JSON.stringify(lastSavedRef.current) === JSON.stringify(canvasState)) return;
+      setSaveStatus('saving');
+      try {
+        await updateWhiteboard(DEFAULT_COMPANY_ID, whiteboardId, {
+          title: title.trim() || whiteboard.title,
+          canvasState,
+        });
+        lastSavedRef.current = canvasState;
+        setSaveStatus('saved');
+        setWhiteboard((prev) =>
+          prev ? { ...prev, title: title.trim() || prev.title, canvasState, updatedAt: new Date() } : null
+        );
+      } catch (e) {
+        console.error('Save whiteboard failed', e);
+        setSaveStatus('error');
+      }
+    },
+    [whiteboard, whiteboardId, title]
+  );
+
+  const handleExcalidrawChange = useCallback(
+    (elements: readonly unknown[], appState: Record<string, unknown>) => {
+      if (!whiteboard || !whiteboardId) return;
+      const canvasState: WhiteboardCanvasState = {
+        elements: Array.isArray(elements) ? [...elements] : [],
+        appState: appState && typeof appState === 'object' ? { ...appState } : {},
+      };
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = null;
+        persistCanvas(canvasState);
+      }, 1500);
+    },
+    [whiteboard, whiteboardId, persistCanvas]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   if (!teamId || !whiteboardId) {
     return (
@@ -119,7 +116,7 @@ const TeamWhiteboardPage: React.FC = () => {
     );
   }
 
-  if (loading || storeWithStatus.status === 'loading') {
+  if (loading) {
     return (
       <Layout>
         <div style={{ padding: '40px 20px', textAlign: 'center', color: '#6b7280' }}>
@@ -129,12 +126,11 @@ const TeamWhiteboardPage: React.FC = () => {
     );
   }
 
-  if (storeWithStatus.status === 'error') {
+  if (error) {
     return (
       <Layout>
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '16px' }}>Unable to load whiteboard</h2>
-          <p style={{ color: '#6b7280', marginBottom: '24px' }}>{storeWithStatus.message}</p>
+          <h2 style={{ color: '#002B4D', marginBottom: '16px' }}>{error}</h2>
           <Link
             to={`/portal/leadership/teams/${teamId}/whiteboards`}
             style={{ color: '#002B4D', fontWeight: 600 }}
@@ -146,7 +142,9 @@ const TeamWhiteboardPage: React.FC = () => {
     );
   }
 
-  const { store } = storeWithStatus;
+  if (!whiteboard) return null;
+
+  const initialData = normalizeInitialData(whiteboard.canvasState);
 
   return (
     <Layout>
@@ -177,22 +175,11 @@ const TeamWhiteboardPage: React.FC = () => {
               color: '#111827',
             }}
           />
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            style={{
-              padding: '8px 16px',
-              background: '#002B4D',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontWeight: 600,
-            }}
-          >
-            {saving ? 'Saving…' : 'Save'}
-          </button>
+          <span style={{ fontSize: '14px', color: '#6b7280' }}>
+            {saveStatus === 'saving' && 'Saving…'}
+            {saveStatus === 'saved' && 'Saved'}
+            {saveStatus === 'error' && 'Save failed'}
+          </span>
           <Link
             to={`/portal/leadership/teams/${teamId}/whiteboards`}
             style={{
@@ -207,13 +194,12 @@ const TeamWhiteboardPage: React.FC = () => {
         </div>
 
         <div style={{ flex: 1, position: 'relative', minHeight: 300 }}>
-          <Tldraw
-            store={store}
-            overrides={tldrawOverrides}
-            onMount={(editor) => {
-              editorRef.current = editor;
-              editor.updateInstanceState({ isFocusMode: false });
+          <Excalidraw
+            initialData={{
+              elements: initialData.elements,
+              appState: initialData.appState,
             }}
+            onChange={handleExcalidrawChange}
           />
         </div>
       </div>

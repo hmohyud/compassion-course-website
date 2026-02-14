@@ -9,210 +9,133 @@ import {
   query,
   where,
   orderBy,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
-import { Whiteboard } from '../types/platform';
+import type { Whiteboard, WhiteboardCanvasState } from '../types/whiteboard';
 
-const WHITEBOARDS_COLLECTION = 'whiteboards';
+export const DEFAULT_COMPANY_ID = 'default';
 
-/** Empty tldraw document snapshot for new boards */
-const EMPTY_SNAPSHOT: Record<string, unknown> = {};
+const EMPTY_CANVAS_STATE: WhiteboardCanvasState = { elements: [], appState: {} };
+
+function toDate(v: unknown): Date {
+  if (v && typeof v === 'object' && 'toDate' in v && typeof (v as { toDate: () => Date }).toDate === 'function') {
+    return (v as { toDate: () => Date }).toDate();
+  }
+  if (v instanceof Date) return v;
+  if (typeof v === 'number') return new Date(v);
+  return new Date();
+}
+
+function normalizeCanvasState(raw: unknown): WhiteboardCanvasState {
+  if (raw == null || typeof raw !== 'object') return { ...EMPTY_CANVAS_STATE };
+  const o = raw as Record<string, unknown>;
+  const elements = Array.isArray(o.elements) ? o.elements : [];
+  const appState = o.appState != null && typeof o.appState === 'object' && !Array.isArray(o.appState)
+    ? (o.appState as Record<string, unknown>)
+    : {};
+  return { elements, appState };
+}
+
+function fromDoc(id: string, data: Record<string, unknown>): Whiteboard {
+  const collaborators = data.collaborators;
+  const collabList = Array.isArray(collaborators) ? collaborators : [];
+  const safeCollaborators = collabList.every((c) => typeof c === 'string')
+    ? (collabList as string[])
+    : [];
+
+  return {
+    id,
+    companyId: (data.companyId as string) ?? '',
+    teamId: data.teamId != null ? (data.teamId as string) : undefined,
+    title: (data.title as string) ?? 'Untitled',
+    ownerId: (data.ownerId as string) ?? '',
+    createdAt: toDate(data.createdAt),
+    updatedAt: toDate(data.updatedAt),
+    canvasState: normalizeCanvasState(data.canvasState),
+    collaborators: safeCollaborators.length > 0 ? safeCollaborators : undefined,
+    isArchived: data.isArchived === true,
+  };
+}
 
 export async function createWhiteboard(
+  companyId: string,
   ownerId: string,
-  title: string
+  options?: { teamId?: string; title?: string }
 ): Promise<Whiteboard> {
-  try {
-    const ref = doc(collection(db, WHITEBOARDS_COLLECTION));
-    const now = new Date();
-    const whiteboard: Whiteboard = {
-      id: ref.id,
-      ownerId,
-      title: title || 'Untitled whiteboard',
-      snapshot: EMPTY_SNAPSHOT,
-      sharedWith: [],
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    await setDoc(ref, {
-      ...whiteboard,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    return whiteboard;
-  } catch (error) {
-    console.error('Error creating whiteboard:', error);
-    throw error;
+  if (!companyId?.trim()) throw new Error('companyId is required');
+  const ref = doc(collection(db, 'companies', companyId, 'whiteboards'));
+  const now = new Date();
+  const title = options?.title?.trim() || 'Untitled whiteboard';
+  const docData: Record<string, unknown> = {
+    companyId,
+    title,
+    ownerId,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    canvasState: { ...EMPTY_CANVAS_STATE },
+  };
+  if (options?.teamId != null && options.teamId !== '') {
+    docData.teamId = options.teamId;
   }
+  await setDoc(ref, docData);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) throw new Error('Failed to create whiteboard');
+  return fromDoc(snap.id, snap.data() ?? {});
 }
 
-export async function getWhiteboard(whiteboardId: string): Promise<Whiteboard | null> {
-  try {
-    const docRef = doc(db, WHITEBOARDS_COLLECTION, whiteboardId);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return {
-        id: docSnap.id,
-        ownerId: data.ownerId,
-        title: data.title,
-        snapshot: data.snapshot ?? EMPTY_SNAPSHOT,
-        sharedWith: data.sharedWith ?? [],
-        createdAt: data.createdAt?.toDate() ?? new Date(),
-        updatedAt: data.updatedAt?.toDate() ?? new Date(),
-      } as Whiteboard;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error getting whiteboard:', error);
-    throw error;
-  }
+export async function getWhiteboard(
+  companyId: string,
+  boardId: string
+): Promise<Whiteboard | null> {
+  if (!companyId?.trim() || !boardId?.trim()) return null;
+  const ref = doc(db, 'companies', companyId, 'whiteboards', boardId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return fromDoc(snap.id, snap.data() ?? {});
 }
 
-export async function listWhiteboardsForUser(
-  userId: string,
-  userEmail: string | null
+export async function listWhiteboards(
+  companyId: string,
+  teamId?: string
 ): Promise<Whiteboard[]> {
-  try {
-    const coll = collection(db, WHITEBOARDS_COLLECTION);
-
-    const ownedQ = query(
+  if (!companyId?.trim()) return [];
+  const coll = collection(db, 'companies', companyId, 'whiteboards');
+  let q;
+  if (teamId != null && teamId !== '') {
+    q = query(
       coll,
-      where('ownerId', '==', userId),
+      where('teamId', '==', teamId),
       orderBy('updatedAt', 'desc')
     );
-    const ownedSnap = await getDocs(ownedQ);
-    const owned = ownedSnap.docs.map((d) => {
-      const data = d.data();
-      return {
-        id: d.id,
-        ownerId: data.ownerId,
-        title: data.title,
-        snapshot: data.snapshot ?? EMPTY_SNAPSHOT,
-        sharedWith: data.sharedWith ?? [],
-        createdAt: data.createdAt?.toDate() ?? new Date(),
-        updatedAt: data.updatedAt?.toDate() ?? new Date(),
-      } as Whiteboard;
-    });
-
-    let shared: Whiteboard[] = [];
-    if (userEmail) {
-      const emailLower = userEmail.toLowerCase();
-      const sharedQ = query(
-        coll,
-        where('sharedWith', 'array-contains', emailLower),
-        orderBy('updatedAt', 'desc')
-      );
-      const sharedSnap = await getDocs(sharedQ);
-      shared = sharedSnap.docs.map((d) => {
-        const data = d.data();
-        return {
-          id: d.id,
-          ownerId: data.ownerId,
-          title: data.title,
-          snapshot: data.snapshot ?? EMPTY_SNAPSHOT,
-          sharedWith: data.sharedWith ?? [],
-          createdAt: data.createdAt?.toDate() ?? new Date(),
-          updatedAt: data.updatedAt?.toDate() ?? new Date(),
-        } as Whiteboard;
-      });
-    }
-
-    const byId = new Map<string, Whiteboard>();
-    [...owned, ...shared].forEach((w) => byId.set(w.id, w));
-    return Array.from(byId.values()).sort(
-      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-    );
-  } catch (error) {
-    console.error('Error listing whiteboards:', error);
-    throw error;
+  } else {
+    q = query(coll, orderBy('updatedAt', 'desc'));
   }
+  const snap = await getDocs(q);
+  const list = snap.docs.map((d) => fromDoc(d.id, d.data()));
+  return list.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
 export async function updateWhiteboard(
-  whiteboardId: string,
-  updates: Partial<Pick<Whiteboard, 'title' | 'snapshot'>>
+  companyId: string,
+  boardId: string,
+  patch: Partial<Pick<Whiteboard, 'title' | 'canvasState' | 'isArchived' | 'collaborators'>>
 ): Promise<void> {
-  try {
-    const docRef = doc(db, WHITEBOARDS_COLLECTION, whiteboardId);
-    const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
-    };
-    if (updates.title !== undefined) updateData.title = updates.title;
-    if (updates.snapshot !== undefined) updateData.snapshot = updates.snapshot;
-    await updateDoc(docRef, updateData);
-  } catch (error) {
-    console.error('Error updating whiteboard:', error);
-    throw error;
-  }
-}
-
-export async function addShareByEmail(
-  whiteboardId: string,
-  ownerId: string,
-  email: string
-): Promise<void> {
-  try {
-    const wb = await getWhiteboard(whiteboardId);
-    if (!wb || wb.ownerId !== ownerId) {
-      throw new Error('Whiteboard not found or you are not the owner');
-    }
-    const emailLower = email.trim().toLowerCase();
-    if (!emailLower) return;
-    if (wb.sharedWith.includes(emailLower)) return;
-
-    const docRef = doc(db, WHITEBOARDS_COLLECTION, whiteboardId);
-    await updateDoc(docRef, {
-      sharedWith: [...wb.sharedWith, emailLower],
-      updatedAt: new Date(),
-    });
-  } catch (error) {
-    console.error('Error adding share by email:', error);
-    throw error;
-  }
-}
-
-export async function removeShareByEmail(
-  whiteboardId: string,
-  ownerId: string,
-  email: string
-): Promise<void> {
-  try {
-    const wb = await getWhiteboard(whiteboardId);
-    if (!wb || wb.ownerId !== ownerId) {
-      throw new Error('Whiteboard not found or you are not the owner');
-    }
-    const emailLower = email.trim().toLowerCase();
-    const next = wb.sharedWith.filter((e) => e !== emailLower);
-    if (next.length === wb.sharedWith.length) return;
-
-    const docRef = doc(db, WHITEBOARDS_COLLECTION, whiteboardId);
-    await updateDoc(docRef, {
-      sharedWith: next,
-      updatedAt: new Date(),
-    });
-  } catch (error) {
-    console.error('Error removing share by email:', error);
-    throw error;
-  }
+  if (!companyId?.trim() || !boardId?.trim()) return;
+  const ref = doc(db, 'companies', companyId, 'whiteboards', boardId);
+  const data: Record<string, unknown> = { updatedAt: serverTimestamp() };
+  if (patch.title !== undefined) data.title = patch.title;
+  if (patch.canvasState !== undefined) data.canvasState = patch.canvasState;
+  if (patch.isArchived !== undefined) data.isArchived = patch.isArchived;
+  if (patch.collaborators !== undefined) data.collaborators = Array.isArray(patch.collaborators) ? patch.collaborators : [];
+  await updateDoc(ref, data);
 }
 
 export async function deleteWhiteboard(
-  whiteboardId: string,
-  ownerId: string
+  companyId: string,
+  boardId: string
 ): Promise<void> {
-  try {
-    const wb = await getWhiteboard(whiteboardId);
-    if (!wb || wb.ownerId !== ownerId) {
-      throw new Error('Whiteboard not found or you are not the owner');
-    }
-    const docRef = doc(db, WHITEBOARDS_COLLECTION, whiteboardId);
-    await deleteDoc(docRef);
-  } catch (error) {
-    console.error('Error deleting whiteboard:', error);
-    throw error;
-  }
+  if (!companyId?.trim() || !boardId?.trim()) return;
+  const ref = doc(db, 'companies', companyId, 'whiteboards', boardId);
+  await deleteDoc(ref);
 }

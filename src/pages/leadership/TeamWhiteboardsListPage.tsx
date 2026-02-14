@@ -1,24 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
-import { listTeamWhiteboardsByTeam, createTeamWhiteboard, deleteTeamWhiteboard } from '../../services/leadershipTeamWhiteboardsService';
+import {
+  listWhiteboards,
+  createWhiteboard,
+  deleteWhiteboard,
+  DEFAULT_COMPANY_ID,
+} from '../../services/whiteboardService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { useAuth } from '../../context/AuthContext';
-import type { LeadershipTeamWhiteboard } from '../../types/leadership';
+import type { Whiteboard } from '../../types/whiteboard';
 
 const TeamWhiteboardsListPage: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [whiteboards, setWhiteboards] = useState<LeadershipTeamWhiteboard[]>([]);
+  const [whiteboards, setWhiteboards] = useState<Whiteboard[]>([]);
   const [teamName, setTeamName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!teamId) return;
     Promise.all([
-      listTeamWhiteboardsByTeam(teamId),
+      listWhiteboards(DEFAULT_COMPANY_ID, teamId),
       getTeam(teamId),
     ])
       .then(([list, team]) => {
@@ -34,19 +40,25 @@ const TeamWhiteboardsListPage: React.FC = () => {
 
   const handleCreate = async () => {
     if (!teamId || !user?.uid) return;
+    setCreating(true);
     try {
-      const wb = await createTeamWhiteboard(teamId, user.uid);
+      const wb = await createWhiteboard(DEFAULT_COMPANY_ID, user.uid, {
+        teamId,
+        title: 'Untitled whiteboard',
+      });
       navigate(`/portal/leadership/teams/${teamId}/whiteboards/${wb.id}`);
     } catch (e) {
       console.error(e);
+    } finally {
+      setCreating(false);
     }
   };
 
-  const handleDelete = async (wb: LeadershipTeamWhiteboard) => {
+  const handleDelete = async (wb: Whiteboard) => {
     if (!window.confirm(`Delete "${wb.title}"?`)) return;
     setDeletingId(wb.id);
     try {
-      await deleteTeamWhiteboard(wb.id);
+      await deleteWhiteboard(DEFAULT_COMPANY_ID, wb.id);
       setWhiteboards((prev) => prev.filter((w) => w.id !== wb.id));
     } catch (e) {
       console.error(e);
@@ -85,7 +97,7 @@ const TeamWhiteboardsListPage: React.FC = () => {
         <button
           type="button"
           onClick={handleCreate}
-          disabled={!user?.uid}
+          disabled={!user?.uid || creating}
           style={{
             padding: '10px 20px',
             background: '#002B4D',
@@ -93,11 +105,11 @@ const TeamWhiteboardsListPage: React.FC = () => {
             border: 'none',
             borderRadius: '8px',
             fontWeight: 600,
-            cursor: user?.uid ? 'pointer' : 'not-allowed',
+            cursor: user?.uid && !creating ? 'pointer' : 'not-allowed',
             marginBottom: '24px',
           }}
         >
-          New whiteboard
+          {creating ? 'Creating…' : 'New whiteboard'}
         </button>
 
         {loading ? (

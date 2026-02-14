@@ -2,7 +2,7 @@ import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, ge
 import { db } from '../firebase/firebaseConfig';
 import { UserProfile, PortalRole } from '../types/platform';
 
-const COLLECTION_NAME = 'users';
+const COLLECTION_NAME = 'userProfiles';
 
 const PORTAL_ROLES: PortalRole[] = ['viewer', 'contributor', 'manager', 'admin'];
 

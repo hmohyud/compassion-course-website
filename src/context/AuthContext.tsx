@@ -13,7 +13,7 @@ import {
   RecaptchaVerifier,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebaseConfig';
 import { createUserProfile, getUserProfile } from '../services/userProfileService';
 import { logAuthDiagnostics, isDomainBlockingError, getDomainBlockingErrorMessage } from '../utils/authDiagnostics';
@@ -57,20 +57,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Auto-create admin document for admin emails
+  // Bootstrap: ensure admins/{uid} exists for allowed emails (client-only convenience; authority is the doc)
   const createAdminDocument = async (user: User) => {
     if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
       return false;
     }
-
     try {
-      console.log('🔧 Auto-creating admin document for:', user.email);
-      await setDoc(doc(db, 'admins', user.uid), {
-        role: 'admin',
-        email: user.email,
-        createdAt: new Date().toISOString(),
-        autoCreated: true
-      });
+      console.log('🔧 Auto-creating admin document for:', user.uid);
+      await setDoc(
+        doc(db, 'admins', user.uid),
+        { uid: user.uid, email: user.email, createdAt: serverTimestamp() },
+        { merge: true }
+      );
       console.log('✅ Admin document created successfully!');
       return true;
     } catch (error: any) {
@@ -86,38 +84,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user) {
         // Fast path for known admin emails - set admin immediately and set loading to false
         if (user.email && ADMIN_EMAILS.includes(user.email)) {
-          console.log('✅ Admin email detected, granting immediate access:', user.email);
-          setIsAdmin(true);
-          setLoading(false); // Set loading to false immediately for admin users
-          
-          // Ensure token is attached to requests, then do profile and admin doc creation in background
-          getIdTokenResult(user, true).then(() => {
-            Promise.all([
-              getUserProfile(user.uid).then(existingProfile => {
+          // Bootstrap: ensure admins/{uid} exists BEFORE any profile list/read so rules allow access
+          const ensureAdminThenContinue = async () => {
+            await getIdTokenResult(user, true);
+            await createAdminDocument(user);
+            setIsAdmin(true);
+            setLoading(false);
+            // Profile ensure after admin doc exists (non-blocking)
+            getUserProfile(user.uid)
+              .then(existingProfile => {
                 if (!existingProfile) {
                   return createUserProfile(
                     user.uid,
                     user.email || '',
                     user.displayName || user.email?.split('@')[0] || 'User',
                     user.photoURL || undefined
-                  ).then(() => {
-                    console.log('User profile created on login');
-                  });
+                  ).then(() => console.log('User profile created on login'));
                 }
-              }).catch(err => {
-                const isOfflineError = err?.code === 'unavailable' || 
-                                      err?.message?.includes('offline');
-                if (!isOfflineError) {
-                  console.error('Error ensuring user profile exists:', err);
-                }
-              }),
-              createAdminDocument(user).catch(err => {
-                console.warn('⚠️ Background admin document creation failed (non-blocking):', err);
               })
-            ]).catch(() => {});
-          }).catch(() => {});
-          
-          return; // Exit early for admin users
+              .catch(err => {
+                const isOfflineError = err?.code === 'unavailable' || err?.message?.includes('offline');
+                if (!isOfflineError) console.error('Error ensuring user profile exists:', err);
+              });
+          };
+          ensureAdminThenContinue().catch(err => {
+            console.error('Bootstrap admin ensure failed:', err);
+            setLoading(false);
+          });
+          return;
         }
 
         // For non-admin users, check admin status first (with timeout)

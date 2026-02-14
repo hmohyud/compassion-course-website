@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../context/AuthContext';
@@ -92,6 +92,10 @@ const UserManagement: React.FC = () => {
     setLoading(true);
     setError('');
     try {
+      if (user) {
+        const adminSnap = await getDoc(doc(db, 'admins', user.uid));
+        console.log('isAdmin doc exists:', adminSnap.exists());
+      }
       const [profileList, adminsSnap] = await Promise.all([
         listUserProfiles(),
         getDocs(collection(db, 'admins')),

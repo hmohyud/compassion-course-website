@@ -10,7 +10,7 @@ const TEMP_PASSWORD = "12341234";
 /**
  * Callable: createUserByAdmin
  * Only callable by authenticated admins (present in Firestore admins collection).
- * Creates a Firebase Auth user with temporary password and a users document with mustChangePassword: true.
+ * Creates a Firebase Auth user with temporary password and a userProfiles document with mustChangePassword: true.
  */
 exports.createUserByAdmin = onCall(
   {
@@ -94,7 +94,7 @@ exports.createUserByAdmin = onCall(
     };
 
     try {
-      await db.collection("users").doc(userRecord.uid).set(profileData);
+      await db.collection("userProfiles").doc(userRecord.uid).set(profileData);
     } catch (err) {
       const msg = err.message || "Failed to create user profile in database.";
       console.error("createUserByAdmin Firestore set error:", msg, err);

@@ -1,42 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if user is admin by UID
+    // Single authoritative admin signal: admins/{uid} document exists
     function isAdmin() {
-      return request.auth != null && 
+      return request.auth != null &&
              exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-    
-    // Helper function to check if user is admin by email
-    // Note: Firebase Auth tokens provide emails in lowercase, and admin docs are stored in lowercase
-    function isAdminByEmail() {
-      return request.auth != null && 
-             request.auth.token.email != null &&
-             exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
-    }
-    
-    // Helper function to check if user is admin (either by UID or email)
-    function isAdminUser() {
-      return isAdmin() || isAdminByEmail();
     }
     
     // Helper function to check if user owns a resource
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Helper function to check if email is in trusted admin list
-    function isTrustedAdminEmail() {
-      return request.auth != null && 
-             request.auth.token.email != null &&
-             request.auth.token.email in ['info@compassioncf.com', 'jaybond@compassioncf.com'];
-    }
-    
-    // Helper: user's profile has portal role manager or admin (for listing userProfiles in Create Team)
-    function isManagerOrAdmin() {
-      return request.auth != null &&
-             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role in ['manager', 'admin'];
     }
     
     // ============================================
@@ -46,83 +19,64 @@ service cloud.firestore {
     // Content collection - readable by all, writable by admins
     match /content/{contentId} {
       allow read: if true; // Public read access
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Config (e.g. memberHub links) - authenticated read, admin write
     match /config/{configId} {
       allow read: if request.auth != null;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Team members - readable by all, writable by admins
     match /teamMembers/{memberId} {
       allow read: if true; // Public read access
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Language sections - readable by all, writable by admins
     match /teamLanguageSections/{sectionId} {
       allow read: if true; // Public read access
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Board members collection
     match /boardMembers/{memberId} {
       allow read: if true;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Programs collection
     match /programs/{programId} {
       allow read: if true;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // Events collection
     match /events/{eventId} {
       allow read: if true;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     // ============================================
     // ADMIN MANAGEMENT
     // ============================================
     
-    // Admins collection - allow creating for trusted emails or first admin
+    // Admins collection - authority is admins/{uid}; bootstrap: user can create own doc once
     match /admins/{adminId} {
-      // Allow read if user is admin
-      allow read: if isAdminUser();
-      
-      // Allow create if:
-      // 1. User is already an admin, OR
-      // 2. Email matches trusted admin email list, OR
-      // 3. Creating document for own UID (self-creation allowed for trusted emails)
-      allow create: if request.auth != null && 
-        (isAdminUser() || 
-         isTrustedAdminEmail() || 
-         (adminId == request.auth.uid && isTrustedAdminEmail()));
-      
-      // Allow update and delete only if user is admin
-      allow update, delete: if isAdminUser();
+      allow read: if isAdmin();
+      allow create: if request.auth != null && adminId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
     
     // ============================================
-    // USER PROFILES (Users can read/write their own, admins can read/write all)
+    // USER PROFILES (userProfiles) - owner read/write own; admin list/read/update all
     // ============================================
-    
     match /userProfiles/{userId} {
-      allow read: if request.auth != null && (isOwner(userId) || isAdminUser() || isManagerOrAdmin() || isTrustedAdminEmail());
-      allow create: if request.auth != null && isOwner(userId);
-      // Admins can update anything; owners can update without changing role, or set mustChangePassword/updatedAt only
-      allow update: if request.auth != null && (
-        isAdminUser() || isTrustedAdminEmail() ||
-        (isOwner(userId) && (
-          request.resource.data.get('role', 'viewer') == resource.data.get('role', 'viewer') ||
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword', 'updatedAt'])
-        ))
-      );
-      allow delete: if isAdminUser() || isTrustedAdminEmail();
+      allow get: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow list: if request.auth != null && isAdmin();
+      allow create, update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow delete: if false;
     }
     
     // ============================================
@@ -131,7 +85,7 @@ service cloud.firestore {
     
     match /organizations/{orgId} {
       allow read: if request.auth != null; // Authenticated users can read
-      allow write: if isAdminUser(); // Only admins can create/update/delete for now
+      allow write: if isAdmin(); // Only admins can create/update/delete for now
       // TODO: Add owner-based write rules when organization ownership is implemented
     }
     
@@ -141,7 +95,7 @@ service cloud.firestore {
     
     match /webcasts/{webcastId} {
       allow read: if true; // Public read access
-      allow write: if isAdminUser(); // Only admins can create/update/delete for now
+      allow write: if isAdmin(); // Only admins can create/update/delete for now
       // TODO: Add org owner write rules when implemented
     }
     
@@ -149,7 +103,7 @@ service cloud.firestore {
       allow read: if request.auth != null; // Authenticated users can read their sessions
       allow create: if request.auth != null; // Users can create their own sessions
       allow update: if request.auth != null; // Users can update their own sessions
-      allow delete: if isAdminUser(); // Only admins can delete
+      allow delete: if isAdmin(); // Only admins can delete
     }
     
     // ============================================
@@ -158,28 +112,28 @@ service cloud.firestore {
     
     match /courses/{courseId} {
       allow read: if request.auth != null; // Authenticated users can read
-      allow write: if isAdminUser(); // Only admins can create/update/delete
+      allow write: if isAdmin(); // Only admins can create/update/delete
     }
     
     match /modules/{moduleId} {
       allow read: if request.auth != null;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     match /lessons/{lessonId} {
       allow read: if request.auth != null;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     match /enrollments/{enrollmentId} {
       allow read: if request.auth != null && (
-        isOwner(resource.data.userId) || isAdminUser()
+        isOwner(resource.data.userId) || isAdmin()
       );
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
-        isOwner(resource.data.userId) || isAdminUser()
+        isOwner(resource.data.userId) || isAdmin()
       );
-      allow delete: if isAdminUser();
+      allow delete: if isAdmin();
     }
     
     // ============================================
@@ -188,23 +142,23 @@ service cloud.firestore {
     
     match /communities/{communityId} {
       allow read: if request.auth != null;
-      allow write: if isAdminUser(); // Only admins for now
+      allow write: if isAdmin(); // Only admins for now
       // TODO: Add owner-based write rules
     }
     
     match /spaces/{spaceId} {
       allow read: if request.auth != null;
-      allow write: if isAdminUser();
+      allow write: if isAdmin();
     }
     
     match /posts/{postId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
-        isOwner(resource.data.authorId) || isAdminUser()
+        isOwner(resource.data.authorId) || isAdmin()
       );
       allow delete: if request.auth != null && (
-        isOwner(resource.data.authorId) || isAdminUser()
+        isOwner(resource.data.authorId) || isAdmin()
       );
     }
     
@@ -212,21 +166,21 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
-        isOwner(resource.data.authorId) || isAdminUser()
+        isOwner(resource.data.authorId) || isAdmin()
       );
       allow delete: if request.auth != null && (
-        isOwner(resource.data.authorId) || isAdminUser()
+        isOwner(resource.data.authorId) || isAdmin()
       );
     }
     
     match /memberships/{membershipId} {
       allow read: if request.auth != null && (
-        isOwner(resource.data.userId) || isAdminUser()
+        isOwner(resource.data.userId) || isAdmin()
       );
       allow create: if request.auth != null;
-      allow update: if isAdminUser();
+      allow update: if isAdmin();
       allow delete: if request.auth != null && (
-        isOwner(resource.data.userId) || isAdminUser()
+        isOwner(resource.data.userId) || isAdmin()
       );
     }
     
@@ -236,23 +190,23 @@ service cloud.firestore {
     
     match /chats/{chatId} {
       allow read: if request.auth != null && (
-        request.auth.uid in resource.data.participants || isAdminUser()
+        request.auth.uid in resource.data.participants || isAdmin()
       );
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
-        request.auth.uid in resource.data.participants || isAdminUser()
+        request.auth.uid in resource.data.participants || isAdmin()
       );
-      allow delete: if isAdminUser();
+      allow delete: if isAdmin();
     }
     
     match /messages/{messageId} {
       allow read: if request.auth != null; // Users can read messages in chats they're part of
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
-        isOwner(resource.data.senderId) || isAdminUser()
+        isOwner(resource.data.senderId) || isAdmin()
       );
       allow delete: if request.auth != null && (
-        isOwner(resource.data.senderId) || isAdminUser()
+        isOwner(resource.data.senderId) || isAdmin()
       );
     }
     
@@ -288,18 +242,18 @@ service cloud.firestore {
     match /leadershipWorkingAgreements/{teamId} {
       allow read, write: if request.auth != null && (
         request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.memberIds
-        || isAdminUser()
+        || isAdmin()
       );
     }
     // Team whiteboards: allow if user is in team or admin (create uses request.resource.data.teamId)
     match /leadershipTeamWhiteboards/{whiteboardId} {
       allow read, update, delete: if request.auth != null && (
         request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.memberIds
-        || isAdminUser()
+        || isAdmin()
       );
       allow create: if request.auth != null && (
         request.auth.uid in get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.memberIds
-        || isAdminUser()
+        || isAdmin()
       );
     }
   }

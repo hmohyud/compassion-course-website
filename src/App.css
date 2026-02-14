@@ -1020,7 +1020,7 @@ p {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.25rem;
     margin-top: 2.5rem;
-    max-width: 66%;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1045,12 +1045,6 @@ p {
     color: #4b5563;
     margin: 0;
     line-height: 1.6;
-}
-
-@media (max-width: 900px) {
-    .hero-stats {
-        max-width: 100%;
-    }
 }
 
 /* Section Styles */

@@ -1,21 +1,10 @@
 const functions = require("firebase-functions");
-const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-const cors = require("cors");
 
 initializeApp();
-
-const CORS_ORIGINS = [
-  "https://compassion-course-websit-937d6.firebaseapp.com",
-  "https://compassion-course-websit-937d6.web.app",
-];
-const corsHandler = cors({
-  origin: CORS_ORIGINS,
-  methods: ["POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-});
 
 const TEMP_PASSWORD = "12341234";
 const USERS_COLLECTION = "users";
@@ -128,93 +117,35 @@ async function createUserByAdminLogic(caller, data) {
 }
 
 /**
- * Callable: createUserByAdmin (unchanged for existing frontend using httpsCallable).
+ * Callable: createUserByAdmin — admin creates new user via Auth + userProfiles + users.
  */
 exports.createUserByAdmin = onCall(
   { region: "us-central1", invoker: "public" },
   async (request) => {
+    console.log("[createUserByAdmin] invoked", request.auth?.uid);
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
     }
+    const callerUid = request.auth.uid;
+    const db = getFirestore();
+    const adminSnap = await db.collection("admins").doc(callerUid).get();
+    if (!adminSnap.exists) {
+      throw new HttpsError("permission-denied", "Admin only.");
+    }
+    const adminData = adminSnap.data();
+    const role = adminData?.role;
+    const status = adminData?.status;
+    const okRole = role === "admin" || role === "superAdmin";
+    const okStatus = status === "active" || status === "approved";
+    if (!okRole || !okStatus) {
+      throw new HttpsError("permission-denied", "Active admin only.");
+    }
     const caller = {
-      uid: request.auth.uid,
+      uid: callerUid,
       email: request.auth.token?.email ? String(request.auth.token.email) : "",
     };
     const result = await createUserByAdminLogic(caller, request.data);
     return result;
-  }
-);
-
-/**
- * createUserByAdminHttp: HTTPS endpoint with CORS for Firebase Hosting origins.
- * Use this from fetch when you need CORS. Body: JSON { email, displayName?, role? }.
- * Header: Authorization: Bearer <idToken>.
- */
-exports.createUserByAdminHttp = onRequest(
-  { region: "us-central1", invoker: "public" },
-  async (req, res) => {
-    const origin = req.headers.origin;
-    const allowed = new Set([
-      "https://compassion-course-websit-937d6.firebaseapp.com",
-      "https://compassion-course-websit-937d6.web.app",
-    ]);
-    if (origin && allowed.has(origin)) {
-      res.set("Access-Control-Allow-Origin", origin);
-    }
-    res.set("Vary", "Origin");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.set("Access-Control-Max-Age", "3600");
-
-    if (req.method === "OPTIONS") {
-      res.status(204).send("");
-      return;
-    }
-    if (req.method !== "POST") {
-      res.status(405).json({ error: "Method not allowed" });
-      return;
-    }
-
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ error: "Sign-in required." });
-      return;
-    }
-    const idToken = authHeader.slice(7);
-    const auth = getAuth();
-    let decoded;
-    try {
-      decoded = await auth.verifyIdToken(idToken);
-    } catch (e) {
-      res.status(401).json({ error: "Invalid or expired token." });
-      return;
-    }
-    const callerUid = decoded.uid;
-    const callerEmail = (decoded.email && String(decoded.email).toLowerCase().trim()) || "";
-    const body = req.body && typeof req.body === "object" ? req.body : {};
-    const data = body.data != null ? body.data : body;
-    try {
-      const result = await createUserByAdminLogic(
-        { uid: callerUid, email: callerEmail },
-        data
-      );
-      res.status(200).json(result);
-    } catch (e) {
-      if (e instanceof HttpsError) {
-        const status = {
-          unauthenticated: 401,
-          "permission-denied": 403,
-          "not-found": 404,
-          "invalid-argument": 400,
-          "already-exists": 409,
-          internal: 500,
-        }[e.code] || 500;
-        res.status(status).json({ error: e.message });
-        return;
-      }
-      res.status(500).json({ error: e.message || "Internal error." });
-      return;
-    }
   }
 );
 

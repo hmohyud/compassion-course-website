@@ -236,24 +236,27 @@ const LeadershipPortalPage: React.FC = () => {
     }
   };
 
-  if (user && userStatus !== 'active') {
+  if (user?.uid && !isActive) {
     return (
       <Layout>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
-          <Link
-            to="/portal"
-            style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
-          >
-            ← Back to Portal
-          </Link>
-          <h1 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '1.75rem', fontWeight: 700 }}>
-            Awaiting approval
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '24px' }}>
-            {userStatus === null
-              ? 'Setting up your account…'
-              : 'Your account is pending approval. You will be able to access the leadership portal once an administrator approves your account.'}
-          </p>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: 24 }}>
+          <div style={widgetStyle}>
+            <h2 style={{ ...cardTitleStyle, fontSize: '1.25rem' }}>Awaiting approval</h2>
+            <p style={secondaryTextStyle}>
+              Your account is created, but it hasn't been approved for the Leadership Portal yet.
+            </p>
+            <p style={secondaryTextStyle}>
+              Status: <strong>{userStatus ?? 'pending'}</strong>
+            </p>
+            <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+              <button style={buttonStyle} onClick={() => window.location.reload()}>
+                Refresh
+              </button>
+              <button style={buttonStyle} onClick={() => navigate('/')}>
+                Back to Home
+              </button>
+            </div>
+          </div>
         </div>
       </Layout>
     );

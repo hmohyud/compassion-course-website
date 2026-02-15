@@ -131,7 +131,7 @@ async function createUserByAdminLogic(caller, data) {
  * Callable: createUserByAdmin (unchanged for existing frontend using httpsCallable).
  */
 exports.createUserByAdmin = onCall(
-  { region: "us-central1" },
+  { region: "us-central1", invoker: "public" },
   async (request) => {
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
@@ -222,7 +222,7 @@ exports.createUserByAdminHttp = onRequest(
  * Callable: approveUser — admin-only. Sets users/{uid}.status=active and role.
  */
 exports.approveUser = onCall(
-  { region: "us-central1" },
+  { region: "us-central1", invoker: "public" },
   async (request) => {
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");

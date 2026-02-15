@@ -141,22 +141,20 @@ const UserManagement: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      if (user) {
-        const adminSnap = await getDoc(doc(db, 'admins', user.uid));
-        console.log('isAdmin doc exists:', adminSnap.exists());
-      }
-      const [profileList, adminsSnap] = await Promise.all([
-        listUserProfiles(),
-        getDocs(collection(db, 'admins')),
-      ]);
+      const profileList = await listUserProfiles();
       setProfiles(profileList);
-      const ids = new Set<string>();
-      adminsSnap.docs.forEach((d) => {
-        ids.add(d.id);
-        const email = d.data()?.email;
-        if (email) ids.add(email.toLowerCase());
-      });
-      setAdminIds(ids);
+      try {
+        const adminsSnap = await getDocs(collection(db, 'admins'));
+        const ids = new Set<string>();
+        adminsSnap.docs.forEach((d) => {
+          ids.add(d.id);
+          const email = d.data()?.email;
+          if (email) ids.add(email.toLowerCase());
+        });
+        setAdminIds(ids);
+      } catch {
+        setAdminIds(new Set());
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to load users';
       setError(message);

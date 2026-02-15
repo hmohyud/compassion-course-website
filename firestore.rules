@@ -46,11 +46,6 @@ service cloud.firestore {
     function isSelf(uid) {
       return signedIn() && request.auth.uid == uid;
     }
-    function isActiveAdmin(uid) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'active';
-    }
 
     // ============================================
     // WEBSITE CONTENT (Public read, Admin write)
@@ -102,13 +97,12 @@ service cloud.firestore {
     // ADMIN MANAGEMENT
     // ============================================
     
-    // Admins collection - UID-keyed; users can read own doc (isSelf), active admins can list/update/delete
+    // Admins collection - UID-keyed; signed-in user can read THEIR OWN doc only (no chicken-and-egg lockout)
     match /admins/{uid} {
       allow get: if isSelf(uid);
-      allow read: if isSelf(uid) || isActiveAdmin(request.auth.uid);
-      allow list: if isActiveAdmin(request.auth.uid);
-      allow create: if isSelf(uid) || isActiveAdmin(request.auth.uid);
-      allow update, delete: if isActiveAdmin(request.auth.uid);
+      allow list: if false;
+      allow read: if isSelf(uid);
+      allow create, update, delete: if false;
     }
     
     // ============================================

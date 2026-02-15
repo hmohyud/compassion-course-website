@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/firebaseConfig';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { auth, db, functions } from '../../firebase/firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
 import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { listUsersByStatus, type UserDoc } from '../../services/usersService';
@@ -395,7 +395,6 @@ const UserManagement: React.FC = () => {
     }
     setAddingUser(true);
     try {
-      const functions = getFunctions(undefined, 'us-central1');
       const createUserByAdminCallable = httpsCallable<
         { email: string; displayName?: string; role?: string },
         { ok: boolean; uid: string; email: string; temporaryPassword: string }
@@ -423,7 +422,7 @@ const UserManagement: React.FC = () => {
       } else if (code === 'functions/invalid-argument') {
         setError(message || 'Invalid input.');
       } else if (code === 'functions/not-found') {
-        setError('Add user is not available: Cloud Function "createUserByAdmin" is not deployed. Deploy it with: firebase deploy --only functions (requires Blaze plan).');
+        setError('Add user is not available: callable "createUserByAdmin" is not deployed.');
       } else {
         setError(message || 'Server error. Check Firebase Console > Functions > Logs for details. Ensure the project has Blaze plan and the default service account can create Auth users and write to Firestore.');
       }
@@ -728,7 +727,7 @@ const UserManagement: React.FC = () => {
             </p>
           )}
           <p style={{ marginTop: '16px', marginBottom: 0, fontSize: '0.75rem', color: '#6b7280' }}>
-            Requires Cloud Function createUserByAdmin. If adding users fails, run: <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>firebase deploy --only functions</code> (Blaze plan required).
+            Uses callable function createUserByAdmin via httpsCallable (no CORS).
           </p>
         </div>
         )}

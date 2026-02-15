@@ -154,6 +154,19 @@ exports.createUserByAdminHttp = onRequest(
   { region: "us-central1" },
   (req, res) => {
     corsHandler(req, res, async () => {
+      const origin = req.headers.origin;
+      const allowedOrigins = new Set([
+        "https://compassion-course-websit-937d6.firebaseapp.com",
+        "https://compassion-course-websit-937d6.web.app",
+      ]);
+      if (origin && allowedOrigins.has(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+      res.set("Vary", "Origin");
+      res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      res.set("Access-Control-Max-Age", "3600");
+
       if (req.method === "OPTIONS") {
         res.status(204).send("");
         return;

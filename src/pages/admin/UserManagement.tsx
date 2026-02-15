@@ -396,37 +396,46 @@ const UserManagement: React.FC = () => {
     }
     setAddingUser(true);
     try {
-      const createUserByAdminCallable = httpsCallable<
-        { email: string; displayName?: string; role?: string },
-        { ok: boolean; uid: string; email: string; temporaryPassword: string }
-      >(functions, 'createUserByAdmin');
-      const result = await createUserByAdminCallable({
-        email,
-        displayName: addUserName.trim() || undefined,
-        role: 'viewer',
-      });
-      const data = result.data;
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(
+        'https://us-central1-compassion-course-websit-937d6.cloudfunctions.net/createUserByAdminHttp',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email,
+            displayName: addUserName.trim() || undefined,
+            role: 'viewer',
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        const message = (data && typeof data.error === 'string') ? data.error : res.statusText || 'Failed to add user.';
+        if (res.status === 401) {
+          setError('You must be logged in to add users. Sign in again and try again.');
+        } else if (res.status === 403) {
+          setError('Only admins can add users. Your account may not have admin access.');
+        } else if (res.status === 409) {
+          setError('A user with this email already exists.');
+        } else if (res.status === 400) {
+          setError(message || 'Invalid input.');
+        } else {
+          setError(message || 'Server error.');
+        }
+        return;
+      }
       setAddUserResult({ email: data.email, temporaryPassword: data.temporaryPassword });
       setSuccess('User added. They must change their password on first login.');
       setAddUserEmail('');
       setAddUserName('');
       await loadData();
     } catch (err: unknown) {
-      const code = (err as { code?: string })?.code ?? '';
-      const message = (err as { message?: string })?.message ?? 'Failed to add user.';
-      if (code === 'functions/unauthenticated') {
-        setError('You must be logged in to add users. Sign in again and try again.');
-      } else if (code === 'functions/permission-denied') {
-        setError('Only admins can add users. Your account may not have admin access.');
-      } else if (code === 'functions/already-exists') {
-        setError('A user with this email already exists.');
-      } else if (code === 'functions/invalid-argument') {
-        setError(message || 'Invalid input.');
-      } else if (code === 'functions/not-found') {
-        setError('Add user is not available: callable "createUserByAdmin" is not deployed.');
-      } else {
-        setError(message || 'Server error. Check Firebase Console > Functions > Logs for details. Ensure the project has Blaze plan and the default service account can create Auth users and write to Firestore.');
-      }
+      const message = err instanceof Error ? err.message : 'Failed to add user.';
+      setError(message);
     } finally {
       setAddingUser(false);
     }

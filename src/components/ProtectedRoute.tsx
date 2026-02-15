@@ -18,6 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!user || !isAdmin) {
+    console.log('[Admin Portal gate] redirect to login: isAdmin', isAdmin, 'loading', loading, 'currentUser?.uid', user?.uid);
     return <Navigate to="/admin/login-4f73b2c" replace />;
   }
 

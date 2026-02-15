@@ -61,7 +61,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const LeadershipPortalPage: React.FC = () => {
-  const { user, userStatus, isActive } = useAuth();
+  const { user, userStatus, isActive, isAdmin: isAdminUser, loading: authLoading } = useAuth();
   const { isAdmin } = usePermissions();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
@@ -236,7 +236,19 @@ const LeadershipPortalPage: React.FC = () => {
     }
   };
 
-  if (user?.uid && !isActive) {
+  if (authLoading) {
+    return (
+      <Layout>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: 24 }}>
+          <p style={secondaryTextStyle}>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  const showAwaitingApproval = !!user?.uid && !isActive && !isAdminUser;
+  if (showAwaitingApproval) {
+    console.log('[Leadership gate] Awaiting approval UI: isAdmin (AuthContext)', isAdminUser, 'loading (auth)', authLoading, 'currentUser?.uid', user?.uid);
     return (
       <Layout>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: 24 }}>

@@ -147,30 +147,31 @@ exports.createUserByAdmin = onCall(
 
 /**
  * createUserByAdminHttp: HTTPS endpoint with CORS for Firebase Hosting origins.
- * Use this from fetch when you need CORS. Body: JSON { data: { email, displayName?, role? } }.
+ * Use this from fetch when you need CORS. Body: JSON { email, displayName?, role? }.
  * Header: Authorization: Bearer <idToken>.
  */
 exports.createUserByAdminHttp = onRequest(
-  { region: "us-central1" },
+  { region: "us-central1", invoker: "public" },
   (req, res) => {
-    corsHandler(req, res, async () => {
-      const origin = req.headers.origin;
-      const allowedOrigins = new Set([
-        "https://compassion-course-websit-937d6.firebaseapp.com",
-        "https://compassion-course-websit-937d6.web.app",
-      ]);
-      if (origin && allowedOrigins.has(origin)) {
-        res.set("Access-Control-Allow-Origin", origin);
-      }
-      res.set("Vary", "Origin");
-      res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-      res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-      res.set("Access-Control-Max-Age", "3600");
+    const origin = req.headers.origin;
+    const allowed = new Set([
+      "https://compassion-course-websit-937d6.firebaseapp.com",
+      "https://compassion-course-websit-937d6.web.app",
+    ]);
+    if (origin && allowed.has(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+    }
+    res.set("Vary", "Origin");
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.set("Access-Control-Max-Age", "3600");
 
-      if (req.method === "OPTIONS") {
-        res.status(204).send("");
-        return;
-      }
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    corsHandler(req, res, async () => {
       if (req.method !== "POST") {
         res.status(405).json({ error: "Method not allowed" });
         return;
@@ -213,6 +214,7 @@ exports.createUserByAdminHttp = onRequest(
           return;
         }
         res.status(500).json({ error: e.message || "Internal error." });
+        return;
       }
     });
   }

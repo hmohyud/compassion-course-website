@@ -144,6 +144,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           
           // Check Firestore document (UID-only; rules allow read of own doc via isSelf)
+          const docPath = `admins/${user.uid}`;
+          console.log('[admin check] auth.currentUser?.uid', auth.currentUser?.uid, 'auth.currentUser?.email', auth.currentUser?.email);
+          console.log('[admin check] doc path', docPath);
           try {
             const timeoutPromise = new Promise<never>((_, reject) => 
               setTimeout(() => reject(new Error('Admin check timeout')), 3000)
@@ -152,13 +155,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               getDoc(doc(db, 'admins', user.uid)),
               timeoutPromise
             ]);
+            console.log('[admin check] snap.exists()', adminDoc.exists());
             const data = adminDoc.data();
-            const isAdminUser =
-              adminDoc.exists() &&
-              data?.role === 'admin' &&
-              (data?.status === undefined || data?.status === 'active');
+            if (adminDoc.exists()) {
+              console.log('[admin check] snap.data()', data);
+            }
+            const status = data?.status;
+            const role = data?.role;
+            const okStatus = status === 'active' || status === 'approved';
+            const okRole = role === 'admin' || role === 'superAdmin';
+            const isAdminUser = adminDoc.exists() && okRole && okStatus;
+            console.log('[admin check] okStatus', okStatus, 'okRole', okRole, 'status', status, 'role', role, 'isAdminUser', isAdminUser);
             setIsAdmin(!!isAdminUser);
           } catch (error: any) {
+            console.log('[admin check] catch e.code', error?.code, 'e.message', error?.message);
             const isOfflineError = error?.code === 'unavailable' || 
                                   error?.message?.includes('offline') ||
                                   error?.message?.includes('timeout');

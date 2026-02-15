@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { auth, db, functions } from '../../firebase/firebaseConfig';
 import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
@@ -262,16 +262,14 @@ const UserManagement: React.FC = () => {
       return;
     }
     try {
-      await setDoc(doc(db, 'admins', targetUid), {
-        uid: targetUid,
-        email: normalizedEmail,
-        status: 'active',
-        role: 'admin',
-        grantedBy: user?.email || 'unknown',
-        grantedAt: new Date().toISOString(),
-      });
+      const grantAdminCallable = httpsCallable<{ targetUid: string; email: string }, { ok: boolean }>(
+        functions,
+        'grantAdmin'
+      );
+      await grantAdminCallable({ targetUid, email: normalizedEmail });
       setSuccess(`Admin rights granted to ${normalizedEmail}. They will have admin access when they log in.`);
       setGrantEmail('');
+      setAdminIds((prev) => new Set([...prev, targetUid, normalizedEmail]));
       await loadData();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to grant admin rights';
@@ -289,15 +287,18 @@ const UserManagement: React.FC = () => {
     setSuccess('');
     setRevokingId(profile.id);
     try {
-      await deleteDoc(doc(db, 'admins', profile.id));
-      if (profile.id !== email) {
-        try {
-          await deleteDoc(doc(db, 'admins', email));
-        } catch {
-          // Legacy cleanup: ignore if email-keyed doc doesn't exist
-        }
-      }
+      const revokeAdminCallable = httpsCallable<{ targetUid: string }, { ok: boolean }>(
+        functions,
+        'revokeAdmin'
+      );
+      await revokeAdminCallable({ targetUid: profile.id });
       setSuccess(`Admin rights revoked from ${profile.email}`);
+      setAdminIds((prev) => {
+        const next = new Set(prev);
+        next.delete(profile.id);
+        if (email) next.delete(email);
+        return next;
+      });
       await loadData();
       onSuccess?.();
     } catch (err: unknown) {

@@ -259,3 +259,91 @@ exports.approveUser = onCall(
     return { ok: true, uid: targetUid, status: STATUS_ACTIVE, role };
   }
 );
+
+/**
+ * Callable: grantAdmin — active admin grants admin to another user. Writes /admins/{targetUid}.
+ */
+exports.grantAdmin = onCall(
+  { region: "us-central1", invoker: "public" },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign-in required.");
+    }
+    const callerUid = request.auth.uid;
+    const callerEmail = request.auth.token?.email ? String(request.auth.token.email).toLowerCase().trim() : "";
+    const data = request.data;
+    if (!data || typeof data !== "object") {
+      throw new HttpsError("invalid-argument", "Missing data.");
+    }
+    const targetUid = typeof data.targetUid === "string" ? data.targetUid.trim() : "";
+    const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
+    if (!targetUid || !email) {
+      throw new HttpsError("invalid-argument", "targetUid and email are required.");
+    }
+    const db = getFirestore();
+    const callerAdminSnap = await db.collection("admins").doc(callerUid).get();
+    if (!callerAdminSnap.exists) {
+      throw new HttpsError("permission-denied", "Admin only.");
+    }
+    const callerData = callerAdminSnap.data();
+    const callerStatus = callerData?.status;
+    const callerRole = callerData?.role;
+    const okStatus = callerStatus === "active" || callerStatus === "approved";
+    const okRole = callerRole === "admin" || callerRole === "superAdmin";
+    if (!okStatus || !okRole) {
+      throw new HttpsError("permission-denied", "Active admin only.");
+    }
+    const now = FieldValue.serverTimestamp();
+    const grantedAt = new Date().toISOString();
+    await db.collection("admins").doc(targetUid).set({
+      uid: targetUid,
+      email,
+      role: "admin",
+      status: "active",
+      grantedBy: callerEmail || "unknown",
+      grantedAt,
+      updatedAt: now,
+    });
+    return { ok: true };
+  }
+);
+
+/**
+ * Callable: revokeAdmin — active admin revokes admin from a user. Deletes /admins/{targetUid}.
+ */
+exports.revokeAdmin = onCall(
+  { region: "us-central1", invoker: "public" },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign-in required.");
+    }
+    const callerUid = request.auth.uid;
+    const data = request.data;
+    if (!data || typeof data !== "object") {
+      throw new HttpsError("invalid-argument", "Missing data.");
+    }
+    const targetUid = typeof data.targetUid === "string" ? data.targetUid.trim() : "";
+    if (!targetUid) {
+      throw new HttpsError("invalid-argument", "targetUid is required.");
+    }
+    const db = getFirestore();
+    const callerAdminSnap = await db.collection("admins").doc(callerUid).get();
+    if (!callerAdminSnap.exists) {
+      throw new HttpsError("permission-denied", "Admin only.");
+    }
+    const callerData = callerAdminSnap.data();
+    const callerStatus = callerData?.status;
+    const callerRole = callerData?.role;
+    const okStatus = callerStatus === "active" || callerStatus === "approved";
+    const okRole = callerRole === "admin" || callerRole === "superAdmin";
+    if (!okStatus || !okRole) {
+      throw new HttpsError("permission-denied", "Active admin only.");
+    }
+    const targetRef = db.collection("admins").doc(targetUid);
+    const targetSnap = await targetRef.get();
+    if (targetSnap.exists) {
+      await targetRef.delete();
+    }
+    return { ok: true };
+  }
+);

@@ -152,7 +152,7 @@ exports.createUserByAdmin = onCall(
  */
 exports.createUserByAdminHttp = onRequest(
   { region: "us-central1", invoker: "public" },
-  (req, res) => {
+  async (req, res) => {
     const origin = req.headers.origin;
     const allowed = new Set([
       "https://compassion-course-websit-937d6.firebaseapp.com",
@@ -170,53 +170,51 @@ exports.createUserByAdminHttp = onRequest(
       res.status(204).send("");
       return;
     }
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
 
-    corsHandler(req, res, async () => {
-      if (req.method !== "POST") {
-        res.status(405).json({ error: "Method not allowed" });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Sign-in required." });
+      return;
+    }
+    const idToken = authHeader.slice(7);
+    const auth = getAuth();
+    let decoded;
+    try {
+      decoded = await auth.verifyIdToken(idToken);
+    } catch (e) {
+      res.status(401).json({ error: "Invalid or expired token." });
+      return;
+    }
+    const callerUid = decoded.uid;
+    const callerEmail = (decoded.email && String(decoded.email).toLowerCase().trim()) || "";
+    const body = req.body && typeof req.body === "object" ? req.body : {};
+    const data = body.data != null ? body.data : body;
+    try {
+      const result = await createUserByAdminLogic(
+        { uid: callerUid, email: callerEmail },
+        data
+      );
+      res.status(200).json(result);
+    } catch (e) {
+      if (e instanceof HttpsError) {
+        const status = {
+          unauthenticated: 401,
+          "permission-denied": 403,
+          "not-found": 404,
+          "invalid-argument": 400,
+          "already-exists": 409,
+          internal: 500,
+        }[e.code] || 500;
+        res.status(status).json({ error: e.message });
         return;
       }
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        res.status(401).json({ error: "Sign-in required." });
-        return;
-      }
-      const idToken = authHeader.slice(7);
-      const auth = getAuth();
-      let decoded;
-      try {
-        decoded = await auth.verifyIdToken(idToken);
-      } catch (e) {
-        res.status(401).json({ error: "Invalid or expired token." });
-        return;
-      }
-      const callerUid = decoded.uid;
-      const callerEmail = (decoded.email && String(decoded.email).toLowerCase().trim()) || "";
-      const body = req.body && typeof req.body === "object" ? req.body : {};
-      const data = body.data != null ? body.data : body;
-      try {
-        const result = await createUserByAdminLogic(
-          { uid: callerUid, email: callerEmail },
-          data
-        );
-        res.status(200).json(result);
-      } catch (e) {
-        if (e instanceof HttpsError) {
-          const status = {
-            unauthenticated: 401,
-            "permission-denied": 403,
-            "not-found": 404,
-            "invalid-argument": 400,
-            "already-exists": 409,
-            internal: 500,
-          }[e.code] || 500;
-          res.status(status).json({ error: e.message });
-          return;
-        }
-        res.status(500).json({ error: e.message || "Internal error." });
-        return;
-      }
-    });
+      res.status(500).json({ error: e.message || "Internal error." });
+      return;
+    }
   }
 );
 

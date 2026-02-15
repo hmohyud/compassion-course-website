@@ -47,7 +47,7 @@ export async function ensureUserDoc(
   if (existing.exists()) {
     return toUserDoc(existing.id, existing.data() ?? {});
   }
-  const status = options?.status ?? 'pending';
+  const status = options?.status ?? 'active';
   const role = options?.role ?? 'viewer';
   await setDoc(
     ref,

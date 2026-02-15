@@ -14,7 +14,7 @@ const STATUS_ACTIVE = "active";
 
 /**
  * Auth trigger (1st gen): when a new Auth user is created (self-signup), create users/{uid}
- * with status=pending, role=viewer so they cannot access portal until approved.
+ * with status=active, role=viewer for immediate read-only portal access.
  */
 exports.onAuthUserCreated = functions.auth.user().onCreate(async (user) => {
   const db = getFirestore();
@@ -27,7 +27,7 @@ exports.onAuthUserCreated = functions.auth.user().onCreate(async (user) => {
       email,
       displayName,
       role: "viewer",
-      status: STATUS_PENDING,
+      status: STATUS_ACTIVE,
       createdAt: now,
       updatedAt: now,
     },

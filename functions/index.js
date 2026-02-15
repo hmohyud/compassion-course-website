@@ -1,4 +1,4 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onRequest } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
@@ -7,26 +7,69 @@ initializeApp();
 
 const TEMP_PASSWORD = "12341234";
 
+const ALLOWED_ORIGINS = [
+  "https://compassion-course-websit-937d6.firebaseapp.com",
+  "https://compassion-course-websit-937d6.web.app",
+  "http://localhost:5173",
+];
+
+function setCorsHeaders(res, origin) {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin);
+  if (allowed) {
+    res.set("Access-Control-Allow-Origin", origin);
+  }
+  res.set("Vary", "Origin");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+}
+
+function sendJson(res, status, data, origin) {
+  setCorsHeaders(res, origin);
+  res.status(status).set("Content-Type", "application/json").send(JSON.stringify(data));
+}
+
 /**
- * Callable: createUserByAdmin
- * Only callable by authenticated admins (present in Firestore admins collection).
- * Creates a Firebase Auth user with temporary password and a userProfiles document with mustChangePassword: true.
+ * HTTP: createUserByAdmin
+ * Only allowed for authenticated admins (Firestore admins collection).
+ * CORS: allowed origins for firebaseapp, web.app, localhost:5173.
+ * OPTIONS returns 204 with CORS headers; POST requires Authorization: Bearer <idToken>.
  */
-exports.createUserByAdmin = onCall(
-  {
-    region: "us-central1",
-    cors: true,
-  },
-  async (request) => {
-  try {
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "Must be logged in to create users.");
+exports.createUserByAdmin = onRequest(
+  { region: "us-central1" },
+  async (req, res) => {
+    const origin = req.get("Origin") || null;
+
+    if (req.method === "OPTIONS") {
+      setCorsHeaders(res, origin);
+      res.status(204).end();
+      return;
     }
 
-    const uid = request.auth.uid;
-    const email = request.auth.token.email ? String(request.auth.token.email).toLowerCase().trim() : null;
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" }, origin);
+      return;
+    }
+
+    const authHeader = req.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      sendJson(res, 401, { error: "Missing or invalid Authorization header" }, origin);
+      return;
+    }
+    const token = authHeader.slice(7);
+
+    let decoded;
+    try {
+      decoded = await getAuth().verifyIdToken(token);
+    } catch (err) {
+      sendJson(res, 401, { error: "Invalid or expired token" }, origin);
+      return;
+    }
+
+    const uid = decoded.uid;
+    const email = decoded.email ? String(decoded.email).toLowerCase().trim() : null;
     if (!email) {
-      throw new HttpsError("permission-denied", "Admin only.");
+      sendJson(res, 403, { error: "Admin only." }, origin);
+      return;
     }
 
     const db = getFirestore();
@@ -37,34 +80,41 @@ exports.createUserByAdmin = onCall(
       adminByEmail.get(),
     ]);
     if (!snapUid.exists && !snapEmail.exists) {
-      throw new HttpsError("permission-denied", "Admin only.");
+      sendJson(res, 403, { error: "Admin only." }, origin);
+      return;
     }
 
-    const data = request.data;
-    if (!data || typeof data !== "object") {
-      throw new HttpsError("invalid-argument", "Missing data.");
+    let data;
+    try {
+      data = typeof req.body === "object" && req.body !== null ? req.body : JSON.parse(req.body || "{}");
+    } catch {
+      sendJson(res, 400, { error: "Invalid JSON body" }, origin);
+      return;
     }
+
     const newEmail = typeof data.email === "string" ? data.email.trim() : "";
     const name = typeof data.name === "string" ? data.name.trim() : "";
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!newEmail || !emailRegex.test(newEmail)) {
-      throw new HttpsError("invalid-argument", "A valid email is required.");
+      sendJson(res, 400, { error: "A valid email is required." }, origin);
+      return;
     }
 
     const normalizedNewEmail = newEmail.toLowerCase();
-
     const auth = getAuth();
+
     try {
       await auth.getUserByEmail(normalizedNewEmail);
-      throw new HttpsError("already-exists", "A user with this email already exists.");
+      sendJson(res, 409, { error: "A user with this email already exists." }, origin);
+      return;
     } catch (err) {
-      if (err instanceof HttpsError) throw err;
       const code = err.code || err.errorInfo?.code;
       if (code !== "auth/user-not-found") {
         const msg = err.message || err.errorInfo?.message || "Failed to check existing user.";
         console.error("createUserByAdmin getUserByEmail error:", code, msg, err);
-        throw new HttpsError("internal", msg);
+        sendJson(res, 500, { error: msg }, origin);
+        return;
       }
     }
 
@@ -79,7 +129,8 @@ exports.createUserByAdmin = onCall(
     } catch (err) {
       const msg = err.message || err.errorInfo?.message || "Failed to create auth user.";
       console.error("createUserByAdmin createUser error:", err.code || err.errorInfo?.code, msg, err);
-      throw new HttpsError("internal", msg);
+      sendJson(res, 500, { error: msg }, origin);
+      return;
     }
 
     const now = FieldValue.serverTimestamp();
@@ -98,18 +149,14 @@ exports.createUserByAdmin = onCall(
     } catch (err) {
       const msg = err.message || "Failed to create user profile in database.";
       console.error("createUserByAdmin Firestore set error:", msg, err);
-      throw new HttpsError("internal", msg);
+      sendJson(res, 500, { error: msg }, origin);
+      return;
     }
 
-    return {
+    sendJson(res, 200, {
       uid: userRecord.uid,
       email: normalizedNewEmail,
       temporaryPassword: TEMP_PASSWORD,
-    };
-  } catch (err) {
-    if (err instanceof HttpsError) throw err;
-    const msg = err.message || String(err);
-    console.error("createUserByAdmin unexpected error:", msg, err);
-    throw new HttpsError("internal", msg);
+    }, origin);
   }
-});
+);

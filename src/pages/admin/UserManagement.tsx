@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { db, functions } from '../../firebase/firebaseConfig';
+import app, { auth, db } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../context/AuthContext';
 import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { listTeams, getTeam, createTeamWithBoard, updateTeam, deleteTeam } from '../../services/leadershipTeamsService';
@@ -341,35 +340,53 @@ const UserManagement: React.FC = () => {
       setError('Please enter a valid email address.');
       return;
     }
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      setError('You must be logged in to add users. Sign in again and try again.');
+      return;
+    }
     setAddingUser(true);
     try {
-      const createUser = httpsCallable<{ email: string; name?: string }, { uid: string; email: string; temporaryPassword: string }>(functions, 'createUserByAdmin');
-      const result = await createUser({ email, name: addUserName.trim() || undefined });
-      const data = result.data;
-      setAddUserResult({ email: data.email, temporaryPassword: data.temporaryPassword });
+      const projectId = app.options.projectId;
+      if (!projectId) {
+        setError('Firebase project ID is not configured.');
+        setAddingUser(false);
+        return;
+      }
+      const url = `https://us-central1-${projectId}.cloudfunctions.net/createUserByAdmin`;
+      const idToken = await currentUser.getIdToken();
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+        body: JSON.stringify({ email, name: addUserName.trim() || undefined }),
+      });
+      const body = await res.json().catch(() => ({}));
+      const message = (body && typeof body.error === 'string') ? body.error : (res.statusText || 'Failed to add user.');
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError('You must be logged in to add users. Sign in again and try again.');
+        } else if (res.status === 403) {
+          setError('Only admins can add users. Your account may not have admin access.');
+        } else if (res.status === 409) {
+          setError('A user with this email already exists.');
+        } else if (res.status === 404) {
+          setError('Add user is not available: Cloud Function "createUserByAdmin" is not deployed. Deploy it with: firebase deploy --only functions (requires Blaze plan).');
+        } else if (res.status >= 500) {
+          setError(message && message !== 'internal' ? message : 'Server error. Check Firebase Console > Functions > Logs for details. Ensure the project has Blaze plan and the default service account can create Auth users and write to Firestore.');
+        } else {
+          setError(message || 'Failed to add user.');
+        }
+        setAddingUser(false);
+        return;
+      }
+      setAddUserResult({ email: body.email, temporaryPassword: body.temporaryPassword });
       setSuccess(`User added. They must change their password on first login.`);
       setAddUserEmail('');
       setAddUserName('');
       await loadData();
     } catch (err: unknown) {
-      const fb = err as { code?: string; message?: string };
-      const code = fb?.code ?? '';
-      const message = fb?.message ?? (err instanceof Error ? err.message : 'Failed to add user.');
-      if (code === 'functions/not-found' || message.includes('NOT_FOUND') || message.includes('404')) {
-        setError('Add user is not available: Cloud Function "createUserByAdmin" is not deployed. Deploy it with: firebase deploy --only functions (requires Blaze plan).');
-      } else if (code === 'functions/unauthenticated' || message.includes('unauthenticated')) {
-        setError('You must be logged in to add users. Sign in again and try again.');
-      } else if (code === 'functions/permission-denied' || message.includes('permission-denied') || message.includes('Admin only')) {
-        setError('Only admins can add users. Your account may not have admin access.');
-      } else if (code === 'functions/internal' || message === 'internal' || message.toLowerCase().includes('internal')) {
-        setError(
-          message && message !== 'internal'
-            ? message
-            : 'Server error. Check Firebase Console > Functions > Logs for details. Ensure the project has Blaze plan and the default service account can create Auth users and write to Firestore.'
-        );
-      } else {
-        setError(message || 'Failed to add user.');
-      }
+      const msg = err instanceof Error ? err.message : 'Failed to add user.';
+      setError(msg.includes('CORS') || msg.includes('Failed to fetch') ? 'Network or CORS error. Ensure the function is deployed and your origin is allowed.' : msg);
     } finally {
       setAddingUser(false);
     }

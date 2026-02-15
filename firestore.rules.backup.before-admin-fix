@@ -43,15 +43,7 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
-    function isSelf(uid) {
-      return signedIn() && request.auth.uid == uid;
-    }
-    function isActiveAdmin(uid) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'active';
-    }
-
+    
     // ============================================
     // WEBSITE CONTENT (Public read, Admin write)
     // ============================================
@@ -102,13 +94,11 @@ service cloud.firestore {
     // ADMIN MANAGEMENT
     // ============================================
     
-    // Admins collection - UID-keyed; users can read own doc (isSelf), active admins can list/update/delete
-    match /admins/{uid} {
-      allow get: if isSelf(uid);
-      allow read: if isSelf(uid) || isActiveAdmin(request.auth.uid);
-      allow list: if isActiveAdmin(request.auth.uid);
-      allow create: if isSelf(uid) || isActiveAdmin(request.auth.uid);
-      allow update, delete: if isActiveAdmin(request.auth.uid);
+    // Admins collection - authority is admins/{uid}; bootstrap: user can create own doc once
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      allow create: if request.auth != null && adminId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
     
     // ============================================

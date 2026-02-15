@@ -251,14 +251,26 @@ const UserManagement: React.FC = () => {
       setGranting(false);
       return;
     }
+    const profile = profiles.find((p) => p.email?.toLowerCase() === normalizedEmail);
+    const targetUid = profile?.id;
+    if (!targetUid) {
+      setError('No user with this email in the directory. They must register or be created first.');
+      setGranting(false);
+      return;
+    }
+    if (adminIds.has(targetUid)) {
+      setError('This user already has admin rights');
+      setGranting(false);
+      return;
+    }
     try {
-      await setDoc(doc(db, 'admins', normalizedEmail), {
+      await setDoc(doc(db, 'admins', targetUid), {
+        uid: targetUid,
         email: normalizedEmail,
+        status: 'active',
         role: 'admin',
         grantedBy: user?.email || 'unknown',
         grantedAt: new Date().toISOString(),
-        status: 'active',
-        lookupByEmail: true,
       });
       setSuccess(`Admin rights granted to ${normalizedEmail}. They will have admin access when they log in.`);
       setGrantEmail('');
@@ -284,18 +296,7 @@ const UserManagement: React.FC = () => {
         try {
           await deleteDoc(doc(db, 'admins', email));
         } catch {
-          // Ignore if email-keyed doc doesn't exist
-        }
-      }
-      const adminsSnap = await getDocs(collection(db, 'admins'));
-      const matching = adminsSnap.docs.filter(
-        (d) => d.data()?.email?.toLowerCase() === email && d.id !== profile.id && d.id !== email
-      );
-      for (const d of matching) {
-        try {
-          await deleteDoc(doc(db, 'admins', d.id));
-        } catch {
-          // ignore
+          // Legacy cleanup: ignore if email-keyed doc doesn't exist
         }
       }
       setSuccess(`Admin rights revoked from ${profile.email}`);

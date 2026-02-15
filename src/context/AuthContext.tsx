@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔧 Auto-creating admin document for:', user.uid);
       await setDoc(
         doc(db, 'admins', user.uid),
-        { uid: user.uid, email: user.email, createdAt: serverTimestamp() },
+        { uid: user.uid, email: user.email, status: 'active', role: 'admin', createdAt: serverTimestamp() },
         { merge: true }
       );
       console.log('✅ Admin document created successfully!');
@@ -143,55 +143,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
           
-          // Check Firestore document (single attempt with timeout)
+          // Check Firestore document (UID-only; rules allow read of own doc via isSelf)
           try {
             const timeoutPromise = new Promise<never>((_, reject) => 
               setTimeout(() => reject(new Error('Admin check timeout')), 3000)
             );
-            
-            // First, try checking by UID
-            let adminDoc = await Promise.race([
+            const adminDoc = await Promise.race([
               getDoc(doc(db, 'admins', user.uid)),
               timeoutPromise
             ]);
-            
-            let exists = adminDoc.exists();
-            let role = adminDoc.data()?.role;
-            let isAdminUser = exists && role === 'admin';
-            
-            // If not found by UID, try checking by email
-            if (!isAdminUser && user.email) {
-              try {
-                const emailDoc = await Promise.race([
-                  getDoc(doc(db, 'admins', user.email.toLowerCase().trim())),
-                  timeoutPromise
-                ]);
-                
-                if (emailDoc.exists() && emailDoc.data()?.role === 'admin') {
-                  console.log('✅ Admin found by email, syncing to UID-based document');
-                  // Found by email - create/update UID-based document for future lookups
-                  try {
-                    await setDoc(doc(db, 'admins', user.uid), {
-                      email: user.email,
-                      role: 'admin',
-                      grantedBy: emailDoc.data()?.grantedBy || 'system',
-                      grantedAt: emailDoc.data()?.grantedAt || new Date().toISOString(),
-                      status: 'active'
-                    });
-                    console.log('✅ Admin document synced to UID');
-                  } catch (syncError) {
-                    console.warn('⚠️ Could not sync admin document to UID:', syncError);
-                  }
-                  isAdminUser = true;
-                  role = 'admin';
-                }
-              } catch (emailCheckError: any) {
-                // If email check fails, continue with UID check result
-                console.warn('⚠️ Error checking admin by email:', emailCheckError);
-              }
-            }
-            
-            setIsAdmin(isAdminUser);
+            const data = adminDoc.data();
+            const isAdminUser =
+              adminDoc.exists() &&
+              data?.role === 'admin' &&
+              (data?.status === undefined || data?.status === 'active');
+            setIsAdmin(!!isAdminUser);
           } catch (error: any) {
             const isOfflineError = error?.code === 'unavailable' || 
                                   error?.message?.includes('offline') ||

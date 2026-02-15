@@ -16,6 +16,7 @@ import {
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebaseConfig';
 import { createUserProfile, getUserProfile } from '../services/userProfileService';
+import { getUserDoc, ensureUserDoc, type UserDoc, type UserStatus, type UserRole } from '../services/usersService';
 import { logAuthDiagnostics, isDomainBlockingError, getDomainBlockingErrorMessage } from '../utils/authDiagnostics';
 
 // Temporary fallback admin emails (used when Firestore is offline)
@@ -33,10 +34,14 @@ interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
   loading: boolean;
+  /** Canonical user doc (users/{uid}); null while loading or if not yet created. */
+  userDoc: UserDoc | null;
+  userRole: UserRole | null;
+  userStatus: UserStatus | null;
+  isActive: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, recaptchaVerifier?: RecaptchaVerifier) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  /** Link email/password to current account (e.g. after Google sign-in). Lets user log in with email/password later. */
   linkEmailPassword: (password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -56,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
 
   // Bootstrap: ensure admins/{uid} exists for allowed emails (client-only convenience; authority is the doc)
   const createAdminDocument = async (user: User) => {
@@ -226,6 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } else {
         setIsAdmin(false);
+        setUserDoc(null);
       }
       
       setLoading(false);
@@ -233,6 +240,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return unsubscribe;
   }, []);
+
+  // Load users/{uid} for role/status gating (single source of truth). Retry if missing (trigger may be delayed), then bootstrap with ensureUserDoc.
+  useEffect(() => {
+    if (!user?.uid) {
+      setUserDoc(null);
+      return;
+    }
+    const uid = user.uid;
+    const email = user.email ?? '';
+    const displayName = user.displayName ?? user.email?.split('@')[0] ?? 'User';
+    let cancelled = false;
+    const load = async () => {
+      let doc = await getUserDoc(uid);
+      if (cancelled) return;
+      if (!doc) {
+        await new Promise((r) => setTimeout(r, 1000));
+        if (cancelled) return;
+        doc = await getUserDoc(uid);
+      }
+      if (cancelled) return;
+      if (!doc) {
+        await new Promise((r) => setTimeout(r, 2000));
+        if (cancelled) return;
+        doc = await getUserDoc(uid);
+      }
+      if (cancelled) return;
+      if (!doc) {
+        try {
+          const adminSnap = await getDoc(doc(db, 'admins', uid));
+          if (adminSnap.exists() || (user.email && ADMIN_EMAILS.includes(user.email))) {
+            doc = await ensureUserDoc(uid, email, displayName, { status: 'active', role: 'admin' });
+          } else {
+            doc = await ensureUserDoc(uid, email, displayName);
+          }
+        } catch (e) {
+          if (!cancelled) setUserDoc(null);
+          return;
+        }
+      }
+      if (!cancelled) {
+        setUserDoc(doc);
+        if (doc.status === 'active' && doc.role === 'admin') setIsAdmin(true);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid, user?.email, user?.displayName]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -402,6 +458,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isAdmin,
     loading,
+    userDoc,
+    userRole: userDoc?.role ?? null,
+    userStatus: userDoc?.status ?? null,
+    isActive: (userDoc?.status ?? '') === 'active',
     login,
     register,
     signInWithGoogle,

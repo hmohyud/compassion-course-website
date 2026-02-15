@@ -1,17 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
     function isSignedIn() {
       return request.auth != null;
     }
-    // Admin: compassioncf.com email or admins/{uid} document exists
-    function isAdmin() {
-      return request.auth != null
-        && (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-            || (request.auth.token.email != null && request.auth.token.email.matches('.*@compassioncf\\.com$')));
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid));
     }
-    
-    // Helper function to check if user owns a resource
+    function roleOf(uid) {
+      return userDoc(uid).data.role;
+    }
+    function statusOf(uid) {
+      return userDoc(uid).data.status;
+    }
+    function isActiveUser() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && statusOf(request.auth.uid) == 'active';
+    }
+    function isAdmin() {
+      return signedIn()
+        && (
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && roleOf(request.auth.uid) == 'admin'
+            && statusOf(request.auth.uid) == 'active')
+          || exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+          || (request.auth.token.email != null && request.auth.token.email.matches('.*@compassioncf\\.com$'))
+        );
+    }
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
@@ -73,6 +92,16 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
     
+    // ============================================
+    // USERS (users/{uid}) - single source of truth for role/status; gate portal access
+    // ============================================
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow update: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
     // ============================================
     // USER PROFILES (userProfiles) - owner read/write own; admin list/read/update all
     // ============================================
@@ -229,30 +258,33 @@ service cloud.firestore {
     match /leadershipMessages/{id} {
       allow read, write: if isAdmin();
     }
+    match /boards/{id} {
+      allow read: if isAdmin() || isActiveUser();
+      allow write: if isAdmin();
+    }
     match /teams/{id} {
-      allow read: if isAdmin() || (request.auth != null && request.auth.uid in resource.data.get('memberIds', []));
+      allow read: if isAdmin() || (isActiveUser() && request.auth.uid in resource.data.get('memberIds', []));
       allow write: if isAdmin();
     }
     match /workItems/{id} {
       allow read: if isAdmin()
-        || (request.auth != null && request.auth.uid == resource.data.get('assigneeId', ''))
-        || (request.auth != null && resource.data.get('teamId', '') != '' && request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.get('memberIds', []));
+        || (isActiveUser() && request.auth.uid == resource.data.get('assigneeId', ''))
+        || (isActiveUser() && resource.data.get('teamId', '') != '' && request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.get('memberIds', []));
       allow write: if isAdmin();
     }
-    match /boards/{id} {
-      allow read, write: if isAdmin();
-    }
     match /teamBoardSettings/{id} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin() || isActiveUser();
+      allow write: if isAdmin();
     }
     match /leadershipWorkingAgreements/{teamId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin() || isActiveUser();
+      allow write: if isAdmin();
     }
-    // User notifications: user reads own; admins can read all
+    // User notifications: active user reads own; admins can read all; pending users denied
     match /userNotifications/{notifId} {
-      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if isAdmin() || (isActiveUser() && resource.data.userId == request.auth.uid);
+      allow create: if isActiveUser() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isActiveUser() && resource.data.userId == request.auth.uid);
       allow delete: if false;
     }
   }

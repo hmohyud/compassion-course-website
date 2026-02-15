@@ -61,7 +61,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const LeadershipPortalPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, userStatus, isActive } = useAuth();
   const { isAdmin } = usePermissions();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
@@ -76,7 +76,7 @@ const LeadershipPortalPage: React.FC = () => {
   const dashboardPermissionDeniedRef = useRef(false);
 
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.uid || !isActive) {
       setNotifications([]);
       setNotificationsLoading(false);
       setNotificationsLoadFailed(false);
@@ -182,7 +182,7 @@ const LeadershipPortalPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [user?.uid]);
+  }, [user?.uid, isActive]);
 
   const teamNameById = useMemo(() => {
     const m = new Map<string, string>();
@@ -235,6 +235,29 @@ const LeadershipPortalPage: React.FC = () => {
       e.currentTarget.style.transform = 'translateY(0)';
     }
   };
+
+  if (user && userStatus !== 'active') {
+    return (
+      <Layout>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+          <Link
+            to="/portal"
+            style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
+          >
+            ← Back to Portal
+          </Link>
+          <h1 style={{ color: '#002B4D', marginBottom: '10px', fontSize: '1.75rem', fontWeight: 700 }}>
+            Awaiting approval
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '24px' }}>
+            {userStatus === null
+              ? 'Setting up your account…'
+              : 'Your account is pending approval. You will be able to access the leadership portal once an administrator approves your account.'}
+          </p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

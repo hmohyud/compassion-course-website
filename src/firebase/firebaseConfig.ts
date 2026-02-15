@@ -5,11 +5,11 @@ import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 import { getFunctions } from "firebase/functions";
 
-// Firebase config - using environment variables
+// Firebase config - env vars with fallbacks for Compassion Course Website (compassion-course-websit-937d6)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyAAMFrWpsv1BIAKPIjNjGnV61IkZ8EIeRY",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "compassion-course-websit-937d6.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "compassion-course-websit-937d6",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,

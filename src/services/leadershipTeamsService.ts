@@ -68,21 +68,27 @@ export async function createTeamWithBoard(
     { ok: boolean; teamId: string; boardId: string }
   >(functions, 'createTeamWithBoard');
 
-  const res = await fn({ name, memberIds });
-  const data = res.data;
+  try {
+    const res = await fn({ name, memberIds });
+    const data = res.data;
 
-  if (!data?.ok || !data?.teamId) {
-    throw new Error('createTeamWithBoard failed');
+    if (!data?.ok || !data?.teamId) {
+      throw new Error('createTeamWithBoard failed');
+    }
+
+    const now = new Date();
+    return {
+      id: data.teamId,
+      name,
+      memberIds,
+      createdAt: now,
+      updatedAt: now,
+    };
+  } catch (err: unknown) {
+    const e = err as { code?: string; message?: string };
+    console.log('[createTeamWithBoard]', e?.code, e?.message);
+    throw err;
   }
-
-  const now = new Date();
-  return {
-    id: data.teamId,
-    name,
-    memberIds,
-    createdAt: now,
-    updatedAt: now,
-  };
 }
 
 export async function updateTeam(

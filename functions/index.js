@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+const functionsV1 = require("firebase-functions");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
@@ -380,49 +381,45 @@ exports.revokeAdmin = onCall(
 );
 
 /**
- * Callable: createTeamWithBoard — active admin creates team + board via Admin SDK (client cannot write teams/boards).
+ * Callable (Gen 1): createTeamWithBoard — active admin creates team + board via Admin SDK.
+ * Gen 1 avoids Cloud Run allUsers/run.invoker; auth + admin checks inside handler.
  */
-exports.createTeamWithBoard = onCall(
-  {
-    region: "us-central1",
-    invoker: "public",
-    cors: [
-      "https://compassion-course-websit-937d6.web.app",
-      "https://compassion-course-websit-937d6.firebaseapp.com",
-    ],
-  },
-  async (request) => {
-    const caller = await requireActiveAdmin(request);
+exports.createTeamWithBoard = functionsV1
+  .region("us-central1")
+  .https.onCall(async (data, context) => {
+    if (!context.auth?.uid) {
+      throw new functionsV1.https.HttpsError("unauthenticated", "Sign-in required.");
+    }
+    const callerUid = context.auth.uid;
+    const snap = await db.collection("admins").doc(callerUid).get();
+    if (!snap.exists) throw new functionsV1.https.HttpsError("permission-denied", "Admin only.");
+    const a = snap.data() || {};
+    const okRole = a.role === "admin" || a.role === "superAdmin";
+    const okStatus = a.status === "active" || a.status === "approved";
+    if (!okRole) throw new functionsV1.https.HttpsError("permission-denied", "Admin role required.");
+    if (!okStatus) throw new functionsV1.https.HttpsError("permission-denied", "Admin not active/approved.");
 
-    const data = request.data || {};
-    const name = typeof data.name === "string" ? data.name.trim() : "";
-    const memberIds = Array.isArray(data.memberIds) ? data.memberIds.filter((x) => typeof x === "string" && x.trim()) : [];
-
-    if (!name) throw new HttpsError("invalid-argument", "name is required");
+    const name = typeof data?.name === "string" ? data.name.trim() : "";
+    const memberIds = Array.isArray(data?.memberIds) ? data.memberIds.filter((x) => typeof x === "string" && x.trim()) : [];
+    if (!name) throw new functionsV1.https.HttpsError("invalid-argument", "name is required");
 
     const now = FieldValue.serverTimestamp();
-
     const teamRef = db.collection("teams").doc();
     const teamId = teamRef.id;
-
     await teamRef.set({
       name,
       memberIds,
       createdAt: now,
       updatedAt: now,
-      createdBy: caller.uid,
+      createdBy: callerUid,
     });
-
     const boardRef = db.collection("boards").doc();
     const boardId = boardRef.id;
-
     await boardRef.set({
       teamId,
       createdAt: now,
       updatedAt: now,
-      createdBy: caller.uid,
+      createdBy: callerUid,
     });
-
     return { ok: true, teamId, boardId };
-  }
-);
+  });

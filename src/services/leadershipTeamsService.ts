@@ -10,9 +10,9 @@ import {
   where,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
-import { createBoardForTeam } from './leadershipBoardsService';
 
 const COLLECTION = 'teams';
 
@@ -58,22 +58,26 @@ export async function createTeam(name: string, memberIds: string[] = []): Promis
   return toTeam({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
-/** Creates a team and its board (1:1). Retries board creation once on failure. */
+/** Creates a team and its board (1:1) via callable; client cannot write to teams/boards directly. */
 export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  const team = await createTeam(name, memberIds);
-  try {
-    await createBoardForTeam(team.id);
-  } catch (err) {
-    try {
-      await createBoardForTeam(team.id);
-    } catch (retryErr) {
-      throw retryErr;
-    }
-  }
-  return team;
+  const fn = httpsCallable<{ name: string; memberIds: string[] }, { ok: boolean; teamId: string; boardId: string }>(
+    functions,
+    'createTeamWithBoard'
+  );
+  const res = await fn({ name, memberIds });
+  const data = res.data as { ok?: boolean; teamId?: string; boardId?: string };
+  if (!data?.ok || !data?.teamId) throw new Error('createTeamWithBoard failed');
+  const now = new Date();
+  return {
+    id: data.teamId,
+    name,
+    memberIds,
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 export async function updateTeam(

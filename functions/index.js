@@ -62,6 +62,24 @@ async function assertActiveAdmin(callerUid) {
   return { uid: callerUid, role, status, email };
 }
 
+/**
+ * Callable helper: require active admin from request.auth; throws if not.
+ * @param {{ auth?: { uid?: string, token?: { email?: string } } }} request
+ * @returns {Promise<{ uid: string, email: string }>}
+ */
+async function requireActiveAdmin(request) {
+  const uid = request?.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Sign-in required.");
+  const snap = await db.collection("admins").doc(uid).get();
+  if (!snap.exists) throw new HttpsError("permission-denied", "Admin only.");
+  const a = snap.data() || {};
+  const okRole = a.role === "admin" || a.role === "superAdmin";
+  const okStatus = a.status === "active" || a.status === "approved";
+  if (!okRole) throw new HttpsError("permission-denied", "Admin role required.");
+  if (!okStatus) throw new HttpsError("permission-denied", "Admin not active/approved.");
+  return { uid, email: String(request.auth?.token?.email || "").toLowerCase().trim() };
+}
+
 const TEMP_PASSWORD = "12341234";
 const USERS_COLLECTION = "users";
 const ROLES_ALLOWLIST = ["viewer", "contributor", "manager", "admin"];
@@ -358,5 +376,46 @@ exports.revokeAdmin = onCall(
       logError(FN_REVOKE_ADMIN, step, e);
       throw new HttpsError("internal", e?.message || "unknown error");
     }
+  }
+);
+
+/**
+ * Callable: createTeamWithBoard — active admin creates team + board via Admin SDK (client cannot write teams/boards).
+ */
+exports.createTeamWithBoard = onCall(
+  { region: "us-central1", invoker: "public" },
+  async (request) => {
+    const caller = await requireActiveAdmin(request);
+
+    const data = request.data || {};
+    const name = typeof data.name === "string" ? data.name.trim() : "";
+    const memberIds = Array.isArray(data.memberIds) ? data.memberIds.filter((x) => typeof x === "string" && x.trim()) : [];
+
+    if (!name) throw new HttpsError("invalid-argument", "name is required");
+
+    const now = FieldValue.serverTimestamp();
+
+    const teamRef = db.collection("teams").doc();
+    const teamId = teamRef.id;
+
+    await teamRef.set({
+      name,
+      memberIds,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: caller.uid,
+    });
+
+    const boardRef = db.collection("boards").doc();
+    const boardId = boardRef.id;
+
+    await boardRef.set({
+      teamId,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: caller.uid,
+    });
+
+    return { ok: true, teamId, boardId };
   }
 );

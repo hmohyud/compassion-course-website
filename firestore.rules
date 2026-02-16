@@ -45,6 +45,7 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // UID-keyed admin doc only: admins/{uid}; role in [admin, superAdmin], status in [active, approved]
     function isActiveAdmin() {
       return isSignedIn()
         && adminDoc().exists
@@ -108,11 +109,9 @@ service cloud.firestore {
     // ADMIN MANAGEMENT
     // ============================================
     
-    // Admins collection - UID-keyed; signed-in user can read THEIR OWN doc only (no chicken-and-egg lockout)
+    // Admins collection - UID-keyed; self-read only; writes via console/functions only
     match /admins/{uid} {
-      allow get: if isSelf(uid);
-      allow list: if false;
-      allow read: if isSelf(uid);
+      allow read: if signedIn() && request.auth.uid == uid;
       allow create, update, delete: if false;
     }
     
@@ -283,13 +282,13 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }
-    match /boards/{id} {
+    match /boards/{boardId} {
       allow read: if isActiveAdmin();
-      allow create, update, delete: if isActiveAdmin();
+      allow create, update, delete: if false;
     }
-    match /teams/{id} {
+    match /teams/{teamId} {
       allow read: if isActiveAdmin();
-      allow create, update, delete: if isActiveAdmin();
+      allow create, update, delete: if false;
     }
     match /workItems/{id} {
       allow read: if isAdmin()

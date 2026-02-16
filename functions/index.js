@@ -1,5 +1,5 @@
 const functions = require("firebase-functions");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
 if (!admin.apps.length) admin.initializeApp();
@@ -442,3 +442,87 @@ exports.createTeamWithBoard = functions
 
     return { ok: true, teamId: teamRef.id, boardId: boardRef.id };
   });
+
+/**
+ * HTTP function: same-origin /api/createTeamWithBoard (Hosting rewrite).
+ * Verifies Firebase ID token and enforces active admin; creates team + board via Admin SDK.
+ */
+exports.createTeamWithBoardHttp = onRequest(
+  { region: "us-central1" },
+  async (req, res) => {
+    console.log("[createTeamWithBoardHttp] auth header present", { hasAuthHeader: !!req.headers.authorization });
+
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Sign in required" });
+      return;
+    }
+    const idToken = authHeader.slice(7);
+
+    let uid;
+    try {
+      const decoded = await admin.auth().verifyIdToken(idToken);
+      uid = decoded.uid;
+    } catch {
+      res.status(401).json({ error: "Sign in required" });
+      return;
+    }
+
+    const adminSnap = await db.collection("admins").doc(uid).get();
+    if (!adminSnap.exists) {
+      res.status(403).json({ error: "Only admins can create teams" });
+      return;
+    }
+    const adminData = adminSnap.data() || {};
+    const okRole = adminData.role === "admin" || adminData.role === "superAdmin";
+    const okStatus = adminData.status === "active" || adminData.status === "approved";
+    if (!okRole || !okStatus) {
+      res.status(403).json({ error: "Only admins can create teams" });
+      return;
+    }
+
+    let body;
+    try {
+      body = typeof req.body === "object" && req.body !== null ? req.body : JSON.parse(req.body || "{}");
+    } catch {
+      res.status(400).json({ error: "Invalid JSON body" });
+      return;
+    }
+
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const memberIds = Array.isArray(body.memberIds) ? body.memberIds : [];
+    if (!name) {
+      res.status(400).json({ error: "name is required" });
+      return;
+    }
+    if (!memberIds.every((x) => typeof x === "string")) {
+      res.status(400).json({ error: "memberIds must be string[]" });
+      return;
+    }
+
+    const now = FieldValue.serverTimestamp();
+    const teamRef = db.collection("teams").doc();
+    const boardRef = db.collection("boards").doc();
+
+    await teamRef.set({
+      name,
+      memberIds,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: uid,
+    });
+    await boardRef.set({
+      teamId: teamRef.id,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: uid,
+    });
+
+    res.status(200).json({ ok: true, teamId: teamRef.id, boardId: boardRef.id });
+  }
+);

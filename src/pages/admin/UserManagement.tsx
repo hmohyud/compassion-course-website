@@ -4,7 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { auth, db, functions } from '../../firebase/firebaseConfig';
 import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
-import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
+import { listUserProfiles, getUserProfile, createUserProfile, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { listUsersByStatus, type UserDoc } from '../../services/usersService';
 import { listTeams, getTeam, createTeamWithBoard, updateTeam, deleteTeam } from '../../services/leadershipTeamsService';
 import { UserProfile, PortalRole } from '../../types/platform';
@@ -59,6 +59,7 @@ const UserManagement: React.FC = () => {
   const [pendingUsers, setPendingUsers] = useState<UserDoc[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [approvingUid, setApprovingUid] = useState<string | null>(null);
+  const [openingEditPendingUid, setOpeningEditPendingUid] = useState<string | null>(null);
 
   const setTab = (t: AdminUserTab) => setSearchParams(t === 'directory' ? {} : { tab: t });
 
@@ -110,6 +111,23 @@ const UserManagement: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'pending') loadPendingUsers();
   }, [activeTab]);
+
+  const openEditForPendingUser = async (u: UserDoc) => {
+    setOpeningEditPendingUid(u.uid);
+    setError('');
+    try {
+      let profile = await getUserProfile(u.uid);
+      if (!profile) {
+        profile = await createUserProfile(u.uid, u.email, u.displayName || '');
+      }
+      setEditingProfile(profile);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to open edit';
+      setError(message);
+    } finally {
+      setOpeningEditPendingUid(null);
+    }
+  };
 
   const approveUser = async (uid: string, role: PortalRole) => {
     const approveUserFn = httpsCallable<{ uid: string; role: string }, { ok: boolean; uid: string; status: string; role: string }>(
@@ -189,6 +207,7 @@ const UserManagement: React.FC = () => {
       await deleteUserProfile(profile.id);
       setSuccess('User removed from directory.');
       await loadData();
+      loadPendingUsers();
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to remove user';
@@ -218,6 +237,7 @@ const UserManagement: React.FC = () => {
       await updateUserProfile(userId, { role });
       setSuccess(`Role updated to ${role}.`);
       await loadData();
+      loadPendingUsers();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to update role';
       setError(message);
@@ -675,19 +695,37 @@ const UserManagement: React.FC = () => {
                         </select>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          disabled={approvingUid === u.uid}
-                          onClick={() => {
-                            const sel = document.getElementById(`role-${u.uid}`) as HTMLSelectElement;
-                            const role = (sel?.value ?? 'viewer') as PortalRole;
-                            approveUser(u.uid, role);
-                          }}
-                          style={{ padding: '6px 14px', fontSize: '13px' }}
-                        >
-                          {approvingUid === u.uid ? 'Approving…' : 'Approve'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            disabled={openingEditPendingUid === u.uid}
+                            onClick={() => openEditForPendingUser(u)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '13px',
+                              background: 'none',
+                              color: '#002B4D',
+                              border: '1px solid #002B4D',
+                              borderRadius: '6px',
+                              cursor: openingEditPendingUid === u.uid ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            {openingEditPendingUid === u.uid ? '…' : 'Edit'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            disabled={approvingUid === u.uid}
+                            onClick={() => {
+                              const sel = document.getElementById(`role-${u.uid}`) as HTMLSelectElement;
+                              const role = (sel?.value ?? 'viewer') as PortalRole;
+                              approveUser(u.uid, role);
+                            }}
+                            style={{ padding: '6px 14px', fontSize: '13px' }}
+                          >
+                            {approvingUid === u.uid ? 'Approving…' : 'Approve'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -931,7 +969,13 @@ const UserManagement: React.FC = () => {
         )}
     </AdminLayout>
 
-      {editingProfile && (
+      {editingProfile && (() => {
+        const isPending = pendingUsers.some((p) => p.uid === editingProfile.id);
+        const closeModal = () => {
+          setEditingProfile(null);
+          loadPendingUsers();
+        };
+        return (
         <div
           style={{
             position: 'fixed',
@@ -942,7 +986,7 @@ const UserManagement: React.FC = () => {
             justifyContent: 'center',
             zIndex: 1000,
           }}
-          onClick={() => setEditingProfile(null)}
+          onClick={closeModal}
         >
           <div
             style={{
@@ -965,6 +1009,11 @@ const UserManagement: React.FC = () => {
                 </span>
               )}
             </p>
+            {isPending && (
+              <p style={{ marginBottom: '16px', fontSize: '0.875rem', color: '#6b7280' }}>
+                User is pending. Use Approve in the Pending tab to activate.
+              </p>
+            )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
               <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Portal role</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -989,11 +1038,11 @@ const UserManagement: React.FC = () => {
                   </button>
                 ))}
               </div>
-              {isAdmin(editingProfile) && (
+              {!isPending && isAdmin(editingProfile) && (
                 <button
                   type="button"
                   disabled={revokingId === editingProfile.id}
-                  onClick={() => revokeAdmin(editingProfile, () => setEditingProfile(null))}
+                  onClick={() => revokeAdmin(editingProfile, closeModal)}
                   style={{
                     padding: '10px 16px',
                     background: revokingId === editingProfile.id ? '#9ca3af' : '#dc2626',
@@ -1010,7 +1059,7 @@ const UserManagement: React.FC = () => {
               <button
                 type="button"
                 disabled={removingId === editingProfile.id}
-                onClick={() => removeFromDirectory(editingProfile, () => setEditingProfile(null))}
+                onClick={() => removeFromDirectory(editingProfile, closeModal)}
                 style={{
                   padding: '10px 16px',
                   background: removingId === editingProfile.id ? '#9ca3af' : '#dc2626',
@@ -1023,11 +1072,11 @@ const UserManagement: React.FC = () => {
               >
                 {removingId === editingProfile.id ? 'Removing...' : 'Remove from directory'}
               </button>
-              {(['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
+              {!isPending && (['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
                 <button
                   type="button"
                   onClick={() => {
-                    setEditingProfile(null);
+                    closeModal();
                     openGrantWorkspaceModal(editingProfile.email!);
                   }}
                   style={{
@@ -1046,7 +1095,7 @@ const UserManagement: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => setEditingProfile(null)}
+              onClick={closeModal}
               style={{
                 padding: '8px 16px',
                 background: '#e5e7eb',
@@ -1061,7 +1110,8 @@ const UserManagement: React.FC = () => {
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {workspaceModalEmail && (
         <div

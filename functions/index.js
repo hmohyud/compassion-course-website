@@ -7,6 +7,33 @@ if (!admin.apps.length) admin.initializeApp();
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
 
+/**
+ * UID-only admin gate: read admins/{callerUid}, require role in [admin, superAdmin] and status in [active, approved].
+ * @param {string|null|undefined} callerUid
+ * @param {string} stepLabel - for logging (e.g. "createUserByAdmin.adminCheck")
+ * @returns {Promise<{ uid: string, role: string, status: string }>}
+ */
+async function assertActiveAdmin(callerUid, stepLabel) {
+  if (!callerUid) {
+    throw new HttpsError("unauthenticated", "sign in required");
+  }
+  console.log("[assertActiveAdmin]", stepLabel, callerUid);
+  const snap = await db.collection("admins").doc(callerUid).get();
+  if (!snap.exists) {
+    throw new HttpsError("permission-denied", "admin doc missing");
+  }
+  const data = snap.data();
+  const role = data?.role;
+  const status = data?.status;
+  if (role !== "admin" && role !== "superAdmin") {
+    throw new HttpsError("permission-denied", "admin role required");
+  }
+  if (status !== "active" && status !== "approved") {
+    throw new HttpsError("permission-denied", "admin not active or approved");
+  }
+  return { uid: callerUid, role, status };
+}
+
 const TEMP_PASSWORD = "12341234";
 const USERS_COLLECTION = "users";
 const ROLES_ALLOWLIST = ["viewer", "contributor", "manager", "admin"];
@@ -63,28 +90,8 @@ async function createUserByAdminLogic(caller, data) {
     const displayName = data.displayName != null ? String(data.displayName).trim() : "";
     const role = typeof data.role === "string" && ROLES_ALLOWLIST.includes(data.role) ? data.role : "viewer";
 
-    // Require caller.uid before admin check
-    if (!caller?.uid) {
-      throw new HttpsError("unauthenticated", "sign in required");
-    }
-
-    // Admin check: admins/{caller.uid} (Admin SDK only)
     step = "adminCheck.readAdminDoc";
-    const adminSnap = await db.collection("admins").doc(caller.uid).get();
-    if (!adminSnap.exists) {
-      throw new HttpsError("permission-denied", "admin doc missing");
-    }
-    const adminData = adminSnap.data();
-    const adminRole = adminData?.role;
-    const adminStatus = adminData?.status;
-    const okRole = adminRole === "admin" || adminRole === "superAdmin";
-    const okStatus = adminStatus === "active" || adminStatus === "approved";
-    if (!okRole) {
-      throw new HttpsError("permission-denied", "admin role required");
-    }
-    if (!okStatus) {
-      throw new HttpsError("permission-denied", "admin not active or approved");
-    }
+    await assertActiveAdmin(caller?.uid ?? null, "createUserByAdmin.adminCheck");
 
     // Auth: check if user already exists (Admin SDK only)
     step = "auth.getUserByEmail";
@@ -203,7 +210,6 @@ exports.approveUser = onCall(
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
     }
-    const callerUid = request.auth.uid;
     const data = request.data;
     if (!data || typeof data !== "object") {
       throw new HttpsError("invalid-argument", "Missing data.");
@@ -213,13 +219,7 @@ exports.approveUser = onCall(
       throw new HttpsError("invalid-argument", "uid is required.");
     }
     const role = typeof data.role === "string" && ROLES_ALLOWLIST.includes(data.role) ? data.role : "viewer";
-    const callerEmail = request.auth.token?.email ? String(request.auth.token.email).toLowerCase().trim() : "";
-    const adminByUid = db.collection("admins").doc(callerUid);
-    const adminByEmail = db.collection("admins").doc(callerEmail);
-    const [snapUid, snapEmail] = await Promise.all([adminByUid.get(), adminByEmail.get()]);
-    if (!snapUid.exists && !snapEmail.exists) {
-      throw new HttpsError("permission-denied", "Admin only.");
-    }
+    await assertActiveAdmin(request.auth.uid, "approveUser.adminCheck");
     const userRef = db.collection(USERS_COLLECTION).doc(targetUid);
     const snap = await userRef.get();
     if (!snap.exists) {
@@ -244,7 +244,6 @@ exports.grantAdmin = onCall(
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
     }
-    const callerUid = request.auth.uid;
     const callerEmail = request.auth.token?.email ? String(request.auth.token.email).toLowerCase().trim() : "";
     const data = request.data;
     if (!data || typeof data !== "object") {
@@ -255,18 +254,7 @@ exports.grantAdmin = onCall(
     if (!targetUid || !email) {
       throw new HttpsError("invalid-argument", "targetUid and email are required.");
     }
-    const callerAdminSnap = await db.collection("admins").doc(callerUid).get();
-    if (!callerAdminSnap.exists) {
-      throw new HttpsError("permission-denied", "Admin only.");
-    }
-    const callerData = callerAdminSnap.data();
-    const callerStatus = callerData?.status;
-    const callerRole = callerData?.role;
-    const okStatus = callerStatus === "active" || callerStatus === "approved";
-    const okRole = callerRole === "admin" || callerRole === "superAdmin";
-    if (!okStatus || !okRole) {
-      throw new HttpsError("permission-denied", "Active admin only.");
-    }
+    await assertActiveAdmin(request.auth.uid, "grantAdmin.adminCheck");
     const now = FieldValue.serverTimestamp();
     const grantedAt = new Date().toISOString();
     await db.collection("admins").doc(targetUid).set({
@@ -291,7 +279,6 @@ exports.revokeAdmin = onCall(
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
     }
-    const callerUid = request.auth.uid;
     const data = request.data;
     if (!data || typeof data !== "object") {
       throw new HttpsError("invalid-argument", "Missing data.");
@@ -300,18 +287,7 @@ exports.revokeAdmin = onCall(
     if (!targetUid) {
       throw new HttpsError("invalid-argument", "targetUid is required.");
     }
-    const callerAdminSnap = await db.collection("admins").doc(callerUid).get();
-    if (!callerAdminSnap.exists) {
-      throw new HttpsError("permission-denied", "Admin only.");
-    }
-    const callerData = callerAdminSnap.data();
-    const callerStatus = callerData?.status;
-    const callerRole = callerData?.role;
-    const okStatus = callerStatus === "active" || callerStatus === "approved";
-    const okRole = callerRole === "admin" || callerRole === "superAdmin";
-    if (!okStatus || !okRole) {
-      throw new HttpsError("permission-denied", "Active admin only.");
-    }
+    await assertActiveAdmin(request.auth.uid, "revokeAdmin.adminCheck");
     const targetRef = db.collection("admins").doc(targetUid);
     const targetSnap = await targetRef.get();
     if (targetSnap.exists) {

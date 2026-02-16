@@ -63,7 +63,7 @@ export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/createTeamWithBoard`;
+  const url = `${window.location.origin}/api/createTeamWithBoard`;
   const fn = httpsCallableFromURL<
     { name: string; memberIds: string[] },
     { ok: boolean; teamId: string; boardId: string }

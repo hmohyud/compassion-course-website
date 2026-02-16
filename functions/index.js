@@ -383,7 +383,7 @@ exports.revokeAdmin = onCall(
  * Callable: createTeamWithBoard — active admin creates team + board via Admin SDK (client cannot write teams/boards).
  */
 exports.createTeamWithBoard = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: true },
   async (request) => {
     const caller = await requireActiveAdmin(request);
 

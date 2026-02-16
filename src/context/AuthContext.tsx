@@ -6,10 +6,10 @@ import {
   signOut, 
   onAuthStateChanged,
   getIdTokenResult,
-  signInWithPopup,
   GoogleAuthProvider,
   EmailAuthProvider,
   linkWithCredential,
+  linkWithPopup,
   RecaptchaVerifier,
   sendPasswordResetEmail
 } from 'firebase/auth';
@@ -30,6 +30,11 @@ export function hasPasswordProvider(user: User | null): boolean {
   return !!user?.providerData?.some((p) => p.providerId === 'password');
 }
 
+/** True if the user has Google linked (google.com in providerData). */
+export function hasGoogleProvider(user: User | null): boolean {
+  return !!user?.providerData?.some((p) => p.providerId === 'google.com');
+}
+
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
@@ -43,7 +48,8 @@ interface AuthContextType {
   isActive: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, recaptchaVerifier?: RecaptchaVerifier) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  /** Link Google to the current user (must be logged in). Use on profile/settings only. */
+  linkGoogleAccount: () => Promise<void>;
   linkEmailPassword: (password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -275,66 +281,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithGoogle = async () => {
+  const linkGoogleAccount = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('You must be signed in to link a Google account.');
+    }
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try {
-      console.log('🔵 Starting Google sign-in...');
-      logAuthDiagnostics();
-      
-      const provider = new GoogleAuthProvider();
-      // Add custom parameters for better OAuth experience
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      
-      console.log('🔵 Attempting signInWithPopup...');
-      const userCredential = await signInWithPopup(auth, provider);
-      console.log('✅ Google sign-in successful:', userCredential.user.email);
-      // Auto-create user profile
-      try {
-        const existingProfile = await getUserProfile(userCredential.user.uid);
-        if (!existingProfile) {
-          await createUserProfile(
-            userCredential.user.uid,
-            userCredential.user.email || '',
-            userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'User',
-            userCredential.user.photoURL || undefined  // Convert null to undefined
-          );
-          console.log('[profile] created from Google sign-in');
-        }
-      } catch (profileError) {
-        console.error('[profile] failed on Google sign-in', profileError);
-      }
-      
-      return userCredential;
+      await linkWithPopup(currentUser, provider);
     } catch (error: any) {
-      console.error('[signup] failure Google', error?.code, error?.message);
-      console.error('❌ Error code:', error.code);
-      console.error('❌ Error message:', error.message);
-      console.error('❌ Full error:', JSON.stringify(error, null, 2));
-      
-      // Add detailed diagnostic logging for domain blocking errors
-      if (isDomainBlockingError(error)) {
-        console.error('🚫 DOMAIN BLOCKING ERROR DETECTED');
-        logAuthDiagnostics();
-        console.error('📋 Fix instructions:', getDomainBlockingErrorMessage(error));
+      if (error.code === 'auth/credential-already-in-use' || error.code === 'auth/account-exists-with-different-credential') {
+        throw new Error('That Google account is already linked to another account. Please use a different Google account.');
       }
-      
-      // Provide more specific error messages
       if (error.code === 'auth/popup-closed-by-user') {
-        throw new Error('Sign-in was cancelled. Please try again.');
-      } else if (error.code === 'auth/popup-blocked') {
-        throw new Error('Popup was blocked. Please allow popups for this site and try again.');
-      } else if (error.code === 'auth/unauthorized-domain' || error.code?.includes('requests-from-referer')) {
-        const currentDomain = window.location.hostname;
-        throw new Error(`This domain (${currentDomain}) is not authorized for Google sign-in. Please add it to Firebase Console → Authentication → Settings → Authorized domains. See FIX_AUTH_DOMAIN_BLOCKING.md for detailed instructions.`);
-      } else if (error.code === 'auth/operation-not-allowed') {
-        throw new Error('Google sign-in is not enabled. Please enable it in Firebase Console → Authentication → Sign-in method.');
-      } else if (error.code === 'auth/network-request-failed') {
-        throw new Error('Network error. Please check your internet connection and try again.');
-      } else if (error.code === 'auth/account-exists-with-different-credential') {
-        throw new Error('An account already exists with this email using a different sign-in method. Please use email/password login instead.');
+        throw new Error('Linking was cancelled.');
       }
-      
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked. Please allow popups and try again.');
+      }
       throw error;
     }
   };
@@ -381,7 +346,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isActive: (userDoc?.status ?? '') === 'active',
     login,
     register,
-    signInWithGoogle,
+    linkGoogleAccount,
     linkEmailPassword,
     resetPassword,
     logout

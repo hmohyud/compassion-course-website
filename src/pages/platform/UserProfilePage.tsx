@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth, hasPasswordProvider } from '../../context/AuthContext';
+import { useAuth, hasPasswordProvider, hasGoogleProvider } from '../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../services/userProfileService';
 import { getUserEnrollments } from '../../services/enrollmentService';
 import { UserProfile } from '../../types/platform';
 import Layout from '../../components/Layout';
 
 const UserProfilePage: React.FC = () => {
-  const { user, linkEmailPassword } = useAuth();
+  const { user, linkEmailPassword, linkGoogleAccount } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -21,6 +21,8 @@ const UserProfilePage: React.FC = () => {
   const [setPasswordError, setSetPasswordError] = useState('');
   const [setPasswordSuccess, setSetPasswordSuccess] = useState(false);
   const [settingPassword, setSettingPassword] = useState(false);
+  const [linkGoogleError, setLinkGoogleError] = useState('');
+  const [linkingGoogle, setLinkingGoogle] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -229,7 +231,7 @@ const UserProfilePage: React.FC = () => {
           {user && hasPasswordProvider(user) ? (
             <div>
               <p style={{ color: '#6b7280', marginBottom: '8px' }}>
-                You can sign in with your email and password or with Google.
+                You can sign in with your email and password.
               </p>
               <Link to="/change-password" style={{ color: '#002B4D', fontSize: '14px' }}>Change password</Link>
             </div>
@@ -315,6 +317,48 @@ const UserProfilePage: React.FC = () => {
               )}
             </div>
           ) : null}
+
+          <div style={{ marginTop: '24px' }}>
+            <h3 style={{ color: '#002B4D', marginBottom: '8px', fontSize: '1rem' }}>Link Google account</h3>
+            {user && hasGoogleProvider(user) ? (
+              <p style={{ color: '#16a34a', margin: 0 }}>Google account linked.</p>
+            ) : (
+              <div>
+                <p style={{ color: '#6b7280', marginBottom: '12px', fontSize: '14px' }}>
+                  Link a Google account to sign in with Google in addition to your email and password.
+                </p>
+                {linkGoogleError && (
+                  <p style={{ color: '#dc2626', fontSize: '14px', marginBottom: '8px' }}>{linkGoogleError}</p>
+                )}
+                <button
+                  type="button"
+                  disabled={linkingGoogle}
+                  onClick={async () => {
+                    setLinkGoogleError('');
+                    setLinkingGoogle(true);
+                    try {
+                      await linkGoogleAccount();
+                    } catch (err) {
+                      setLinkGoogleError(err instanceof Error ? err.message : 'Failed to link Google account.');
+                    } finally {
+                      setLinkingGoogle(false);
+                    }
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    background: linkingGoogle ? '#9ca3af' : '#002B4D',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    cursor: linkingGoogle ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {linkingGoogle ? 'Linking...' : 'Link Google account'}
+                </button>
+              </div>
+            )}
+          </div>
         </section>
 
         <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>

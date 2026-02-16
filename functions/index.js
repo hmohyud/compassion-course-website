@@ -437,16 +437,18 @@ exports.createTeamWithBoard = onCall(
       const teamRef = db.collection("teams").doc();
       const boardRef = db.collection("boards").doc();
 
-      await teamRef.set({
-        name,
-        memberIds,
+      await boardRef.set({
+        teamId: teamRef.id,
         createdAt: now,
         updatedAt: now,
         createdBy: caller.uid,
       });
 
-      await boardRef.set({
-        teamId: teamRef.id,
+      await teamRef.set({
+        name,
+        memberIds,
+        boardId: boardRef.id,
+        whiteboardIds: [],
         createdAt: now,
         updatedAt: now,
         createdBy: caller.uid,

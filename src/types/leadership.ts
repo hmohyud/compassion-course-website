@@ -13,6 +13,10 @@ export interface LeadershipTeam {
   id: string;
   name: string;
   memberIds: string[];
+  /** Required: board doc id in boards collection (single source of truth). */
+  boardId: string;
+  /** Required: whiteboard doc ids in whiteboards collection. */
+  whiteboardIds: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,7 +83,10 @@ export interface LeadershipWorkingAgreement {
   updatedAt: Date;
 }
 
-/** Team-scoped whiteboard (tldraw snapshot) */
+/**
+ * @deprecated Use team.whiteboardIds and whiteboards collection instead. Read-only; do not add new usage.
+ * Team-scoped whiteboard (tldraw snapshot)
+ */
 export interface LeadershipTeamWhiteboard {
   id: string;
   teamId: string;

@@ -16,7 +16,7 @@ import Layout from '../../components/Layout';
 import { listWorkItems, updateWorkItem, createWorkItem } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
-import { getBoardByTeamId, createBoardForTeam } from '../../services/leadershipBoardsService';
+import { getBoard } from '../../services/leadershipBoardsService';
 import { getTeamBoardSettings } from '../../services/teamBoardSettingsService';
 import { getUserProfile } from '../../services/userProfileService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../../components/leadership/TaskForm';
@@ -118,6 +118,7 @@ const TeamBoardPage: React.FC = () => {
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [boardSettings, setBoardSettings] = useState<{ visibleLanes?: WorkItemLane[]; columnHeaders?: Partial<Record<WorkItemStatus, string>> } | null>(null);
+  const [boardMissingError, setBoardMissingError] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -126,24 +127,38 @@ const TeamBoardPage: React.FC = () => {
   const loadBoard = () => {
     if (!teamId) return;
     setLoading(true);
-    Promise.all([listWorkItems(teamId), getTeam(teamId), getTeamBoardSettings(teamId)])
-      .then(async ([items, team, settings]) => {
-        const board = await getBoardByTeamId(teamId);
-        if (!board) {
-          try {
-            await createBoardForTeam(teamId);
-          } catch (err) {
-            console.warn('Lazy create board failed:', err);
-          }
+    setBoardMissingError(false);
+    getTeam(teamId)
+      .then(async (team) => {
+        if (!team) {
+          setWorkItems([]);
+          setTeamName('');
+          setMemberIds([]);
+          setBoardSettings(null);
+          return;
         }
+        if (!team.boardId) {
+          console.error('Team missing boardId');
+          setBoardMissingError(true);
+          setWorkItems([]);
+          setTeamName(team.name);
+          setMemberIds(team.memberIds ?? []);
+          setBoardSettings(null);
+          return;
+        }
+        const [items, , settings] = await Promise.all([
+          listWorkItems(teamId),
+          getBoard(team.boardId),
+          getTeamBoardSettings(teamId),
+        ]);
         setWorkItems(items);
-        setTeamName(team?.name ?? '');
-        setMemberIds(team?.memberIds ?? []);
+        setTeamName(team.name ?? '');
+        setMemberIds(team.memberIds ?? []);
         setBoardSettings({
           visibleLanes: settings.visibleLanes,
           columnHeaders: settings.columnHeaders,
         });
-        if (team?.memberIds?.length) {
+        if (team.memberIds?.length) {
           Promise.all(
             team.memberIds.map((uid) =>
               getUserProfile(uid).then((p) => [uid, p?.name || p?.email || uid] as const)
@@ -154,6 +169,7 @@ const TeamBoardPage: React.FC = () => {
         }
       })
       .catch(() => {
+        setBoardMissingError(false);
         setWorkItems([]);
         setTeamName('');
         setMemberIds([]);
@@ -375,6 +391,13 @@ const TeamBoardPage: React.FC = () => {
 
         {loading ? (
           <p style={{ color: '#6b7280' }}>Loading…</p>
+        ) : boardMissingError ? (
+          <div style={{ padding: '24px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b' }}>
+            <strong>Team missing board</strong>
+            <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>
+              This team has no board linked. Please contact an admin to link a board to the team.
+            </p>
+          </div>
         ) : (
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

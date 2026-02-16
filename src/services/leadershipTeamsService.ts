@@ -22,6 +22,8 @@ function toTeam(docSnap: { id: string; data: () => Record<string, unknown> }): L
     id: docSnap.id,
     name: (d.name as string) ?? '',
     memberIds: Array.isArray(d.memberIds) ? d.memberIds : [],
+    boardId: typeof d.boardId === 'string' ? d.boardId : '',
+    whiteboardIds: Array.isArray(d.whiteboardIds) ? d.whiteboardIds : [],
     createdAt: (d.createdAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
     updatedAt: (d.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
   };
@@ -78,7 +80,7 @@ export async function createTeamWithBoard(
   const res = await fn({ name, memberIds });
   const data = res.data;
 
-  if (!data?.ok || !data?.teamId) {
+  if (!data?.ok || !data?.teamId || !data?.boardId) {
     throw new Error('createTeamWithBoard failed');
   }
 
@@ -87,6 +89,8 @@ export async function createTeamWithBoard(
     id: data.teamId,
     name,
     memberIds,
+    boardId: data.boardId,
+    whiteboardIds: [],
     createdAt: now,
     updatedAt: now,
   };

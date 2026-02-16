@@ -8,7 +8,7 @@ import { getFunctions } from "firebase/functions";
 // Firebase config - env vars with fallbacks for compassion-course-websit-937d6
 // apiKey must match Firebase Console → Project settings → General → Your apps (Web) → SDK setup (case-sensitive)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyAAMFrWpsv1BIAKPIjNjGnV61IkZ8EIeRY",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyAAMFrWpsv1BIAkPIjNjGnV61IkZ8EIeRY",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "compassion-course-websit-937d6.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "compassion-course-websit-937d6",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ?? "compassion-course-websit-937d6.firebasestorage.app",

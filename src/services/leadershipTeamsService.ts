@@ -10,7 +10,8 @@ import {
   where,
   serverTimestamp,
 } from 'firebase/firestore';
-import { auth, db } from '../firebase/firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { auth, db, functions } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
 
 const COLLECTION = 'teams';
@@ -57,45 +58,26 @@ export async function createTeam(name: string, memberIds: string[] = []): Promis
   return toTeam({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
-/** Creates a team and its board (1:1) via same-origin /api endpoint (HTTP function + ID token). */
+/** Creates a team and its board (1:1) via Firebase callable createTeamWithBoard. */
 export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  const user = auth.currentUser;
-  if (!user) {
+  if (!auth.currentUser) {
     const err = new Error('Sign in required') as Error & { code?: string };
-    err.code = 'functions/unauthenticated';
+    (err as { code?: string }).code = 'functions/unauthenticated';
     throw err;
   }
 
-  const token = await user.getIdToken(true);
-  console.log('[createTeamWithBoard] token present', { hasToken: !!token, uid: user.uid });
+  console.log('[createTeamWithBoard] calling callable', { uid: auth.currentUser?.uid });
 
-  const res = await fetch('/api/createTeamWithBoard', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ name, memberIds }),
-  });
+  const fn = httpsCallable<
+    { name: string; memberIds: string[] },
+    { ok: boolean; teamId: string; boardId: string }
+  >(functions, 'createTeamWithBoard');
+  const res = await fn({ name, memberIds });
+  const data = res.data;
 
-  if (res.status === 401) {
-    const err = new Error('Sign in required') as Error & { code?: string };
-    err.code = 'functions/unauthenticated';
-    throw err;
-  }
-  if (res.status === 403) {
-    const err = new Error('Only admins can create teams') as Error & { code?: string };
-    err.code = 'functions/permission-denied';
-    throw err;
-  }
-  if (!res.ok) {
-    throw new Error(await res.text());
-  }
-
-  const data = (await res.json()) as { ok?: boolean; teamId?: string; boardId?: string };
   if (!data?.ok || !data?.teamId) {
     throw new Error('createTeamWithBoard failed');
   }

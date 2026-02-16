@@ -64,6 +64,7 @@ export async function createTeamWithBoard(
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
   console.log('[createTeamWithBoard] calling httpsCallable', { region: 'us-central1', authUid: auth.currentUser?.uid });
+  console.log('[createTeamWithBoard] functions host', (functions as any)?._url?.() ?? (functions as any)?.customDomain ?? 'unknown');
   const fn = httpsCallable<
     { name: string; memberIds: string[] },
     { ok: boolean; teamId: string; boardId: string }

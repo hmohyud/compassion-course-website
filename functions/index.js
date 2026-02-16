@@ -1,5 +1,4 @@
 const functions = require("firebase-functions");
-const functionsV1 = require("firebase-functions");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 
@@ -79,6 +78,30 @@ async function requireActiveAdmin(request) {
   if (!okRole) throw new HttpsError("permission-denied", "Admin role required.");
   if (!okStatus) throw new HttpsError("permission-denied", "Admin not active/approved.");
   return { uid, email: String(request.auth?.token?.email || "").toLowerCase().trim() };
+}
+
+/**
+ * Gen 1 callable helper: require active admin from context.auth; throws functions.https.HttpsError.
+ * @param {{ auth?: { uid?: string, token?: { email?: string } } }} context
+ * @returns {Promise<{ uid: string, email: string }>}
+ */
+async function requireActiveAdminV1(context) {
+  if (!context.auth?.uid) {
+    throw new functions.https.HttpsError("unauthenticated", "Sign-in required.");
+  }
+  const callerUid = context.auth.uid;
+  const adminSnap = await db.collection("admins").doc(callerUid).get();
+  if (!adminSnap.exists) {
+    throw new functions.https.HttpsError("permission-denied", "Admin only.");
+  }
+  const adminData = adminSnap.data() || {};
+  const role = adminData.role;
+  const status = adminData.status;
+  const okRole = role === "admin" || role === "superAdmin";
+  const okStatus = status === "active" || status === "approved";
+  if (!okRole) throw new functions.https.HttpsError("permission-denied", "Admin role required.");
+  if (!okStatus) throw new functions.https.HttpsError("permission-denied", "Admin not active/approved.");
+  return { uid: callerUid, email: String(context.auth.token?.email || "").toLowerCase().trim() };
 }
 
 const TEMP_PASSWORD = "12341234";
@@ -384,42 +407,38 @@ exports.revokeAdmin = onCall(
  * Callable (Gen 1): createTeamWithBoard — active admin creates team + board via Admin SDK.
  * Gen 1 avoids Cloud Run allUsers/run.invoker; auth + admin checks inside handler.
  */
-exports.createTeamWithBoard = functionsV1
+exports.createTeamWithBoard = functions
   .region("us-central1")
   .https.onCall(async (data, context) => {
-    if (!context.auth?.uid) {
-      throw new functionsV1.https.HttpsError("unauthenticated", "Sign-in required.");
-    }
-    const callerUid = context.auth.uid;
-    const snap = await db.collection("admins").doc(callerUid).get();
-    if (!snap.exists) throw new functionsV1.https.HttpsError("permission-denied", "Admin only.");
-    const a = snap.data() || {};
-    const okRole = a.role === "admin" || a.role === "superAdmin";
-    const okStatus = a.status === "active" || a.status === "approved";
-    if (!okRole) throw new functionsV1.https.HttpsError("permission-denied", "Admin role required.");
-    if (!okStatus) throw new functionsV1.https.HttpsError("permission-denied", "Admin not active/approved.");
+    const caller = await requireActiveAdminV1(context);
 
     const name = typeof data?.name === "string" ? data.name.trim() : "";
-    const memberIds = Array.isArray(data?.memberIds) ? data.memberIds.filter((x) => typeof x === "string" && x.trim()) : [];
-    if (!name) throw new functionsV1.https.HttpsError("invalid-argument", "name is required");
+    const memberIds = Array.isArray(data?.memberIds) ? data.memberIds : [];
+    if (!name) {
+      throw new functions.https.HttpsError("invalid-argument", "name is required");
+    }
+    if (!memberIds.every((x) => typeof x === "string")) {
+      throw new functions.https.HttpsError("invalid-argument", "memberIds must be string[]");
+    }
 
     const now = FieldValue.serverTimestamp();
     const teamRef = db.collection("teams").doc();
-    const teamId = teamRef.id;
+    const boardRef = db.collection("boards").doc();
+
     await teamRef.set({
       name,
       memberIds,
       createdAt: now,
       updatedAt: now,
-      createdBy: callerUid,
+      createdBy: caller.uid,
     });
-    const boardRef = db.collection("boards").doc();
-    const boardId = boardRef.id;
+
     await boardRef.set({
-      teamId,
+      teamId: teamRef.id,
       createdAt: now,
       updatedAt: now,
-      createdBy: callerUid,
+      createdBy: caller.uid,
     });
-    return { ok: true, teamId, boardId };
+
+    return { ok: true, teamId: teamRef.id, boardId: boardRef.id };
   });

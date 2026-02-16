@@ -11,7 +11,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { httpsCallableFromURL } from 'firebase/functions';
-import { db, functions } from '../firebase/firebaseConfig';
+import { auth, db, functions } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
 
 const COLLECTION = 'teams';
@@ -63,6 +63,7 @@ export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
+  console.log("[createTeamWithBoard] authUid", auth.currentUser?.uid, "functionsApp", (functions as { app?: { name?: string } }).app?.name);
   const url = `${window.location.origin}/api/createTeamWithBoard`;
   const fn = httpsCallableFromURL<
     { name: string; memberIds: string[] },

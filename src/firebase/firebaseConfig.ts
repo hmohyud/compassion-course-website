@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, setLogLevel as setFirestoreLogLevel } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -26,7 +26,8 @@ if (!firebaseConfig.projectId) {
 
 console.log("Firebase init:", { projectId: firebaseConfig.projectId, authDomain: firebaseConfig.authDomain });
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
+console.log("[firebase] apps:", getApps().map((a) => a.name), "project:", app.options.projectId);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);

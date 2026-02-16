@@ -112,7 +112,6 @@ const UserManagement: React.FC = () => {
   }, [activeTab]);
 
   const approveUser = async (uid: string, role: PortalRole) => {
-    const functions = getFunctions(undefined, 'us-central1');
     const approveUserFn = httpsCallable<{ uid: string; role: string }, { ok: boolean; uid: string; status: string; role: string }>(
       functions,
       'approveUser'

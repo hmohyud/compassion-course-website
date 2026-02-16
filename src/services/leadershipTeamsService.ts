@@ -10,7 +10,7 @@ import {
   where,
   serverTimestamp,
 } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
+import { httpsCallableFromURL } from 'firebase/functions';
 import { auth, db, functions } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
 
@@ -58,15 +58,18 @@ export async function createTeam(name: string, memberIds: string[] = []): Promis
   return toTeam({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
-/** Creates a team and its board (1:1) via callable. */
+/** Creates a team and its board (1:1) via callable (same-origin URL to avoid Cloud Run CORS). */
 export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  const fn = httpsCallable<
+  const base = typeof window !== 'undefined' ? window.location.origin : '';
+  const url = `${base}/api/createTeamWithBoard`;
+  console.log('[createTeamWithBoard] httpsCallableFromURL', { url, authUid: auth.currentUser?.uid });
+  const fn = httpsCallableFromURL<
     { name: string; memberIds: string[] },
     { ok: boolean; teamId: string; boardId: string }
-  >(functions, 'createTeamWithBoard');
+  >(functions, url);
 
   try {
     const res = await fn({ name, memberIds });

@@ -30,6 +30,12 @@ service firebase.storage {
       allow write: if request.auth != null && isAdminUser();
     }
     
+    // User avatar photos - readable by all, writable by the owning user only
+    match /user-avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Whiteboard files - authenticated users with board access (enforced via Firestore for board doc)
     match /whiteboards/{boardId}/files/{fileId} {
       allow read, write: if request.auth != null;

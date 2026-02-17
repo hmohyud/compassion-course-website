@@ -41,7 +41,10 @@ export interface LeadershipWorkItem {
   id: string;
   title: string;
   description?: string;
+  /** @deprecated Use assigneeIds instead. Kept for backward compatibility with existing data. */
   assigneeId?: string;
+  /** Multiple assignees for this work item. */
+  assigneeIds?: string[];
   teamId?: string;
   status: WorkItemStatus;
   dueDate?: Date;
@@ -50,6 +53,10 @@ export interface LeadershipWorkItem {
   lane?: WorkItemLane;
   estimate?: number;
   comments?: WorkItemComment[];
+  /** Timestamp when item first moved to in_progress */
+  startedAt?: Date;
+  /** Timestamp when item first moved to done */
+  completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

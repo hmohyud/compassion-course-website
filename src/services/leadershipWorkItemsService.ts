@@ -46,11 +46,19 @@ function toWorkItem(docSnap: { id: string; data: () => Record<string, unknown> }
   const lane = d.lane as WorkItemLane | undefined;
   const commentsRaw = Array.isArray(d.comments) ? d.comments : [];
   const comments: WorkItemComment[] = commentsRaw.map(parseComment).filter((c): c is WorkItemComment => c != null);
+  // Build assigneeIds: prefer stored array, fall back to legacy single assigneeId
+  const rawAssigneeIds = Array.isArray(d.assigneeIds) ? (d.assigneeIds as string[]).filter(Boolean) : [];
+  const legacyAssigneeId = d.assigneeId as string | undefined;
+  const assigneeIds = rawAssigneeIds.length > 0
+    ? rawAssigneeIds
+    : (legacyAssigneeId ? [legacyAssigneeId] : []);
+
   return {
     id: docSnap.id,
     title: (d.title as string) ?? '',
     description: d.description as string | undefined,
-    assigneeId: d.assigneeId as string | undefined,
+    assigneeId: assigneeIds[0] || undefined,
+    assigneeIds: assigneeIds.length > 0 ? assigneeIds : undefined,
     teamId: d.teamId as string | undefined,
     status: validStatus.includes(status) ? status : 'backlog',
     dueDate: (d.dueDate as { toDate: () => Date })?.toDate?.() ?? undefined,
@@ -59,6 +67,8 @@ function toWorkItem(docSnap: { id: string; data: () => Record<string, unknown> }
     lane: lane && VALID_LANES.includes(lane) ? lane : undefined,
     estimate: typeof d.estimate === 'number' && [0.5, 1, 1.5, 2].includes(d.estimate) ? d.estimate : undefined,
     comments: comments.length > 0 ? comments : undefined,
+    startedAt: (d.startedAt as { toDate: () => Date })?.toDate?.() ?? undefined,
+    completedAt: (d.completedAt as { toDate: () => Date })?.toDate?.() ?? undefined,
     createdAt: (d.createdAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
     updatedAt: (d.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
   };
@@ -118,6 +128,7 @@ export async function createWorkItem(data: {
   title: string;
   description?: string;
   assigneeId?: string;
+  assigneeIds?: string[];
   teamId?: string;
   status?: WorkItemStatus;
   dueDate?: Date;
@@ -133,10 +144,13 @@ export async function createWorkItem(data: {
     createdAt: c.createdAt instanceof Date ? c.createdAt : new Date(c.createdAt),
     ...(c.mentionedUserIds?.length ? { mentionedUserIds: c.mentionedUserIds } : {}),
   }));
+  // Normalize assignees: prefer assigneeIds, fall back to assigneeId
+  const ids = data.assigneeIds?.filter(Boolean) ?? (data.assigneeId ? [data.assigneeId] : []);
   const docRef = await addDoc(ref, {
     title: data.title,
     description: data.description ?? null,
-    assigneeId: data.assigneeId ?? null,
+    assigneeId: ids[0] ?? null,
+    assigneeIds: ids.length > 0 ? ids : null,
     teamId: data.teamId ?? null,
     status: data.status ?? 'backlog',
     dueDate: data.dueDate ?? null,
@@ -154,20 +168,49 @@ export async function createWorkItem(data: {
 
 export async function updateWorkItem(
   id: string,
-  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'teamId' | 'status' | 'dueDate' | 'blocked' | 'type' | 'lane' | 'estimate' | 'comments'>>
+  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'assigneeIds' | 'teamId' | 'status' | 'dueDate' | 'blocked' | 'type' | 'lane' | 'estimate' | 'comments' | 'startedAt' | 'completedAt'>>
 ): Promise<void> {
   const ref = doc(db, COLLECTION, id);
   const data: Record<string, unknown> = { updatedAt: serverTimestamp() };
   if (updates.title !== undefined) data.title = updates.title;
   if (updates.description !== undefined) data.description = updates.description;
-  if (updates.assigneeId !== undefined) data.assigneeId = updates.assigneeId;
+  // Handle assignees: prefer assigneeIds, keep assigneeId in sync
+  if (updates.assigneeIds !== undefined) {
+    const ids = updates.assigneeIds.filter(Boolean);
+    data.assigneeIds = ids.length > 0 ? ids : null;
+    data.assigneeId = ids[0] ?? null;
+  } else if (updates.assigneeId !== undefined) {
+    data.assigneeId = updates.assigneeId;
+    data.assigneeIds = updates.assigneeId ? [updates.assigneeId] : null;
+  }
   if (updates.teamId !== undefined) data.teamId = updates.teamId;
-  if (updates.status !== undefined) data.status = updates.status;
+  if (updates.status !== undefined) {
+    data.status = updates.status;
+    // Auto-set startedAt when moving to in_progress (only if not already set)
+    if (updates.status === 'in_progress' && updates.startedAt === undefined) {
+      // Read existing doc to check if startedAt is already set
+      const existingSnap = await getDoc(ref);
+      const existingData = existingSnap.data() ?? {};
+      if (!existingData.startedAt) {
+        data.startedAt = serverTimestamp();
+      }
+    }
+    // Auto-set completedAt when moving to done
+    if (updates.status === 'done') {
+      data.completedAt = serverTimestamp();
+    }
+    // Clear completedAt if moving back from done
+    if (updates.status !== 'done' && updates.completedAt === undefined) {
+      data.completedAt = null;
+    }
+  }
   if (updates.dueDate !== undefined) data.dueDate = updates.dueDate;
   if (updates.blocked !== undefined) data.blocked = updates.blocked;
   if (updates.type !== undefined) data.type = updates.type;
   if (updates.lane !== undefined) data.lane = VALID_LANES.includes(updates.lane) ? updates.lane : 'standard';
   if (updates.estimate !== undefined) data.estimate = updates.estimate;
+  if (updates.startedAt !== undefined) data.startedAt = updates.startedAt;
+  if (updates.completedAt !== undefined) data.completedAt = updates.completedAt;
   if (updates.comments !== undefined) {
     data.comments = updates.comments.map((c) => ({
       ...c,

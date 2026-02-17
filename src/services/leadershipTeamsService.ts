@@ -118,6 +118,36 @@ export async function updateTeam(
   }
 }
 
+/** Patch boardId onto an existing team (used for auto-initialization). */
+export async function patchTeamBoardId(teamId: string, boardId: string): Promise<void> {
+  const ref = doc(db, COLLECTION, teamId);
+  await updateDoc(ref, { boardId, updatedAt: serverTimestamp() });
+}
+
 export async function deleteTeam(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
+}
+
+/** Cascade-delete a team and all its data (board, work items, settings) via Firebase callable. Admin-only. */
+export async function deleteTeamWithData(
+  teamId: string
+): Promise<{ ok: boolean; workItemsDeleted: number }> {
+  if (!auth.currentUser) {
+    const err = new Error('Sign in required') as Error & { code?: string };
+    err.code = 'functions/unauthenticated';
+    throw err;
+  }
+
+  const fn = httpsCallable<
+    { teamId: string },
+    { ok: boolean; teamId: string; workItemsDeleted: number }
+  >(functions, 'deleteTeamWithData');
+  const res = await fn({ teamId });
+  const data = res.data;
+
+  if (!data?.ok) {
+    throw new Error('deleteTeamWithData failed');
+  }
+
+  return { ok: true, workItemsDeleted: data.workItemsDeleted };
 }

@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, hasPasswordProvider, hasGoogleProvider } from '../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../services/userProfileService';
-import { getUserEnrollments } from '../../services/enrollmentService';
+import {
+  validateImageFile,
+  uploadUserAvatar,
+  deleteUserAvatar,
+  createImagePreview,
+} from '../../services/photoUploadService';
 import { UserProfile } from '../../types/platform';
 import Layout from '../../components/Layout';
 
@@ -13,9 +18,18 @@ const UserProfilePage: React.FC = () => {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
-  const [avatar, setAvatar] = useState('');
   const [saving, setSaving] = useState(false);
-  const [enrollmentCount, setEnrollmentCount] = useState<number | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Avatar upload state
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [avatarRemoved, setAvatarRemoved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sign-in options state
   const [setPasswordValue, setSetPasswordValue] = useState('');
   const [setPasswordConfirm, setSetPasswordConfirm] = useState('');
   const [setPasswordError, setSetPasswordError] = useState('');
@@ -25,21 +39,12 @@ const UserProfilePage: React.FC = () => {
   const [linkingGoogle, setLinkingGoogle] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadProfile();
-    }
+    if (user) loadProfile();
   }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    getUserEnrollments(user.uid)
-      .then((enrollments) => setEnrollmentCount(enrollments.length))
-      .catch(() => setEnrollmentCount(0));
-  }, [user]);
 
   const loadProfile = async () => {
     if (!user) return;
-    
     try {
       setLoading(true);
       const userProfile = await getUserProfile(user.uid);
@@ -47,7 +52,6 @@ const UserProfilePage: React.FC = () => {
         setProfile(userProfile);
         setName(userProfile.name);
         setBio(userProfile.bio || '');
-        setAvatar(userProfile.avatar || '');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -56,26 +60,129 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAvatarError('');
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setAvatarError(validation.error || 'Invalid image file');
+      return;
+    }
+
+    try {
+      const previewUrl = await createImagePreview(file);
+      setAvatarFile(file);
+      setAvatarPreview(previewUrl);
+      setAvatarRemoved(false);
+    } catch {
+      setAvatarError('Failed to preview image');
+    }
+
+    // Reset file input so the same file can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview('');
+    setAvatarRemoved(true);
+    setAvatarError('');
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
     try {
       setSaving(true);
-      await updateUserProfile(user.uid, { name, bio, avatar });
+      setSaveSuccess(false);
+      let avatarUrl: string | undefined = undefined;
+
+      // Handle avatar changes
+      if (avatarFile) {
+        setUploadingAvatar(true);
+
+        // Delete old avatar if one exists
+        if (profile?.avatar) {
+          try {
+            await deleteUserAvatar(profile.avatar);
+          } catch {
+            // non-critical, continue
+          }
+        }
+
+        // Upload new avatar (auto-resized to 400px JPEG)
+        try {
+          avatarUrl = await uploadUserAvatar(avatarFile, user.uid);
+        } catch (uploadErr) {
+          console.error('Avatar upload error:', uploadErr);
+          setAvatarError(
+            uploadErr instanceof Error
+              ? uploadErr.message
+              : 'Failed to upload photo. Please try again.'
+          );
+          setSaving(false);
+          setUploadingAvatar(false);
+          return;
+        }
+        setUploadingAvatar(false);
+      } else if (avatarRemoved) {
+        // User wants to remove avatar
+        if (profile?.avatar) {
+          try {
+            await deleteUserAvatar(profile.avatar);
+          } catch {
+            // non-critical
+          }
+        }
+        avatarUrl = '';
+      }
+
+      const updates: { name: string; bio: string; avatar?: string } = { name, bio };
+      if (avatarUrl !== undefined) {
+        updates.avatar = avatarUrl;
+      }
+
+      await updateUserProfile(user.uid, updates);
       await loadProfile();
+
+      // Reset avatar state
+      setAvatarFile(null);
+      setAvatarPreview('');
+      setAvatarRemoved(false);
       setEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile');
+      setAvatarError('Failed to save profile. Please try again.');
     } finally {
       setSaving(false);
+      setUploadingAvatar(false);
     }
   };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setName(profile?.name || '');
+    setBio(profile?.bio || '');
+    setAvatarFile(null);
+    setAvatarPreview('');
+    setAvatarRemoved(false);
+    setAvatarError('');
+  };
+
+  // Determine which avatar to show
+  const displayAvatar = avatarPreview || (!avatarRemoved ? profile?.avatar : '');
+  const initials = (profile?.name || user?.email || '?').charAt(0).toUpperCase();
 
   if (loading) {
     return (
       <Layout>
-        <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
+        <div className="profile-page">
+          <div className="loading"><div className="spinner"></div></div>
+        </div>
       </Layout>
     );
   }
@@ -83,256 +190,229 @@ const UserProfilePage: React.FC = () => {
   if (!profile) {
     return (
       <Layout>
-        <div style={{ padding: '40px', textAlign: 'center' }}>Profile not found</div>
+        <div className="profile-page">
+          <p className="profile-empty">Profile not found. Please try signing out and back in.</p>
+        </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-        <Link
-          to="/portal/university"
-          style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
-        >
-          ← Back to Compassion Course University
+      <div className="profile-page">
+        <Link to="/portal" className="profile-back-link">
+          ← Back to Portal
         </Link>
-        <h1 style={{ marginBottom: '30px', color: '#002B4D' }}>My Profile</h1>
 
-        {!editing ? (
-          <div>
-            <div style={{ marginBottom: '20px' }}>
-              {profile.avatar && (
-                <img 
-                  src={profile.avatar} 
-                  alt={profile.name}
-                  style={{ width: '100px', height: '100px', borderRadius: '50%', marginBottom: '20px' }}
-                />
-              )}
-              <h2 style={{ color: '#002B4D' }}>{profile.name}</h2>
-              <p style={{ color: '#6b7280' }}>{profile.email}</p>
-              {profile.bio && (
-                <p style={{ marginTop: '10px', color: '#111827' }}>{profile.bio}</p>
+        {/* ── Profile header card ── */}
+        <div className="profile-card profile-card--header">
+          <div className="profile-header-row">
+            <div className="profile-avatar-display">
+              {displayAvatar ? (
+                <img src={displayAvatar} alt={profile.name} className="profile-avatar-img" />
+              ) : (
+                <span className="profile-avatar-initials">{initials}</span>
               )}
             </div>
-            <button
-              onClick={() => setEditing(true)}
-              style={{
-                padding: '10px 20px',
-                background: '#002B4D',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px',
-              }}
-            >
+            <div className="profile-header-info">
+              <h1 className="profile-header-name">{profile.name}</h1>
+              <p className="profile-header-email">{profile.email}</p>
+              {profile.bio && !editing && (
+                <p className="profile-header-bio">{profile.bio}</p>
+              )}
+            </div>
+          </div>
+
+          {saveSuccess && (
+            <div className="profile-toast">Profile saved successfully.</div>
+          )}
+
+          {!editing ? (
+            <button type="button" className="profile-edit-btn" onClick={() => setEditing(true)}>
               Edit Profile
             </button>
-          </div>
-        ) : (
-          <div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>
-                Display name
-              </label>
-              <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
-                This name is shown next to your avatar in the header.
-              </p>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                }}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>
-                Avatar URL
-              </label>
-              <input
-                type="text"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                }}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>
-                Bio
-              </label>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={4}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                style={{
-                  padding: '10px 20px',
-                  background: '#002B4D',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  fontSize: '16px',
-                  opacity: saving ? 0.5 : 1,
-                }}
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-              <button
-                onClick={() => {
-                  setEditing(false);
-                  setName(profile.name);
-                  setBio(profile.bio || '');
-                  setAvatar(profile.avatar || '');
-                }}
-                style={{
-                  padding: '10px 20px',
-                  background: '#ffffff',
-                  color: '#002B4D',
-                  border: '1px solid #002B4D',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Sign-in options</h2>
-          {user && hasPasswordProvider(user) ? (
-            <div>
-              <p style={{ color: '#6b7280', marginBottom: '8px' }}>
-                You can sign in with your email and password.
-              </p>
-              <Link to="/change-password" style={{ color: '#002B4D', fontSize: '14px' }}>Change password</Link>
-            </div>
-          ) : user?.email ? (
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ color: '#6b7280', marginBottom: '12px' }}>
-                Set a password to also sign in with your email and password.
-              </p>
-              {setPasswordSuccess ? (
-                <p style={{ color: '#16a34a', marginBottom: '8px' }}>
-                  Password set. You can now sign in with your email and password.
-                </p>
-              ) : (
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setSetPasswordError('');
-                    if (setPasswordValue.length < 8) {
-                      setSetPasswordError('Password must be at least 8 characters.');
-                      return;
-                    }
-                    if (setPasswordValue !== setPasswordConfirm) {
-                      setSetPasswordError('Passwords do not match.');
-                      return;
-                    }
-                    setSettingPassword(true);
-                    try {
-                      await linkEmailPassword(setPasswordValue);
-                      setSetPasswordSuccess(true);
-                      setSetPasswordValue('');
-                      setSetPasswordConfirm('');
-                    } catch (err) {
-                      setSetPasswordError(err instanceof Error ? err.message : 'Failed to set password.');
-                    } finally {
-                      setSettingPassword(false);
-                    }
-                  }}
-                  style={{ maxWidth: '320px' }}
-                >
-                  <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="set-password" style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>New password</label>
+          ) : (
+            <div className="profile-edit-form">
+              {/* Avatar upload */}
+              <div className="profile-field">
+                <label className="profile-field-label">Profile photo</label>
+                <div className="profile-avatar-edit-row">
+                  <div className="profile-avatar-edit-preview">
+                    {displayAvatar ? (
+                      <img src={displayAvatar} alt="Preview" className="profile-avatar-img" />
+                    ) : (
+                      <span className="profile-avatar-initials">{initials}</span>
+                    )}
+                  </div>
+                  <div className="profile-avatar-edit-actions">
+                    <button
+                      type="button"
+                      className="profile-btn profile-btn--secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {displayAvatar ? 'Change photo' : 'Upload photo'}
+                    </button>
+                    {displayAvatar && (
+                      <button
+                        type="button"
+                        className="profile-btn profile-btn--danger-outline"
+                        onClick={handleRemoveAvatar}
+                      >
+                        Remove
+                      </button>
+                    )}
                     <input
-                      id="set-password"
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleAvatarFileChange}
+                      className="profile-file-input"
+                    />
+                    <span className="profile-field-hint">JPEG, PNG, WebP, or GIF. Max 5 MB.</span>
+                  </div>
+                </div>
+                {avatarError && <p className="profile-field-error">{avatarError}</p>}
+                {(avatarFile || avatarRemoved) && (
+                  <div className="profile-avatar-unsaved">
+                    <i className="fas fa-info-circle"></i>
+                    <span>Photo {avatarFile ? 'selected' : 'removed'} — click <strong>Save changes</strong> below to apply.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Display name */}
+              <div className="profile-field">
+                <label className="profile-field-label" htmlFor="profile-name">Display name</label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="profile-text-input"
+                  placeholder="Your name"
+                />
+              </div>
+
+              {/* Bio */}
+              <div className="profile-field">
+                <label className="profile-field-label" htmlFor="profile-bio">Bio</label>
+                <textarea
+                  id="profile-bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  className="profile-text-input profile-text-area"
+                  placeholder="Tell others a little about yourself"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="profile-edit-actions">
+                <button
+                  type="button"
+                  className="profile-btn profile-btn--primary"
+                  onClick={handleSave}
+                  disabled={saving || !name.trim()}
+                >
+                  {uploadingAvatar ? 'Uploading photo...' : saving ? 'Saving...' : 'Save changes'}
+                </button>
+                <button type="button" className="profile-btn profile-btn--ghost" onClick={handleCancel}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Account & Security card ── */}
+        <div className="profile-card">
+          <h2 className="profile-card-title">Account &amp; Security</h2>
+
+          <div className="profile-card-section">
+            <h3 className="profile-card-subtitle">Email &amp; password</h3>
+            {user && hasPasswordProvider(user) ? (
+              <>
+                <p className="profile-card-text">You can sign in with your email and password.</p>
+                <Link to="/change-password" className="profile-btn profile-btn--secondary">
+                  Change password
+                </Link>
+              </>
+            ) : user?.email ? (
+              <>
+                <p className="profile-card-text">
+                  You signed in with Google. Optionally set a password to also sign in with email.
+                </p>
+                {setPasswordSuccess ? (
+                  <p className="profile-card-success">Password set. You can now sign in with email and password.</p>
+                ) : (
+                  <form
+                    className="profile-inline-form"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setSetPasswordError('');
+                      if (setPasswordValue.length < 8) {
+                        setSetPasswordError('Password must be at least 8 characters.');
+                        return;
+                      }
+                      if (setPasswordValue !== setPasswordConfirm) {
+                        setSetPasswordError('Passwords do not match.');
+                        return;
+                      }
+                      setSettingPassword(true);
+                      try {
+                        await linkEmailPassword(setPasswordValue);
+                        setSetPasswordSuccess(true);
+                        setSetPasswordValue('');
+                        setSetPasswordConfirm('');
+                      } catch (err) {
+                        setSetPasswordError(err instanceof Error ? err.message : 'Failed to set password.');
+                      } finally {
+                        setSettingPassword(false);
+                      }
+                    }}
+                  >
+                    <input
                       type="password"
                       value={setPasswordValue}
                       onChange={(e) => setSetPasswordValue(e.target.value)}
-                      placeholder="At least 6 characters"
+                      placeholder="New password (min 8 chars)"
                       minLength={6}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      className="profile-text-input"
                     />
-                  </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="set-password-confirm" style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Confirm password</label>
                     <input
-                      id="set-password-confirm"
                       type="password"
                       value={setPasswordConfirm}
                       onChange={(e) => setSetPasswordConfirm(e.target.value)}
                       placeholder="Confirm password"
                       minLength={6}
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                      className="profile-text-input"
                     />
-                  </div>
-                  {setPasswordError && (
-                    <p style={{ color: '#dc2626', fontSize: '14px', marginBottom: '8px' }}>{setPasswordError}</p>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={settingPassword}
-                    style={{
-                      padding: '8px 16px',
-                      background: settingPassword ? '#9ca3af' : '#002B4D',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      cursor: settingPassword ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    {settingPassword ? 'Setting...' : 'Set password'}
-                  </button>
-                </form>
-              )}
-            </div>
-          ) : null}
-
-          <div style={{ marginTop: '24px' }}>
-            <h3 style={{ color: '#002B4D', marginBottom: '8px', fontSize: '1rem' }}>Link Google account</h3>
-            {user && hasGoogleProvider(user) ? (
-              <p style={{ color: '#16a34a', margin: 0 }}>Google account linked.</p>
-            ) : (
-              <div>
-                <p style={{ color: '#6b7280', marginBottom: '12px', fontSize: '14px' }}>
-                  Link a Google account to sign in with Google in addition to your email and password.
-                </p>
-                {linkGoogleError && (
-                  <p style={{ color: '#dc2626', fontSize: '14px', marginBottom: '8px' }}>{linkGoogleError}</p>
+                    {setPasswordError && <p className="profile-field-error">{setPasswordError}</p>}
+                    <button type="submit" disabled={settingPassword} className="profile-btn profile-btn--secondary">
+                      {settingPassword ? 'Setting...' : 'Set password'}
+                    </button>
+                  </form>
                 )}
+              </>
+            ) : null}
+          </div>
+
+          <div className="profile-card-divider" />
+
+          <div className="profile-card-section">
+            <h3 className="profile-card-subtitle">Google account</h3>
+            {user && hasGoogleProvider(user) ? (
+              <p className="profile-card-success">Google account linked.</p>
+            ) : (
+              <>
+                <p className="profile-card-text">
+                  Link a Google account to sign in with Google in addition to email/password.
+                </p>
+                {linkGoogleError && <p className="profile-field-error">{linkGoogleError}</p>}
                 <button
                   type="button"
                   disabled={linkingGoogle}
+                  className="profile-btn profile-btn--secondary"
                   onClick={async () => {
                     setLinkGoogleError('');
                     setLinkingGoogle(true);
@@ -344,34 +424,14 @@ const UserProfilePage: React.FC = () => {
                       setLinkingGoogle(false);
                     }
                   }}
-                  style={{
-                    padding: '8px 16px',
-                    background: linkingGoogle ? '#9ca3af' : '#002B4D',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    cursor: linkingGoogle ? 'not-allowed' : 'pointer',
-                  }}
                 >
                   {linkingGoogle ? 'Linking...' : 'Link Google account'}
                 </button>
-              </div>
+              </>
             )}
           </div>
-        </section>
+        </div>
 
-        <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '10px' }}>Progress Tracking</h2>
-          <p style={{ color: '#6b7280', marginBottom: '8px' }}>
-            View your learning progress and achievements.
-          </p>
-          {enrollmentCount !== null && enrollmentCount > 0 && (
-            <p style={{ color: '#111827' }}>
-              You're enrolled in {enrollmentCount} course{enrollmentCount !== 1 ? 's' : ''}.
-            </p>
-          )}
-        </section>
       </div>
     </Layout>
   );

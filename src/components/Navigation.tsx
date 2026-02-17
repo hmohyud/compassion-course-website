@@ -62,14 +62,6 @@ const Navigation: React.FC = () => {
     navigate('/');
   };
 
-  const handleHamburgerClick = () => {
-    if (isDesktop) {
-      setAccountOpen((prev) => !prev);
-    } else {
-      setIsMenuOpen((prev) => !prev);
-    }
-  };
-
   const handleLogInClick = () => {
     setAccountOpen(false);
     openAuthModal();
@@ -89,9 +81,6 @@ const Navigation: React.FC = () => {
             <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
           </li>
           <li className="nav-item">
-            <Link to="/programs" className={`nav-link ${isActive('/programs') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Programs</Link>
-          </li>
-          <li className="nav-item">
             <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
           </li>
           <li className="nav-item">
@@ -99,106 +88,111 @@ const Navigation: React.FC = () => {
               Compass Companions
             </Link>
           </li>
-          {user && !isInPortal && (
+          {user && (
             <li className="nav-item">
-              <Link to="/portal" className="nav-link nav-link-portal" onClick={() => setIsMenuOpen(false)}>Portal</Link>
+              <Link to="/portal" className={`nav-link ${isActive('/portal') || isInPortal ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Portal</Link>
             </li>
           )}
-          {!user && (
-            <li className="nav-item">
-              <button type="button" className="nav-link nav-link-portal nav-link-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
-                Portal
-              </button>
-            </li>
-          )}
-          {/* Account items in slide-out (mobile only) */}
-          <li className="nav-item nav-menu-account-item nav-account-divider">
-            <span className="nav-account-divider-line" aria-hidden="true" />
-          </li>
-          {user ? (
+          {/* Mobile-only account items */}
+          {!isDesktop && (
             <>
-              <li className="nav-item nav-menu-account-item">
-                <Link to="/platform/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>Profile settings</Link>
+              <li className="nav-item nav-menu-account-item nav-account-divider">
+                <span className="nav-account-divider-line" aria-hidden="true" />
               </li>
-              <li className="nav-item nav-menu-account-item">
-                <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
-                  Logout
-                </button>
-              </li>
+              {user ? (
+                <>
+                  <li className="nav-item nav-menu-account-item">
+                    <Link to="/platform/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>Profile settings</Link>
+                  </li>
+                  <li className="nav-item nav-menu-account-item">
+                    <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
+                      Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li className="nav-item nav-menu-account-item">
+                  <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
+                    Log in
+                  </button>
+                </li>
+              )}
             </>
-          ) : (
-            <li className="nav-item nav-menu-account-item">
-              <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
-                Log in
-              </button>
-            </li>
           )}
         </ul>
 
         <div className="nav-right" ref={accountRef}>
-          {user && (
-            <div className="nav-avatar-wrap">
-              {!profileLoading && (
-                <Link to="/platform/profile" className="nav-avatar-link" aria-label="Your profile">
-                  {profile?.avatar || user.photoURL ? (
-                    <img
-                      src={profile?.avatar || user.photoURL || ''}
-                      alt=""
-                      className="nav-avatar-img"
-                    />
-                  ) : (
-                    <span className="nav-avatar-initial">
-                      {(profile?.name || user.email || '?').charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </Link>
-              )}
-            </div>
-          )}
-          <div className={`nav-account-wrap ${accountOpen ? 'nav-account-open' : ''}`}>
+          {/* Visible Log in / Sign up button when not logged in */}
+          {!user && !authLoading && (
             <button
               type="button"
-              className={`hamburger ${!isDesktop && isMenuOpen ? 'active' : ''}`}
-              onClick={handleHamburgerClick}
-              aria-expanded={isDesktop ? accountOpen : isMenuOpen}
-              aria-haspopup="menu"
-              aria-label={isDesktop ? 'Account menu' : 'Menu'}
+              className="nav-auth-btn"
+              onClick={handleLogInClick}
+            >
+              Log in
+            </button>
+          )}
+
+          {/* Avatar + account dropdown when logged in */}
+          {user && (
+            <>
+              <div className="nav-avatar-wrap">
+                {!profileLoading && (
+                  <button
+                    type="button"
+                    className="nav-avatar-link"
+                    aria-label="Account menu"
+                    onClick={() => setAccountOpen((prev) => !prev)}
+                  >
+                    {profile?.avatar || user.photoURL ? (
+                      <img
+                        src={profile?.avatar || user.photoURL || ''}
+                        alt=""
+                        className="nav-avatar-img"
+                      />
+                    ) : (
+                      <span className="nav-avatar-initial">
+                        {(profile?.name || user.email || '?').charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </button>
+                )}
+              </div>
+              {accountOpen && isDesktop && (
+                <div className="nav-account-dropdown">
+                  <Link
+                    to="/platform/profile"
+                    className="nav-account-dropdown-item"
+                    onClick={() => setAccountOpen(false)}
+                  >
+                    Profile settings
+                  </Link>
+                  <button
+                    type="button"
+                    className="nav-account-dropdown-item nav-account-dropdown-btn"
+                    onClick={handlePortalLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Hamburger (mobile only) */}
+          {!isDesktop && (
+            <button
+              type="button"
+              className={`hamburger ${isMenuOpen ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              aria-expanded={isMenuOpen}
+              aria-label="Menu"
             >
               <span className="bar"></span>
               <span className="bar"></span>
               <span className="bar"></span>
             </button>
-            {isDesktop && (
-              <div className="nav-account-dropdown">
-                {user ? (
-                  <>
-                    <Link
-                      to="/platform/profile"
-                      className="nav-account-dropdown-item"
-                      onClick={() => setAccountOpen(false)}
-                    >
-                      Profile settings
-                    </Link>
-                    <button
-                      type="button"
-                      className="nav-account-dropdown-item nav-account-dropdown-btn"
-                      onClick={handlePortalLogout}
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    className="nav-account-dropdown-item nav-account-dropdown-btn"
-                    onClick={handleLogInClick}
-                  >
-                    Log in
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </nav>

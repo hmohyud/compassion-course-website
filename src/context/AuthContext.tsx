@@ -3,6 +3,7 @@ import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   getIdTokenResult,
@@ -55,6 +56,8 @@ interface AuthContextType {
   isActive: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, recaptchaVerifier?: RecaptchaVerifier) => Promise<void>;
+  /** Sign in (or up) with Google popup. Reuses existing accounts with the same email. */
+  signInWithGoogle: () => Promise<void>;
   /** Link Google to the current user (must be logged in). Use on profile/settings only. */
   linkGoogleAccount: () => Promise<void>;
   linkEmailPassword: (password: string) => Promise<void>;
@@ -336,6 +339,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogleFn = async (): Promise<void> => {
+    requireAuthEnabled();
+
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    try {
+      const result = await signInWithPopup(auth!, provider);
+      const fbUser = result.user;
+      console.log('[google-signin] success', fbUser.email);
+
+      // Check if a Firestore users/{uid} doc already exists.
+      // If it does, the user had a previous account — we reuse it (no duplicate).
+      // If not, onAuthStateChanged will create one via ensureUserDoc (merge:true).
+      if (db && fbUser.email) {
+        const existingUserDoc = await getUserDoc(fbUser.uid);
+        if (existingUserDoc) {
+          console.log('[google-signin] existing user doc found — reusing, no duplicate created');
+        } else {
+          console.log('[google-signin] no existing user doc — onAuthStateChanged will create one');
+        }
+      }
+    } catch (error: any) {
+      console.error('[google-signin] failure', error?.code, error?.message);
+
+      if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error('Sign-in was cancelled.');
+      }
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked by your browser. Please allow popups and try again.');
+      }
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        // The Google email matches an existing email/password account.
+        // Inform the user so they can log in with password first, then link Google.
+        const email = error.customData?.email;
+        throw new Error(
+          `An account already exists with ${email || 'this email'} using a different sign-in method. ` +
+          `Please log in with your email and password first, then link your Google account from your profile.`
+        );
+      }
+      if (isDomainBlockingError(error)) {
+        logAuthDiagnostics();
+        throw new Error(getDomainBlockingErrorMessage(error));
+      }
+      throw error;
+    }
+  };
+
   const linkGoogleAccount = async () => {
     requireAuthEnabled();
 
@@ -413,6 +464,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isActive: (userDoc?.status ?? '') === 'active',
     login,
     register,
+    signInWithGoogle: signInWithGoogleFn,
     linkGoogleAccount,
     linkEmailPassword,
     resetPassword,

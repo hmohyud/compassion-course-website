@@ -464,6 +464,76 @@ exports.createTeamWithBoard = onCall(
   }
 );
 
+const FN_DELETE_TEAM = "deleteTeamWithData";
+
+/**
+ * Callable (v2): deleteTeamWithData — admin-only.
+ * Cascade-deletes: board, all work items, board settings, and the team itself.
+ */
+exports.deleteTeamWithData = onCall(
+  { region: "us-central1", invoker: "public" },
+  async (request) => {
+    let step = "start";
+    try {
+      logStep(FN_DELETE_TEAM, step);
+      if (!request.auth?.uid) {
+        throw new HttpsError("unauthenticated", "Sign-in required.");
+      }
+      step = "adminCheck";
+      await requireActiveAdmin(request);
+
+      const teamId = typeof request.data?.teamId === "string" ? request.data.teamId.trim() : "";
+      if (!teamId) {
+        throw new HttpsError("invalid-argument", "teamId is required");
+      }
+
+      step = "fetchTeam";
+      const teamSnap = await db.collection("teams").doc(teamId).get();
+      if (!teamSnap.exists) {
+        throw new HttpsError("not-found", "Team not found.");
+      }
+      const teamData = teamSnap.data() || {};
+      const boardId = teamData.boardId || "";
+
+      step = "deleteWorkItems";
+      // Delete all work items belonging to this team
+      const workItemsSnap = await db.collection("workItems").where("teamId", "==", teamId).get();
+      const batch1 = db.batch();
+      let count = 0;
+      workItemsSnap.docs.forEach((d) => {
+        batch1.delete(d.ref);
+        count++;
+      });
+      if (count > 0) await batch1.commit();
+      logStep(FN_DELETE_TEAM, "deletedWorkItems", { count });
+
+      step = "deleteBoardSettings";
+      // Delete board settings doc (keyed by teamId)
+      const settingsRef = db.collection("teamBoardSettings").doc(teamId);
+      const settingsSnap = await settingsRef.get();
+      if (settingsSnap.exists) await settingsRef.delete();
+
+      step = "deleteBoard";
+      // Delete the board doc
+      if (boardId) {
+        const boardRef = db.collection("boards").doc(boardId);
+        const boardSnap = await boardRef.get();
+        if (boardSnap.exists) await boardRef.delete();
+      }
+
+      step = "deleteTeam";
+      await db.collection("teams").doc(teamId).delete();
+
+      logStep(FN_DELETE_TEAM, "done", { teamId, boardId, workItemsDeleted: count });
+      return { ok: true, teamId, workItemsDeleted: count };
+    } catch (e) {
+      if (e instanceof HttpsError) throw e;
+      logError(FN_DELETE_TEAM, step, e);
+      throw new HttpsError("internal", e?.message || "unknown error");
+    }
+  }
+);
+
 /**
  * DEPRECATED: HTTP onRequest version — do not use from browser (CORS). Use createTeamWithBoard callable instead.
  */

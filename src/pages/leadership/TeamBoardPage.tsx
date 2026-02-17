@@ -442,35 +442,19 @@ const TeamBoardPage: React.FC = () => {
                   memberLabels={memberLabels}
                   onSave={handleEditSave}
                   onCancel={() => { setEditingItem(null); setSaveError(null); }}
+                  onDelete={async () => {
+                    if (!editingItem || !window.confirm(`Delete task "${editingItem.title}"? This cannot be undone.`)) return;
+                    try {
+                      await deleteWorkItem(editingItem.id);
+                      setEditingItem(null);
+                      setSaveError(null);
+                      await loadBoard();
+                    } catch (err) {
+                      console.error(err);
+                      setSaveError(err instanceof Error ? err.message : 'Failed to delete task');
+                    }
+                  }}
                 />
-                <div style={{ marginTop: '16px' }}>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!editingItem || !window.confirm(`Delete task "${editingItem.title}"? This cannot be undone.`)) return;
-                      try {
-                        await deleteWorkItem(editingItem.id);
-                        setEditingItem(null);
-                        setSaveError(null);
-                        await loadBoard();
-                      } catch (err) {
-                        console.error(err);
-                        setSaveError(err instanceof Error ? err.message : 'Failed to delete task');
-                      }
-                    }}
-                    style={{
-                      padding: '8px 16px',
-                      background: '#dc2626',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Delete task
-                  </button>
-                </div>
               </>
             )}
 

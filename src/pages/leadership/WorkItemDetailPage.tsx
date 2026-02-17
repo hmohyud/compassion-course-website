@@ -174,26 +174,8 @@ const WorkItemDetailPage: React.FC = () => {
           memberLabels={memberLabels}
           onSave={handleSave}
           onCancel={handleCancel}
+          onDelete={handleDelete}
         />
-        <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
-            style={{
-              padding: '8px 16px',
-              background: '#dc2626',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              cursor: deleting ? 'not-allowed' : 'pointer',
-              opacity: deleting ? 0.7 : 1,
-            }}
-          >
-            {deleting ? 'Deleting…' : 'Delete task'}
-          </button>
-        </div>
       </div>
     </Layout>
   );

@@ -384,6 +384,18 @@ const LeadershipTeamPage: React.FC = () => {
                     memberLabels={memberLabels}
                     onSave={handleEditBacklogSave}
                     onCancel={() => { setEditingBacklogItem(null); setSaveError(null); }}
+                    onDelete={async () => {
+                      if (!editingBacklogItem || !window.confirm(`Delete task "${editingBacklogItem.title}"? This cannot be undone.`)) return;
+                      try {
+                        await deleteWorkItem(editingBacklogItem.id);
+                        setEditingBacklogItem(null);
+                        setSaveError(null);
+                        loadBacklog();
+                      } catch (e) {
+                        console.error(e);
+                        setSaveError(e instanceof Error ? e.message : 'Failed to delete task');
+                      }
+                    }}
                   />
                 </>
               )}

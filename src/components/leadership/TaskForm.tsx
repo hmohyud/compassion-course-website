@@ -46,6 +46,8 @@ export interface TaskFormProps {
   memberLabels?: Record<string, string>;
   onSave: (data: TaskFormPayload, context?: TaskFormSaveContext) => void;
   onCancel: () => void;
+  /** Called when user clicks Delete (edit mode only). Confirm before calling. */
+  onDelete?: () => void;
 }
 
 const inputStyle: React.CSSProperties = {
@@ -72,6 +74,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   memberLabels = {},
   onSave,
   onCancel,
+  onDelete,
 }) => {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
@@ -412,13 +415,30 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? 'Saving…' : mode === 'create' ? 'Create' : 'Save'}
             </button>
             <button type="button" className="btn btn-secondary" onClick={onCancel}>
               Cancel
             </button>
+            {mode === 'edit' && onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                style={{
+                  padding: '8px 16px',
+                  background: '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Delete
+              </button>
+            )}
           </div>
         </form>
       </div>

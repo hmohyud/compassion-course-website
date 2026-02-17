@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { listTeamsForUser, listTeams } from '../services/leadershipTeamsService';
-import { listWorkItemsForUser, listWorkItems, listAllBlockedItems } from '../services/leadershipWorkItemsService';
+import { listWorkItemsForUser, listWorkItems, listAllBlockedItems, deleteWorkItem } from '../services/leadershipWorkItemsService';
 import { listNotificationsForUser, markNotificationRead } from '../services/notificationService';
 import type { UserNotification } from '../services/notificationService';
 import type { LeadershipTeam } from '../types/leadership';
@@ -493,11 +493,26 @@ const LeadershipPortalPage: React.FC = () => {
                         ? `Task · ${teamName}`
                         : `Work item · ${w.status.replace('_', ' ')}`;
                       return (
-                        <li key={w.id} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb' }}>
+                        <li key={w.id} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <Link to={`/portal/leadership/tasks/${w.id}`} style={linkStyle}>
                             {w.title}
                           </Link>
-                          <span style={{ ...secondaryTextStyle, marginLeft: '6px' }}>({subtitle})</span>
+                          <span style={{ ...secondaryTextStyle }}>({subtitle})</span>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!window.confirm(`Delete "${w.title}"? This cannot be undone.`)) return;
+                              try {
+                                await deleteWorkItem(w.id);
+                                refreshTeams();
+                              } catch (err) {
+                                console.error(err);
+                              }
+                            }}
+                            style={{ marginLeft: 'auto', padding: '2px 8px', fontSize: '0.75rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
                         </li>
                       );
                     })}
@@ -527,11 +542,26 @@ const LeadershipPortalPage: React.FC = () => {
                           ? `Task · ${teamName}`
                           : `Work item · ${w.status.replace('_', ' ')}`;
                         return (
-                          <li key={w.id} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb' }}>
+                          <li key={w.id} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                             <Link to={`/portal/leadership/tasks/${w.id}`} style={linkStyle}>
                               {w.title}
                             </Link>
-                            <span style={{ ...secondaryTextStyle, marginLeft: '6px' }}>({subtitle})</span>
+                            <span style={{ ...secondaryTextStyle }}>({subtitle})</span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!window.confirm(`Delete "${w.title}"? This cannot be undone.`)) return;
+                                try {
+                                  await deleteWorkItem(w.id);
+                                  refreshTeams();
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
+                              style={{ marginLeft: 'auto', padding: '2px 8px', fontSize: '0.75rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Delete
+                            </button>
                           </li>
                         );
                       })}

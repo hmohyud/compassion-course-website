@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { getTeamMembers, getLanguageSections, TeamMember, TeamLanguageSection } from '../services/contentService';
 import { ensureTeamSuffix } from '../utils/contentUtils';
+import { isFirebaseConfigured } from '../firebase/firebaseConfig';
 
 const AboutPage: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -47,7 +48,7 @@ const AboutPage: React.FC = () => {
   Object.keys(membersBySection).forEach(section => {
     membersBySection[section].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   });
-  
+
   // Use language sections order, filter to only sections that have members or are explicitly shown
   const sortedSections = languageSections
     .filter(section => {
@@ -78,15 +79,18 @@ const AboutPage: React.FC = () => {
   return (
     <Layout>
       <section className="about-page">
-        <div className="container">
+        <div className="about-page-hero">
           <h1>About the Compassion Course</h1>
-          <p style={{ fontSize: '1.25rem', marginBottom: '3rem', textAlign: 'center' }}>
+          <p className="about-page-subtitle">
             Changing Lives for 14 Years, with more than 30,000 Participants, in over 120 Countries, in 20 Languages.
           </p>
+        </div>
 
+        <div className="container">
           {loading && (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-              Loading team members...
+            <div className="about-loading">
+              <div className="about-loading-spinner"></div>
+              <p>Loading team members...</p>
             </div>
           )}
 
@@ -96,13 +100,13 @@ const AboutPage: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && languageSections.length === 0 && (
+          {!loading && !error && isFirebaseConfigured && languageSections.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
               No language sections found. Please add language sections through the admin panel.
             </div>
           )}
 
-          {!loading && !error && languageSections.length > 0 && sortedSections.length === 0 && (
+          {!loading && !error && isFirebaseConfigured && languageSections.length > 0 && sortedSections.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
               Language sections exist but no team members found. Please add team members through the admin panel.
             </div>
@@ -112,16 +116,16 @@ const AboutPage: React.FC = () => {
             // Get members for this section (check both original and normalized names)
             const normalizedName = ensureTeamSuffix(sectionName);
             const sectionMembers = membersBySection[sectionName] || membersBySection[normalizedName] || [];
-            
+
             return (
             <div key={sectionName} className="team-section">
               <h2 className="team-section-title">{ensureTeamSuffix(sectionName)}</h2>
-              
+
               {sectionMembers.map((member) => (
                 <div key={member.id} className="team-member">
                   <div className="team-member-header">
-                    <img 
-                      src={member.photo} 
+                    <img
+                      src={member.photo}
                       alt={member.name}
                       className="team-member-photo"
                       loading="lazy"
@@ -140,7 +144,9 @@ const AboutPage: React.FC = () => {
                   </div>
                   {renderBio(member.bio)}
                   {member.contact && (
-                    <p><strong>Contact:</strong> {member.contact}</p>
+                    <p className="team-member-contact-line">
+                      <strong>Contact:</strong> {member.contact}
+                    </p>
                   )}
                 </div>
               ))}

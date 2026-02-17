@@ -132,23 +132,24 @@ const LeadershipPortalPage: React.FC = () => {
           setNotificationsLoadFailed(true);
           if (isPermissionDenied(r0)) setNotificationsPermissionDenied(true);
         }
-        if (r1.status === 'fulfilled') {
-          setTeams(r1.value);
-        } else {
-          if (!isPermissionDenied(r1)) console.error('Dashboard load item failed:', 1, r1.reason);
-          setTeams([]);
+        if (r1.status === 'rejected' && !isPermissionDenied(r1)) {
+          console.error('Dashboard load item failed:', 1, r1.reason);
         }
         if (r2.status === 'fulfilled') {
-          setAllTeams(r2.value);
+          const allTeamsList = r2.value as LeadershipTeam[];
+          setTeams(allTeamsList);
+          setAllTeams(allTeamsList);
+          console.log('[LeadershipPortalPage] team list', { currentUserUid: user?.uid, teamCount: allTeamsList.length });
         } else {
           if (!isPermissionDenied(r2)) console.error('Dashboard load item failed:', 2, r2.reason);
+          setTeams([]);
           setAllTeams([]);
         }
         let finalItems: LeadershipWorkItem[] = r3.status === 'fulfilled' ? r3.value : [];
         if (r3.status === 'rejected' && !isPermissionDenied(r3)) {
           console.error('Dashboard load item failed:', 3, r3.reason);
         }
-        const teamList = r1.status === 'fulfilled' ? r1.value : [];
+        const teamList = r2.status === 'fulfilled' ? (r2.value as LeadershipTeam[]) : (r1.status === 'fulfilled' ? (r1.value as LeadershipTeam[]) : []);
         if (finalItems.length === 0 && teamList.length > 0) {
           try {
             const teamItemsArrays = await Promise.all(teamList.map((team) => listWorkItems(team.id)));

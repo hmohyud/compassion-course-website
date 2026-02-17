@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/Layout';
+import { useAuth } from '../../context/AuthContext';
 import { listTeams } from '../../services/leadershipTeamsService';
 import type { LeadershipTeam } from '../../types/leadership';
 
@@ -17,6 +18,7 @@ const cardStyle: React.CSSProperties = {
 };
 
 const TeamBoardsListPage: React.FC = () => {
+  const { user } = useAuth();
   const [teams, setTeams] = useState<LeadershipTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +26,10 @@ const TeamBoardsListPage: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     listTeams()
-      .then(setTeams)
+      .then((list) => {
+        setTeams(list);
+        console.log('[TeamBoardsListPage] teams loaded', { currentUserUid: user?.uid, teamCount: list.length });
+      })
       .catch(() => setTeams([]))
       .finally(() => setLoading(false));
   }, []);

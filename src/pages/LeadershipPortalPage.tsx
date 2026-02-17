@@ -114,7 +114,6 @@ const LeadershipPortalPage: React.FC = () => {
     ])
       .then(async (results) => {
         if (cancelled) return;
-        let hadNoTeams = true;
         const r0 = results[0];
         const r1 = results[1];
         const r2 = results[2];
@@ -151,7 +150,6 @@ const LeadershipPortalPage: React.FC = () => {
         if (r2.status === 'fulfilled') {
           const allTeamsList = r2.value as LeadershipTeam[];
           if (allTeamsList.length > 0) {
-            hadNoTeams = false;
             setTeams(allTeamsList);
             setAllTeams(allTeamsList);
             setTeamsLoadError(null);
@@ -168,7 +166,6 @@ const LeadershipPortalPage: React.FC = () => {
             }
             if (cancelled) return;
             if (retryList.length > 0) {
-              hadNoTeams = false;
               setTeams(retryList);
               setAllTeams(retryList);
               setTeamsLoadError(null);
@@ -189,7 +186,6 @@ const LeadershipPortalPage: React.FC = () => {
             } else {
               const userTeamsList = r1.status === 'fulfilled' ? (r1.value as LeadershipTeam[]) : [];
               if (userTeamsList.length > 0) {
-                hadNoTeams = false;
                 setTeams(userTeamsList);
                 setAllTeams(userTeamsList);
                 setTeamsLoadError('Could not load all teams; showing your teams.');
@@ -209,7 +205,6 @@ const LeadershipPortalPage: React.FC = () => {
           if (!isPermissionDenied(r2)) console.error('Dashboard load item failed:', 2, reason);
           const userTeamsList = r1.status === 'fulfilled' ? (r1.value as LeadershipTeam[]) : [];
           if (userTeamsList.length > 0) {
-            hadNoTeams = false;
             setTeams(userTeamsList);
             setAllTeams(userTeamsList);
             setTeamsLoadError(isPermissionDenied(r2) ? 'Permission denied loading all teams; showing your teams.' : 'Could not load all teams; showing your teams.');
@@ -241,12 +236,10 @@ const LeadershipPortalPage: React.FC = () => {
           }
           setWorkItems(finalItems);
         }
-        const hadNoWorkItems = finalItems.length === 0;
-        const shouldAutoRefresh = !cancelled && (hadNoTeams || hadNoWorkItems);
-        if (shouldAutoRefresh) {
+        if (!cancelled) {
           autoRefreshTimeoutIdRef.current = setTimeout(() => {
             refreshTeamsRef.current?.();
-          }, 1200);
+          }, 2000);
         }
       })
       .catch((err) => {

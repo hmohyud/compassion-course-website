@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
-import { getWorkItem, updateWorkItem } from '../../services/leadershipWorkItemsService';
+import { getWorkItem, updateWorkItem, deleteWorkItem } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { getUserProfile } from '../../services/userProfileService';
@@ -17,6 +17,8 @@ const WorkItemDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!workItemId) {
@@ -107,6 +109,22 @@ const WorkItemDetailPage: React.FC = () => {
     navigate(backUrl);
   };
 
+  const handleDelete = async () => {
+    if (!item) return;
+    if (!window.confirm(`Delete task "${item.title}"? This cannot be undone.`)) return;
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      await deleteWorkItem(item.id);
+      navigate(backUrl);
+    } catch (err) {
+      console.error(err);
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete task');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -145,6 +163,9 @@ const WorkItemDetailPage: React.FC = () => {
         {saveError && (
           <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>
         )}
+        {deleteError && (
+          <p style={{ color: '#dc2626', marginBottom: '16px' }}>{deleteError}</p>
+        )}
         <TaskForm
           mode="edit"
           initialItem={item}
@@ -154,6 +175,25 @@ const WorkItemDetailPage: React.FC = () => {
           onSave={handleSave}
           onCancel={handleCancel}
         />
+        <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            style={{
+              padding: '8px 16px',
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              cursor: deleting ? 'not-allowed' : 'pointer',
+              opacity: deleting ? 0.7 : 1,
+            }}
+          >
+            {deleting ? 'Deleting…' : 'Delete task'}
+          </button>
+        </div>
       </div>
     </Layout>
   );

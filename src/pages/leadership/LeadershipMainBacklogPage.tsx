@@ -6,6 +6,7 @@ import {
   listAllBacklogStatusItems,
   createWorkItem,
   updateWorkItem,
+  deleteWorkItem,
 } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import { listTeams, getTeam } from '../../services/leadershipTeamsService';
@@ -169,6 +170,18 @@ const LeadershipMainBacklogPage: React.FC = () => {
     }
   };
 
+  const handleDeleteItem = async (item: LeadershipWorkItem) => {
+    if (!window.confirm(`Delete task "${item.title}"? This cannot be undone.`)) return;
+    try {
+      await deleteWorkItem(item.id);
+      if (editingItem?.id === item.id) setEditingItem(null);
+      load();
+    } catch (err) {
+      console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to delete task');
+    }
+  };
+
   return (
     <Layout>
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 20px' }}>
@@ -259,6 +272,21 @@ const LeadershipMainBacklogPage: React.FC = () => {
                       }}
                     >
                       Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteItem(item)}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.8rem',
+                        background: '#dc2626',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Delete
                     </button>
                     {!hasTeam && (assigningId === item.id ? (
                       <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>

@@ -13,6 +13,13 @@ const ROLES_ALLOWLIST = ["viewer", "contributor", "manager", "admin"];
 const STATUS_PENDING = "pending";
 const STATUS_ACTIVE = "active";
 
+const CORS_ORIGINS = [
+  "https://compassion-course-websit-937d6.firebaseapp.com",
+  "https://compassion-course-websit-937d6.web.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
 /**
  * Auth trigger (1st gen): when a new Auth user is created (self-signup), create users/{uid}
  * with status=active, role=viewer for immediate read-only portal access.
@@ -177,7 +184,7 @@ async function createUserByAdminLogic(caller, data) {
  * All validation and admin check inside createUserByAdminLogic; handler wraps errors for explicit HttpsError.
  */
 exports.createUserByAdmin = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     try {
       const caller = {
@@ -198,7 +205,7 @@ exports.createUserByAdmin = onCall(
  * Callable: approveUser — admin-only. Sets users/{uid}.status=active and role.
  */
 exports.approveUser = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
@@ -239,7 +246,7 @@ exports.approveUser = onCall(
  * Callable: grantAdmin — active admin grants admin to another user. Writes /admins/{targetUid}.
  */
 exports.grantAdmin = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");
@@ -286,7 +293,7 @@ exports.grantAdmin = onCall(
  * Callable: revokeAdmin — active admin revokes admin from a user. Deletes /admins/{targetUid}.
  */
 exports.revokeAdmin = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     if (!request.auth?.uid) {
       throw new HttpsError("unauthenticated", "Sign-in required.");

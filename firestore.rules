@@ -297,15 +297,15 @@ service cloud.firestore {
       allow read: if isAdmin()
         || (isActiveUser() && request.auth.uid == resource.data.get('assigneeId', ''))
         || (isActiveUser() && resource.data.get('teamId', '') != '' && request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.get('memberIds', []));
-      allow write: if canWrite();
+      allow write: if canWrite() || isAdmin() || isActiveAdmin();
     }
     match /teamBoardSettings/{id} {
       allow read: if isAdmin() || isActiveUser();
-      allow write: if canWrite();
+      allow write: if canWrite() || isAdmin() || isActiveAdmin();
     }
     match /leadershipWorkingAgreements/{teamId} {
       allow read: if isAdmin() || isActiveUser();
-      allow write: if canWrite();
+      allow write: if canWrite() || isAdmin() || isActiveAdmin();
     }
     // User notifications: active user reads own; write only contributor+
     match /userNotifications/{notifId} {

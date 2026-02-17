@@ -13,7 +13,7 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import Layout from '../../components/Layout';
-import { listWorkItems, updateWorkItem, createWorkItem } from '../../services/leadershipWorkItemsService';
+import { listWorkItems, updateWorkItem, createWorkItem, deleteWorkItem } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { getBoardByTeamId, createBoardForTeam } from '../../services/leadershipBoardsService';
@@ -443,6 +443,34 @@ const TeamBoardPage: React.FC = () => {
                   onSave={handleEditSave}
                   onCancel={() => { setEditingItem(null); setSaveError(null); }}
                 />
+                <div style={{ marginTop: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!editingItem || !window.confirm(`Delete task "${editingItem.title}"? This cannot be undone.`)) return;
+                      try {
+                        await deleteWorkItem(editingItem.id);
+                        setEditingItem(null);
+                        setSaveError(null);
+                        await loadBoard();
+                      } catch (err) {
+                        console.error(err);
+                        setSaveError(err instanceof Error ? err.message : 'Failed to delete task');
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#dc2626',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Delete task
+                  </button>
+                </div>
               </>
             )}
 

@@ -11,6 +11,7 @@ import {
   listTeamBacklog,
   updateWorkItem,
   createWorkItem,
+  deleteWorkItem,
 } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import { getUserProfile } from '../../services/userProfileService';
@@ -125,6 +126,18 @@ const LeadershipTeamPage: React.FC = () => {
       loadBacklog();
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleDeleteBacklogItem = async (item: LeadershipWorkItem) => {
+    if (!window.confirm(`Delete task "${item.title}"? This cannot be undone.`)) return;
+    try {
+      await deleteWorkItem(item.id);
+      loadBacklog();
+      if (editingBacklogItem?.id === item.id) setEditingBacklogItem(null);
+    } catch (e) {
+      console.error(e);
+      setSaveError(e instanceof Error ? e.message : 'Failed to delete task');
     }
   };
 
@@ -388,6 +401,13 @@ const LeadershipTeamPage: React.FC = () => {
                           style={{ padding: '4px 10px', fontSize: '0.8rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                         >
                           Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteBacklogItem(item)}
+                          style={{ padding: '4px 10px', fontSize: '0.8rem', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                        >
+                          Delete
                         </button>
                         <button
                           type="button"

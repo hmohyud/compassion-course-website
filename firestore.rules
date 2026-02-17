@@ -40,6 +40,18 @@ service cloud.firestore {
           || (request.auth.token.email != null && request.auth.token.email.matches('.*@compassioncf\\.com$'))
         );
     }
+
+    function adminDoc() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // UID-keyed admin doc only: admins/{uid}; role in [admin, superAdmin], status in [active, approved]
+    function isActiveAdmin() {
+      return isSignedIn()
+        && adminDoc().exists
+        && (adminDoc().data.role == 'admin' || adminDoc().data.role == 'superAdmin')
+        && (adminDoc().data.status == 'active' || adminDoc().data.status == 'approved');
+    }
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
@@ -272,13 +284,17 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }
-    match /boards/{id} {
-      allow read: if isAdmin() || isActiveUser();
-      allow write: if canWrite();
+    match /boards/{boardId} {
+      allow read: if isActiveAdmin()
+        || (isActiveUser() && (roleOf(request.auth.uid) == 'manager' || roleOf(request.auth.uid) == 'admin'))
+        || (isActiveUser() && resource.data.get('teamId', '') != '' && request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.get('memberIds', []));
+      allow create, update, delete: if false;
     }
-    match /teams/{id} {
-      allow read: if isAdmin() || (isActiveUser() && request.auth.uid in resource.data.get('memberIds', []));
-      allow write: if canWrite();
+    match /teams/{teamId} {
+      allow read: if isActiveAdmin()
+        || (isActiveUser() && (roleOf(request.auth.uid) == 'manager' || roleOf(request.auth.uid) == 'admin'))
+        || (isActiveUser() && request.auth.uid in resource.data.get('memberIds', []));
+      allow create, update, delete: if false;
     }
     match /workItems/{id} {
       allow read: if isAdmin()

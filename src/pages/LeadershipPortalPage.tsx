@@ -73,6 +73,8 @@ const LeadershipPortalPage: React.FC = () => {
   const [allBlockedItems, setAllBlockedItems] = useState<LeadershipWorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notificationsPermissionDenied, setNotificationsPermissionDenied] = useState(false);
+  const [teamsLoadError, setTeamsLoadError] = useState<string | null>(null);
+  const [teamsLoaded, setTeamsLoaded] = useState(false);
   const dashboardPermissionDeniedRef = useRef(false);
 
   useEffect(() => {
@@ -85,6 +87,8 @@ const LeadershipPortalPage: React.FC = () => {
       setAllTeams([]);
       setWorkItems([]);
       setAllBlockedItems([]);
+      setTeamsLoadError(null);
+      setTeamsLoaded(false);
       setLoading(false);
       return;
     }
@@ -139,11 +143,19 @@ const LeadershipPortalPage: React.FC = () => {
           const allTeamsList = r2.value as LeadershipTeam[];
           setTeams(allTeamsList);
           setAllTeams(allTeamsList);
+          setTeamsLoadError(null);
+          setTeamsLoaded(true);
           console.log('[LeadershipPortalPage] team list', { currentUserUid: user?.uid, teamCount: allTeamsList.length });
+          if (allTeamsList.length === 0) {
+            console.warn('[LeadershipPortalPage] Zero teams returned. Ensure Firestore users/' + user?.uid + ' exists with status "active" and role "manager" or "admin", or that your uid is in each team\'s memberIds.');
+          }
         } else {
-          if (!isPermissionDenied(r2)) console.error('Dashboard load item failed:', 2, r2.reason);
+          const reason = (r2 as PromiseRejectedResult).reason;
+          if (!isPermissionDenied(r2)) console.error('Dashboard load item failed:', 2, reason);
+          setTeamsLoadError(isPermissionDenied(r2) ? 'Permission denied loading teams.' : 'Could not load teams. Check console.');
           setTeams([]);
           setAllTeams([]);
+          setTeamsLoaded(true);
         }
         let finalItems: LeadershipWorkItem[] = r3.status === 'fulfilled' ? r3.value : [];
         if (r3.status === 'rejected' && !isPermissionDenied(r3)) {
@@ -440,8 +452,14 @@ const LeadershipPortalPage: React.FC = () => {
               {/* My Teams */}
               <div style={widgetStyle}>
                 <h2 style={cardTitleStyle}>My Teams</h2>
-                {teams.length === 0 ? (
-                  <p style={{ ...secondaryTextStyle, margin: 0 }}>No teams yet.</p>
+                {teamsLoadError ? (
+                  <p style={{ color: '#b91c1c', fontSize: '0.9rem', margin: 0 }}>{teamsLoadError}</p>
+                ) : teams.length === 0 && teamsLoaded ? (
+                  <p style={{ ...secondaryTextStyle, margin: 0 }}>
+                    No teams were returned. Open the browser console (F12) and look for &quot;team list&quot; to see your user ID. In Firestore, ensure <strong>users/{user?.uid ?? '…'}</strong> exists with <strong>status: &quot;active&quot;</strong> and <strong>role: &quot;manager&quot;</strong> or <strong>&quot;admin&quot;</strong>, or that your ID is in each team&apos;s <strong>memberIds</strong>.
+                  </p>
+                ) : teams.length === 0 ? (
+                  <p style={{ ...secondaryTextStyle, margin: 0 }}>Loading teams…</p>
                 ) : (
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {teams.map((t) => (

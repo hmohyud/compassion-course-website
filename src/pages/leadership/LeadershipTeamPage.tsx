@@ -36,6 +36,7 @@ const LeadershipTeamPage: React.FC = () => {
   const [savingAgreements, setSavingAgreements] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingBacklogItem, setEditingBacklogItem] = useState<LeadershipWorkItem | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!teamId) return;
@@ -129,6 +130,7 @@ const LeadershipTeamPage: React.FC = () => {
 
   const handleCreateBacklogSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!teamId) return;
+    setSaveError(null);
     try {
       const created = await createWorkItem({
         title: data.title,
@@ -161,11 +163,13 @@ const LeadershipTeamPage: React.FC = () => {
       loadBacklog();
     } catch (err) {
       console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
     }
   };
 
   const handleEditBacklogSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!editingBacklogItem) return;
+    setSaveError(null);
     try {
       await updateWorkItem(editingBacklogItem.id, {
         title: data.title,
@@ -197,6 +201,7 @@ const LeadershipTeamPage: React.FC = () => {
       loadBacklog();
     } catch (err) {
       console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
     }
   };
 
@@ -342,26 +347,32 @@ const LeadershipTeamPage: React.FC = () => {
                 Add to backlog
               </button>
               {showCreateForm && teamId && (
-                <TaskForm
-                  mode="create"
-                  defaultLane="standard"
-                  teamId={teamId}
-                  teamMemberIds={team?.memberIds ?? []}
-                  memberLabels={memberLabels}
-                  onSave={handleCreateBacklogSave}
-                  onCancel={() => setShowCreateForm(false)}
-                />
+                <>
+                  {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+                  <TaskForm
+                    mode="create"
+                    defaultLane="standard"
+                    teamId={teamId}
+                    teamMemberIds={team?.memberIds ?? []}
+                    memberLabels={memberLabels}
+                    onSave={handleCreateBacklogSave}
+                    onCancel={() => { setShowCreateForm(false); setSaveError(null); }}
+                  />
+                </>
               )}
               {editingBacklogItem && (
-                <TaskForm
-                  mode="edit"
-                  initialItem={editingBacklogItem}
-                  teamId={teamId}
-                  teamMemberIds={team?.memberIds ?? []}
-                  memberLabels={memberLabels}
-                  onSave={handleEditBacklogSave}
-                  onCancel={() => setEditingBacklogItem(null)}
-                />
+                <>
+                  {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+                  <TaskForm
+                    mode="edit"
+                    initialItem={editingBacklogItem}
+                    teamId={teamId}
+                    teamMemberIds={team?.memberIds ?? []}
+                    memberLabels={memberLabels}
+                    onSave={handleEditBacklogSave}
+                    onCancel={() => { setEditingBacklogItem(null); setSaveError(null); }}
+                  />
+                </>
               )}
               {backlogItems.length === 0 ? (
                 <p style={{ color: '#6b7280', margin: 0 }}>No items in team backlog.</p>

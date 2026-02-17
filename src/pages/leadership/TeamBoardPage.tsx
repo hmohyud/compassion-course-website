@@ -116,6 +116,7 @@ const TeamBoardPage: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createDefaultLane, setCreateDefaultLane] = useState<WorkItemLane>('standard');
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [boardSettings, setBoardSettings] = useState<{ visibleLanes?: WorkItemLane[]; columnHeaders?: Partial<Record<WorkItemStatus, string>> } | null>(null);
 
@@ -199,6 +200,7 @@ const TeamBoardPage: React.FC = () => {
 
   const handleCreateSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!teamId) return;
+    setSaveError(null);
     try {
       const created = await createWorkItem({
         title: data.title,
@@ -232,11 +234,13 @@ const TeamBoardPage: React.FC = () => {
       await loadBoard();
     } catch (err) {
       console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
     }
   };
 
   const handleEditSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!editingItem) return;
+    setSaveError(null);
     try {
       await updateWorkItem(editingItem.id, {
         title: data.title,
@@ -268,6 +272,7 @@ const TeamBoardPage: React.FC = () => {
       await loadBoard();
     } catch (err) {
       console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
     }
   };
 
@@ -412,27 +417,33 @@ const TeamBoardPage: React.FC = () => {
             </div>
 
             {showCreateForm && (
-              <TaskForm
-                mode="create"
-                defaultLane={createDefaultLane}
-                teamId={teamId}
-                teamMemberIds={memberIds}
-                memberLabels={memberLabels}
-                initialItem={undefined}
-                onSave={handleCreateSave}
-                onCancel={() => { setShowCreateForm(false); setCreateDefaultLane('standard'); }}
-              />
+              <>
+                {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+                <TaskForm
+                  mode="create"
+                  defaultLane={createDefaultLane}
+                  teamId={teamId}
+                  teamMemberIds={memberIds}
+                  memberLabels={memberLabels}
+                  initialItem={undefined}
+                  onSave={handleCreateSave}
+                  onCancel={() => { setShowCreateForm(false); setCreateDefaultLane('standard'); setSaveError(null); }}
+                />
+              </>
             )}
             {editingItem && (
-              <TaskForm
-                mode="edit"
-                initialItem={editingItem}
-                teamId={teamId}
-                teamMemberIds={memberIds}
-                memberLabels={memberLabels}
-                onSave={handleEditSave}
-                onCancel={() => setEditingItem(null)}
-              />
+              <>
+                {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+                <TaskForm
+                  mode="edit"
+                  initialItem={editingItem}
+                  teamId={teamId}
+                  teamMemberIds={memberIds}
+                  memberLabels={memberLabels}
+                  onSave={handleEditSave}
+                  onCancel={() => { setEditingItem(null); setSaveError(null); }}
+                />
+              </>
             )}
 
             <DragOverlay>

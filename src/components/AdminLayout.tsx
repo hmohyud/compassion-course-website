@@ -15,7 +15,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
   const handleBack = () => {
     if (isDashboard) {
-      navigate('/');
+      navigate('/portal/leadership');
     } else {
       navigate('/admin');
     }
@@ -36,7 +36,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             className="btn btn-secondary"
             style={{ marginRight: '8px' }}
           >
-            {isDashboard ? '← Back to site' : '← Back'}
+            {isDashboard ? '← Back to Leadership Dashboard' : '← Back'}
           </button>
           <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#002B4D' }}>
             {title ?? 'Admin'}

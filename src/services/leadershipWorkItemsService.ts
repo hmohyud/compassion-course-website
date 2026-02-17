@@ -11,7 +11,7 @@ import {
   where,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import { db, auth } from '../firebase/firebaseConfig';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane, WorkItemComment } from '../types/leadership';
 
 const COLLECTION = 'workItems';
@@ -175,7 +175,14 @@ export async function updateWorkItem(
       ...(c.mentionedUserIds?.length ? { mentionedUserIds: c.mentionedUserIds } : {}),
     }));
   }
-  await updateDoc(ref, data);
+  const path = `/${COLLECTION}/${id}`;
+  try {
+    await updateDoc(ref, data);
+  } catch (error) {
+    console.error('updateWorkItem failed', path, error);
+    console.error('auth.currentUser?.uid:', auth.currentUser?.uid);
+    throw error;
+  }
 }
 
 export async function deleteWorkItem(id: string): Promise<void> {

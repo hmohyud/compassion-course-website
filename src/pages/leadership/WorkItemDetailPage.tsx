@@ -16,6 +16,7 @@ const WorkItemDetailPage: React.FC = () => {
   const [memberLabels, setMemberLabels] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!workItemId) {
@@ -67,6 +68,7 @@ const WorkItemDetailPage: React.FC = () => {
 
   const handleSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
     if (!item) return;
+    setSaveError(null);
     try {
       await updateWorkItem(item.id, {
         title: data.title,
@@ -97,6 +99,7 @@ const WorkItemDetailPage: React.FC = () => {
       navigate(backUrl);
     } catch (err) {
       console.error(err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
     }
   };
 
@@ -139,6 +142,9 @@ const WorkItemDetailPage: React.FC = () => {
         <h1 style={{ color: '#002B4D', marginBottom: '20px', fontSize: '1.5rem', fontWeight: 700 }}>
           Task
         </h1>
+        {saveError && (
+          <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>
+        )}
         <TaskForm
           mode="edit"
           initialItem={item}

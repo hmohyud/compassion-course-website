@@ -10,6 +10,7 @@ import {
   query,
   where,
   serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db, auth } from '../firebase/firebaseConfig';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane, WorkItemComment } from '../types/leadership';
@@ -66,6 +67,7 @@ function toWorkItem(docSnap: { id: string; data: () => Record<string, unknown> }
     type: d.type === 'task' ? 'task' : undefined,
     lane: lane && VALID_LANES.includes(lane) ? lane : undefined,
     estimate: typeof d.estimate === 'number' && [0.5, 1, 1.5, 2].includes(d.estimate) ? d.estimate : undefined,
+    position: typeof d.position === 'number' ? d.position : undefined,
     comments: comments.length > 0 ? comments : undefined,
     startedAt: (d.startedAt as { toDate: () => Date })?.toDate?.() ?? undefined,
     completedAt: (d.completedAt as { toDate: () => Date })?.toDate?.() ?? undefined,
@@ -79,7 +81,11 @@ export async function listWorkItems(teamId?: string): Promise<LeadershipWorkItem
   const q = teamId && teamId !== '' ? query(ref, where('teamId', '==', teamId)) : query(ref);
   const snap = await getDocs(q);
   const items = snap.docs.map((d) => toWorkItem({ id: d.id, data: () => d.data() }));
-  items.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  items.sort((a, b) => {
+    const aPos = a.position ?? a.updatedAt.getTime();
+    const bPos = b.position ?? b.updatedAt.getTime();
+    return aPos - bPos;
+  });
   return items;
 }
 
@@ -136,6 +142,7 @@ export async function createWorkItem(data: {
   type?: 'task';
   lane?: WorkItemLane;
   estimate?: number;
+  position?: number;
   comments?: WorkItemComment[];
 }): Promise<LeadershipWorkItem> {
   const ref = collection(db, COLLECTION);
@@ -158,6 +165,7 @@ export async function createWorkItem(data: {
     type: data.type ?? 'task',
     lane: data.lane && VALID_LANES.includes(data.lane) ? data.lane : 'standard',
     estimate: data.estimate ?? null,
+    position: data.position ?? Date.now(),
     comments: commentsForFirestore ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -168,7 +176,7 @@ export async function createWorkItem(data: {
 
 export async function updateWorkItem(
   id: string,
-  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'assigneeIds' | 'teamId' | 'status' | 'dueDate' | 'blocked' | 'type' | 'lane' | 'estimate' | 'comments' | 'startedAt' | 'completedAt'>>
+  updates: Partial<Pick<LeadershipWorkItem, 'title' | 'description' | 'assigneeId' | 'assigneeIds' | 'teamId' | 'status' | 'dueDate' | 'blocked' | 'type' | 'lane' | 'estimate' | 'position' | 'comments' | 'startedAt' | 'completedAt'>>
 ): Promise<void> {
   const ref = doc(db, COLLECTION, id);
   const data: Record<string, unknown> = { updatedAt: serverTimestamp() };
@@ -209,6 +217,7 @@ export async function updateWorkItem(
   if (updates.type !== undefined) data.type = updates.type;
   if (updates.lane !== undefined) data.lane = VALID_LANES.includes(updates.lane) ? updates.lane : 'standard';
   if (updates.estimate !== undefined) data.estimate = updates.estimate;
+  if (updates.position !== undefined) data.position = updates.position;
   if (updates.startedAt !== undefined) data.startedAt = updates.startedAt;
   if (updates.completedAt !== undefined) data.completedAt = updates.completedAt;
   if (updates.comments !== undefined) {
@@ -230,4 +239,16 @@ export async function updateWorkItem(
 
 export async function deleteWorkItem(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
+}
+
+/** Batch-update positions for multiple items in a single Firestore write */
+export async function batchUpdatePositions(
+  updates: { id: string; position: number }[]
+): Promise<void> {
+  if (updates.length === 0) return;
+  const batch = writeBatch(db);
+  for (const u of updates) {
+    batch.update(doc(db, COLLECTION, u.id), { position: u.position });
+  }
+  await batch.commit();
 }

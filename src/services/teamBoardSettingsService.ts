@@ -21,6 +21,7 @@ function toSettings(teamId: string, data: Record<string, unknown> | undefined): 
       data.columnHeaders && typeof data.columnHeaders === 'object'
         ? (data.columnHeaders as Partial<Record<WorkItemStatus, string>>)
         : undefined,
+    showBacklogOnBoard: data.showBacklogOnBoard === true,
     updatedAt: (data.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
   };
 }
@@ -43,6 +44,7 @@ export async function setTeamBoardSettings(
   if (settings.visibleLanes !== undefined) data.visibleLanes = settings.visibleLanes;
   if (settings.columnHeaders !== undefined) data.columnHeaders = settings.columnHeaders;
   if (settings.boardMode !== undefined) data.boardMode = settings.boardMode;
+  if (settings.showBacklogOnBoard !== undefined) data.showBacklogOnBoard = settings.showBacklogOnBoard;
   await setDoc(ref, data, { merge: true });
   const snap = await getDoc(ref);
   return toSettings(teamId, snap.data());

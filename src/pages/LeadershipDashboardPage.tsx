@@ -4,8 +4,8 @@ import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { listTeams, getTeam, patchTeamBoardId } from '../services/leadershipTeamsService';
-import { listWorkItems } from '../services/leadershipWorkItemsService';
-import { listNotificationsForUser } from '../services/notificationService';
+import { listWorkItems, getWorkItem, updateWorkItem, deleteWorkItem } from '../services/leadershipWorkItemsService';
+import { listNotificationsForUser, createMentionNotifications } from '../services/notificationService';
 import { getTeamBoardSettings } from '../services/teamBoardSettingsService';
 import { getBoard, createBoardForTeam } from '../services/leadershipBoardsService';
 import { getUserProfile } from '../services/userProfileService';
@@ -18,6 +18,7 @@ import TeamTabView from '../components/leadership/TeamTabView';
 import SettingsTabView from '../components/leadership/SettingsTabView';
 import MessagesTabView from '../components/leadership/MessagesTabView';
 import CreateTeamModal from '../components/leadership/CreateTeamModal';
+import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../components/leadership/TaskForm';
 
 type TabId = 'board' | 'backlog' | 'team' | 'settings' | 'messages';
 
@@ -52,6 +53,7 @@ const LeadershipDashboardPage: React.FC = () => {
   const [boardSettings, setBoardSettings] = useState<{
     visibleLanes?: WorkItemLane[];
     columnHeaders?: Partial<Record<WorkItemStatus, string>>;
+    showBacklogOnBoard?: boolean;
   } | null>(null);
   const [boardMissingError, setBoardMissingError] = useState(false);
   const [teamDataLoading, setTeamDataLoading] = useState(false);
@@ -59,6 +61,16 @@ const LeadershipDashboardPage: React.FC = () => {
   // Notifications
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
+
+  // Pending work item to auto-open (from notification click)
+  const [pendingEditItemId, setPendingEditItemId] = useState<string | null>(null);
+
+  // Messages overlay: show a task detail modal without leaving Messages tab
+  const [messagesOverlayItem, setMessagesOverlayItem] = useState<LeadershipWorkItem | null>(null);
+  const [messagesOverlayTeamId, setMessagesOverlayTeamId] = useState<string>('');
+  const [messagesOverlayMemberIds, setMessagesOverlayMemberIds] = useState<string[]>([]);
+  const [messagesOverlayMemberLabels, setMessagesOverlayMemberLabels] = useState<Record<string, string>>({});
+  const [messagesOverlayMemberAvatars, setMessagesOverlayMemberAvatars] = useState<Record<string, string>>({});
 
   // Modal
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
@@ -170,6 +182,7 @@ const LeadershipDashboardPage: React.FC = () => {
       setBoardSettings({
         visibleLanes: settings.visibleLanes,
         columnHeaders: settings.columnHeaders,
+        showBacklogOnBoard: settings.showBacklogOnBoard,
       });
 
       // Resolve member labels + avatars
@@ -245,15 +258,43 @@ const LeadershipDashboardPage: React.FC = () => {
     setActiveTab(tabId);
   };
 
-  // Handle notification click: switch to that team's board tab
-  const handleNotificationClick = useCallback((n: UserNotification) => {
-    if (n.teamId) {
-      setSelectedTeamId(n.teamId);
-      setActiveTab('board');
-    } else {
-      setActiveTab('backlog');
-    }
+  // Handle notification click: show task as overlay on Messages tab
+  const handleNotificationClick = useCallback(async (n: UserNotification) => {
+    if (!n.workItemId) return;
+    // Mark read + refresh
     refreshNotifications();
+    // Load the work item
+    try {
+      const item = await getWorkItem(n.workItemId);
+      if (!item) return;
+      setMessagesOverlayItem(item);
+      const itemTeamId = n.teamId || item.teamId || '';
+      setMessagesOverlayTeamId(itemTeamId);
+      // Load team member info for the overlay
+      if (itemTeamId) {
+        const team = await getTeam(itemTeamId);
+        if (team?.memberIds?.length) {
+          setMessagesOverlayMemberIds(team.memberIds);
+          const profiles = await Promise.all(
+            team.memberIds.map((uid) =>
+              getUserProfile(uid).then((p) => ({
+                uid,
+                name: p?.name || p?.email || uid,
+                avatar: p?.avatar || '',
+              }))
+            )
+          );
+          setMessagesOverlayMemberLabels(Object.fromEntries(profiles.map((r) => [r.uid, r.name])));
+          setMessagesOverlayMemberAvatars(Object.fromEntries(profiles.filter((r) => r.avatar).map((r) => [r.uid, r.avatar])));
+        } else {
+          setMessagesOverlayMemberIds([]);
+          setMessagesOverlayMemberLabels({});
+          setMessagesOverlayMemberAvatars({});
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load work item for notification:', err);
+    }
   }, [refreshNotifications]);
 
   // Handle backlog click to switch to team board
@@ -276,6 +317,21 @@ const LeadershipDashboardPage: React.FC = () => {
   };
 
   const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
+
+  // Hide Backlog tab when it's shown as a column on the board
+  const visibleTabs = useMemo(() => {
+    if (boardSettings?.showBacklogOnBoard) {
+      return TABS.filter((t) => t.id !== 'backlog');
+    }
+    return TABS;
+  }, [boardSettings?.showBacklogOnBoard]);
+
+  // Auto-switch away from backlog tab if it gets hidden
+  useEffect(() => {
+    if (boardSettings?.showBacklogOnBoard && activeTab === 'backlog') {
+      setActiveTab('board');
+    }
+  }, [boardSettings?.showBacklogOnBoard, activeTab]);
 
   // Auth gate
   if (authLoading) {
@@ -351,7 +407,7 @@ const LeadershipDashboardPage: React.FC = () => {
 
         {/* ── Tab bar ── */}
         <div className="ld-tab-bar">
-          {TABS.map((tab) => {
+          {visibleTabs.map((tab) => {
             const disabled = tab.requiresTeam && !selectedTeamId;
             const isActive_ = tab.id === activeTab;
             return (
@@ -388,6 +444,8 @@ const LeadershipDashboardPage: React.FC = () => {
                   boardMissingError={boardMissingError}
                   onRefresh={refreshTeamData}
                   onQuietRefresh={refreshWorkItemsQuietly}
+                  initialEditItemId={pendingEditItemId}
+                  onInitialEditConsumed={() => setPendingEditItemId(null)}
                 />
               )}
 
@@ -452,6 +510,57 @@ const LeadershipDashboardPage: React.FC = () => {
         <CreateTeamModal
           onCreated={handleTeamCreated}
           onClose={() => setShowCreateTeamModal(false)}
+        />
+      )}
+
+      {/* ── Messages overlay: task detail modal ── */}
+      {messagesOverlayItem && (
+        <TaskForm
+          mode="edit"
+          initialItem={messagesOverlayItem}
+          teamId={messagesOverlayTeamId}
+          teamMemberIds={messagesOverlayMemberIds}
+          memberLabels={messagesOverlayMemberLabels}
+          memberAvatars={messagesOverlayMemberAvatars}
+          onSave={async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
+            if (!messagesOverlayItem) return;
+            try {
+              await updateWorkItem(messagesOverlayItem.id, {
+                title: data.title,
+                description: data.description,
+                status: data.status,
+                lane: data.lane,
+                estimate: data.estimate,
+                assigneeIds: data.assigneeIds,
+                comments: data.comments,
+              });
+              if (context?.newCommentsWithMentions?.length) {
+                for (const c of context.newCommentsWithMentions) {
+                  if (c.mentionedUserIds?.length) {
+                    await createMentionNotifications(
+                      messagesOverlayItem.id, data.title, messagesOverlayTeamId,
+                      c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds
+                    );
+                  }
+                }
+              }
+              setMessagesOverlayItem(null);
+              // Refresh team data if we're viewing the same team
+              if (messagesOverlayTeamId === selectedTeamId) {
+                refreshTeamData();
+              }
+            } catch (err) {
+              console.error('Failed to save from messages overlay:', err);
+            }
+          }}
+          onCancel={() => setMessagesOverlayItem(null)}
+          onDelete={async (itemId: string) => {
+            await deleteWorkItem(itemId);
+            setMessagesOverlayItem(null);
+            if (messagesOverlayTeamId === selectedTeamId) {
+              refreshTeamData();
+            }
+          }}
         />
       )}
     </Layout>

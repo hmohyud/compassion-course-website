@@ -65,7 +65,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<WorkItemStatus>('backlog');
+  const [status, setStatus] = useState<WorkItemStatus>('todo');
   const [lane, setLane] = useState<WorkItemLane>(defaultLane);
   const [estimate, setEstimate] = useState<number | ''>('');
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
@@ -107,7 +107,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     } else {
       setTitle('');
       setDescription('');
-      setStatus('backlog');
+      setStatus('todo');
       setLane(defaultLane);
       setEstimate('');
       setAssigneeIds([]);

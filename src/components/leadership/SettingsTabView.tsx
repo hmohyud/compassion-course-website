@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { getTeamBoardSettings, setTeamBoardSettings } from '../../services/teamBoardSettingsService';
 import { deleteTeamWithData } from '../../services/leadershipTeamsService';
 import { usePermissions } from '../../context/PermissionsContext';
@@ -28,6 +28,11 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [columnHeaders, setColumnHeaders] = useState<Partial<Record<WorkItemStatus, string>>>({});
+  const [showBacklogOnBoard, setShowBacklogOnBoard] = useState(false);
+
+  // Track initial values so we can detect unsaved changes
+  const [initialColumnHeaders, setInitialColumnHeaders] = useState<Partial<Record<WorkItemStatus, string>>>({});
+  const [initialShowBacklogOnBoard, setInitialShowBacklogOnBoard] = useState(false);
 
   // Delete team state
   const [deleting, setDeleting] = useState(false);
@@ -80,26 +85,46 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
     setSaved(false);
     getTeamBoardSettings(teamId)
       .then((s) => {
-        setColumnHeaders(s.columnHeaders ?? {});
+        const headers = s.columnHeaders ?? {};
+        const backlog = s.showBacklogOnBoard ?? false;
+        setColumnHeaders(headers);
+        setShowBacklogOnBoard(backlog);
+        setInitialColumnHeaders(headers);
+        setInitialShowBacklogOnBoard(backlog);
       })
       .catch(() => {
         setColumnHeaders({});
+        setInitialColumnHeaders({});
       })
       .finally(() => setLoading(false));
   }, [teamId]);
+
+  // Detect unsaved changes
+  const isDirty = useMemo(() => {
+    if (showBacklogOnBoard !== initialShowBacklogOnBoard) return true;
+    for (const key of COLUMN_KEYS) {
+      if ((columnHeaders[key] ?? '') !== (initialColumnHeaders[key] ?? '')) return true;
+    }
+    return false;
+  }, [columnHeaders, initialColumnHeaders, showBacklogOnBoard, initialShowBacklogOnBoard]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
     try {
+      const headers = Object.fromEntries(
+        COLUMN_KEYS.map((k) => [k, (columnHeaders[k] ?? '').trim() || undefined]).filter(([, v]) => v != null)
+      ) as Partial<Record<WorkItemStatus, string>>;
       await setTeamBoardSettings(teamId, {
         boardMode: 'kanban',
-        columnHeaders: Object.fromEntries(
-          COLUMN_KEYS.map((k) => [k, (columnHeaders[k] ?? '').trim() || undefined]).filter(([, v]) => v != null)
-        ) as Partial<Record<WorkItemStatus, string>>,
+        columnHeaders: headers,
+        showBacklogOnBoard,
       });
       setSaved(true);
+      // Update initial values so dirty state clears
+      setInitialColumnHeaders(headers);
+      setInitialShowBacklogOnBoard(showBacklogOnBoard);
       onSettingsSaved();
     } catch (err) {
       console.error(err);
@@ -137,11 +162,40 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
         </div>
       </div>
 
-      <div className="ld-settings-actions">
-        <button type="submit" className="ld-settings-save-btn" disabled={saving}>
+      <div className="ld-settings-card">
+        <h2 className="ld-settings-title">
+          <i className="fas fa-columns" style={{ marginRight: 8, fontSize: '0.85rem', opacity: 0.5 }}></i>
+          Board Layout
+        </h2>
+        <p className="ld-settings-desc">
+          Configure how columns appear on the board.
+        </p>
+        <label className="ld-settings-toggle-label">
+          <input
+            type="checkbox"
+            checked={showBacklogOnBoard}
+            onChange={(e) => setShowBacklogOnBoard(e.target.checked)}
+            className="ld-settings-toggle-checkbox"
+          />
+          <span className="ld-settings-toggle-text">
+            Show backlog as a column on the board
+          </span>
+        </label>
+        <p className="ld-settings-toggle-hint">
+          When enabled, the backlog appears as a draggable column on the main board instead of only in the Backlog tab.
+        </p>
+      </div>
+
+      <div className={`ld-settings-actions ${isDirty ? 'ld-settings-actions--dirty' : ''}`}>
+        {isDirty && (
+          <span className="ld-settings-unsaved">
+            <i className="fas fa-exclamation-circle"></i> You have unsaved changes
+          </span>
+        )}
+        <button type="submit" className={`ld-settings-save-btn ${isDirty ? 'ld-settings-save-btn--pulse' : ''}`} disabled={saving}>
           {saving ? 'Saving…' : 'Save Settings'}
         </button>
-        {saved && <span className="ld-settings-saved"><i className="fas fa-check"></i> Saved</span>}
+        {saved && !isDirty && <span className="ld-settings-saved"><i className="fas fa-check"></i> Saved</span>}
       </div>
     </form>
 

@@ -54,6 +54,8 @@ export interface LeadershipWorkItem {
   type?: WorkItemType;
   lane?: WorkItemLane;
   estimate?: number;
+  /** Manual sort order within a column. Lower values appear first. */
+  position?: number;
   comments?: WorkItemComment[];
   /** Timestamp when item first moved to in_progress */
   startedAt?: Date;
@@ -81,6 +83,8 @@ export interface TeamBoardSettings {
   visibleLanes?: WorkItemLane[];
   /** Custom column labels; key = status id, value = display label. Leave blank for default. */
   columnHeaders?: Partial<Record<WorkItemStatus, string>>;
+  /** Show the backlog as a column on the main board instead of a separate tab */
+  showBacklogOnBoard?: boolean;
   updatedAt: Date;
 }
 

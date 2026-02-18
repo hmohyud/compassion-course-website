@@ -13,8 +13,11 @@ import {
   useSensors,
   useDroppable,
   useDraggable,
+  type CollisionDetection,
+  pointerWithin,
+  closestCenter,
 } from '@dnd-kit/core';
-import { updateWorkItem, createWorkItem, deleteWorkItem } from '../../services/leadershipWorkItemsService';
+import { updateWorkItem, createWorkItem, deleteWorkItem, batchUpdatePositions } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from './TaskForm';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane } from '../../types/leadership';
@@ -25,6 +28,10 @@ const COLUMNS: { id: WorkItemStatus; label: string; color: string }[] = [
   { id: 'done', label: 'Done', color: '#22c55e' },
 ];
 
+const BACKLOG_COLUMN: { id: WorkItemStatus; label: string; color: string } = {
+  id: 'backlog', label: 'Backlog', color: '#6b7280',
+};
+
 const LANE_META: Record<WorkItemLane, { label: string; color: string; icon: string }> = {
   expedited: { label: 'Urgent', color: '#ef4444', icon: 'fas fa-bolt' },
   fixed_date: { label: 'Deadline', color: '#f59e0b', icon: 'fas fa-calendar-day' },
@@ -34,6 +41,22 @@ const LANE_META: Record<WorkItemLane, { label: string; color: string; icon: stri
 
 const MAX_VISIBLE_AVATARS = 3;
 const DONE_PREVIEW_LIMIT = 5;
+const DONE_INLINE_MAX = 20;
+
+/** Get effective position for an item (fallback to updatedAt for legacy items) */
+function getEffectivePosition(item: LeadershipWorkItem): number {
+  return item.position ?? item.updatedAt.getTime();
+}
+
+/** Calculate position for an item dropped at newIndex in a sorted list (excluding the dropped item) */
+function calcDropPosition(sortedItems: LeadershipWorkItem[], newIndex: number): number {
+  const prev = newIndex > 0 ? getEffectivePosition(sortedItems[newIndex - 1]) : null;
+  const next = newIndex < sortedItems.length ? getEffectivePosition(sortedItems[newIndex]) : null;
+  if (prev != null && next != null) return (prev + next) / 2;
+  if (prev != null) return prev + 1000;
+  if (next != null) return next - 1000;
+  return Date.now();
+}
 
 /** Get effective assignee IDs from an item */
 function getItemAssigneeIds(item: LeadershipWorkItem): string[] {
@@ -195,23 +218,16 @@ function DraggableCard({
     attributes,
     listeners,
     setNodeRef,
-    transform,
     isDragging,
   } = useDraggable({
     id: item.id,
     data: { item, type: 'card' },
   });
 
-  const style: React.CSSProperties = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    touchAction: 'none',
-    opacity: isDragging ? 0.4 : 1,
-  };
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ touchAction: 'none' }}
       {...listeners}
       {...attributes}
       onClick={(e) => { e.stopPropagation(); onEdit(item); }}
@@ -219,7 +235,7 @@ function DraggableCard({
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onEdit(item)}
     >
-      <div className={`ld-board-card ${isDragging ? 'ld-board-card--dragging' : ''}`}>
+      <div className="ld-board-card">
         <CardContent item={item} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
       </div>
     </div>
@@ -415,6 +431,44 @@ function DoneHistoryOverlay({
   );
 }
 
+/* ─── Custom collision detection: prefer slot droppables over column/card droppables ─── */
+const slotPrioritizedCollision: CollisionDetection = (args) => {
+  // First: check which droppables the pointer is within
+  const pointerCollisions = pointerWithin(args);
+
+  // Prefer slot targets: they give precise positioning
+  const slotCollisions = pointerCollisions.filter((c) => String(c.id).startsWith('slot-'));
+  if (slotCollisions.length > 0) {
+    // If multiple slots, pick the one whose vertical center is closest to the pointer
+    const pointerY = args.pointerCoordinates?.y ?? 0;
+    slotCollisions.sort((a, b) => {
+      const aRect = args.droppableRects.get(a.id);
+      const bRect = args.droppableRects.get(b.id);
+      const aCenterY = aRect ? aRect.top + aRect.height / 2 : 0;
+      const bCenterY = bRect ? bRect.top + bRect.height / 2 : 0;
+      return Math.abs(aCenterY - pointerY) - Math.abs(bCenterY - pointerY);
+    });
+    return [slotCollisions[0]];
+  }
+
+  // Then: check for column droppables (for empty columns or when pointer is in column but not on a slot)
+  const columnCollisions = pointerCollisions.filter((c) => String(c.id).startsWith('column-'));
+  if (columnCollisions.length > 0) return [columnCollisions[0]];
+
+  // Fallback: use closestCenter for any remaining droppables
+  return closestCenter(args);
+};
+
+/* ─── Drop slot between cards — provides a droppable region for precise positioning ─── */
+function CardDropSlot({ columnId, index }: { columnId: WorkItemStatus; index: number }) {
+  const { setNodeRef } = useDroppable({
+    id: `slot-${columnId}-${index}`,
+    data: { type: 'slot', status: columnId, index },
+  });
+
+  return <div ref={setNodeRef} className="ld-board-drop-slot" />;
+}
+
 /* ─── Droppable column ─── */
 function BoardColumn({
   column,
@@ -424,7 +478,12 @@ function BoardColumn({
   onEditItem,
   onAddItem,
   onOpenHistory,
-  dropPreview,
+  dropPreviewIndex,
+  dropPreviewItem,
+  isBacklog,
+  isDragging,
+  activeItemId,
+  isDropTarget,
 }: {
   column: (typeof COLUMNS)[0];
   items: LeadershipWorkItem[];
@@ -433,9 +492,15 @@ function BoardColumn({
   onEditItem: (item: LeadershipWorkItem) => void;
   onAddItem: () => void;
   onOpenHistory?: () => void;
-  dropPreview?: LeadershipWorkItem | null;
+  dropPreviewIndex?: number;
+  dropPreviewItem?: LeadershipWorkItem | null;
+  isBacklog?: boolean;
+  isDragging?: boolean;
+  activeItemId?: string | null;
+  /** Whether this column is the current drop target (driven by parent state, not local isOver) */
+  isDropTarget?: boolean;
 }) {
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: `column-${column.id}`,
     data: { type: 'column', status: column.id },
   });
@@ -443,23 +508,29 @@ function BoardColumn({
   const isDone = column.id === 'done';
   const totalCount = items.length;
 
-  const sortedItems = useMemo(() => {
-    if (!isDone) return items;
-    return [...items].sort((a, b) => {
-      const aTime = a.updatedAt instanceof Date ? a.updatedAt.getTime() : 0;
-      const bTime = b.updatedAt instanceof Date ? b.updatedAt.getTime() : 0;
-      return bTime - aTime;
-    });
-  }, [items, isDone]);
+  // For Done column: track whether user expanded to see all items inline
+  const [doneExpanded, setDoneExpanded] = useState(false);
 
-  const visibleItems = isDone
-    ? sortedItems.slice(0, DONE_PREVIEW_LIMIT)
-    : sortedItems;
+  // Sort all columns by position ascending (items already sorted from service, but re-sort for safety)
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+  }, [items]);
+
+  // Done column visibility logic
+  const visibleItems = useMemo(() => {
+    if (!isDone) return sortedItems;
+    if (doneExpanded && totalCount <= DONE_INLINE_MAX) return sortedItems;
+    return sortedItems.slice(0, DONE_PREVIEW_LIMIT);
+  }, [sortedItems, isDone, doneExpanded, totalCount]);
+
+  const hiddenCount = totalCount - visibleItems.length;
+  const canExpandInline = isDone && totalCount > DONE_PREVIEW_LIMIT && totalCount <= DONE_INLINE_MAX;
+  const needsOverlay = isDone && totalCount > DONE_INLINE_MAX;
 
   return (
     <div
       ref={setNodeRef}
-      className={`ld-board-cell ${isOver ? 'ld-board-cell--over' : ''}`}
+      className={`ld-board-cell ${isDropTarget ? 'ld-board-cell--over' : ''} ${isDone ? 'ld-board-cell--done' : ''} ${isBacklog ? 'ld-board-cell--backlog' : ''}`}
     >
       <div className="ld-board-col-bar" style={{ background: column.color }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -469,7 +540,7 @@ function BoardColumn({
             ({totalCount})
           </span>
         </h3>
-        {isDone && totalCount > 0 && onOpenHistory && (
+        {isDone && totalCount > DONE_INLINE_MAX && onOpenHistory && (
           <button
             type="button"
             className="ld-board-history-icon-btn"
@@ -480,56 +551,117 @@ function BoardColumn({
           </button>
         )}
       </div>
-      {column.id === 'todo' && (
+      {(column.id === 'todo' || isBacklog) && (
         <button type="button" className="ld-board-add-btn" onClick={onAddItem}>
           + Add task
         </button>
       )}
-      {/* Drop preview: ghost card showing where the item will land (top of column) */}
-      {dropPreview && (
-        <div className="ld-board-card ld-board-card--drop-preview">
-          <CardContent item={dropPreview} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
+      {visibleItems.length === 0 && !isDragging && (
+        <p className="ld-board-empty-col">No tasks</p>
+      )}
+      {visibleItems.length === 0 && isDragging && (
+        <p className="ld-board-empty-col">Drop here</p>
+      )}
+      {/* Cards with drop slots between them for precise positioning */}
+      {isDragging && <CardDropSlot columnId={column.id} index={0} />}
+      {visibleItems.map((item, idx) => {
+        const isBeingDragged = item.id === activeItemId;
+        // Show ghost preview: suppress when it's right above or below the dragged card (same column no-op)
+        const draggedIdx = activeItemId ? visibleItems.findIndex((i) => i.id === activeItemId) : -1;
+        const isNoOp = draggedIdx >= 0 && (dropPreviewIndex === draggedIdx || dropPreviewIndex === draggedIdx + 1);
+        const showGhost = dropPreviewIndex === idx && !isNoOp && dropPreviewItem;
+
+        return (
+          <React.Fragment key={item.id}>
+            {showGhost && (
+              <div className="ld-board-card ld-board-card--ghost">
+                <CardContent item={dropPreviewItem!} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
+              </div>
+            )}
+            {isBeingDragged ? (
+              <div className="ld-board-card ld-board-card--placeholder" />
+            ) : (
+              <DraggableCard
+                item={item}
+                memberLabels={memberLabels}
+                memberAvatars={memberAvatars}
+                isDone={isDone}
+                onEdit={onEditItem}
+              />
+            )}
+            {isDragging && <CardDropSlot columnId={column.id} index={idx + 1} />}
+          </React.Fragment>
+        );
+      })}
+      {/* Ghost preview at end of list */}
+      {(() => {
+        const draggedIdx = activeItemId ? visibleItems.findIndex((i) => i.id === activeItemId) : -1;
+        const isNoOp = draggedIdx >= 0 && (dropPreviewIndex === draggedIdx || dropPreviewIndex === draggedIdx + 1);
+        return dropPreviewIndex != null && dropPreviewIndex >= visibleItems.length && !isNoOp && dropPreviewItem
+          ? (
+            <div className="ld-board-card ld-board-card--ghost">
+              <CardContent item={dropPreviewItem} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
+            </div>
+          )
+          : null;
+      })()}
+      {/* Expand inline for ≤20 done items */}
+      {canExpandInline && !doneExpanded && (
+        <div className="ld-board-history-bar">
+          <button
+            type="button"
+            className="ld-board-history-btn"
+            onClick={() => setDoneExpanded(true)}
+          >
+            <FaHistory style={{ fontSize: '0.75rem' }} />
+            Show all ({hiddenCount} more)
+          </button>
+          {onOpenHistory && (
+            <button
+              type="button"
+              className="ld-board-history-search-btn"
+              onClick={onOpenHistory}
+              title="Search completed tasks"
+            >
+              <FaSearch style={{ fontSize: '0.65rem' }} />
+            </button>
+          )}
         </div>
       )}
-      {visibleItems.length === 0 && !dropPreview && (
-        <p className="ld-board-empty-col">
-          {isOver ? 'Drop here' : 'No tasks'}
-        </p>
+      {canExpandInline && doneExpanded && (
+        <div className="ld-board-history-bar">
+          <button
+            type="button"
+            className="ld-board-history-btn ld-board-collapse-btn"
+            onClick={() => setDoneExpanded(false)}
+          >
+            Show recent only
+          </button>
+          {onOpenHistory && (
+            <button
+              type="button"
+              className="ld-board-history-search-btn"
+              onClick={onOpenHistory}
+              title="Search completed tasks"
+            >
+              <FaSearch style={{ fontSize: '0.65rem' }} />
+            </button>
+          )}
+        </div>
       )}
-      {visibleItems.map((item) => (
-        <DraggableCard
-          key={item.id}
-          item={item}
-          memberLabels={memberLabels}
-          memberAvatars={memberAvatars}
-          isDone={isDone}
-          onEdit={onEditItem}
-        />
-      ))}
-      {isDone && totalCount > DONE_PREVIEW_LIMIT && onOpenHistory && (
+      {/* Overlay trigger for >20 done items */}
+      {needsOverlay && hiddenCount > 0 && onOpenHistory && (
         <button
           type="button"
           className="ld-board-history-btn"
           onClick={onOpenHistory}
         >
           <FaHistory style={{ fontSize: '0.75rem' }} />
-          View all ({totalCount - DONE_PREVIEW_LIMIT} more)
+          View all ({hiddenCount} more)
         </button>
       )}
     </div>
   );
-}
-
-/** Find which column an item ID belongs to */
-function findColumnForItem(
-  itemId: string,
-  columns: { id: WorkItemStatus }[],
-  items: LeadershipWorkItem[]
-): WorkItemStatus | null {
-  const item = items.find((w) => w.id === itemId);
-  if (!item) return null;
-  if (columns.some((c) => c.id === item.status)) return item.status;
-  return null;
 }
 
 /* ─── Main board tab ─── */
@@ -542,10 +674,15 @@ interface BoardTabViewProps {
   boardSettings: {
     visibleLanes?: WorkItemLane[];
     columnHeaders?: Partial<Record<WorkItemStatus, string>>;
+    showBacklogOnBoard?: boolean;
   } | null;
   boardMissingError: boolean;
   onRefresh: () => void;
   onQuietRefresh?: () => void;
+  /** If set, auto-open the edit form for this work item ID (e.g. from notification click) */
+  initialEditItemId?: string | null;
+  /** Called when the initial edit item has been consumed (so parent can clear the prop) */
+  onInitialEditConsumed?: () => void;
 }
 
 const BoardTabView: React.FC<BoardTabViewProps> = ({
@@ -558,9 +695,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   boardMissingError,
   onRefresh,
   onQuietRefresh,
+  initialEditItemId,
+  onInitialEditConsumed,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropTargetColumn, setDropTargetColumn] = useState<WorkItemStatus | null>(null);
+  const [dropInsertIndex, setDropInsertIndex] = useState<number | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -573,103 +713,223 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     setOptimisticItems(null);
   }, [workItems]);
 
+  // Auto-open edit form when initialEditItemId is set (e.g. from notification click)
+  useEffect(() => {
+    if (initialEditItemId && workItems.length > 0) {
+      const item = workItems.find((w) => w.id === initialEditItemId);
+      if (item) {
+        setEditingItem(item);
+      }
+      onInitialEditConsumed?.();
+    }
+  }, [initialEditItemId, workItems, onInitialEditConsumed]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
     useSensor(KeyboardSensor)
   );
 
+  const showBacklogOnBoard = boardSettings?.showBacklogOnBoard ?? false;
+
+  const effectiveColumns = useMemo(() => {
+    const cols = showBacklogOnBoard
+      ? [{ ...BACKLOG_COLUMN, label: boardSettings?.columnHeaders?.backlog?.trim() || BACKLOG_COLUMN.label }, ...COLUMNS]
+      : COLUMNS;
+    return cols.map((c) => ({
+      ...c,
+      label: (boardSettings?.columnHeaders?.[c.id]?.trim() || c.label) as string,
+    }));
+  }, [showBacklogOnBoard, boardSettings]);
+
   const handleDragStart = (e: DragStartEvent) => {
     setActiveId(e.active.id as string);
     setDropTargetColumn(null);
+    setDropInsertIndex(null);
   };
+
+  /** Parse an over target to determine the target column status and insert index */
+  const resolveDropTarget = useCallback((overId: string, items: LeadershipWorkItem[], activeItemId: string): {
+    targetStatus: WorkItemStatus | null;
+    insertIndex: number;
+  } => {
+    // Slot target: "slot-{status}-{index}"
+    if (overId.startsWith('slot-')) {
+      const parts = overId.split('-');
+      // slot-in_progress-2 → status = "in_progress", index = 2
+      const indexStr = parts[parts.length - 1];
+      const statusStr = parts.slice(1, -1).join('-') as WorkItemStatus;
+      if (effectiveColumns.some((c) => c.id === statusStr)) {
+        return { targetStatus: statusStr, insertIndex: parseInt(indexStr, 10) };
+      }
+    }
+
+    // Column target: "column-{status}"
+    if (overId.startsWith('column-')) {
+      const statusStr = overId.replace('column-', '') as WorkItemStatus;
+      if (effectiveColumns.some((c) => c.id === statusStr)) {
+        const colItems = items
+          .filter((w) => w.status === statusStr && w.id !== activeItemId)
+          .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+        return { targetStatus: statusStr, insertIndex: colItems.length };
+      }
+    }
+
+    // Card target: item ID
+    const overItem = items.find((w) => w.id === overId);
+    if (overItem && effectiveColumns.some((c) => c.id === overItem.status)) {
+      const colItems = items
+        .filter((w) => w.status === overItem.status && w.id !== activeItemId)
+        .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+      const idx = colItems.findIndex((w) => w.id === overId);
+      return { targetStatus: overItem.status, insertIndex: idx >= 0 ? idx : colItems.length };
+    }
+
+    return { targetStatus: null, insertIndex: 0 };
+  }, [effectiveColumns]);
 
   const handleDragOver = useCallback((e: DragOverEvent) => {
     const { active, over } = e;
     if (!over) {
       setDropTargetColumn(null);
+      setDropInsertIndex(null);
       return;
     }
 
     const activeItemId = active.id as string;
     const overId = over.id as string;
-
-    // Determine target column
-    let targetStatus: WorkItemStatus | null = null;
-    if (overId.startsWith('column-')) {
-      targetStatus = overId.replace('column-', '') as WorkItemStatus;
-    } else {
-      // Hovering over another card — find its column
-      targetStatus = findColumnForItem(overId, COLUMNS, workItems);
-    }
-
-    if (!targetStatus) {
-      setDropTargetColumn(null);
-      return;
-    }
-
-    const item = workItems.find((w) => w.id === activeItemId);
+    const item = displayItems.find((w) => w.id === activeItemId);
     if (!item) {
       setDropTargetColumn(null);
+      setDropInsertIndex(null);
       return;
     }
 
-    // Track which column the card is hovering over (for drop preview ghost)
-    // Only show preview for cross-column moves
-    if (item.status !== targetStatus) {
-      setDropTargetColumn(targetStatus);
-    } else {
+    const { targetStatus, insertIndex } = resolveDropTarget(overId, displayItems, activeItemId);
+    if (!targetStatus) {
       setDropTargetColumn(null);
+      setDropInsertIndex(null);
+      return;
     }
-  }, [workItems]);
+
+    const isSlotTarget = overId.startsWith('slot-');
+
+    // Slot targets are precise — always trust them.
+    if (isSlotTarget) {
+      setDropTargetColumn(targetStatus);
+      setDropInsertIndex(insertIndex);
+      return;
+    }
+
+    // For non-slot targets (column background, card hover):
+    // If we already have a precise slot-based index in this same target column,
+    // keep it — don't flicker the ghost to an imprecise card/column position.
+    // This applies to BOTH same-column reorder AND cross-column drags.
+    if (dropTargetColumn === targetStatus && dropInsertIndex != null) {
+      return;
+    }
+
+    // First entry into a new target column (no slot hit yet):
+    // Show ghost at the resolved position (end of column for column targets,
+    // or at the hovered card's index for card targets).
+    setDropTargetColumn(targetStatus);
+    setDropInsertIndex(insertIndex);
+  }, [displayItems, resolveDropTarget, dropTargetColumn, dropInsertIndex]);
 
   const handleDragEnd = useCallback(async (e: DragEndEvent) => {
+    // Use the VISUAL state (dropTargetColumn + dropInsertIndex) directly —
+    // this is what the ghost card showed, so the drop must go exactly there.
+    const targetStatus = dropTargetColumn;
+    const visualIndex = dropInsertIndex;
     setActiveId(null);
     setDropTargetColumn(null);
-    const { active, over } = e;
-    if (!over) {
-      setOptimisticItems(null);
-      return;
-    }
+    setDropInsertIndex(null);
 
+    const { active } = e;
     const activeItemId = active.id as string;
-    const overId = over.id as string;
+    const items = displayItems;
+    const originalItem = items.find((w) => w.id === activeItemId);
 
-    // Determine final target column
-    let targetStatus: WorkItemStatus | null = null;
-    if (overId.startsWith('column-')) {
-      targetStatus = overId.replace('column-', '') as WorkItemStatus;
-    } else {
-      targetStatus = findColumnForItem(overId, COLUMNS, workItems);
-    }
-
-    if (!targetStatus || !COLUMNS.some((c) => c.id === targetStatus)) {
+    if (!originalItem || !targetStatus || visualIndex == null) {
       setOptimisticItems(null);
       return;
     }
 
-    // Persist status change if it differs from original
-    const originalItem = workItems.find((w) => w.id === activeItemId);
-    if (originalItem && originalItem.status !== targetStatus) {
-      // Optimistically move item to target column immediately
-      setOptimisticItems(
-        workItems.map((w) =>
-          w.id === activeItemId ? { ...w, status: targetStatus! } : w
-        )
-      );
-      try {
-        await updateWorkItem(activeItemId, { status: targetStatus });
-        if (onQuietRefresh) onQuietRefresh();
-      } catch (err) {
-        console.error(err);
-        setOptimisticItems(null);
+    if (!effectiveColumns.some((c) => c.id === targetStatus)) {
+      setOptimisticItems(null);
+      return;
+    }
+
+    const isCrossColumn = originalItem.status !== targetStatus;
+
+    // Get the sorted items for the target column (excluding the dragged item)
+    const targetColumnItems = items
+      .filter((w) => w.status === targetStatus && w.id !== activeItemId)
+      .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+
+    // Convert visual slot index to the "excluding dragged item" coordinate system.
+    // Visual slots are indexed in the full list (including placeholder).
+    // For same-column drags, slots after the placeholder are off-by-one because
+    // the placeholder occupies a slot but isn't in targetColumnItems.
+    let adjustedIndex = visualIndex;
+    if (!isCrossColumn) {
+      const fullColumnItems = items
+        .filter((w) => w.status === targetStatus)
+        .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+      const draggedVisualIdx = fullColumnItems.findIndex((w) => w.id === activeItemId);
+      // Slots after the placeholder need -1 to map to the list without the dragged item
+      if (draggedVisualIdx >= 0 && visualIndex > draggedVisualIdx) {
+        adjustedIndex = visualIndex - 1;
       }
     }
-  }, [workItems, onQuietRefresh]);
+
+    // Clamp to valid range
+    const newIndex = Math.max(0, Math.min(adjustedIndex, targetColumnItems.length));
+
+    // For same-column: check if the item is actually moving
+    if (!isCrossColumn) {
+      const fullColumnItems = items
+        .filter((w) => w.status === targetStatus)
+        .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
+      const currentIndex = fullColumnItems.findIndex((w) => w.id === activeItemId);
+      // In the "without dragged item" list, the original position is currentIndex
+      // (items before it stay, items after shift up by 1).
+      // No-op: newIndex === currentIndex means it goes back to same spot.
+      if (newIndex === currentIndex) {
+        setOptimisticItems(null);
+        return;
+      }
+    }
+
+    // Calculate position value
+    const newPosition = calcDropPosition(targetColumnItems, newIndex);
+
+    // Optimistic update
+    setOptimisticItems(
+      items.map((w) =>
+        w.id === activeItemId
+          ? { ...w, status: targetStatus!, position: newPosition }
+          : w
+      )
+    );
+
+    try {
+      if (isCrossColumn) {
+        await updateWorkItem(activeItemId, { status: targetStatus, position: newPosition });
+      } else {
+        await batchUpdatePositions([{ id: activeItemId, position: newPosition }]);
+      }
+      if (onQuietRefresh) onQuietRefresh();
+    } catch (err) {
+      console.error(err);
+      setOptimisticItems(null);
+    }
+  }, [displayItems, onQuietRefresh, effectiveColumns, dropTargetColumn, dropInsertIndex]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);
     setDropTargetColumn(null);
+    setDropInsertIndex(null);
     setOptimisticItems(null);
   }, []);
 
@@ -742,19 +1002,11 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     }
   };
 
-  const effectiveColumns = COLUMNS.map((c) => ({
-    ...c,
-    label: (boardSettings?.columnHeaders?.[c.id]?.trim() || c.label) as string,
-  }));
-
   const itemsForColumn = (status: WorkItemStatus) =>
     displayItems.filter((w) => w.status === status);
 
   const activeItem = activeId ? displayItems.find((w) => w.id === activeId) : null;
-  // The original item from workItems for the drop preview ghost
-  const dropPreviewItem = activeId && dropTargetColumn
-    ? workItems.find((w) => w.id === activeId) ?? null
-    : null;
+  const dropPreviewItem = activeItem ?? null;
   const backlogCount = displayItems.filter((w) => w.status === 'backlog').length;
 
   if (boardMissingError) {
@@ -770,7 +1022,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
   return (
     <>
-      {backlogCount > 0 && (
+      {backlogCount > 0 && !showBacklogOnBoard && (
         <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '12px' }}>
           {backlogCount} task{backlogCount !== 1 ? 's' : ''} in backlog — use the Team tab to move them onto the board.
         </p>
@@ -778,12 +1030,13 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
       <DndContext
         sensors={sensors}
+        collisionDetection={slotPrioritizedCollision}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="ld-board-columns">
+        <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
           {effectiveColumns.map((col) => (
             <BoardColumn
               key={col.id}
@@ -794,7 +1047,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
               onEditItem={setEditingItem}
               onAddItem={() => setShowCreateForm(true)}
               onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
-              dropPreview={dropTargetColumn === col.id ? dropPreviewItem : null}
+              dropPreviewIndex={dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
+              dropPreviewItem={dropTargetColumn === col.id ? dropPreviewItem : null}
+              isBacklog={col.id === 'backlog'}
+              isDragging={!!activeId}
+              activeItemId={activeId}
+              isDropTarget={dropTargetColumn === col.id}
             />
           ))}
         </div>

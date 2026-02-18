@@ -9,9 +9,11 @@ interface LayoutProps {
   children: React.ReactNode;
   /** When true, the top navigation bar is not rendered (e.g. for /portal/circle). */
   hideNavigation?: boolean;
+  /** When true, the footer is not rendered. */
+  hideFooter?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, hideNavigation }) => {
+const Layout: React.FC<LayoutProps> = ({ children, hideNavigation, hideFooter }) => {
   const { loading: authLoading } = useAuth();
   const { loading: permissionsLoading } = usePermissions();
   const [showOverlay, setShowOverlay] = useState(true);
@@ -45,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNavigation }) => {
       )}
       {!hideNavigation && <Navigation />}
       <main className={hideNavigation ? 'main-content main-content--no-nav' : 'main-content'}>{children}</main>
-      <Footer />
+      {!hideFooter && <Footer />}
       <AuthModal />
     </>
   );

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import Globe from '../components/Globe';
+import StarrySky from '../components/StarrySky';
 import JotformPopup from '../components/JotformPopup';
 import { useContent } from '../context/ContentContext';
 import { renderHTML } from '../utils/contentUtils';
@@ -58,6 +59,8 @@ const HomePage: React.FC = () => {
         chatbotContainerRef.current.innerHTML = '';
         const chatbotElement = document.createElement('elevenlabs-convai');
         chatbotElement.setAttribute('agent-id', 'agent_0301kaf26r60eqkr3x8qe2v8wdq0');
+        chatbotElement.setAttribute('variant', 'tiny');
+        chatbotElement.setAttribute('override-text-only', 'true');
         chatbotContainerRef.current.appendChild(chatbotElement);
       }
     };
@@ -74,12 +77,15 @@ const HomePage: React.FC = () => {
     <Layout>
       {/* Hero Section — Globe + Title */}
       <section className="hero">
+        <StarrySky />
         <div className="hero-grid">
           <div className="hero-text">
             <p className="hero-eyebrow">
               {getContent('hero', 'subtitle', 'Changing lives in over 120 Countries')}
             </p>
-            <img src="/Logo-with-HSW-transparent.png" alt="The Compassion Course" className="hero-logo" />
+            <h1 className="hero-heading">
+              The <span style={{ whiteSpace: 'nowrap' }}>C<img src="/logo_heart.png" alt="o" className="hero-heart-inline" />mpassion</span><br />Course
+            </h1>
             <p className="hero-description">
               {getContent('hero-stats', 'stat1-description',
                 'An internationally recognized personal growth and development community with more than 30,000 participants worldwide.'

@@ -845,13 +845,22 @@
     z-index: 3;
 }
 
+.starry-sky-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
 .hero-grid {
     max-width: var(--max-width);
     margin: 0 auto;
     padding: calc(var(--nav-height) + var(--space-8)) var(--space-6) var(--space-16);
     display: grid;
     grid-template-columns: 1fr 1.1fr;
-    gap: var(--space-12);
+    gap: var(--space-16);
     align-items: center;
     min-height: 100vh;
     position: relative;
@@ -864,27 +873,39 @@
 
 .hero-eyebrow {
     font-size: var(--font-size-xs);
-    font-weight: 700;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: var(--space-6);
-    display: inline-block;
-    padding: 6px 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-full);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: var(--space-4);
 }
 
-.hero-title {
+.hero-heading {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     color: var(--color-white);
     margin-bottom: var(--space-6);
+}
+
+.hero-heart-inline {
+    display: inline-block;
+    width: 0.82em;
+    height: 0.82em;
+    object-fit: contain;
+    vertical-align: baseline;
+    position: relative;
+    top: 0.06em;
+    margin: 0 -0.08em 0 0;
+    filter: drop-shadow(0 2px 8px rgba(45, 212, 191, 0.3));
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.hero-heart-inline:hover {
+    transform: scale(1.15);
+    filter: drop-shadow(0 4px 16px rgba(45, 212, 191, 0.5));
 }
 
 .hero-logo {
@@ -896,10 +917,10 @@
 }
 
 .hero-description {
-    font-size: var(--font-size-lg);
-    max-width: 480px;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.8;
+    font-size: var(--font-size-base);
+    max-width: 460px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
     font-weight: 400;
     margin-bottom: var(--space-8);
 }
@@ -911,36 +932,54 @@
 }
 
 .hero-buttons .btn-primary {
-    background: var(--color-white);
-    color: var(--color-primary-dark);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--color-white);
     font-weight: 600;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    padding: 16px 40px;
+    padding: 14px 36px;
     font-size: var(--font-size-base);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
 }
 
 .hero-buttons .btn-primary:hover {
-    background: var(--color-white);
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.6);
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .hero-buttons .btn-secondary {
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.25);
     color: var(--color-white);
-    padding: 14px 38px;
+    padding: 14px 36px;
 }
 
 .hero-buttons .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.5);
     color: var(--color-white);
 }
 
 .hero-buttons .jotform-popup-trigger {
     display: inline-block;
-    border: none;
+    background: rgba(45, 212, 191, 0.2);
+    color: var(--color-white);
+    font-weight: 600;
+    padding: 14px 36px;
+    font-size: var(--font-size-base);
+    border: 1px solid rgba(45, 212, 191, 0.4);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(8px);
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hero-buttons .jotform-popup-trigger:hover {
+    background: rgba(45, 212, 191, 0.35);
+    border-color: rgba(45, 212, 191, 0.7);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(45, 212, 191, 0.2), 0 0 0 1px rgba(45, 212, 191, 0.15);
 }
 
 .hero-globe {
@@ -2388,6 +2427,10 @@ section {
         font-size: var(--font-size-4xl);
     }
 
+    .hero-heading {
+        text-align: center;
+    }
+
     .hero-logo {
         max-width: 260px;
         margin-left: auto;
@@ -2415,11 +2458,12 @@ section {
     .hero-embrace-overlay {
         width: 120%;
         max-width: 420px;
+        left: 50%;
     }
 
     .hero-hand-overlay {
-        width: 22%;
-        max-width: 110px;
+        width: 17%;
+        max-width: 55px;
     }
 
     /* Value props */
@@ -2532,11 +2576,12 @@ section {
     .hero-embrace-overlay {
         width: 115%;
         max-width: 340px;
+        left: 50%;
     }
 
     .hero-hand-overlay {
-        width: 20%;
-        max-width: 90px;
+        width: 17%;
+        max-width: 45px;
     }
 
     .container {
@@ -2573,6 +2618,44 @@ section {
 @media (min-width: 1400px) {
     :root {
         --max-width: 1320px;
+    }
+}
+
+/* QHD+ screens (2K and above) */
+@media (min-width: 2200px) {
+    .hero-heading {
+        font-size: clamp(4rem, 4.5vw, 6rem);
+    }
+
+    .hero-eyebrow {
+        font-size: var(--font-size-base);
+        letter-spacing: 0.3em;
+    }
+
+    .hero-description {
+        font-size: var(--font-size-lg);
+        max-width: 600px;
+    }
+
+    .hero-buttons .btn-primary,
+    .hero-buttons .jotform-popup-trigger {
+        padding: 18px 48px;
+        font-size: var(--font-size-lg);
+    }
+
+    .globe-container {
+        max-width: 850px;
+    }
+
+    .hero-embrace-overlay {
+        max-width: 950px;
+    }
+
+    .hero-grid {
+        max-width: 1800px;
+        gap: var(--space-24, 6rem);
+        padding-left: var(--space-12);
+        padding-right: var(--space-12);
     }
 }
 

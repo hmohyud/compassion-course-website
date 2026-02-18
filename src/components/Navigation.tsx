@@ -113,11 +113,6 @@ const Navigation: React.FC = () => {
           </li>
           {user && (
             <>
-              <li className="nav-item">
-                <Link to="/portal/circle" className={`nav-link ${isActive('/portal/circle') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-                  Community
-                </Link>
-              </li>
               {showLeadership && (
                 <li className="nav-item">
                   <Link to="/portal/leadership" className={`nav-link ${isActivePrefix('/portal/leadership') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
@@ -125,6 +120,12 @@ const Navigation: React.FC = () => {
                   </Link>
                 </li>
               )}
+              <li className="nav-item nav-item--community">
+                <Link to="/portal/circle" className={`nav-link nav-link--community ${isActive('/portal/circle') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                  <i className="fas fa-users nav-community-icon"></i>
+                  Community
+                </Link>
+              </li>
             </>
           )}
           {/* Mobile-only account items */}

@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { FaHistory } from 'react-icons/fa';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { FaHistory, FaSearch, FaTimes, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 import {
   DndContext,
   DragEndEvent,
@@ -12,14 +12,8 @@ import {
   useSensor,
   useSensors,
   useDroppable,
+  useDraggable,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { updateWorkItem, createWorkItem, deleteWorkItem } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from './TaskForm';
@@ -183,8 +177,8 @@ function CardContent({
   );
 }
 
-/* ─── Sortable card ─── */
-function SortableCard({
+/* ─── Draggable card ─── */
+function DraggableCard({
   item,
   memberLabels,
   memberAvatars,
@@ -202,16 +196,14 @@ function SortableCard({
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({
+  } = useDraggable({
     id: item.id,
     data: { item, type: 'card' },
   });
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     touchAction: 'none',
     opacity: isDragging ? 0.4 : 1,
   };
@@ -234,7 +226,196 @@ function SortableCard({
   );
 }
 
-/* ─── Droppable + sortable column ─── */
+/* ─── Done history overlay ─── */
+function DoneHistoryOverlay({
+  items,
+  memberIds,
+  memberLabels,
+  memberAvatars,
+  onClose,
+  onEditItem,
+}: {
+  items: LeadershipWorkItem[];
+  memberIds: string[];
+  memberLabels: Record<string, string>;
+  memberAvatars: Record<string, string>;
+  onClose: () => void;
+  onEditItem: (item: LeadershipWorkItem) => void;
+}) {
+  const [search, setSearch] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState('');
+  const [sortNewest, setSortNewest] = useState(true);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Focus search on open
+  useEffect(() => { searchRef.current?.focus(); }, []);
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  // Close on click outside
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  const filtered = useMemo(() => {
+    let result = [...items];
+    // Text search (title + description)
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (w) => w.title.toLowerCase().includes(q)
+          || (w.description || '').toLowerCase().includes(q)
+      );
+    }
+    // Assignee filter
+    if (assigneeFilter) {
+      result = result.filter((w) => {
+        const ids = getItemAssigneeIds(w);
+        return ids.includes(assigneeFilter);
+      });
+    }
+    // Sort
+    result.sort((a, b) => {
+      const aTime = (a.completedAt ?? a.updatedAt) instanceof Date
+        ? (a.completedAt ?? a.updatedAt).getTime() : 0;
+      const bTime = (b.completedAt ?? b.updatedAt) instanceof Date
+        ? (b.completedAt ?? b.updatedAt).getTime() : 0;
+      return sortNewest ? bTime - aTime : aTime - bTime;
+    });
+    return result;
+  }, [items, search, assigneeFilter, sortNewest]);
+
+  // Unique assignees who completed items
+  const assigneesInDone = useMemo(() => {
+    const idSet = new Set<string>();
+    items.forEach((w) => getItemAssigneeIds(w).forEach((id) => idSet.add(id)));
+    return Array.from(idSet).filter((id) => memberLabels[id]);
+  }, [items, memberLabels]);
+
+  return (
+    <div className="ld-history-backdrop" onClick={handleBackdropClick}>
+      <div className="ld-history-overlay" ref={overlayRef}>
+        {/* Header */}
+        <div className="ld-history-header">
+          <h3 className="ld-history-title">
+            <FaHistory style={{ fontSize: '0.9rem' }} />
+            Completed Tasks
+            <span className="ld-history-count">{filtered.length} of {items.length}</span>
+          </h3>
+          <button type="button" className="ld-history-close" onClick={onClose} aria-label="Close">
+            <FaTimes />
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="ld-history-filters">
+          <div className="ld-history-search-wrap">
+            <FaSearch className="ld-history-search-icon" />
+            <input
+              ref={searchRef}
+              type="text"
+              className="ld-history-search"
+              placeholder="Search by title or description…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button type="button" className="ld-history-search-clear" onClick={() => setSearch('')}>
+                <FaTimes />
+              </button>
+            )}
+          </div>
+          <select
+            className="ld-history-filter-select"
+            value={assigneeFilter}
+            onChange={(e) => setAssigneeFilter(e.target.value)}
+          >
+            <option value="">All members</option>
+            {assigneesInDone.map((id) => (
+              <option key={id} value={id}>{memberLabels[id]}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="ld-history-sort-btn"
+            onClick={() => setSortNewest((v) => !v)}
+            title={sortNewest ? 'Showing newest first' : 'Showing oldest first'}
+          >
+            {sortNewest ? <FaSortAmountDown /> : <FaSortAmountUp />}
+            {sortNewest ? 'Newest' : 'Oldest'}
+          </button>
+        </div>
+
+        {/* List */}
+        <div className="ld-history-list">
+          {filtered.length === 0 && (
+            <p className="ld-history-empty">No completed tasks match your search.</p>
+          )}
+          {filtered.map((item) => {
+            const ids = getItemAssigneeIds(item);
+            const completedDate = item.completedAt ?? item.updatedAt;
+            return (
+              <div
+                key={item.id}
+                className="ld-history-card"
+                onClick={() => onEditItem(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && onEditItem(item)}
+              >
+                <div className="ld-history-card-main">
+                  <div className="ld-history-card-title">{item.title}</div>
+                  {item.description && (
+                    <div className="ld-history-card-desc">
+                      {item.description.length > 120 ? item.description.slice(0, 120) + '…' : item.description}
+                    </div>
+                  )}
+                </div>
+                <div className="ld-history-card-meta">
+                  {ids.length > 0 && (
+                    <div className="ld-history-card-assignees">
+                      {ids.slice(0, 2).map((id) =>
+                        memberAvatars[id] ? (
+                          <img key={id} src={memberAvatars[id]} alt="" className="ld-history-card-avatar" title={memberLabels[id] || id} />
+                        ) : (
+                          <span key={id} className="ld-history-card-avatar-initial" title={memberLabels[id] || id}>
+                            {getInitials(memberLabels[id] || '?')}
+                          </span>
+                        )
+                      )}
+                      {ids.length > 2 && <span className="ld-history-card-avatar-more">+{ids.length - 2}</span>}
+                    </div>
+                  )}
+                  <span className="ld-history-card-date">
+                    {completedDate instanceof Date
+                      ? completedDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                      : ''}
+                  </span>
+                  {item.startedAt && item.completedAt && (
+                    <span className="ld-history-card-duration">
+                      {formatDuration(
+                        item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+                        item.completedAt instanceof Date ? item.completedAt : new Date(item.completedAt)
+                      )}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Droppable column ─── */
 function BoardColumn({
   column,
   items,
@@ -242,8 +423,8 @@ function BoardColumn({
   memberAvatars,
   onEditItem,
   onAddItem,
-  showHistory,
-  onToggleHistory,
+  onOpenHistory,
+  dropPreview,
 }: {
   column: (typeof COLUMNS)[0];
   items: LeadershipWorkItem[];
@@ -251,8 +432,8 @@ function BoardColumn({
   memberAvatars: Record<string, string>;
   onEditItem: (item: LeadershipWorkItem) => void;
   onAddItem: () => void;
-  showHistory?: boolean;
-  onToggleHistory?: () => void;
+  onOpenHistory?: () => void;
+  dropPreview?: LeadershipWorkItem | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `column-${column.id}`,
@@ -271,12 +452,9 @@ function BoardColumn({
     });
   }, [items, isDone]);
 
-  const visibleItems = isDone && !showHistory
+  const visibleItems = isDone
     ? sortedItems.slice(0, DONE_PREVIEW_LIMIT)
     : sortedItems;
-  const hiddenCount = isDone ? totalCount - DONE_PREVIEW_LIMIT : 0;
-
-  const itemIds = useMemo(() => visibleItems.map((item) => item.id), [visibleItems]);
 
   return (
     <div
@@ -291,37 +469,51 @@ function BoardColumn({
             ({totalCount})
           </span>
         </h3>
+        {isDone && totalCount > 0 && onOpenHistory && (
+          <button
+            type="button"
+            className="ld-board-history-icon-btn"
+            onClick={onOpenHistory}
+            title="Search completed tasks"
+          >
+            <FaSearch style={{ fontSize: '0.7rem' }} />
+          </button>
+        )}
       </div>
       {column.id === 'todo' && (
         <button type="button" className="ld-board-add-btn" onClick={onAddItem}>
           + Add task
         </button>
       )}
-      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-        {visibleItems.length === 0 && (
-          <p className="ld-board-empty-col">
-            {isOver ? 'Drop here' : 'No tasks'}
-          </p>
-        )}
-        {visibleItems.map((item) => (
-          <SortableCard
-            key={item.id}
-            item={item}
-            memberLabels={memberLabels}
-            memberAvatars={memberAvatars}
-            isDone={isDone}
-            onEdit={onEditItem}
-          />
-        ))}
-      </SortableContext>
-      {isDone && hiddenCount > 0 && (
+      {/* Drop preview: ghost card showing where the item will land (top of column) */}
+      {dropPreview && (
+        <div className="ld-board-card ld-board-card--drop-preview">
+          <CardContent item={dropPreview} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
+        </div>
+      )}
+      {visibleItems.length === 0 && !dropPreview && (
+        <p className="ld-board-empty-col">
+          {isOver ? 'Drop here' : 'No tasks'}
+        </p>
+      )}
+      {visibleItems.map((item) => (
+        <DraggableCard
+          key={item.id}
+          item={item}
+          memberLabels={memberLabels}
+          memberAvatars={memberAvatars}
+          isDone={isDone}
+          onEdit={onEditItem}
+        />
+      ))}
+      {isDone && totalCount > DONE_PREVIEW_LIMIT && onOpenHistory && (
         <button
           type="button"
           className="ld-board-history-btn"
-          onClick={onToggleHistory}
+          onClick={onOpenHistory}
         >
           <FaHistory style={{ fontSize: '0.75rem' }} />
-          {showHistory ? 'Show recent only' : `View history (${hiddenCount} more)`}
+          View all ({totalCount - DONE_PREVIEW_LIMIT} more)
         </button>
       )}
     </div>
@@ -368,6 +560,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   onQuietRefresh,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [dropTargetColumn, setDropTargetColumn] = useState<WorkItemStatus | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -386,11 +579,17 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     useSensor(KeyboardSensor)
   );
 
-  const handleDragStart = (e: DragStartEvent) => setActiveId(e.active.id as string);
+  const handleDragStart = (e: DragStartEvent) => {
+    setActiveId(e.active.id as string);
+    setDropTargetColumn(null);
+  };
 
   const handleDragOver = useCallback((e: DragOverEvent) => {
     const { active, over } = e;
-    if (!over) return;
+    if (!over) {
+      setDropTargetColumn(null);
+      return;
+    }
 
     const activeItemId = active.id as string;
     const overId = over.id as string;
@@ -401,25 +600,32 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       targetStatus = overId.replace('column-', '') as WorkItemStatus;
     } else {
       // Hovering over another card — find its column
-      targetStatus = findColumnForItem(overId, COLUMNS, optimisticItems ?? workItems);
+      targetStatus = findColumnForItem(overId, COLUMNS, workItems);
     }
 
-    if (!targetStatus) return;
+    if (!targetStatus) {
+      setDropTargetColumn(null);
+      return;
+    }
 
-    const currentItems = optimisticItems ?? workItems;
-    const item = currentItems.find((w) => w.id === activeItemId);
-    if (!item || item.status === targetStatus) return;
+    const item = workItems.find((w) => w.id === activeItemId);
+    if (!item) {
+      setDropTargetColumn(null);
+      return;
+    }
 
-    // Move item to new column optimistically
-    setOptimisticItems(
-      currentItems.map((w) =>
-        w.id === activeItemId ? { ...w, status: targetStatus! } : w
-      )
-    );
-  }, [workItems, optimisticItems]);
+    // Track which column the card is hovering over (for drop preview ghost)
+    // Only show preview for cross-column moves
+    if (item.status !== targetStatus) {
+      setDropTargetColumn(targetStatus);
+    } else {
+      setDropTargetColumn(null);
+    }
+  }, [workItems]);
 
   const handleDragEnd = useCallback(async (e: DragEndEvent) => {
     setActiveId(null);
+    setDropTargetColumn(null);
     const { active, over } = e;
     if (!over) {
       setOptimisticItems(null);
@@ -434,7 +640,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     if (overId.startsWith('column-')) {
       targetStatus = overId.replace('column-', '') as WorkItemStatus;
     } else {
-      targetStatus = findColumnForItem(overId, COLUMNS, optimisticItems ?? workItems);
+      targetStatus = findColumnForItem(overId, COLUMNS, workItems);
     }
 
     if (!targetStatus || !COLUMNS.some((c) => c.id === targetStatus)) {
@@ -442,28 +648,15 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       return;
     }
 
-    const currentItems = optimisticItems ?? workItems;
-    const item = currentItems.find((w) => w.id === activeItemId);
-    if (!item) {
-      setOptimisticItems(null);
-      return;
-    }
-
-    // Handle reordering within same column
-    if (item.status === targetStatus && overId !== `column-${targetStatus}`) {
-      const columnItems = currentItems.filter((w) => w.status === targetStatus);
-      const oldIndex = columnItems.findIndex((w) => w.id === activeItemId);
-      const newIndex = columnItems.findIndex((w) => w.id === overId);
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        const reordered = arrayMove(columnItems, oldIndex, newIndex);
-        const otherItems = currentItems.filter((w) => w.status !== targetStatus);
-        setOptimisticItems([...otherItems, ...reordered]);
-      }
-    }
-
-    // Always persist status change if it differs from original
+    // Persist status change if it differs from original
     const originalItem = workItems.find((w) => w.id === activeItemId);
     if (originalItem && originalItem.status !== targetStatus) {
+      // Optimistically move item to target column immediately
+      setOptimisticItems(
+        workItems.map((w) =>
+          w.id === activeItemId ? { ...w, status: targetStatus! } : w
+        )
+      );
       try {
         await updateWorkItem(activeItemId, { status: targetStatus });
         if (onQuietRefresh) onQuietRefresh();
@@ -471,14 +664,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         console.error(err);
         setOptimisticItems(null);
       }
-    } else {
-      // No status change — just clear optimistic after a tick
-      setTimeout(() => setOptimisticItems(null), 50);
     }
-  }, [workItems, optimisticItems, onQuietRefresh]);
+  }, [workItems, onQuietRefresh]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);
+    setDropTargetColumn(null);
     setOptimisticItems(null);
   }, []);
 
@@ -560,6 +751,10 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     displayItems.filter((w) => w.status === status);
 
   const activeItem = activeId ? displayItems.find((w) => w.id === activeId) : null;
+  // The original item from workItems for the drop preview ghost
+  const dropPreviewItem = activeId && dropTargetColumn
+    ? workItems.find((w) => w.id === activeId) ?? null
+    : null;
   const backlogCount = displayItems.filter((w) => w.status === 'backlog').length;
 
   if (boardMissingError) {
@@ -598,8 +793,8 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
               memberAvatars={memberAvatars}
               onEditItem={setEditingItem}
               onAddItem={() => setShowCreateForm(true)}
-              showHistory={col.id === 'done' ? showDoneHistory : undefined}
-              onToggleHistory={col.id === 'done' ? () => setShowDoneHistory((v) => !v) : undefined}
+              onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
+              dropPreview={dropTargetColumn === col.id ? dropPreviewItem : null}
             />
           ))}
         </div>
@@ -642,6 +837,17 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
             onDelete={handleDelete}
           />
         </>
+      )}
+
+      {showDoneHistory && (
+        <DoneHistoryOverlay
+          items={itemsForColumn('done')}
+          memberIds={memberIds}
+          memberLabels={memberLabels}
+          memberAvatars={memberAvatars}
+          onClose={() => setShowDoneHistory(false)}
+          onEditItem={(item) => { setShowDoneHistory(false); setEditingItem(item); }}
+        />
       )}
     </>
   );

@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generate-firebase-config.js",
+    "prebuild": "node scripts/generate-firebase-config.js",
     "dev": "vite --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
@@ -21,7 +23,10 @@
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@excalidraw/excalidraw": "^0.17.0",
     "@types/dompurify": "^3.0.5",
+    "@types/three": "^0.182.0",
+    "cobe": "^0.6.5",
     "dompurify": "^3.3.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^12.7.0",
@@ -31,7 +36,8 @@
     "react-icons": "^4.12.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.23.0",
-    "@excalidraw/excalidraw": "^0.17.0",
+    "three": "^0.182.0",
+    "three-globe": "^2.45.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

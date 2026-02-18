@@ -7,43 +7,28 @@ const Footer: React.FC = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3>Compassion Course</h3>
-            <p>Transforming lives through compassion-centered personal development.</p>
+            <h3>The Compassion Course</h3>
+            <p>Transforming lives through compassion-centered personal development in over 120 countries.</p>
           </div>
           <div className="footer-section">
-            <h4>Programs</h4>
+            <h4>Quick Links</h4>
             <ul>
-              <li><Link to="/programs#foundation">Compassion Course</Link></li>
-              <li><Link to="/programs#advanced">Advanced Programs</Link></li>
-              <li><Link to="/programs#workshops">Evening Workshops</Link></li>
-              <li><Link to="/programs#coaching">Personal Coaching</Link></li>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/programs">Programs</Link></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/compass-companion">Compass Companions</Link></li>
             </ul>
           </div>
           <div className="footer-section">
-            <h4>About</h4>
-            <ul>
-              <li><Link to="/about">Company Overview</Link></li>
-              <li><Link to="/about#leaders">Meet Our Leaders</Link></li>
-              <li><Link to="/#testimonials">What People Say</Link></li>
-              <li><Link to="/programs#corporate">Corporate Consulting</Link></li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Connect</h4>
+            <h4>Get in Touch</h4>
             <ul>
               <li><Link to="/contact">Contact Us</Link></li>
-              <li><a href="#community">Join Community</a></li>
-              <li><a href="#newsletter">Newsletter</a></li>
-              <li><a href="#social">Follow Us</a></li>
+              <li><Link to="/about">Our Team</Link></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 Compassion Course. All Rights Reserved.</p>
-          <div className="footer-links">
-            <a href="#privacy">Privacy Policy</a>
-            <a href="#terms">Terms of Use</a>
-          </div>
+          <p>&copy; {new Date().getFullYear()} The Compassion Course. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

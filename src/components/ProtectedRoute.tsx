@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading, adminLoading } = useAuth();
 
-  if (loading) {
+  if (loading || adminLoading) {
     return (
       <div className="loading">
         <div className="spinner"></div>
@@ -17,9 +17,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || !isAdmin) {
-    console.log('[Admin Portal gate] redirect to login: isAdmin', isAdmin, 'loading', loading, 'currentUser?.uid', user?.uid);
+  if (!user) {
     return <Navigate to="/admin/login-4f73b2c" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;

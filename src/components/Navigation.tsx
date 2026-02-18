@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
+import { usePermissions } from '../context/PermissionsContext';
 import { getUserProfile } from '../services/userProfileService';
 import type { UserProfile } from '../types/platform';
 
@@ -18,6 +19,8 @@ const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, loading: authLoading } = useAuth();
   const { openAuthModal } = useAuthModal();
+  const { role, isAdmin } = usePermissions();
+  const showLeadership = role === 'manager' || role === 'admin' || isAdmin;
 
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT + 1}px)`);
@@ -33,11 +36,13 @@ const Navigation: React.FC = () => {
       setProfileLoading(false);
       return;
     }
+    let cancelled = false;
     setProfileLoading(true);
     getUserProfile(user.uid)
-      .then(setProfile)
-      .catch(() => setProfile(null))
-      .finally(() => setProfileLoading(false));
+      .then((p) => { if (!cancelled) setProfile(p); })
+      .catch(() => { if (!cancelled) setProfile(null); })
+      .finally(() => { if (!cancelled) setProfileLoading(false); });
+    return () => { cancelled = true; };
   }, [user?.uid, authLoading]);
 
   useEffect(() => {
@@ -52,7 +57,7 @@ const Navigation: React.FC = () => {
   }, [accountOpen]);
 
   const isActive = (path: string) => location.pathname === path;
-  const isInPortal = location.pathname === '/portal' || location.pathname.startsWith('/portal/');
+  const isActivePrefix = (prefix: string) => location.pathname === prefix || location.pathname.startsWith(prefix + '/');
 
   const handlePortalLogout = async () => {
     setAccountOpen(false);
@@ -60,25 +65,37 @@ const Navigation: React.FC = () => {
     navigate('/');
   };
 
-  const handleHamburgerClick = () => {
-    if (isDesktop) {
-      setAccountOpen((prev) => !prev);
-    } else {
-      setIsMenuOpen((prev) => !prev);
-    }
-  };
-
   const handleLogInClick = () => {
     setAccountOpen(false);
     openAuthModal();
   };
 
+  // Derive display name and initials
+  const displayName = (() => {
+    const n = (profile?.name || '').trim();
+    if (n) return n.split(/\s+/)[0]; // First name only
+    if (user?.displayName) return user.displayName.split(/\s+/)[0];
+    if (user?.email) return user.email.split('@')[0];
+    return '';
+  })();
+
+  const initials = (() => {
+    const n = (profile?.name || '').trim();
+    if (n) {
+      const parts = n.split(/\s+/);
+      return parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : parts[0][0].toUpperCase();
+    }
+    return (user?.email || '?').charAt(0).toUpperCase();
+  })();
+
   return (
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-logo">
-          <Link to="/" className="nav-logo-text">
-            The Compassion Course
+          <Link to="/" className="nav-logo-link">
+            <img src="/Logo-with-HSW-transparent.png" alt="The Compassion Course" className="nav-logo-img" />
           </Link>
         </div>
 
@@ -86,69 +103,84 @@ const Navigation: React.FC = () => {
           <li className="nav-item">
             <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
           </li>
-          <li className="nav-item dropdown">
-            <Link to="/programs" className={`nav-link ${isActive('/programs') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-              Programs <i className="fas fa-chevron-down"></i>
-            </Link>
-            <div className="dropdown-content">
-              <Link to="/programs#foundation">Compassion Course</Link>
-              <Link to="/programs#advanced">Advanced Programs</Link>
-              <Link to="/programs#workshops">Evening Workshops</Link>
-              <Link to="/programs#coaching">Personal Coaching</Link>
-            </div>
-          </li>
           <li className="nav-item">
             <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
-          </li>
-          <li className="nav-item">
-            <a href="/#testimonials" className="nav-link" onClick={() => setIsMenuOpen(false)}>What People Say</a>
           </li>
           <li className="nav-item">
             <Link to="/compass-companion" className={`nav-link ${isActive('/compass-companion') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
               Compass Companions
             </Link>
           </li>
-          {user && !isInPortal && (
-            <li className="nav-item">
-              <Link to="/portal" className="nav-link nav-link-portal" onClick={() => setIsMenuOpen(false)}>Portal</Link>
-            </li>
-          )}
-          {!user && (
-            <li className="nav-item">
-              <button type="button" className="nav-link nav-link-portal nav-link-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
-                Portal
-              </button>
-            </li>
-          )}
-          {/* Account items in slide-out (mobile only) */}
-          <li className="nav-item nav-menu-account-item nav-account-divider">
-            <span className="nav-account-divider-line" aria-hidden="true" />
-          </li>
-          {user ? (
+          {user && (
             <>
-              <li className="nav-item nav-menu-account-item">
-                <Link to="/platform/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>Profile settings</Link>
-              </li>
-              <li className="nav-item nav-menu-account-item">
-                <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
-                  Logout
-                </button>
+              {showLeadership && (
+                <li className="nav-item">
+                  <Link to="/portal/leadership" className={`nav-link ${isActivePrefix('/portal/leadership') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                    Dashboard
+                  </Link>
+                </li>
+              )}
+              <li className="nav-item nav-item--community">
+                <Link to="/portal/circle" className={`nav-link nav-link--community ${isActive('/portal/circle') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                  <i className="fas fa-users nav-community-icon"></i>
+                  Community
+                </Link>
               </li>
             </>
-          ) : (
-            <li className="nav-item nav-menu-account-item">
-              <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
-                Log in
-              </button>
-            </li>
+          )}
+          {/* Mobile-only account items */}
+          {!isDesktop && (
+            <>
+              <li className="nav-item nav-menu-account-item nav-account-divider">
+                <span className="nav-account-divider-line" aria-hidden="true" />
+              </li>
+              {user ? (
+                <>
+                  <li className="nav-item nav-menu-account-item">
+                    <Link to="/portal" className="nav-link" onClick={() => setIsMenuOpen(false)}>Portal</Link>
+                  </li>
+                  <li className="nav-item nav-menu-account-item">
+                    <Link to="/platform/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>Profile settings</Link>
+                  </li>
+                  <li className="nav-item nav-menu-account-item">
+                    <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
+                      Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li className="nav-item nav-menu-account-item">
+                  <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
+                    Log in
+                  </button>
+                </li>
+              )}
+            </>
           )}
         </ul>
 
-        <div className="nav-right" ref={accountRef}>
+        <div className="nav-right">
+          {/* Visible Log in / Sign up button when not logged in */}
+          {!user && !authLoading && (
+            <button
+              type="button"
+              className="nav-auth-btn"
+              onClick={handleLogInClick}
+            >
+              Log in
+            </button>
+          )}
+
+          {/* Avatar + name + account dropdown when logged in */}
           {user && (
-            <div className="nav-avatar-wrap">
-              {!profileLoading && (
-                <Link to="/platform/profile" className="nav-avatar-link" aria-label="Your profile">
+            <div className="nav-avatar-wrap" ref={accountRef}>
+              <button
+                type="button"
+                className="nav-avatar-link"
+                aria-label="Account menu"
+                onClick={() => setAccountOpen((prev) => !prev)}
+              >
+                <span className="nav-avatar-circle">
                   {profile?.avatar || user.photoURL ? (
                     <img
                       src={profile?.avatar || user.photoURL || ''}
@@ -156,58 +188,65 @@ const Navigation: React.FC = () => {
                       className="nav-avatar-img"
                     />
                   ) : (
-                    <span className="nav-avatar-initial">
-                      {(profile?.name || user.email || '?').charAt(0).toUpperCase()}
-                    </span>
+                    <span className="nav-avatar-initial">{initials}</span>
                   )}
-                </Link>
+                </span>
+                {isDesktop && displayName && (
+                  <span className="nav-avatar-name">{displayName}</span>
+                )}
+                <i className="fas fa-chevron-down nav-avatar-chevron"></i>
+              </button>
+              {accountOpen && isDesktop && (
+                <div className="nav-account-dropdown">
+                  <div className="nav-account-dropdown-header">
+                    <span className="nav-account-dropdown-name">{profile?.name || user.displayName || 'User'}</span>
+                    <span className="nav-account-dropdown-email">{user.email}</span>
+                  </div>
+                  <div className="nav-account-dropdown-divider" />
+                  <Link
+                    to="/portal"
+                    className="nav-account-dropdown-item"
+                    onClick={() => setAccountOpen(false)}
+                  >
+                    <i className="fas fa-th-large nav-dropdown-icon"></i>
+                    Portal
+                  </Link>
+                  <Link
+                    to="/platform/profile"
+                    className="nav-account-dropdown-item"
+                    onClick={() => setAccountOpen(false)}
+                  >
+                    <i className="fas fa-user-cog nav-dropdown-icon"></i>
+                    Profile settings
+                  </Link>
+                  <div className="nav-account-dropdown-divider" />
+                  <button
+                    type="button"
+                    className="nav-account-dropdown-item nav-account-dropdown-btn"
+                    onClick={handlePortalLogout}
+                  >
+                    <i className="fas fa-sign-out-alt nav-dropdown-icon"></i>
+                    Logout
+                  </button>
+                </div>
               )}
             </div>
           )}
-          <div className={`nav-account-wrap ${accountOpen ? 'nav-account-open' : ''}`}>
+
+          {/* Hamburger (mobile only) */}
+          {!isDesktop && (
             <button
               type="button"
-              className={`hamburger ${!isDesktop && isMenuOpen ? 'active' : ''}`}
-              onClick={handleHamburgerClick}
-              aria-expanded={isDesktop ? accountOpen : isMenuOpen}
-              aria-haspopup="menu"
-              aria-label={isDesktop ? 'Account menu' : 'Menu'}
+              className={`hamburger ${isMenuOpen ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              aria-expanded={isMenuOpen}
+              aria-label="Menu"
             >
               <span className="bar"></span>
               <span className="bar"></span>
               <span className="bar"></span>
             </button>
-            {isDesktop && (
-              <div className="nav-account-dropdown">
-                {user ? (
-                  <>
-                    <Link
-                      to="/platform/profile"
-                      className="nav-account-dropdown-item"
-                      onClick={() => setAccountOpen(false)}
-                    >
-                      Profile settings
-                    </Link>
-                    <button
-                      type="button"
-                      className="nav-account-dropdown-item nav-account-dropdown-btn"
-                      onClick={handlePortalLogout}
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    className="nav-account-dropdown-item nav-account-dropdown-btn"
-                    onClick={handleLogInClick}
-                  >
-                    Log in
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </nav>

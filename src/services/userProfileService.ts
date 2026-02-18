@@ -115,11 +115,11 @@ export async function updateUserProfile(
     if (updates.name !== undefined && updates.name !== null && updates.name !== '') {
       updateData.name = updates.name;
     }
-    if (updates.avatar !== undefined && updates.avatar !== null && updates.avatar !== '') {
-      updateData.avatar = updates.avatar;
+    if (updates.avatar !== undefined) {
+      updateData.avatar = updates.avatar || null; // null clears the field in Firestore
     }
-    if (updates.bio !== undefined && updates.bio !== null && updates.bio !== '') {
-      updateData.bio = updates.bio;
+    if (updates.bio !== undefined) {
+      updateData.bio = updates.bio || null; // null clears the field in Firestore
     }
     if (updates.role !== undefined && PORTAL_ROLES.includes(updates.role)) {
       updateData.role = updates.role;

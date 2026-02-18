@@ -109,11 +109,9 @@ service cloud.firestore {
     // ADMIN MANAGEMENT
     // ============================================
     
-    // Admins collection - UID-keyed; signed-in user can read THEIR OWN doc only (no chicken-and-egg lockout)
+    // Admins collection - UID-keyed; self-read only; writes via console/functions only
     match /admins/{uid} {
-      allow get: if isSelf(uid);
-      allow list: if false;
-      allow read: if isSelf(uid);
+      allow read: if signedIn() && request.auth.uid == uid;
       allow create, update, delete: if false;
     }
     
@@ -307,11 +305,11 @@ service cloud.firestore {
       allow read: if isAdmin() || isActiveUser();
       allow write: if canWrite() || isAdmin() || isActiveAdmin();
     }
-    // User notifications: active user reads own; write only contributor+
+    // User notifications: active user reads own; any contributor+ can create (for @-mentions to other users)
     match /userNotifications/{notifId} {
       allow read: if isAdmin() || (isActiveUser() && resource.data.userId == request.auth.uid);
-      allow create: if canWrite() && request.resource.data.userId == request.auth.uid;
-      allow update: if canWrite() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin() || canWrite();
+      allow update: if isAdmin() || (canWrite() && resource.data.userId == request.auth.uid);
       allow delete: if false;
     }
   }

@@ -110,6 +110,11 @@ ADMIN_PASSWORD=change-this-secure-password
 3. Get your connection string
 4. Update `MONGODB_URI` in `.env`
 
+## 📤 Deployment
+
+- **Firebase (Hosting, Storage, GitHub Actions):** See [docs/FIREBASE_DEPLOYMENT.md](docs/FIREBASE_DEPLOYMENT.md) for push-to-main workflow, required secrets, and manual deploy commands.
+- **Stripe keys (payments):** See [docs/STRIPE_SETUP.md](docs/STRIPE_SETUP.md) for backend and optional frontend key setup.
+
 ## 👥 User Roles
 
 ### User

@@ -4,21 +4,21 @@ import { listUserProfiles } from '../../services/userProfileService';
 import type { UserProfile } from '../../types/platform';
 import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane, WorkItemComment } from '../../types/leadership';
 
-const STATUS_OPTIONS: { value: WorkItemStatus; label: string }[] = [
-  { value: 'backlog', label: 'Backlog' },
-  { value: 'todo', label: 'Planned work' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'done', label: 'Done' },
+const STATUS_OPTIONS: { value: WorkItemStatus; label: string; color: string }[] = [
+  { value: 'backlog', label: 'Backlog', color: '#6b7280' },
+  { value: 'todo', label: 'To Do', color: '#f59e0b' },
+  { value: 'in_progress', label: 'In Progress', color: '#3b82f6' },
+  { value: 'done', label: 'Done', color: '#22c55e' },
 ];
 
-const LANE_OPTIONS: { value: WorkItemLane; label: string }[] = [
-  { value: 'expedited', label: 'Expedited' },
-  { value: 'fixed_date', label: 'Fixed Date' },
-  { value: 'standard', label: 'Standard' },
-  { value: 'intangible', label: 'Intangible' },
+const LANE_OPTIONS: { value: WorkItemLane; label: string; icon: string; desc: string; color: string }[] = [
+  { value: 'expedited', label: 'Urgent', icon: 'fas fa-bolt', desc: 'Drop everything — fix now', color: '#ef4444' },
+  { value: 'fixed_date', label: 'Deadline', icon: 'fas fa-calendar-day', desc: 'Must ship by a specific date', color: '#f59e0b' },
+  { value: 'standard', label: 'Standard', icon: 'fas fa-stream', desc: 'Normal priority work', color: '#3b82f6' },
+  { value: 'intangible', label: 'Background', icon: 'fas fa-wrench', desc: 'Tech debt, maintenance, improvements', color: '#8b5cf6' },
 ];
 
-const ESTIMATE_OPTIONS = [0.5, 1, 1.5, 2];
+const ESTIMATE_OPTIONS = [0.5, 1, 1.5, 2, 3, 5];
 
 export type TaskFormPayload = {
   title: string;
@@ -26,8 +26,8 @@ export type TaskFormPayload = {
   status: WorkItemStatus;
   lane: WorkItemLane;
   estimate?: number;
-  blocked: boolean;
   assigneeId?: string;
+  assigneeIds?: string[];
   teamId?: string;
   comments?: WorkItemComment[];
 };
@@ -44,26 +44,12 @@ export interface TaskFormProps {
   teamId?: string;
   teamMemberIds?: string[];
   memberLabels?: Record<string, string>;
+  memberAvatars?: Record<string, string>;
   onSave: (data: TaskFormPayload, context?: TaskFormSaveContext) => void;
   onCancel: () => void;
   /** Called when user clicks Delete (edit mode only). Confirm before calling. */
-  onDelete?: () => void;
+  onDelete?: (itemId: string) => void;
 }
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 12px',
-  border: '1px solid #d1d5db',
-  borderRadius: '8px',
-  fontSize: '14px',
-};
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  marginBottom: '4px',
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  color: '#374151',
-};
 
 export const TaskForm: React.FC<TaskFormProps> = ({
   mode,
@@ -72,6 +58,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   teamId,
   teamMemberIds = [],
   memberLabels = {},
+  memberAvatars = {},
   onSave,
   onCancel,
   onDelete,
@@ -79,18 +66,23 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<WorkItemStatus>('backlog');
+  const [status, setStatus] = useState<WorkItemStatus>('todo');
   const [lane, setLane] = useState<WorkItemLane>(defaultLane);
   const [estimate, setEstimate] = useState<number | ''>('');
-  const [blocked, setBlocked] = useState(false);
-  const [assigneeId, setAssigneeId] = useState('');
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [comments, setComments] = useState<WorkItemComment[]>([]);
   const [newCommentText, setNewCommentText] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const [currentCommentMentionedIds, setCurrentCommentMentionedIds] = useState<string[]>([]);
   const [mentionableProfiles, setMentionableProfiles] = useState<UserProfile[]>([]);
   const [saving, setSaving] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const commentInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const editInputRef = useRef<HTMLTextAreaElement | null>(null);
   const addedCommentIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -111,19 +103,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setStatus(initialItem.status);
       setLane(initialItem.lane ?? 'standard');
       setEstimate(initialItem.estimate ?? '');
-      setBlocked(initialItem.blocked ?? false);
-      setAssigneeId(initialItem.assigneeId ?? '');
+      setAssigneeIds(initialItem.assigneeIds?.filter(Boolean) ?? (initialItem.assigneeId ? [initialItem.assigneeId] : []));
       setComments(initialItem.comments ?? []);
     } else {
       setTitle('');
       setDescription('');
-      setStatus('backlog');
+      setStatus('todo');
       setLane(defaultLane);
       setEstimate('');
-      setBlocked(false);
-      setAssigneeId('');
+      setAssigneeIds([]);
       setComments([]);
     }
+    setConfirmDelete(false);
   }, [mode, initialItem, defaultLane]);
 
   const mentionQueryStart = useMemo(() => {
@@ -182,8 +173,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           status,
           lane,
           estimate: estimate === '' ? undefined : Number(estimate),
-          blocked,
-          assigneeId: assigneeId || undefined,
+          assigneeId: assigneeIds[0] || undefined,
+          assigneeIds: assigneeIds.length > 0 ? assigneeIds : undefined,
           teamId,
           comments: comments.length > 0 ? comments : undefined,
         },
@@ -219,84 +210,292 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     setCurrentCommentMentionedIds([]);
   };
 
-  const uniqueId = mode === 'edit' && initialItem ? initialItem.id : '—';
+  const startEditComment = (c: WorkItemComment) => {
+    setEditingCommentId(c.id);
+    setEditingCommentText(c.text);
+    setDeletingCommentId(null);
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const saveEditComment = () => {
+    if (!editingCommentId) return;
+    const trimmed = editingCommentText.trim();
+    if (!trimmed) return;
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === editingCommentId
+          ? { ...c, text: trimmed, editedAt: new Date() }
+          : c
+      )
+    );
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
+  const confirmDeleteComment = (commentId: string) => {
+    setDeletingCommentId(commentId);
+    setEditingCommentId(null);
+  };
+
+  const executeDeleteComment = () => {
+    if (!deletingCommentId) return;
+    setComments((prev) => prev.filter((c) => c.id !== deletingCommentId));
+    addedCommentIdsRef.current.delete(deletingCommentId);
+    setDeletingCommentId(null);
+  };
+
+  const formatCommentDate = (d: Date | undefined) => {
+    if (!d || !(d instanceof Date)) return '';
+    return d.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  };
+
+  const uniqueId = mode === 'edit' && initialItem ? initialItem.id : null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onCancel}
-    >
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: '12px',
-          padding: '24px',
-          maxWidth: '520px',
-          width: '95%',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 style={{ color: '#002B4D', marginBottom: '20px', fontSize: '1.25rem' }}>
-          {mode === 'create' ? 'Create Task' : 'Edit Task'}
-        </h2>
+    <div className="tf-backdrop" onClick={onCancel}>
+      <div className="tf-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="tf-header">
+          <h2 className="tf-title">
+            {mode === 'create' ? 'New Task' : 'Edit Task'}
+          </h2>
+          <button type="button" className="tf-close-btn" onClick={onCancel} aria-label="Close">
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+
+        {/* Subtle metadata row */}
+        {uniqueId && (
+          <div className="tf-meta">
+            <span className="tf-meta-label">ID:</span>
+            <span className="tf-meta-value">{uniqueId}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Unique ID</label>
-            <input type="text" value={uniqueId} readOnly style={{ ...inputStyle, background: '#f9fafb', color: '#6b7280' }} />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Type</label>
-            <input type="text" value="Task" readOnly style={{ ...inputStyle, background: '#f9fafb', color: '#6b7280' }} />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Name *</label>
+          {/* Title */}
+          <div className="tf-field">
+            <label className="tf-label" htmlFor="tf-title">Title</label>
             <input
+              id="tf-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="Task name"
-              style={inputStyle}
+              placeholder="What needs to be done?"
+              className="tf-input"
+              autoFocus
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Description</label>
+          {/* Description */}
+          <div className="tf-field">
+            <label className="tf-label" htmlFor="tf-desc">Description</label>
             <textarea
+              id="tf-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
+              placeholder="Add details, context, or acceptance criteria…"
               rows={3}
-              style={{ ...inputStyle, resize: 'vertical' }}
+              className="tf-input tf-textarea"
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Comments</label>
-            {comments.length > 0 && (
-              <ul style={{ margin: '0 0 8px', paddingLeft: '20px', fontSize: '0.875rem', color: '#374151' }}>
-                {comments.map((c) => (
-                  <li key={c.id} style={{ marginBottom: '4px' }}>
-                    <strong>{c.userName || c.userId}</strong> ({c.createdAt.toLocaleString()}): {c.text}
-                  </li>
+          {/* Status toggle buttons */}
+          <div className="tf-field">
+            <label className="tf-label">Status</label>
+            <div className="tf-status-group">
+              {STATUS_OPTIONS.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  className={`tf-status-btn ${status === o.value ? 'tf-status-btn--active' : ''}`}
+                  onClick={() => setStatus(o.value)}
+                  style={status === o.value ? { borderColor: o.color, color: o.color, background: `${o.color}0d` } : undefined}
+                >
+                  <span
+                    className="tf-status-dot"
+                    style={{ background: o.color }}
+                  />
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Priority + Estimate row */}
+          <div className="tf-row">
+            <div className="tf-field tf-field--half">
+              <label className="tf-label">Priority</label>
+              <div className="tf-lane-group">
+                {LANE_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    className={`tf-lane-btn ${lane === o.value ? 'tf-lane-btn--active' : ''}`}
+                    onClick={() => setLane(o.value)}
+                    title={o.desc}
+                    style={lane === o.value ? { borderColor: o.color, color: o.color, background: `${o.color}0d` } : undefined}
+                  >
+                    <i className={o.icon} style={{ fontSize: '0.7rem', color: o.color }}></i>
+                    <span>{o.label}</span>
+                  </button>
                 ))}
-              </ul>
+              </div>
+            </div>
+
+            <div className="tf-field tf-field--half">
+              <label className="tf-label" htmlFor="tf-estimate">Estimate</label>
+              <select
+                id="tf-estimate"
+                value={estimate}
+                onChange={(e) => setEstimate(e.target.value === '' ? '' : Number(e.target.value))}
+                className="tf-input tf-select"
+              >
+                <option value="">No estimate</option>
+                {ESTIMATE_OPTIONS.map((v) => (
+                  <option key={v} value={v}>{v} {v === 1 ? 'day' : 'days'}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Assignees (inline avatar toggles) */}
+          {teamMemberIds.length > 0 && (
+            <div className="tf-field">
+              <label className="tf-label">Assignees</label>
+              <div className="tf-assignee-grid">
+                {teamMemberIds.map((id) => {
+                  const isSelected = assigneeIds.includes(id);
+                  const name = memberLabels[id] || id;
+                  const firstName = name.split(' ')[0];
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`tf-assignee-toggle ${isSelected ? 'tf-assignee-toggle--active' : ''}`}
+                      onClick={() =>
+                        setAssigneeIds((prev) =>
+                          isSelected ? prev.filter((x) => x !== id) : [...prev, id]
+                        )
+                      }
+                      title={name}
+                    >
+                      <span className="tf-assignee-toggle-avatar-wrap">
+                        {memberAvatars[id] ? (
+                          <img src={memberAvatars[id]} alt="" className="tf-assignee-toggle-avatar" />
+                        ) : (
+                          <span className="tf-assignee-toggle-initial">
+                            {name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span className="tf-assignee-toggle-check">
+                            <i className="fas fa-check"></i>
+                          </span>
+                        )}
+                      </span>
+                      <span className="tf-assignee-toggle-name">{firstName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Comments */}
+          <div className="tf-field">
+            <label className="tf-label">Comments {comments.length > 0 && <span className="tf-comment-count">{comments.length}</span>}</label>
+            {comments.length > 0 && (
+              <div className="tf-comments-list">
+                {comments.map((c) => {
+                  const isOwn = user?.uid === c.userId;
+                  const isEditing = editingCommentId === c.id;
+                  const isDeleting = deletingCommentId === c.id;
+                  return (
+                    <div key={c.id} className={`tf-comment ${isDeleting ? 'tf-comment--deleting' : ''}`}>
+                      <div className="tf-comment-header">
+                        <strong className="tf-comment-author">{c.userName || c.userId}</strong>
+                        <span className="tf-comment-date">{formatCommentDate(c.createdAt)}</span>
+                        {isOwn && !isEditing && !isDeleting && (
+                          <span className="tf-comment-actions">
+                            <button
+                              type="button"
+                              className="tf-comment-action-btn"
+                              onClick={() => startEditComment(c)}
+                              title="Edit comment"
+                            >
+                              <i className="fas fa-pen"></i>
+                            </button>
+                            <button
+                              type="button"
+                              className="tf-comment-action-btn tf-comment-action-btn--danger"
+                              onClick={() => confirmDeleteComment(c.id)}
+                              title="Delete comment"
+                            >
+                              <i className="fas fa-trash-alt"></i>
+                            </button>
+                          </span>
+                        )}
+                      </div>
+                      {isDeleting ? (
+                        <div className="tf-comment-delete-confirm">
+                          <span className="tf-comment-delete-prompt">Delete this comment?</span>
+                          <button type="button" className="tf-comment-delete-yes" onClick={executeDeleteComment}>
+                            Yes
+                          </button>
+                          <button type="button" className="tf-comment-delete-no" onClick={() => setDeletingCommentId(null)}>
+                            No
+                          </button>
+                        </div>
+                      ) : isEditing ? (
+                        <div className="tf-comment-edit-wrap">
+                          <textarea
+                            ref={editInputRef}
+                            value={editingCommentText}
+                            onChange={(e) => setEditingCommentText(e.target.value)}
+                            className="tf-input tf-textarea tf-comment-edit-input"
+                            rows={2}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditComment(); }
+                              if (e.key === 'Escape') cancelEditComment();
+                            }}
+                          />
+                          <div className="tf-comment-edit-actions">
+                            <button type="button" className="tf-comment-edit-save" onClick={saveEditComment} disabled={!editingCommentText.trim()}>
+                              Save
+                            </button>
+                            <button type="button" className="tf-comment-edit-cancel" onClick={cancelEditComment}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="tf-comment-text">{c.text}</div>
+                          {c.editedAt && (
+                            <div className="tf-comment-footer">
+                              <span className="tf-comment-edited" title={`Edited ${formatCommentDate(c.editedAt)}`}>edited</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             )}
-            <div style={{ position: 'relative', flex: 1 }}>
+            <div className="tf-comment-input-wrap">
               <textarea
                 ref={commentInputRef}
                 value={newCommentText}
@@ -306,9 +505,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                 }}
                 onKeyUp={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
                 onSelect={(e) => setCursorPosition(e.currentTarget.selectionStart ?? 0)}
-                placeholder="Add a comment (type @ to mention someone)"
+                placeholder="Add a comment… (type @ to mention)"
                 rows={2}
-                style={{ ...inputStyle, resize: 'vertical', width: '100%', boxSizing: 'border-box' }}
+                className="tf-input tf-textarea"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -317,127 +516,82 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                 }}
               />
               {showMentionDropdown && (
-                <ul
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: '100%',
-                    margin: 0,
-                    marginTop: '4px',
-                    padding: '4px 0',
-                    listStyle: 'none',
-                    background: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    zIndex: 10,
-                    minWidth: '200px',
-                  }}
-                >
+                <ul className="tf-mention-dropdown">
                   {mentionCandidates.map((p) => (
                     <li
                       key={p.id}
                       role="button"
                       tabIndex={0}
+                      className="tf-mention-item"
                       onClick={() => insertMention(p)}
                       onKeyDown={(e) => e.key === 'Enter' && insertMention(p)}
-                      style={{
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        color: '#374151',
-                      }}
                     >
                       {p.name || p.email || p.id}
                     </li>
                   ))}
                 </ul>
               )}
-              <button type="button" onClick={addComment} disabled={!user} style={{ marginTop: '8px', padding: '8px 14px', background: '#e5e7eb', border: 'none', borderRadius: '8px', cursor: user ? 'pointer' : 'not-allowed', fontSize: '14px' }}>
-                Add comment
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value as WorkItemStatus)} style={inputStyle}>
-              {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Lane</label>
-            <select value={lane} onChange={(e) => setLane(e.target.value as WorkItemLane)} style={inputStyle}>
-              {LANE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Estimate (days)</label>
-            <select
-              value={estimate}
-              onChange={(e) => setEstimate(e.target.value === '' ? '' : Number(e.target.value))}
-              style={inputStyle}
-            >
-              <option value="">—</option>
-              {ESTIMATE_OPTIONS.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input
-              type="checkbox"
-              id="task-form-blocked"
-              checked={blocked}
-              onChange={(e) => setBlocked(e.target.checked)}
-            />
-            <label htmlFor="task-form-blocked" style={{ ...labelStyle, marginBottom: 0 }}>Blocked</label>
-          </div>
-
-          {teamMemberIds.length > 0 && (
-            <div style={{ marginBottom: '16px' }}>
-              <label style={labelStyle}>Assignee</label>
-              <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} style={inputStyle}>
-                <option value="">No assignee</option>
-                {teamMemberIds.map((id) => (
-                  <option key={id} value={id}>{memberLabels[id] || id}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : mode === 'create' ? 'Create' : 'Save'}
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>
-              Cancel
-            </button>
-            {mode === 'edit' && onDelete && (
               <button
                 type="button"
-                onClick={onDelete}
-                style={{
-                  padding: '8px 16px',
-                  background: '#dc2626',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                }}
+                className="tf-comment-add-btn"
+                onClick={addComment}
+                disabled={!user}
+                style={{ visibility: newCommentText.trim() ? 'visible' : 'hidden' }}
               >
-                Delete
+                Post comment
               </button>
+            </div>
+          </div>
+
+          {/* Footer actions */}
+          <div className="tf-footer">
+            <div className="tf-footer-left">
+              <button type="submit" className="tf-btn tf-btn--primary" disabled={saving || deleting || !title.trim()}>
+                {saving ? 'Saving…' : mode === 'create' ? 'Create Task' : 'Save Changes'}
+              </button>
+              <button type="button" className="tf-btn tf-btn--ghost" onClick={onCancel} disabled={deleting}>
+                Cancel
+              </button>
+            </div>
+            {mode === 'edit' && onDelete && initialItem && (
+              <div className="tf-footer-right">
+                {!confirmDelete ? (
+                  <button
+                    type="button"
+                    className="tf-btn tf-btn--danger-ghost"
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={deleting}
+                  >
+                    <i className="fas fa-trash-alt"></i> Delete
+                  </button>
+                ) : (
+                  <div className="tf-delete-confirm">
+                    <span className="tf-delete-prompt">Delete this task?</span>
+                    <button
+                      type="button"
+                      className="tf-btn tf-btn--danger"
+                      disabled={deleting}
+                      onClick={async () => {
+                        setDeleting(true);
+                        try {
+                          await onDelete(initialItem.id);
+                        } finally {
+                          setDeleting(false);
+                        }
+                      }}
+                    >
+                      {deleting ? 'Deleting…' : 'Yes, delete'}
+                    </button>
+                    <button
+                      type="button"
+                      className="tf-btn tf-btn--ghost"
+                      onClick={() => setConfirmDelete(false)}
+                    >
+                      No
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </form>

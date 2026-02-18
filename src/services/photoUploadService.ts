@@ -1,5 +1,6 @@
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '../firebase/firebaseConfig';
+import { resizeImageFile } from '../utils/imageResize';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -63,34 +64,6 @@ export const uploadTeamMemberPhoto = async (
 };
 
 /**
- * Upload user avatar to Firebase Storage (for profile avatar)
- * @param file - Image file to upload
- * @param userId - Authenticated user's ID
- * @returns Promise resolving to the public download URL
- */
-export const uploadUserAvatar = async (
-  file: File,
-  userId: string
-): Promise<string> => {
-  try {
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      throw new Error(validation.error || 'Invalid image file');
-    }
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const storagePath = `user-avatars/${userId}/${fileName}`;
-    const storageRef = ref(storage, storagePath);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-  } catch (error: any) {
-    console.error('Error uploading user avatar:', error);
-    throw new Error(error.message || 'Failed to upload photo');
-  }
-};
-
-/**
  * Delete a photo from Firebase Storage
  * @param photoUrl - The Firebase Storage URL of the photo to delete
  */
@@ -116,6 +89,71 @@ export const deleteTeamMemberPhoto = async (photoUrl: string): Promise<void> => 
     if (error.code !== 'storage/object-not-found') {
       console.error('Error deleting team member photo:', error);
       throw error;
+    }
+  }
+};
+
+/**
+ * Upload a user avatar to Firebase Storage with auto-resize.
+ * Resizes to max 400x400px JPEG at 0.85 quality before uploading.
+ * @param file - Original image file from file input
+ * @param userId - Firebase Auth UID (used as storage path folder)
+ * @returns Promise resolving to the public download URL
+ */
+export const uploadUserAvatar = async (
+  file: File,
+  userId: string
+): Promise<string> => {
+  if (!storage) {
+    throw new Error('Firebase Storage is not configured');
+  }
+
+  // Validate file
+  const validation = validateImageFile(file);
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Invalid image file');
+  }
+
+  // Resize image client-side (max 400px, JPEG 0.85 quality)
+  const resizedBlob = await resizeImageFile(file, 400, 0.85);
+
+  // Generate filename
+  const timestamp = Date.now();
+  const fileName = `avatar-${timestamp}.jpg`;
+  const storagePath = `user-avatars/${userId}/${fileName}`;
+
+  // Upload
+  const storageRef = ref(storage, storagePath);
+  const snapshot = await uploadBytes(storageRef, resizedBlob, {
+    contentType: 'image/jpeg',
+  });
+
+  // Get download URL
+  const downloadURL = await getDownloadURL(snapshot.ref);
+  return downloadURL;
+};
+
+/**
+ * Delete a user's old avatar from Firebase Storage.
+ * Silently ignores "not found" errors. Only deletes from user-avatars/ path.
+ */
+export const deleteUserAvatar = async (photoUrl: string): Promise<void> => {
+  if (!storage) return;
+
+  try {
+    const url = new URL(photoUrl);
+    const pathMatch = url.pathname.match(/\/o\/(.+?)(\?|$)/);
+    if (!pathMatch) return;
+
+    const storagePath = decodeURIComponent(pathMatch[1]);
+    // Only delete from user-avatars path to avoid accidental deletion
+    if (!storagePath.startsWith('user-avatars/')) return;
+
+    const storageRef = ref(storage, storagePath);
+    await deleteObject(storageRef);
+  } catch (error: any) {
+    if (error.code !== 'storage/object-not-found') {
+      console.error('Error deleting user avatar:', error);
     }
   }
 };

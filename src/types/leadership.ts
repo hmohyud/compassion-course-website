@@ -13,6 +13,10 @@ export interface LeadershipTeam {
   id: string;
   name: string;
   memberIds: string[];
+  /** Required: board doc id in boards collection (single source of truth). */
+  boardId: string;
+  /** Required: whiteboard doc ids in whiteboards collection. */
+  whiteboardIds: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +33,8 @@ export interface WorkItemComment {
   userName?: string;
   text: string;
   createdAt: Date;
+  /** Set when a comment is edited. */
+  editedAt?: Date;
   /** User IDs mentioned in this comment (for notifications). */
   mentionedUserIds?: string[];
 }
@@ -37,7 +43,10 @@ export interface LeadershipWorkItem {
   id: string;
   title: string;
   description?: string;
+  /** @deprecated Use assigneeIds instead. Kept for backward compatibility with existing data. */
   assigneeId?: string;
+  /** Multiple assignees for this work item. */
+  assigneeIds?: string[];
   teamId?: string;
   status: WorkItemStatus;
   dueDate?: Date;
@@ -45,7 +54,13 @@ export interface LeadershipWorkItem {
   type?: WorkItemType;
   lane?: WorkItemLane;
   estimate?: number;
+  /** Manual sort order within a column. Lower values appear first. */
+  position?: number;
   comments?: WorkItemComment[];
+  /** Timestamp when item first moved to in_progress */
+  startedAt?: Date;
+  /** Timestamp when item first moved to done */
+  completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,6 +83,8 @@ export interface TeamBoardSettings {
   visibleLanes?: WorkItemLane[];
   /** Custom column labels; key = status id, value = display label. Leave blank for default. */
   columnHeaders?: Partial<Record<WorkItemStatus, string>>;
+  /** Show the backlog as a column on the main board instead of a separate tab */
+  showBacklogOnBoard?: boolean;
   updatedAt: Date;
 }
 
@@ -79,7 +96,10 @@ export interface LeadershipWorkingAgreement {
   updatedAt: Date;
 }
 
-/** Team-scoped whiteboard (tldraw snapshot) */
+/**
+ * @deprecated Use team.whiteboardIds and whiteboards collection instead. Read-only; do not add new usage.
+ * Team-scoped whiteboard (tldraw snapshot)
+ */
 export interface LeadershipTeamWhiteboard {
   id: string;
   teamId: string;

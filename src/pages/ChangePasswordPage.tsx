@@ -17,8 +17,8 @@ const ChangePasswordPage: React.FC = () => {
     e.preventDefault();
     setError('');
     if (!user) return;
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (newPassword.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -69,9 +69,9 @@ const ChangePasswordPage: React.FC = () => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               required
-              minLength={6}
+              minLength={8}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -92,7 +92,7 @@ const ChangePasswordPage: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
               required
-              minLength={6}
+              minLength={8}
               style={{
                 width: '100%',
                 padding: '10px 12px',

@@ -10,9 +10,9 @@ import {
   where,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db, auth } from '../firebase/firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { auth, db, functions } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
-import { createBoardForTeam } from './leadershipBoardsService';
 
 const COLLECTION = 'teams';
 
@@ -22,6 +22,8 @@ function toTeam(docSnap: { id: string; data: () => Record<string, unknown> }): L
     id: docSnap.id,
     name: (d.name as string) ?? '',
     memberIds: Array.isArray(d.memberIds) ? d.memberIds : [],
+    boardId: typeof d.boardId === 'string' ? d.boardId : '',
+    whiteboardIds: Array.isArray(d.whiteboardIds) ? d.whiteboardIds : [],
     createdAt: (d.createdAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
     updatedAt: (d.updatedAt as { toDate: () => Date })?.toDate?.() ?? new Date(),
   };
@@ -58,22 +60,40 @@ export async function createTeam(name: string, memberIds: string[] = []): Promis
   return toTeam({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
-/** Creates a team and its board (1:1). Retries board creation once on failure. */
+/** Creates a team and its board (1:1) via Firebase callable createTeamWithBoard. */
 export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  const team = await createTeam(name, memberIds);
-  try {
-    await createBoardForTeam(team.id);
-  } catch (err) {
-    try {
-      await createBoardForTeam(team.id);
-    } catch (retryErr) {
-      throw retryErr;
-    }
+  if (!auth.currentUser) {
+    const err = new Error('Sign in required') as Error & { code?: string };
+    (err as { code?: string }).code = 'functions/unauthenticated';
+    throw err;
   }
-  return team;
+
+  console.log('[createTeamWithBoard] calling callable', { uid: auth.currentUser?.uid });
+
+  const fn = httpsCallable<
+    { name: string; memberIds: string[] },
+    { ok: boolean; teamId: string; boardId: string }
+  >(functions, 'createTeamWithBoard');
+  const res = await fn({ name, memberIds });
+  const data = res.data;
+
+  if (!data?.ok || !data?.teamId || !data?.boardId) {
+    throw new Error('createTeamWithBoard failed');
+  }
+
+  const now = new Date();
+  return {
+    id: data.teamId,
+    name,
+    memberIds,
+    boardId: data.boardId,
+    whiteboardIds: [],
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 export async function updateTeam(
@@ -98,6 +118,36 @@ export async function updateTeam(
   }
 }
 
+/** Patch boardId onto an existing team (used for auto-initialization). */
+export async function patchTeamBoardId(teamId: string, boardId: string): Promise<void> {
+  const ref = doc(db, COLLECTION, teamId);
+  await updateDoc(ref, { boardId, updatedAt: serverTimestamp() });
+}
+
 export async function deleteTeam(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
+}
+
+/** Cascade-delete a team and all its data (board, work items, settings) via Firebase callable. Admin-only. */
+export async function deleteTeamWithData(
+  teamId: string
+): Promise<{ ok: boolean; workItemsDeleted: number }> {
+  if (!auth.currentUser) {
+    const err = new Error('Sign in required') as Error & { code?: string };
+    err.code = 'functions/unauthenticated';
+    throw err;
+  }
+
+  const fn = httpsCallable<
+    { teamId: string },
+    { ok: boolean; teamId: string; workItemsDeleted: number }
+  >(functions, 'deleteTeamWithData');
+  const res = await fn({ teamId });
+  const data = res.data;
+
+  if (!data?.ok) {
+    throw new Error('deleteTeamWithData failed');
+  }
+
+  return { ok: true, workItemsDeleted: data.workItemsDeleted };
 }

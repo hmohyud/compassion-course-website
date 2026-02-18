@@ -45,16 +45,23 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     const unsubscribes: (() => void)[] = [];
-    
-    // Set loading to false immediately to prevent hanging
-    setLoading(false);
+    let contentLoaded = false;
 
     try {
       // Check if db is initialized
       if (!db) {
         console.warn('Firebase db not initialized, skipping content listeners');
+        setLoading(false);
         return;
       }
+
+      // Safety timeout: if the content listener hasn't fired after 5s, stop blocking the UI
+      const safetyTimeout = setTimeout(() => {
+        if (!contentLoaded) {
+          contentLoaded = true;
+          setLoading(false);
+        }
+      }, 5000);
 
       // Listen to general website content
       const contentQuery = query(
@@ -72,7 +79,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             createdAt: doc.data().createdAt?.toDate(),
             updatedAt: doc.data().updatedAt?.toDate(),
           })) as ContentItem[];
-          
+
           // Organize content by section and key
           const organizedContent: { [section: string]: { [key: string]: ContentItem } } = {};
           contentItems.forEach(item => {
@@ -81,12 +88,23 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             }
             organizedContent[item.section][item.key] = item;
           });
-          
+
           setContent(organizedContent);
+          // Mark loading done once the primary content listener delivers data
+          if (!contentLoaded) {
+            contentLoaded = true;
+            clearTimeout(safetyTimeout);
+            setLoading(false);
+          }
         },
         (error) => {
           console.error('Error listening to content:', error);
           setError('Failed to load content');
+          if (!contentLoaded) {
+            contentLoaded = true;
+            clearTimeout(safetyTimeout);
+            setLoading(false);
+          }
         }
       );
       unsubscribes.push(unsubscribeContent);

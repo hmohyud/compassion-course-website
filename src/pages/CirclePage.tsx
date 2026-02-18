@@ -4,12 +4,15 @@ import Layout from '../components/Layout';
 
 const CirclePage: React.FC = () => {
   return (
-    <Layout hideNavigation>
-      <div style={{ 
-        padding: '20px', 
-        maxWidth: '1400px', 
-        margin: '0 auto',
-        minHeight: 'calc(100vh - 200px)' // Account for nav/footer
+    <Layout hideNavigation hideFooter>
+      <div style={{
+        padding: '20px',
+        maxWidth: '100%',
+        height: '100vh',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        overflow: 'hidden'
       }}>
         {/* Branded Header */}
         <div style={{
@@ -21,28 +24,29 @@ const CirclePage: React.FC = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px'
+          flexWrap: 'wrap' as const,
+          gap: '16px',
+          flexShrink: 0
         }}>
           <div>
-            <h1 style={{ 
-              fontSize: '1.75rem', 
-              color: '#002B4D', 
+            <h1 style={{
+              fontSize: '1.75rem',
+              color: '#002B4D',
               margin: 0,
               fontWeight: 600
             }}>
               Compassion Course Community
             </h1>
-            <p style={{ 
-              color: '#6b7280', 
+            <p style={{
+              color: '#6b7280',
               margin: '4px 0 0 0',
               fontSize: '0.95rem'
             }}>
               Connect, learn, and grow with fellow participants
             </p>
           </div>
-          <Link 
-            to="/portal"
+          <Link
+            to="/"
             style={{
               padding: '10px 20px',
               background: '#002B4D',
@@ -61,7 +65,7 @@ const CirclePage: React.FC = () => {
               e.currentTarget.style.background = '#002B4D';
             }}
           >
-            ← Back to Portal
+            ← Back to Home
           </Link>
         </div>
 
@@ -71,8 +75,8 @@ const CirclePage: React.FC = () => {
           borderRadius: '0 0 12px 12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           overflow: 'hidden',
-          height: 'calc(100vh - 300px)', // Adjust based on nav/header height
-          minHeight: '600px'
+          flex: 1,
+          minHeight: 0
         }}>
           <iframe
             src="https://login.circle.so/sign_in?request_host=www.theglobalcompassionnetwork.com#email"

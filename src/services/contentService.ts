@@ -57,6 +57,37 @@ export interface TeamMember {
   updatedBy?: string;
 }
 
+// ============================================================
+// Fallback data for when Firebase is not configured (local dev)
+// ============================================================
+const FALLBACK_LANGUAGE_SECTIONS: TeamLanguageSection[] = [
+  { id: 'english', name: 'English', order: 0, isActive: true },
+];
+
+const FALLBACK_TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: 'thom-bond',
+    name: 'Thom Bond',
+    role: 'Compassion Course Author and Lead Trainer, Founder and Director of Education of NYCNVC',
+    bio: 'Thom brings 29 years of human potential experience and training experience to his work as an Internationally Certified NVC Trainer. His passion and knowledge of Nonviolent Communication (NVC) combine to create a practical, understandable, humorous, and potentially profound approach for learning and integrating the skills of peacemaking. He is described as concise, inspiring, sincere and optimistic, applying transformational and spiritual ideas and sensibilities to real-life situations. Many of his students become active facilitators, trainers and practitioners.\nAs a trainer, speaker, mediator, and coach, Thom has taught tens of thousands of clients, participants, readers and listeners Nonviolent Communication. He has been published or featured in The New York Times, New York Magazine, Yoga Magazine.\nHe is a founder and the Director of Education for The New York Center for Nonviolent Communication (NYCNVC), the creator of The Compassion Course, a member of the Communications Coordination Committee for the United Nations and a CNVC IIT trainer.',
+    photo: '/Team/ThomBond.png',
+    contact: 'thombond@nycnvc.org',
+    teamSection: 'English Team',
+    order: 0,
+    isActive: true,
+  },
+  {
+    id: 'clara-moisello',
+    name: 'Clara Moisello, PhD',
+    role: 'Co-Director and Lead Trainer',
+    bio: 'Clara Moisello embraced Nonviolent Communication as part of a journey of self-discovery and transformation that began once she left her home in Italy in 2006 to pursue her doctoral studies in New York. While still working as neuroscience researcher at CUNY, Clara became actively involved in supporting the NYCNVC community, participating in and facilitating practice groups and intensives and training under the mentorship of Thom Bond. Eventually, this led her to a life and career shift.\nAs of today, Clara has completed over 1000 hours of NVC training and supports NYCNVC both as Lead Trainer and Co-Director. She is also the founder and leader of Compassion Course Italia - the Italian chapter of the renown Compassion Course Online, written and facilitated by Thom Bond, serving over 100 countries in 16 languages.\nFrom her initial participation in coordinating and facilitating workshops to her current position as Co-director and Lead Trainer, Clara has continuously evolved and contributed to the organization\'s growth. Driven by curiosity and creativity, she continuously explores new avenues to enhance the effectiveness of NVC. Her background in neuroscience, combined with contemplative practices, enriches her approach and adds depth to the work of NYCNVC.\nClara is committed to advancing the art and science of compassion, both within NYCNVC and beyond. Her work is driven by a desire to create a more empathetic and connected world, fostering compassionate dialogue and personal growth.',
+    photo: '/Team/1769005145485-Clara_Moisello.webp',
+    teamSection: 'English Team',
+    order: 1,
+    isActive: true,
+  },
+];
+
 /**
  * Get all content items for a specific section
  */
@@ -304,6 +335,10 @@ export const hardDeleteContentItem = async (id: string): Promise<void> => {
  * Get all team members
  */
 export const getTeamMembers = async (): Promise<TeamMember[]> => {
+  if (!db) {
+    // Return fallback team data when Firebase isn't configured
+    return FALLBACK_TEAM_MEMBERS;
+  }
   try {
     const teamRef = collection(db, 'teamMembers');
     const q = query(
@@ -514,6 +549,10 @@ export const getAllLanguageSections = async (): Promise<TeamLanguageSection[]> =
  * Get active language sections only
  */
 export const getLanguageSections = async (): Promise<TeamLanguageSection[]> => {
+  if (!db) {
+    // Return fallback sections when Firebase isn't configured
+    return FALLBACK_LANGUAGE_SECTIONS;
+  }
   try {
     const sectionsRef = collection(db, 'teamLanguageSections');
     const q = query(sectionsRef, where('isActive', '==', true));

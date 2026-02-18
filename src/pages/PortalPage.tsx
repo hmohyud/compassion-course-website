@@ -1,20 +1,8 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-
-const cardStyle = {
-  padding: '15px',
-  background: '#ffffff',
-  borderRadius: '12px',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  textDecoration: 'none',
-  color: '#111827',
-  display: 'block' as const,
-  border: '2px solid transparent',
-  transition: 'all 0.2s',
-};
 
 const PortalPage: React.FC = () => {
   const { user, loading } = useAuth();
@@ -32,97 +20,56 @@ const PortalPage: React.FC = () => {
   }
 
   if (!user) {
-    navigate('/login');
-    return null;
+    return <Navigate to="/login" replace />;
   }
+
+  const displayName = user.displayName || user.email?.split('@')[0] || 'there';
 
   return (
     <Layout>
-      <div className="portal-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '26px', color: '#002B4D', marginBottom: '10px' }}>
-            Welcome to the Compassion Course Portal
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>
-            Hello, {user.email}
+      <div className="portal-page">
+        <div className="portal-header">
+          <h1 className="portal-greeting">Welcome back, {displayName}</h1>
+          <p className="portal-subtitle">
+            Your home base for connecting, learning, and leading.
           </p>
         </div>
 
-        <div style={{ 
-          background: '#ffffff', 
-          borderRadius: '12px', 
-          padding: '40px', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          marginBottom: '20px'
-        }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '20px', fontSize: '22px' }}>Your Portal</h2>
-          <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '20px' }}>
-            Welcome to your Compassion Course portal. Here you can access your course materials, 
-            track your progress, and connect with the community.
-          </p>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '10px',
-            marginTop: '15px'
-          }}>
-            <Link 
-              to="/portal/circle"
-              style={cardStyle}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#002B4D';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Global Compassion Network</h2>
-              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                Connect and grow with fellow participants.
-              </p>
-            </Link>
+        <div className="portal-grid">
+          <Link to="/portal/circle" className="portal-card">
+            <div className="portal-card-icon portal-card-icon--community">
+              <i className="fas fa-globe-americas"></i>
+            </div>
+            <div className="portal-card-content">
+              <h3>Global Compassion Network</h3>
+              <p>Connect and grow with fellow participants from around the world.</p>
+            </div>
+            <span className="portal-card-arrow"><i className="fas fa-arrow-right"></i></span>
+          </Link>
 
-            <Link 
-              to="/portal/library"
-              style={cardStyle}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#002B4D';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Library</h2>
-              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                Browse resources and materials.
-              </p>
-            </Link>
+          <Link to="/portal/library" className="portal-card">
+            <div className="portal-card-icon portal-card-icon--library">
+              <i className="fas fa-book"></i>
+            </div>
+            <div className="portal-card-content">
+              <h3>Library</h3>
+              <p>Browse resources, materials, and reference guides.</p>
+            </div>
+            <span className="portal-card-arrow"><i className="fas fa-arrow-right"></i></span>
+          </Link>
 
-            {showLeadership && (
-              <Link 
-                to="/portal/leadership"
-                style={cardStyle}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#002B4D';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'transparent';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1.1rem' }}>Leadership Portal</h2>
-                <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                  Tools and resources for leaders.
-                </p>
-              </Link>
-            )}
-          </div>
+          {showLeadership && (
+            <Link to="/portal/leadership" className="portal-card portal-card--leadership">
+              <div className="portal-card-icon portal-card-icon--leadership">
+                <i className="fas fa-users-cog"></i>
+              </div>
+              <div className="portal-card-content">
+                <h3>Leadership Dashboard</h3>
+                <p>Manage teams, boards, and organizational tools.</p>
+              </div>
+              <span className="portal-card-arrow"><i className="fas fa-arrow-right"></i></span>
+            </Link>
+          )}
         </div>
       </div>
     </Layout>

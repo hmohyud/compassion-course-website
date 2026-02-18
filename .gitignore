@@ -7,6 +7,10 @@ node_modules/
 # Env files
 .env
 .env.*
+!.env.example
+
+# Generated from .env at build - do not commit (contains API key)
+public/js/firebase-config.js
 
 # Firebase service account key (keep secure!)
 serviceAccountKey.json
@@ -33,3 +37,5 @@ pnpm-debug.log*
 firebase-current-state.json
 firebase-export.json
 my-backup.json
+
+nul

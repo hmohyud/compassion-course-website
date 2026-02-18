@@ -14,6 +14,7 @@ import AboutPage from './pages/AboutPage'
 import ProgramsPage from './pages/ProgramsPage'
 import ContactPage from './pages/ContactPage'
 import CompassCompanionPage from './pages/CompassCompanionPage'
+import UnauthorizedPage from './pages/UnauthorizedPage'
 
 // User Pages
 import UserLoginPage from './pages/UserLoginPage'
@@ -24,13 +25,7 @@ import CirclePage from './pages/CirclePage'
 import BacklogPage from './pages/BacklogPage'
 import CompassionCourseUniversityPage from './pages/CompassionCourseUniversityPage'
 import LibraryPage from './pages/LibraryPage'
-import LeadershipPortalPage from './pages/LeadershipPortalPage'
-import TeamBoardsListPage from './pages/leadership/TeamBoardsListPage'
-import CreateTeamPage from './pages/leadership/CreateTeamPage'
-import LeadershipMainBacklogPage from './pages/leadership/LeadershipMainBacklogPage'
-import LeadershipTeamPage from './pages/leadership/LeadershipTeamPage'
-import TeamBoardPage from './pages/leadership/TeamBoardPage'
-import TeamBoardSettingsPage from './pages/leadership/TeamBoardSettingsPage'
+import LeadershipDashboardPage from './pages/LeadershipDashboardPage'
 import WorkItemDetailPage from './pages/leadership/WorkItemDetailPage'
 // Platform Pages
 import UserProfilePage from './pages/platform/UserProfilePage'
@@ -67,6 +62,7 @@ function App() {
               <Route path="/programs" element={<ProgramsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/compass-companion" element={<CompassCompanionPage />} />
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
               {/* User Routes */}
               <Route path="/login" element={<UserLoginPage />} />
@@ -103,45 +99,23 @@ function App() {
               } />
               <Route path="/portal/leadership" element={
                 <LeadershipProtectedRoute>
-                  <LeadershipPortalPage />
+                  <LeadershipDashboardPage />
                 </LeadershipProtectedRoute>
               } />
-              <Route path="/portal/leadership/dashboard" element={<Navigate to="/portal/leadership" replace />} />
-              <Route path="/portal/leadership/backlog" element={
-                <LeadershipProtectedRoute>
-                  <LeadershipMainBacklogPage />
-                </LeadershipProtectedRoute>
-              } />
+              {/* Keep direct link to work item detail page */}
               <Route path="/portal/leadership/tasks/:workItemId" element={
                 <LeadershipProtectedRoute>
                   <WorkItemDetailPage />
                 </LeadershipProtectedRoute>
               } />
-              <Route path="/portal/leadership/teams/new" element={
-                <LeadershipProtectedRoute>
-                  <CreateTeamPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams/:teamId/board/settings" element={
-                <LeadershipProtectedRoute>
-                  <TeamBoardSettingsPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams/:teamId/board" element={
-                <LeadershipProtectedRoute>
-                  <TeamBoardPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams/:teamId" element={
-                <LeadershipProtectedRoute>
-                  <LeadershipTeamPage />
-                </LeadershipProtectedRoute>
-              } />
-              <Route path="/portal/leadership/teams" element={
-                <LeadershipProtectedRoute>
-                  <TeamBoardsListPage />
-                </LeadershipProtectedRoute>
-              } />
+              {/* Redirect old sub-routes to the consolidated dashboard */}
+              <Route path="/portal/leadership/dashboard" element={<Navigate to="/portal/leadership" replace />} />
+              <Route path="/portal/leadership/backlog" element={<Navigate to="/portal/leadership?tab=backlog" replace />} />
+              <Route path="/portal/leadership/teams/new" element={<Navigate to="/portal/leadership" replace />} />
+              <Route path="/portal/leadership/teams/:teamId/board/settings" element={<Navigate to="/portal/leadership" replace />} />
+              <Route path="/portal/leadership/teams/:teamId/board" element={<Navigate to="/portal/leadership" replace />} />
+              <Route path="/portal/leadership/teams/:teamId" element={<Navigate to="/portal/leadership" replace />} />
+              <Route path="/portal/leadership/teams" element={<Navigate to="/portal/leadership" replace />} />
               
               {/* Platform Routes */}
               <Route path="/platform" element={<Navigate to="/portal/university" replace />} />

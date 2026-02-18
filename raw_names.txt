@@ -1,0 +1,3887 @@
+<name>The NYCNVC Compassion Course Online Map</name>
+<name>Compassion Course Online Map</name>
+<name>Buenos Aires, Argentina</name>
+<name>Kettering TAS 7155, Australia</name>
+<name>Brussels, Belgium</name>
+<name>Sarajevo, Bosnia Herzegovina</name>
+<name>Varna, Bulgaria</name>
+<name>Petrópolis - Rio de Janeiro, Brazil</name>
+<name>Victoria, BC</name>
+<name>Toronto, ON</name>
+<name>Terrace, BC</name>
+<name>Saint-Laurent, Canada</name>
+<name>British Columbia, Canada</name>
+<name>Belleville, ON</name>
+<name>New Hamburg, ON, Canada</name>
+<name>Vancouver, BC, Canada</name>
+<name>Halifax, NS, Canada</name>
+<name>Nanchang, Jiangxi, China</name>
+<name>Placemark 16</name>
+<name>Placemark 17</name>
+<name>Placemark 18</name>
+<name>Stari Grad, Croatia</name>
+<name>Zagreb, Croatia</name>
+<name>Placemark 21</name>
+<name>3650 Olstykke, Denmark</name>
+<name>Placemark 23</name>
+<name>Alexandria, Egypt</name>
+<name>Cairo, Egypt</name>
+<name>Addis Ababa, Ethiopia</name>
+<name>Orcet, France</name>
+<name>Paris, France</name>
+<name>Roqueredonde, France</name>
+<name>Strasbourg, France</name>
+<name>Saint-Laurent-du-Maroni, French Guiana</name>
+<name>Bensheim, Germany</name>
+<name>Bonn, Germany</name>
+<name>Cologne, Germany</name>
+<name>Leipzig, Germany</name>
+<name>Mainz, Germany</name>
+<name>Nienburg, Germany</name>
+<name>Potsdam, Germany</name>
+<name>Sankt Augustin, Germany</name>
+<name>Anixi, Greece</name>
+<name>Nea Smirni, Greece</name>
+<name>Kowloon, Hong Kong</name>
+<name>Ahmedabad, Gujarat, India</name>
+<name>Auroville, India</name>
+<name>Bhose, Maharashtra, India</name>
+<name>Chennai, Tamil Nadu, India</name>
+<name>New Delhi, India</name>
+<name>Kochi, Kerala, India</name>
+<name>Kodaikanal, Tamil Nadu, India</name>
+<name>Kolkata, West Bengal, India</name>
+<name>Mt Abu, Rajasthan</name>
+<name>Mumbai, Maharashtra, India</name>
+<name>Pune, Maharashtra</name>
+<name>Vadodara, Gujarat</name>
+<name>Cork, Ireland</name>
+<name>Ashkelon, Israel</name>
+<name>Jerusalem, Israel</name>
+<name>Placemark 65</name>
+<name>Placemark 66</name>
+<name>Placemark 67</name>
+<name>Akiruno, Tokyo, Japan</name>
+<name>Fussa, Tokyo, Japan</name>
+<name>Fussa, Tokyo, Japan</name>
+<name>Vilnius, Lithuania</name>
+<name>Klang, Selangor, Malaysia</name>
+<name>Port Louis, Mauritius</name>
+<name>Okahandja, Namibia</name>
+<name>Windhoek, Namibia</name>
+<name>Kathmandu 44600, Nepal</name>
+<name>Amsterdam, Netherlands</name>
+<name>3632 Loenen, Netherlands</name>
+<name>Nijmegen, Netherlands</name>
+<name>Zaltbommel, Netherlands</name>
+<name>Placemark 67</name>
+<name>Auckland, NZ</name>
+<name>Christchurch, NZ</name>
+<name>Dunedin, NZ</name>
+<name>Placemark 71</name>
+<name>Tauranga, NZ</name>
+<name>Wellington, NZ</name>
+<name>Kaduna, Nigeria</name>
+<name>Moss, Norway</name>
+<name>Placemark 92</name>
+<name>Warsaw, Poland</name>
+<name>Warsaw, Poland</name>
+<name>Placemark 95</name>
+<name>Lisbon, Portugal</name>
+<name>Placemark 97</name>
+<name>Saint-Pierre, Reunion</name>
+<name>Saint-Denis, Reunion</name>
+<name>Alba Iulia</name>
+<name>Bârlad</name>
+<name>Suceava</name>
+<name>Benoni</name>
+<name>Delmas</name>
+<name>Parktown</name>
+<name>Randburg</name>
+<name>Sandton</name>
+<name>Placemark 109</name>
+<name>Placemark 110</name>
+<name>Alboraya</name>
+<name>Almería</name>
+<name>28691 Villanueva de la Cañada</name>
+<name>Zaragoza</name>
+<name>Placemark 115</name>
+<name>Grödinge, Botkyrka</name>
+<name>Placemark 117</name>
+<name>Arlesheim</name>
+<name>Placemark 92</name>
+<name>Arima</name>
+<name>Ankara/Ankara Province</name>
+<name>Sakarya Province</name>
+<name>Placemark 125</name>
+<name>Dubai, United Arab Emirates</name>
+<name>Alton, Hampshire GU34</name>
+<name>Bradford, West Yorkshire</name>
+<name>Bristol, UK</name>
+<name>Frome, Somerset BA11</name>
+<name>Glastonbury, Somerset</name>
+<name>Hampshire</name>
+<name>Placemark 133</name>
+<name>Isle of Bute PA20</name>
+<name>Isle of Iona PA76</name>
+<name>Kilbirnie, North Ayrshire</name>
+<name>Placemark 138</name>
+<name>Placemark 139</name>
+<name>Placemark 140</name>
+<name>Placemark 141</name>
+<name>Ludlow, Shropshire SY8</name>
+<name>Manchester, UK</name>
+<name>Newport-on-Tay, Fife</name>
+<name>Oxford</name>
+<name>Portsmouth</name>
+<name>Seaton, Devon</name>
+<name>St Andrews, Fife</name>
+<name>Surrey</name>
+<name>Wellington, Somerset TA21</name>
+<name>Woking, Surrey</name>
+<name>Placemark 152</name>
+<name>Placemark 153</name>
+<name>Anchorage, AK</name>
+<name>Anchorage, AK</name>
+<name>Phoenix, AZ</name>
+<name>Sierra Vista, AZ</name>
+<name>Tucson, AZ</name>
+<name>Yuma, AZ</name>
+<name>Fayetteville, AR</name>
+<name>Fort Smith, AR</name>
+<name>Little Rock, AR</name>
+<name>Alameda, CA</name>
+<name>Anaheim, CA</name>
+<name>Arcata, CA</name>
+<name>Arroyo Grande, CA</name>
+<name>Auburn, CA</name>
+<name>Berkeley, CA</name>
+<name>Carmel, CA</name>
+<name>Castaic, CA</name>
+<name>Chico, CA</name>
+<name>Covina, CA</name>
+<name>Fairfield, CA</name>
+<name>Grass Valley, CA</name>
+<name>Healdsburg, CA 95448</name>
+<name>La Selva Beach, CA 95076</name>
+<name>Lafayette, CA</name>
+<name>Long Beach, CA</name>
+<name>Loomis, CA</name>
+<name>Los Angeles, CA</name>
+<name>Meadow Vista, CA</name>
+<name>Nevada City, CA 95959</name>
+<name>Nicasio, CA 94946</name>
+<name>Oak View, CA</name>
+<name>Oakland, CA</name>
+<name>Orange, CA</name>
+<name>Pacific Grove, CA</name>
+<name>Roseville, CA</name>
+<name>South Pasadena, CA</name>
+<name>Sacramento, CA</name>
+<name>San Diego, CA</name>
+<name>San Francisco, CA</name>
+<name>San Leandro, CA</name>
+<name>San Luis Obispo, CA</name>
+<name>San Rafael, CA</name>
+<name>Santa Cruz, CA</name>
+<name>Santa Monica, CA</name>
+<name>Santa Rosa, CA</name>
+<name>Sebastopol, CA</name>
+<name>Sherman Oaks, CA</name>
+<name>Spring Valley, CA</name>
+<name>Stockton, CA</name>
+<name>Sunnyvale, CA</name>
+<name>Tuolumne, CA 95379</name>
+<name>Twain Harte, CA</name>
+<name>Willits, CA 95490</name>
+<name>Woodland, CA</name>
+<name>Aurora, CO</name>
+<name>Clifton, CO</name>
+<name>Colorado Springs, CO</name>
+<name>Denver, CO</name>
+<name>Fort Collins, CO</name>
+<name>Grand Junction, CO</name>
+<name>Bridgeport, CT</name>
+<name>Cromwell, CT</name>
+<name>Fairfield, CT</name>
+<name>Greenwich, CT</name>
+<name>Hamden, CT</name>
+<name>Manchester, CT</name>
+<name>Middlefield, CT</name>
+<name>Newtown, CT</name>
+<name>Westport, CT</name>
+<name>Winsted</name>
+<name>New Castle, DE 19720</name>
+<name>New Castle, DE 19720</name>
+<name>Washington, DC</name>
+<name>Aventura, FL</name>
+<name>Gainesville, FL</name>
+<name>Gulfport, FL</name>
+<name>Hollywood, FL</name>
+<name>Lutz, FL</name>
+<name>Miami, FL</name>
+<name>North Bay Village, FL</name>
+<name>North Miami, FL</name>
+<name>Orlando, FL</name>
+<name>Palm Harbor, FL</name>
+<name>Sarasota, FL</name>
+<name>St Petersburg, FL</name>
+<name>Tampa, FL</name>
+<name>West Palm Beach, FL</name>
+<name>Atlanta, GA</name>
+<name>Lilburn, GA</name>
+<name>Pine Lake, GA</name>
+<name>Honolulu, HI</name>
+<name>Ono Hawaii Barbecue</name>
+<name>Boise, ID</name>
+<name>Chicago, IL</name>
+<name>Placemark 249</name>
+<name>Placemark 250</name>
+<name>Placemark 251</name>
+<name>Placemark 252</name>
+<name>Effingham, IL</name>
+<name>Elmhurst, IL</name>
+<name>Evanston, IL</name>
+<name>Joliet, IL</name>
+<name>Makanda, IL</name>
+<name>Oak Park, IL</name>
+<name>Petersburg, IL 62675</name>
+<name>Skokie, IL</name>
+<name>Volo, IL</name>
+<name>Wheaton, IL</name>
+<name>Wilmette, IL</name>
+<name>Bloomington, IN</name>
+<name>Charlottesville</name>
+<name>Grinnell, IA 50112</name>
+<name>Nevada, IA 50201</name>
+<name>Atchison, KS</name>
+<name>Overland Park, KS</name>
+<name>Fort Thomas, KY</name>
+<name>Baton Rouge, LA</name>
+<name>Shreveport, LA</name>
+<name>Brunswick, ME</name>
+<name>Camden, ME</name>
+<name>East Machias, ME</name>
+<name>Lewiston, ME</name>
+<name>Portland, ME</name>
+<name>Turner, ME</name>
+<name>Annapolis, MD</name>
+<name>Baltimore, MD</name>
+<name>Bethesda, MD</name>
+<name>Chester, MD</name>
+<name>Columbia, MD</name>
+<name>Laurel, MD</name>
+<name>Millersville, MD</name>
+<name>Mt Savage, MD 21545</name>
+<name>Rockville, MD</name>
+<name>Silver Spring, MD</name>
+<name>Amherst, MA</name>
+<name>Athol, MA</name>
+<name>Deerfield, MA</name>
+<name>Gloucester, MA</name>
+<name>Greenfield, MA</name>
+<name>Natick, MA</name>
+<name>North Andover, MA</name>
+<name>Northampton, MA</name>
+<name>Orange, MA</name>
+<name>Petersham, MA</name>
+<name>Princeton, MA</name>
+<name>Shutesbury, MA</name>
+<name>Somerville, MA</name>
+<name>Springfield, MA</name>
+<name>Swampscott, MA</name>
+<name>Lansing, MI</name>
+<name>Okemos</name>
+<name>Okemos, MI</name>
+<name>Royal Oak, MI</name>
+<name>Chanhassen, MN</name>
+<name>Edina, MN</name>
+<name>Lakeville, MN</name>
+<name>Mankato, MN</name>
+<name>Minneapolis, MN</name>
+<name>St Paul, MN</name>
+<name>St Louis Park, MN 55426</name>
+<name>St Louis, MO</name>
+<name>Belgrade, Mt</name>
+<name>Bonner, Mt</name>
+<name>Bozeman, Mt</name>
+<name>Clyde Park, Mt</name>
+<name>Emigrant, Mt</name>
+<name>Livingston, MT</name>
+<name>Manhattan, Mt</name>
+<name>Omaha, NE</name>
+<name>Las Vegas, NV</name>
+<name>Concord, NH</name>
+<name>Derry, NH</name>
+<name>Blackwood</name>
+<name>Cape May Point, NJ</name>
+<name>Fairview, NJ</name>
+<name>Haddon Heights, NJ</name>
+<name>Marlboro</name>
+<name>Mendham, NJ</name>
+<name>Moorestown, NJ</name>
+<name>Long Branch, NJ</name>
+<name>Princeton, NJ</name>
+<name>Seaside Park, NJ</name>
+<name>Teaneck, NJ</name>
+<name>Trenton, NJ</name>
+<name>Union, NJ</name>
+<name>Upper Montclair, NJ 07043</name>
+<name>Wayne, NJ</name>
+<name>Weehawken, NJ</name>
+<name>West New York, NJ</name>
+<name>Woodbury, NJ</name>
+<name>Albuquerque, NM</name>
+<name>Los Alamos, NM 87544</name>
+<name>Los Ranchos de Albuquerque, NM</name>
+<name>Santa Fe, NM</name>
+<name>Taos, NM</name>
+<name>Albany, NY</name>
+<name>Altamont, NY 12009</name>
+<name>Baldwin, NY</name>
+<name>Bronx, NY</name>
+<name>Brooklyn, NY</name>
+<name>Corona, NY</name>
+<name>Endicott, NY 13760</name>
+<name>Fishkill, NY 12524</name>
+<name>Hartsdale, NY</name>
+<name>High Falls, NY</name>
+<name>Highland, NY</name>
+<name>Ithaca, NY</name>
+<name>Jackson Heights, NY</name>
+<name>Jamaica Estates, NY</name>
+<name>Kew Gardens, NY</name>
+<name>New York, NY</name>
+<name>New Hyde Park, NY</name>
+<name>New Paltz, NY 12561</name>
+<name>Newburgh, NY</name>
+<name>Newfield, NY</name>
+<name>Orangeburg, NY</name>
+<name>Patchogue, NY</name>
+<name>Phoenicia, NY 12464</name>
+<name>Saratoga Springs, NY</name>
+<name>Staten Island, NY</name>
+<name>Sunnyside, NY</name>
+<name>Syracuse, NY</name>
+<name>Tarrytown, NY</name>
+<name>Tillson, NY</name>
+<name>Tuckahoe, NY</name>
+<name>Voorheesville, NY 12186</name>
+<name>West Hempstead, NY</name>
+<name>Woodbourne, NY 12788</name>
+<name>Woodstock, NY</name>
+<name>Angier, NC 27501</name>
+<name>Asheville, NC</name>
+<name>Burnsville, NC 28714</name>
+<name>Clayton, NC</name>
+<name>Durham, NC 27701</name>
+<name>Hillsborough, NC 27278</name>
+<name>Sanford, NC</name>
+<name>Weaverville, NC</name>
+<name>Cincinnati, OH</name>
+<name>Columbus, OH</name>
+<name>Dayton, OH</name>
+<name>South Euclid, OH</name>
+<name>Owasso, OK</name>
+<name>Central Point, OR</name>
+<name>Corvallis, OR</name>
+<name>Eugene, OR</name>
+<name>Portland, OR</name>
+<name>Talent, OR</name>
+<name>Avalon NSW 2107</name>
+<name>Beerburrum QLD</name>
+<name>Bridgeman Downs QLD</name>
+<name>Brisbane QLD, Australia</name>
+<name>Brisbane QLD</name>
+<name>Burleigh Heads QLD</name>
+<name>Campbelltown SA</name>
+<name>Cashmere QLD 4500</name>
+<name>Coffs Harbour NSW</name>
+<name>Ellen Grove QLD 4078</name>
+<name>Geebung QLD</name>
+<name>Gold Coast QLD</name>
+<name>Katoomba NSW 2780</name>
+<name>Kettering TAS 7155</name>
+<name>Leura NSW 2780</name>
+<name>Manly QLD 4179</name>
+<name>Melbourne VIC</name>
+<name>Mullumbimby NSW 2482</name>
+<name>Nimbin NSW 2480</name>
+<name>Parkville VIC</name>
+<name>Reid ACT 2612</name>
+<name>Sydney NSW</name>
+<name>Willoughby NSW 2068</name>
+<name>Landskron, Austria</name>
+<name>Zeltweg, Austria</name>
+<name>Braine-le-Comte</name>
+<name>Huy</name>
+<name>Leuven</name>
+<name>Tielt</name>
+<name>Airdrie, AB</name>
+<name>Calgary, AB</name>
+<name>Canmore, AB</name>
+<name>Chilliwack, BC</name>
+<name>Coquitlam, BC</name>
+<name>Courtenay, BC</name>
+<name>Gibsons, BC</name>
+<name>Mission, BC</name>
+<name>Nanoose Bay, BC</name>
+<name>North Vancouver, BC</name>
+<name>Pender Island, BC V0N</name>
+<name>Port Moody, BC</name>
+<name>Richmond, BC</name>
+<name>Saanichton, BC V8M</name>
+<name>Salmo, BC V0G</name>
+<name>Salt Spring Island, BC</name>
+<name>Sidney, BC</name>
+<name>Truro, NS</name>
+<name>Ajax, ON</name>
+<name>Belleville, ON</name>
+<name>Elora, ON N0B</name>
+<name>Goodwood, ON L0C</name>
+<name>Kitchener, ON</name>
+<name>Mansfield, ON L0N</name>
+<name>New Hamburg, ON</name>
+<name>Ottawa, ON</name>
+<name>Thornhill, ON</name>
+<name>Thunder Bay, ON</name>
+<name>Eastman, QC</name>
+<name>Lachine</name>
+<name>LaSalle</name>
+<name>Roxboro</name>
+<name>Saskatoon, SK</name>
+<name>Yukon Territory</name>
+<name>Millarville, AB T0L</name>
+<name>Shanghai</name>
+<name>Allentown, PA</name>
+<name>Ardmore, PA</name>
+<name>Bensalem, PA 19020</name>
+<name>Catasauqua, PA</name>
+<name>Damascus, PA</name>
+<name>Harleysville, PA 19438</name>
+<name>Lancaster, PA</name>
+<name>Philadelphia, PA</name>
+<name>State College, PA</name>
+<name>Sumneytown, PA 18054</name>
+<name>Tyler Hill, PA</name>
+<name>Antioch, TN 37013</name>
+<name>Dowelltown, TN</name>
+<name>Johnson City, TN</name>
+<name>Nashville, TN</name>
+<name>Austin, TX</name>
+<name>Cuero, TX 77954</name>
+<name>Dallas, TX</name>
+<name>Fort Worth, TX</name>
+<name>Houston, TX</name>
+<name>Humble, TX</name>
+<name>Hunt, TX 78024</name>
+<name>Kerrville, TX</name>
+<name>Mountain Home, TX 78058</name>
+<name>Round Rock, TX</name>
+<name>San Antonio, TX</name>
+<name>Wylie, TX</name>
+<name>Draper, UT</name>
+<name>Kamas, UT 84036</name>
+<name>Logan, UT</name>
+<name>Park City, UT</name>
+<name>Torrey, UT 84775</name>
+<name>Bellows Falls, VT</name>
+<name>Brattleboro, VT</name>
+<name>Burlington, VT</name>
+<name>Town of Dummerston</name>
+<name>Hinesburg, VT</name>
+<name>Johnson, VT</name>
+<name>Newport, VT 05855</name>
+<name>Saxtons River</name>
+<name>White River Junction</name>
+<name>Centreville, VA</name>
+<name>Charlottesville, VA</name>
+<name>Fairfax, VA</name>
+<name>Falls Church, VA</name>
+<name>Chesterfield Meadows Dr, VA</name>
+<name>Powhatan, VA 23139</name>
+<name>Reston, VA</name>
+<name>Richmond, VA</name>
+<name>Roanoke, VA</name>
+<name>Virginia Beach, VA</name>
+<name>Washington, WI</name>
+<name>Langley, WA 98260</name>
+<name>Olympia, WA</name>
+<name>Renton, WA</name>
+<name>Seattle, WA</name>
+<name>Sequim, WA</name>
+<name>Vashon, WA 98070</name>
+<name>Valley Grove, WV</name>
+<name>Chippewa Falls, WI</name>
+<name>Madison, WI</name>
+<name>Middleton, WI</name>
+<name>Milwaukee, WI</name>
+<name>Fort Washakie, WY</name>
+<name>Placemark 254</name>
+<name>Placemark 255</name>
+<name>Aberystwyth, Ceredigion</name>
+<name>Addis Ababa, Ethiopia</name>
+<name>Bangalore, Karnataka, India</name>
+<name>Bangor, Gwynedd</name>
+<name>Bath, Bath and North East Somerset</name>
+<name>Brahmapur, Odisha</name>
+<name>Bozeman, Mt</name>
+<name>Buckfastleigh, Devon TQ11, UK</name>
+<name>Deiniolen, Gwynedd LL55, UK</name>
+<name>Delft, Netherlands</name>
+<name>Gloucestershire, UK</name>
+<name>Rathcolman, Ireland</name>
+<name>Ivanhoe, MN 56142</name>
+<name>Jaipur, Rajasthan, India</name>
+<name>Kampala, Odisha, India</name>
+<name>Kolkata, West Bengal</name>
+<name>Le Mans, France</name>
+<name>Mayagüez</name>
+<name>Mumbai, Maharashtra</name>
+<name>Old Colwyn, Conwy</name>
+<name>Rhayader, Powys LD6</name>
+<name>Shropshire, UK</name>
+<name>Skarpnäck, Sweden</name>
+<name>Stroud, Gloucestershire, UK</name>
+<name>Totnes, Devon TQ9</name>
+<name>Gwynedd</name>
+<name>Gwynedd</name>
+<name>Zeltweg</name>
+<name>Zeltweg</name>
+<name>Placemark 201</name>
+<name>Reichshof</name>
+<name>Massapequa, NY</name>
+<name>Palmer, AK 99645</name>
+<name>Abbotsford, BC</name>
+<name>Aberdeen, Aberdeen City</name>
+<name>Abilene, TX</name>
+<name>Leonia, NJ</name>
+<name>Leverett, MA</name>
+<name>Lincoln, MA</name>
+<name>Linz</name>
+<name>Lewisberry, PA</name>
+<name>Leverkusen</name>
+<name>Lexington, MA</name>
+<name>Liberty Lake, WA</name>
+<name>Lihue, HI 96766</name>
+<name>Lincoln, VT</name>
+<name>Lincoln, MA</name>
+<name>Lincoln, NE</name>
+<name>Livermore, CA</name>
+<name>Lockerbie, Dumfries and Galloway DG11</name>
+<name>London, ON</name>
+<name>Long Beach, NY</name>
+<name>Long Island City, NY</name>
+<name>Loveland, OH</name>
+<name>Loveland, CO</name>
+<name>Lübeck</name>
+<name>Lucknow, Uttar Pradesh</name>
+<name>Lunenburg, NS</name>
+<name>Lusaka</name>
+<name>Lucerne</name>
+<name>Lynbrook, NY</name>
+<name>Macungie, PA</name>
+<name>Madrid, Spain </name>
+<name>Magdeburg</name>
+<name>Malibu, CA</name>
+<name>Manakin-Sabot, VA 23103</name>
+<name>Mangalore, Karnataka</name>
+<name>Manningtree, Essex</name>
+<name>Manquin, VA 23009</name>
+<name>Mansfield, TX</name>
+<name>Marburg</name>
+<name>Margaretville, NY 12455</name>
+<name>Marietta, GA</name>
+<name>Markaryd</name>
+<name>Marlboro, VT</name>
+<name>Marquand, MO 63655</name>
+<name>Marshfield, WI</name>
+<name>Mason City, IA 50401</name>
+<name>Massapequa, NY</name>
+<name>McKinleyville, CA</name>
+<name>McLean, VA</name>
+<name>Mead, WA</name>
+<name>Mechanicsville, VA</name>
+<name>Mechelen</name>
+<name>Medford, MA</name>
+<name>8072 Mellach</name>
+<name>Mendig</name>
+<name>Menlo Park, CA</name>
+<name>Menomonie, WI 54751</name>
+<name>Mercer Island, WA</name>
+<name>Merchantville, NJ</name>
+<name>Merrick, NY</name>
+<name>Merritt Island, FL</name>
+<name>Miami Beach, FL</name>
+<name>Middletown, NY 10940</name>
+<name>Middletown, CT</name>
+<name>Middletown Springs, VT</name>
+<name>Midlothian, VA</name>
+<name>Mils</name>
+<name>Milton Keynes</name>
+<name>Minden</name>
+<name>Mississauga, ON</name>
+<name>Missoula, MT</name>
+<name>Missouri City, TX</name>
+<name>Moers-Vinn</name>
+<name>Monroe, NY 10950</name>
+<name>Montclair, NJ</name>
+<name>Monterey, CA</name>
+<name>Montpelier, VT</name>
+<name>Montrose, CO</name>
+<name>Moorestown, NJ</name>
+<name>Morganville</name>
+<name>Morris Plains, NJ</name>
+<name>Morristown, NJ</name>
+<name>Morsbach</name>
+<name>Mosbach</name>
+<name>Munich</name>
+<name>Münchenstein</name>
+<name>Mountain View, CA</name>
+<name>Mt Pleasant, SC</name>
+<name>Much</name>
+<name>Mulgrave VIC</name>
+<name>Mullica Hill</name>
+<name>Murfreesboro, TN</name>
+<name>Mutlangen</name>
+<name>Nahant, MA</name>
+<name>Nairobi, Kenya</name>
+<name>Nakano, Tokyo</name>
+<name>Naperville, IL</name>
+<name>Narberth, PA</name>
+<name>Nashua, NH</name>
+<name>Nazareth, PA</name>
+<name>Neckarsteinach</name>
+<name>Needham, MA</name>
+<name>Nesconset, NY</name>
+<name>Neuss</name>
+<name>New Berlin, WI</name>
+<name>New Canaan, CT</name>
+<name>New Castle, CO</name>
+<name>New City, NY</name>
+<name>New Denver, BC V0G</name>
+<name>New Fairfield, CT</name>
+<name>New Gloucester, ME</name>
+<name>New Hampton, NH</name>
+<name>New Hartford, NY</name>
+<name>New Haven, CT</name>
+<name>New Milford, CT</name>
+<name>New Orleans, LA</name>
+<name>New Plymouth, NZ</name>
+<name>New South Wales</name>
+<name>New Tripoli, PA 18066</name>
+<name>New Vernon, NJ 07976</name>
+<name>New Westminster, BC</name>
+<name>New Windsor, NY</name>
+<name>New York, NY</name>
+<name>Newark, DE</name>
+<name>Newberry, FL</name>
+<name>Newburyport, MA</name>
+<name>Newfane, VT</name>
+<name>Newnan, GA</name>
+<name>Newport, Pembrokeshire</name>
+<name>Newport, WA</name>
+<name>Newport Beach, CA</name>
+<name>Newton, MA</name>
+<name>Newton, KS</name>
+<name>Niendorf/Ostsee</name>
+<name>Nitra</name>
+<name>Nokomis, FL</name>
+<name>Nordland</name>
+<name>Normal, IL</name>
+<name>North Bay, ON</name>
+<name>North Falmouth</name>
+<name>North Lauderdale, FL</name>
+<name>Northampton</name>
+<name>Northampton, PA</name>
+<name>Northern, VA</name>
+<name>Northport, NY</name>
+<name>Norwich, Norfolk</name>
+<name>Norwood, NJ</name>
+<name>Nottingham</name>
+<name>Nova Friburgo - Rio de Janeiro</name>
+<name>Nuremberg</name>
+<name>Nyack, NY</name>
+<name>Nymboida NSW 2460</name>
+<name>Oakland Park, FL</name>
+<name>Oakville, ON</name>
+<name>Ocala, FL</name>
+<name>Oklahoma City, OK</name>
+<name>Oley, PA</name>
+<name>Orcas Island</name>
+<name>Oregon House, CA 95962</name>
+<name>Orinda, CA</name>
+<name>Orland, ME</name>
+<name>Oshkosh, WI</name>
+<name>Oslo, Norway</name>
+<name>Ossining, NY</name>
+<name>Pacifica, CA</name>
+<name>Pāhoa, HI 96778</name>
+<name>Palm Bay, FL</name>
+<name>Palmer, AK 99645</name>
+<name>Panama City, FL</name>
+<name>Parkland, FL</name>
+<name>Parlier, CA</name>
+<name>Pasadena, CA</name>
+<name>Pasadena, TX</name>
+<name>Patchogue, NY</name>
+<name>Pawling, NY 12564</name>
+<name>Pearl River, NY</name>
+<name>Peña Blanca, NM</name>
+<name>Penguin TAS 7316</name>
+<name>Penn Valley, CA</name>
+<name>Pennsburg, PA</name>
+<name>Pensacola, FL</name>
+<name>Penticton, BC</name>
+<name>Lisse</name>
+<name>Llanwrda, Carmarthenshire SA19</name>
+<name>Petah Tikva, Israel</name>
+<name>Petaluma, CA</name>
+<name>Petrila</name>
+<name>Piermont, NY</name>
+<name>Pine Bush, NY 12566</name>
+<name>Pipersville, PA 18947</name>
+<name>Pirna</name>
+<name>Pittsboro, NC</name>
+<name>Plovdiv</name>
+<name>Plymouth, WI</name>
+<name>Point Pleasant, NJ</name>
+<name>Pleasantville, NY</name>
+<name>Polson, Mt 59860</name>
+<name>Pompton Lakes, NJ</name>
+<name>Ponce, Puerto Rico</name>
+<name>Port Alberni, BC</name>
+<name>Port Angeles, WA</name>
+<name>Port Hadlock-Irondale, WA</name>
+<name>Port St Lucie, FL</name>
+<name>Port Washington, NY</name>
+<name>Port Washington, WI</name>
+<name>Port Washington, NY</name>
+<name>Port-au-Prince</name>
+<name>Portland, ME</name>
+<name>Porto Alegre - Rio Grande do Sul</name>
+<name>Portsmouth, NH</name>
+<name>Poughkeepsie, NY</name>
+<name>Prague</name>
+<name>Prescott, AZ</name>
+<name>Pretoria</name>
+<name>Prien am Chiemsee</name>
+<name>Princeton Junction</name>
+<name>Providence, RI</name>
+<name>Pueblo, CO</name>
+<name>Puerto Escondido, Oaxaca</name>
+<name>Pula</name>
+<name>Putnam Valley, NY 10579</name>
+<name>Putney, VT</name>
+<name>Puttaparthi, Andhra Pradesh</name>
+<name>Puyallup, WA</name>
+<name>Quakertown, PA 18951</name>
+<name>Qualicum Beach, BC</name>
+<name>Queens, NY</name>
+<name>Queenstown</name>
+<name>Quimby, IA 51049</name>
+<name>Quyon, QC</name>
+<name>Rancho Palos Verdes, CA</name>
+<name>Randolph, VT</name>
+<name>Reading</name>
+<name>Reading, PA</name>
+<name>Red Hook</name>
+<name>Redding, CT</name>
+<name>Regina, SK, Canada</name>
+<name>Rego Park</name>
+<name>Reichenfels</name>
+<name>Reichshof</name>
+<name>Reine</name>
+<name>Remchingen</name>
+<name>Reno, NV</name>
+<name>Reseda</name>
+<name>Reynolds, GA 31076</name>
+<name>Richmond Hill, ON</name>
+<name>Ridge Manor, FL</name>
+<name>Ridgway, CO 81432</name>
+<name>Rio de Janeiro</name>
+<name>Ritterhude</name>
+<name>Riverview, FL</name>
+<name>Roberta, GA</name>
+<name>Rochester, NY</name>
+<name>Rockford, IL</name>
+<name>Rockledge, FL</name>
+<name>Rockport, MA</name>
+<name>Rockton, IL</name>
+<name>Rockville Centre, NY</name>
+<name>Rohrersville, MD</name>
+<name>Roslindale</name>
+<name>Rothenberg</name>
+<name>Round Hill, VA 20141</name>
+<name>Rowville VIC 3178</name>
+<name>Roy, WA 98580</name>
+<name>Ruskin, FL</name>
+<name>Rutledge Flea Market</name>
+<name>South Pasadena, CA</name>
+<name>Sabalito</name>
+<name>St Johnsbury Center, VT</name>
+<name>Sale VIC 3850</name>
+<name>San Anselmo, CA</name>
+<name>San Carlos Canton</name>
+<name>Quesada</name>
+<name>San Jose, CA</name>
+<name>San Miguel de Allende, Mexico</name>
+<name>San Mateo, CA</name>
+<name>Sandia Park, NM</name>
+<name>Sankt Augustin</name>
+<name>Sankt Augustin</name>
+<name>Santa Ana</name>
+<name>Santa Barbara, CA</name>
+<name>Santa Clara-a-Velha</name>
+<name>Santa Paula, CA 93060</name>
+<name>Santiago Metropolitan Region</name>
+<name>Saratoga, CA</name>
+<name>Satellite Beach, FL</name>
+<name>Saugerties, NY 12477</name>
+<name>Sauk City, WI</name>
+<name>Saylorsburg, PA</name>
+<name>Scarsdale, NY</name>
+<name>Schenectady, NY</name>
+<name>Schneverdingen</name>
+<name>Schwaz</name>
+<name>Schwelm</name>
+<name>Scotch Plains, NJ</name>
+<name>Seefeld</name>
+<name>Seymour, CT</name>
+<name>Sheboygan, WI</name>
+<name>Sheboygan Falls, WI</name>
+<name>Shoreline, WA</name>
+<name>Sidcup, Greater London</name>
+<name>Sleepy Hollow, NY</name>
+<name>Sloansville, NY 12160</name>
+<name>Smiths Falls, ON</name>
+<name>Soest</name>
+<name>Sofia</name>
+<name>Souderton, PA</name>
+<name>South Miami, FL</name>
+<name>South Pasadena, FL</name>
+<name>South Woodstock, VT</name>
+<name>Southampton, UK</name>
+<name>Southwest Harbor, ME</name>
+<name>Sparks, MD 21152</name>
+<name>Spofford</name>
+<name>Spokane, WA</name>
+<name>Spring Valley, NY</name>
+<name>Springboro, OH</name>
+<name>Springfield, MO</name>
+<name>St Andrews, Fife KY16</name>
+<name>St Augustine, FL</name>
+<name>St Columbans, NE 68046</name>
+<name>St George, UT</name>
+<name>Saint-Gilles, Reunion</name>
+<name>St Paul, MN</name>
+<name>Sankt Andrä</name>
+<name>St Paul, AB T0A</name>
+<name>St Petersburg, FL</name>
+<name>St Thomas, VI</name>
+<name>9554 Sankt Urban</name>
+<name>Sankt Leon-Rot</name>
+<name>Stamford, CT</name>
+<name>Stevenson</name>
+<name>Stoke-on-Trent</name>
+<name>Stolberg (Rhineland)</name>
+<name>Stone Mountain, GA</name>
+<name>Stoney Creek</name>
+<name>Stonington, CT</name>
+<name>Stony Brook, NY</name>
+<name>Stony Point, NY</name>
+<name>Storrington, West Sussex</name>
+<name>Stowmarket, Suffolk IP14</name>
+<name>Stroudsburg, PA</name>
+<name>Stuart, FL</name>
+<name>Stuttgart</name>
+<name>Suffern, NY</name>
+<name>Summerland, CA</name>
+<name>Sunrise, FL</name>
+<name>Surrey, BC</name>
+<name>Sutton-Alpine, AK</name>
+<name>Syosset, NY</name>
+<name>Tahoe City, CA</name>
+<name>Taichung City, Taiwan</name>
+<name>Takaka</name>
+<name>Takoma Park, MD</name>
+<name>Tarikere, Karnataka</name>
+<name>Tarpon Springs, FL</name>
+<name>Taunton, Somerset</name>
+<name>Tavares, FL</name>
+<name>Telford, PA</name>
+<name>Tempe, AZ</name>
+<name>Temple, NH</name>
+<name>Tenafly, NJ</name>
+<name>Terrebonne, QC</name>
+<name>Tamarac, FL</name>
+<name>Tamsweg</name>
+<name>Texarkana, TX</name>
+<name>Thane, Maharashtra</name>
+<name>Tiburon</name>
+<name>Tijeras, NM</name>
+<name>Lutherville-Timonium, MD</name>
+<name>Tokyo</name>
+<name>Toms River, NJ</name>
+<name>Torquay, Torbay</name>
+<name>Tostedt</name>
+<name>Toulouse</name>
+<name>Towson, MD</name>
+<name>Treasure Island, FL</name>
+<name>Tromsø</name>
+<name>Troutdale, OR</name>
+<name>Tucson, AZ</name>
+<name>Ajijic, Mexico</name>
+<name>Tukwila, WA</name>
+<name>Tunis, Tunisia</name>
+<name>Ucluelet, BC</name>
+<name>Ulaanbaatar, Mongolia</name>
+<name>Ulm, Germany</name>
+<name>Underwood, MN 56586</name>
+<name>Union, WA</name>
+<name>Union City, NJ</name>
+<name>Upper Nyack, NY</name>
+<name>Utrecht, NL</name>
+<name>Vail, CO</name>
+<name>Valemount, BC V0E</name>
+<name>Venice, FL</name>
+<name>Venice, CA</name>
+<name>Venlo, Netherlands</name>
+<name>Vereeniging, South Africa</name>
+<name>Vida, OR 97488</name>
+<name>Viktring, Austria</name>
+<name>Villa Rica, GA</name>
+<name>Villach, Austria</name>
+<name>Landskron, Austria</name>
+<name>Vine Grove, KY</name>
+<name>Visalia, CA</name>
+<name>Voorhees Township, NJ</name>
+<name>Waitsburg, WA 99361</name>
+<name>Waldburg, Germany</name>
+<name>Waldlaubersheim, Germany</name>
+<name>Waldwick, NJ</name>
+<name>Walnut Creek, CA</name>
+<name>Walsall, West Midlands</name>
+<name>Wangen im Allgäu</name>
+<name>Wardsboro, VT</name>
+<name>Warwick, NY 10990</name>
+<name>Washingtonville, NY</name>
+<name>Wasilla, AK 99654</name>
+<name>Watertown, MA</name>
+<name>Watertown, CT</name>
+<name>Wathar, Maharashtra 415524</name>
+<name>Weaverville, CA</name>
+<name>Wedemark, Germany</name>
+<name>Weikersheim, Germany</name>
+<name>8741 Weißkirchen in der Steiermark</name>
+<name>Wellington, FL</name>
+<name>Wels, Austria</name>
+<name>Wenatchee, WA</name>
+<name>Wenonah, NJ</name>
+<name>West Des Moines, IA</name>
+<name>West Hartford, CT</name>
+<name>West Haven, CT</name>
+<name>West Hills</name>
+<name>West Hurley, NY</name>
+<name>West Linn, OR</name>
+<name>West Newbury, MA</name>
+<name>West Newton, MA</name>
+<name>West Salem, WI</name>
+<name>Suffield, CT</name>
+<name>West Vancouver, BC</name>
+<name>West Windsor Township, NJ</name>
+<name>Westford, MA</name>
+<name>Weston, FL</name>
+<name>Westwood, NJ</name>
+<name>Westwood, MA</name>
+<name>Wetter, Germany</name>
+<name>Wheeling, WV</name>
+<name>Wheelock, VT</name>
+<name>White Plains, NY</name>
+<name>Whitefish Bay, WI</name>
+<name>Whitewater, KS 67154</name>
+<name>Whitwell, TN 37397</name>
+<name>Wichita, KS</name>
+<name>Wichita Falls, TX</name>
+<name>Vienna, Austria</name>
+<name>2435 Ebergassing, Austria</name>
+<name>Wiesbaden, Germany</name>
+<name>Wilmington, NC</name>
+<name>Windeck, Germany</name>
+<name>Winnipeg, MB, Canada</name>
+<name>Winsen, Germany</name>
+<name>Winter Springs, FL</name>
+<name>Wiveliscombe, Somerset TA4</name>
+<name>Woburn, MA</name>
+<name>Wolfenbüttel, Germany</name>
+<name>Woodacre, CA</name>
+<name>Woodburn, OR</name>
+<name>Worcester, MA</name>
+<name>Wuppertal, Germany</name>
+<name>Wynantskill, NY</name>
+<name>Yarmouth, ME</name>
+<name>Yellow Springs, OH 45387</name>
+<name>Yokohama, Japan</name>
+<name>Yonkers, NY</name>
+<name>Yountville, CA</name>
+<name>Zaisertshofen, Germany</name>
+<name>Zell, Germany</name>
+<name>Zeltweg, Austria</name>
+<name>Zug, CH</name>
+<name>Zurich, CH</name>
+<name>Nelson, New Zealand</name>
+<name>Napier, NZ</name>
+<name>Mt Howard, Ireland</name>
+<name>Motueka, NZ</name>
+<name>La Crescenta-Montrose, CA</name>
+<name>Markwood VIC 3678, Australia</name>
+<name>Acton, MA</name>
+<name>Adelheidsdorf, Germany</name>
+<name>Akron, OH</name>
+<name>Lake Worth, FL</name>
+<name>Lakewood, CO</name>
+<name>Lamoine, ME</name>
+<name>Landsberg am Lech, Germany</name>
+<name>Langley, BC</name>
+<name>3921 Langschlag, Austria</name>
+<name>La Porte, IN 46350</name>
+<name>Larchmont, NY</name>
+<name>Las Matas, Spain</name>
+<name>Lausanne, Switzerland</name>
+<name>Lawrenceville, NJ</name>
+<name>Alachua, FL</name>
+<name>Alamor, Equador</name>
+<name>Alesund, Norway</name>
+<name>Alexandria, Egypt</name>
+<name>Alexandria, VA</name>
+<name>Alexandria, LA</name>
+<name>Alfter, Germany</name>
+<name>Allison Park, PA</name>
+<name>Alma, AR</name>
+<name>Altadena, CA</name>
+<name>Altenburg, Germany</name>
+<name>American Fork, UT</name>
+<name>Americus, GA</name>
+<name>Amherstburg, ON</name>
+<name>Anacortes, WA</name>
+<name>Anderson, AL</name>
+<name>Ann Arbor, MI</name>
+<name>Antalya, Turkey</name>
+<name>Antwerp, Belgium</name>
+<name>Appleton, WI</name>
+<name>Arden, NC 28704</name>
+<name>Argyle, NY 12809</name>
+<name>Arlington, MA</name>
+<name>Arlington,VA</name>
+<name>Arvada, CO</name>
+<name>Astoria, NY</name>
+<name>Atascadero, CA</name>
+<name>Atibaia - São Paulo</name>
+<name>Averill Park, NY</name>
+<name>Avignon, France</name>
+<name>Avila Beach, CA</name>
+<name>Avon Lake, OH</name>
+<name>Bad Schönborn, Germany</name>
+<name>Boll, Germany</name>
+<name>Bradenton, FL</name>
+<name>Bainbridge Island, WA</name>
+<name>Ballwin, MO</name>
+<name>Bakersfield, CA</name>
+<name>Bakersfield, CA</name>
+<name>Bakersfield, CA</name>
+<name>Atascadero, CA</name>
+<name>Bakersfield, CA</name>
+<name>Bakersfield, CA</name>
+<name>Baltimore, Ireland</name>
+<name>Banstead, Surrey</name>
+<name>Barcelona, Spain</name>
+<name>Bardon QLD</name>
+<name>Bärnbach, Austria</name>
+<name>Barrington, NH</name>
+<name>Barre, VT 05641</name>
+<name>Basel, CH</name>
+<name>Basking Ridge, NJ</name>
+<name>Batavia, IL</name>
+<name>Bay Harbor Islands, FL</name>
+<name>Bayonne, NJ</name>
+<name>Beacon, NY 12508</name>
+<name>Beaumont, TX</name>
+<name>Beaverton, OR</name>
+<name>Stuttgart, Germany</name>
+<name>Bellaire, TX</name>
+<name>Bellevue, WA</name>
+<name>Bellingen NSW 2454, Australia</name>
+<name>Bellingham, WA</name>
+<name>Bellmawr, NJ</name>
+<name>Belmont, CA</name>
+<name>Belmont, MA</name>
+<name>Belo Horizonte - Minas Gerais, Brazil</name>
+<name>Benalmádena, Spain</name>
+<name>Berea, KY</name>
+<name>Berlin, Germany</name>
+<name>Berwick, LA</name>
+<name>Bethel, ME</name>
+<name>Bethlehem, PA</name>
+<name>Bexley, OH</name>
+<name>Biloela QLD 4715</name>
+<name>Birmingham, West Midlands, UK</name>
+<name>Blackrock, Ireland</name>
+<name>Boca Raton, FL</name>
+<name>Bodega, CA 94922</name>
+<name>Borculo, Nederland</name>
+<name>Borkwalde, Germany</name>
+<name>Boston, MA</name>
+<name>Boston, NY 14025</name>
+<name>Boulder, CO</name>
+<name>Bowen Island, BC</name>
+<name>Brackenheim, Germany</name>
+<name>Brahmapur, Odisha</name>
+<name>Brandon, FL</name>
+<name>Braunschweig, Germany</name>
+<name>Bray, Ireland</name>
+<name>Breda, Netherlands</name>
+<name>Breinigsville, PA</name>
+<name>Brenham, TX 77833</name>
+<name>Brentwood, TN</name>
+<name>Brevard, NC</name>
+<name>Brewster, NY 10509</name>
+<name>Brienz, CH</name>
+<name>Bronxville, NY</name>
+<name>Brookfield, IL</name>
+<name>Brookfield, VT</name>
+<name>Brookhaven, PA</name>
+<name>Broomfield, CO</name>
+<name>Brühl, Germany</name>
+<name>Budapest, Hungary</name>
+<name>Buffalo, NY</name>
+<name>Burbank, CA</name>
+<name>Burgettstown, PA 15021</name>
+<name>623 35 Burgsvik</name>
+<name>Burien, WA</name>
+<name>Burlington, ON</name>
+<name>Burnaby, BC</name>
+<name>Burns, TN</name>
+<name>Burtonsville, MD</name>
+<name>Camarillo, CA</name>
+<name>Campobello, SC</name>
+<name>Canberra ACT 2601, Australia</name>
+<name>Candler, NC 28715</name>
+<name>Canoga Park, LA</name>
+<name>Canton, NY 13617</name>
+<name>Cape Coral, FL</name>
+<name>Cape Town, South Africa</name>
+<name>Carbondale, CO 81623</name>
+<name>Cardiff, CA</name>
+<name>Carignan, QC</name>
+<name>Carlisle, Cumbria, UK</name>
+<name>Carlton, WA</name>
+<name>Carmel, NY</name>
+<name>Carrboro, NC</name>
+<name>Casper, WY</name>
+<name>Castellón de la Plana, Spain</name>
+<name>Cecilton, MD</name>
+<name>Cedar Hill, TX</name>
+<name>Celle, Germany</name>
+<name>Chandler, IN</name>
+<name>Chelan Falls, WA</name>
+<name>Chelsea, QC</name>
+<name>Chelsea, MI 48118</name>
+<name>Cheltenham, Gloucestershire, UK</name>
+<name>Chengdu, Sichuan, China</name>
+<name>Chester, NY</name>
+<name>Cheverly, MD</name>
+<name>Chicago Ridge, IL</name>
+<name>Chipstead, Surrey, UK</name>
+<name>Menorca, Spain</name>
+<name>Clermont, FL</name>
+<name>Cluj-Napoca, Romania</name>
+<name>Coarsegold, CA 93614</name>
+<name>Coconut Creek, FL</name>
+<name>Coconut Grove, FL</name>
+<name>Coimbatore, Tamil Nadu, India</name>
+<name>Coimbra, Portugal</name>
+<name>Colchester, Essex</name>
+<name>Cold Spring, NY 10516</name>
+<name>Collingdale, PA</name>
+<name>Collingswood, NJ</name>
+<name>Colombo, Sri Lanka</name>
+<name>Colts Neck, NJ</name>
+<name>Columbia, SC</name>
+<name>Concord, MA</name>
+<name>Concord, CA</name>
+<name>Conifer, CO 80433</name>
+<name>Contoocook, NH</name>
+<name>Coopersburg, PA 18036</name>
+<name>Coppell, TX</name>
+<name>Cornish, NH</name>
+<name>Corona, CA</name>
+<name>Cos Cob, CT</name>
+<name>Costa Mesa, CA</name>
+<name>Cottage Grove, OR 97424</name>
+<name>Cottonwood, AZ</name>
+<name>Crescent Head NSW 2440, Australia</name>
+<name>Crestone, CO</name>
+<name>Crewe, VA 23930</name>
+<name>Crozier, VA 23039</name>
+<name>Cuernavaca, Mexico</name>
+<name>Cuttack, Odisha, India</name>
+<name>Heidelberg, Germany</name>
+<name>Dar es Salaam, Tanzania</name>
+<name>Darien, IL</name>
+<name>Davidson, NC</name>
+<name>Davis, CA</name>
+<name>Decatur, GA</name>
+<name>Deggingen, Germany</name>
+<name>DeLand, FL</name>
+<name>Delta, BC</name>
+<name>The Hague, NL</name>
+<name>Denpasar, Indonesia</name>
+<name>Denville, NJ</name>
+<name>De Pere, WI</name>
+<name>Des Moines, IA</name>
+<name>Deutschlandsberg, Austria</name>
+<name>Deux-Montagnes, QC, Canada</name>
+<name>Dixon, IL 61021</name>
+<name>Doha, Qatar</name>
+<name>Domène, France</name>
+<name>Donegal, Ireland</name>
+<name>Dublin, Ireland</name>
+<name>Dubuque, IA</name>
+<name>Dusseldorf, Germany</name>
+<name>Duisburg, Germany</name>
+<name>Duluth, MN</name>
+<name>Dumont, NJ</name>
+<name>Dundas, Canada</name>
+<name>Dunsmuir, CA</name>
+<name>Durham, NH</name>
+<name>Eagan, MN</name>
+<name>East Elmhurst, NY</name>
+<name>East Lyme, CT</name>
+<name>East Patchogue, NY</name>
+<name>East Stroudsburg, PA</name>
+<name>Easthampton, MA</name>
+<name>Edgewater, NJ</name>
+<name>Edinburgh, City of Edinburgh, Scotland</name>
+<name>Edison, NJ</name>
+<name>Edmonton, AB</name>
+<name>Eichenau, Germany</name>
+<name>Eindhoven, NL</name>
+<name>Einhausen, Germany</name>
+<name>Eitorf, Germany</name>
+<name>10600 Ekenäs, Finland</name>
+<name>El Cerrito, CA</name>
+<name>Eldoret, Kenya</name>
+<name>Elizabeth, NJ</name>
+<name>Elm Grove, WI</name>
+<name>Elmhurst, NY</name>
+<name>Elmshorn, Germany</name>
+<name>Elverta, CA 95626</name>
+<name>Emeryville, CA</name>
+<name>Emmaus, PA</name>
+<name>Emmendingen, Germany</name>
+<name>Emmerthal, Germany</name>
+<name>Enfield, NH</name>
+<name>Englewood, CO</name>
+<name>Ennepetal, Germany</name>
+<name>Enschede, NL</name>
+<name>Erie, PA</name>
+<name>Erkelenz, Germany</name>
+<name>Eschwege, Germany</name>
+<name>Essen, Germany</name>
+<name>Estoril, Portugal</name>
+<name>Etobicoke, Canada</name>
+<name>Eureka, CA</name>
+<name>Everett, WA</name>
+<name>Evergreen, CO 80439</name>
+<name>Evergreen Park, IL</name>
+<name>Évora, Portugal</name>
+<name>Faber, VA 22938</name>
+<name>Fairborn, OH</name>
+<name>Fairfield, IA</name>
+<name>Fairport, NY 14450</name>
+<name>Falmouth, ME</name>
+<name>Fargo, ND</name>
+<name>Feldkirchen in Kärnten, Austria</name>
+<name>Ferndale, MI</name>
+<name>Festac Town</name>
+<name>Fishguard, Pembrokeshire, UK</name>
+<name>Florence, MA</name>
+<name>Florence, OR 97439</name>
+<name>Flossmoor, IL</name>
+<name>Fohnsdorf, Austria</name>
+<name>Førde, Norway</name>
+<name>Forest Hills, NY</name>
+<name>Forestville, CA</name>
+<name>Fort Lauderdale, FL</name>
+<name>Fort Myers, FL</name>
+<name>Fort Wayne, IN</name>
+<name>Fountain Valley, CA</name>
+<name>Framingham, MA</name>
+<name>Franconia, NH</name>
+<name>Frederick, MD</name>
+<name>Freiburg, Germany</name>
+<name>Freilassing, Germany</name>
+<name>Friday Harbor, WA 98250</name>
+<name>Galveston, TX</name>
+<name>Ganeshpuri, India</name>
+<name>Gansevoort, NY 12831</name>
+<name>Gardiner, NY</name>
+<name>Garrison, NY</name>
+<name>Gatineau, QC</name>
+<name>Gaunaha, India</name>
+<name>Gauting, Germany</name>
+<name>Geesteren, NL</name>
+<name>Geeveston TAS, Australia</name>
+<name>Geislingen, Germany</name>
+<name>Georgetown, Guyana</name>
+<name>Gladstone, OR</name>
+<name>Gladstone, MO</name>
+<name>Glen Cove, NY</name>
+<name>Glen Head, NY</name>
+<name>Glen Mills, PA 19342</name>
+<name>Glendale, CA</name>
+<name>Glenelg, MD 21737</name>
+<name>Göppingen, Germany</name>
+<name>Golden, CO</name>
+<name>Gort, Ireland</name>
+<name>Gorey, Ireland</name>
+<name>Gosbach, Germany</name>
+<name>Gottmadingen, Germany</name>
+<name>Grafling, Germany</name>
+<name>Grand Rapids, MI</name>
+<name>Grants Pass, OR</name>
+<name>Graz, Austria</name>
+<name>Great Neck, NY</name>
+<name>Great Offley, Hertfordshire SG5, UK</name>
+<name>Greeley, CO</name>
+<name>Greenfield Center, NY 12833</name>
+<name>Greensboro, NC</name>
+<name>Greenwich, NY</name>
+<name>Grieskirchen, Austria</name>
+<name>Grilly, France</name>
+<name>Hrodna, Belarus</name>
+<name>Gross-Umstadt, Germany</name>
+<name>Grosse Pointe, MI</name>
+<name>Großlobming, Austria</name>
+<name>Guadalajara, JAL, Mexico</name>
+<name>Guelph, ON</name>
+<name>Guimarães, Portugal</name>
+<name>Gurgaon, Haryana</name>
+<name>Haan, Germany</name>
+<name>Hackensack, NJ</name>
+<name>Haiku, HI</name>
+<name>Halfmoon Bay, BC V0N</name>
+<name>Halifax, VA</name>
+<name>Hamburg, Germany</name>
+<name>Hamelin, Germany</name>
+<name>Hamilton Township, NJ</name>
+<name>Hampton Bays, NY</name>
+<name>Hanoi, Vietnam</name>
+<name>Hartington, NE 68739</name>
+<name>Hasbrouck Heights, NJ</name>
+<name>Hasselt, Belgium</name>
+<name>Hastings-on-Hudson, NY</name>
+<name>Hatboro, PA</name>
+<name>Haverfordwest, Pembrokeshire, UK</name>
+<name>Havre de Grace, MD</name>
+<name>Williamsburg, MA</name>
+<name>Heerhugowaard, NL</name>
+<name>Heidelberg, Germany</name>
+<name>Heilbronn, Germany</name>
+<name>Helena, MT</name>
+<name>Helsinki, Finland</name>
+<name>Hemet, CA</name>
+<name>Hesperia, MI 49421</name>
+<name>Hessigkofen, CH</name>
+<name>Highbury, London N5, UK</name>
+<name>Highland, IN</name>
+<name>Highland Park, NJ</name>
+<name>Hobart TAS, Australia</name>
+<name>Hof bei Salzburg, Austria</name>
+<name>Homestead, FL</name>
+<name>Honesdale, PA 18431</name>
+<name>Honiton, Devon EX14, UK</name>
+<name>Hoorn, NL</name>
+<name>Hopewell Junction, NY 12533</name>
+<name>Hopfgarten im Brixental, Austria</name>
+<name>Hopkinton, NH</name>
+<name>Hornbeak, TN 38232</name>
+<name>Hornchurch, Greater London, UK</name>
+<name>Horsham, West Sussex, UK</name>
+<name>Howard Beach, NY</name>
+<name>Hückelhoven, Germany</name>
+<name>Hudson, QC, Canada</name>
+<name>Huntington, NY</name>
+<name>Huntington Beach, CA</name>
+<name>Hurley, NY</name>
+<name>Hyde Park, MA</name>
+<name>Hyderabad, Andhra Pradesh, India</name>
+<name>Idaho Falls, ID</name>
+<name>Idyllwild-Pine Cove, CA</name>
+<name>Indian Harbour Beach, FL</name>
+<name>Indianapolis, IN</name>
+<name>Innsbruck, Austria</name>
+<name>Irvington, NY</name>
+<name>Iserlohn, Germany</name>
+<name>Islamorada, FL</name>
+<name>Istanbul, Turkey</name>
+<name>Jacksonville, FL</name>
+<name>Jalan, Punjab, India</name>
+<name>Jamaica, NY</name>
+<name>Jamaica Plain, MA</name>
+<name>Jersey City, NJ</name>
+<name>Jocotepec, JAL., Mexico</name>
+<name>Jos Plateau, Nigeria</name>
+<name>Juniper Hills, CA 93543</name>
+<name>Kahului, HI</name>
+<name>Kalamazoo, MI</name>
+<name>Kamen, Germany</name>
+<name>Kansas City, MO</name>
+<name>Karlsruhe, Germany</name>
+<name>Kassel, Germany</name>
+<name>Kearney, NE</name>
+<name>Kearny, NJ</name>
+<name>Kellogg, ID</name>
+<name>Kenmore, WA</name>
+<name>Kennewick, WA</name>
+<name>Lake Carmel, NY</name>
+<name>Keswick, Cumbria CA12, UK</name>
+<name>Kigali, Rwanda</name>
+<name>Kingston, ON</name>
+<name>Kingsville, MD</name>
+<name>Kinvarra, Ireland</name>
+<name>Klagenfurt, Austria</name>
+<name>Knittelfeld, Austria</name>
+<name>Koblenz, Germany</name>
+<name>Kodiak, AK</name>
+<name>Cologne, Germany</name>
+<name>5321 Koppl, Austria</name>
+<name>Kuchen, Germany</name>
+<name>Kutztown, PA 19530</name>
+<name>88400 Kylmälä, Finland</name>
+<name>La Cañada Flintridge, CA</name>
+<name>La Grande, OR 97850</name>
+<name>El Alto, Bolivia</name>
+<name>Laaber, Germany</name>
+<name>Lahaina, HI</name>
+<name>Lahore, Pakistan</name>
+<name>Lake Forest Park, WA</name>
+<name>Lake Helen, FL</name>
+<name>Lake Lure, NC</name>
+<name>Lake Worth, FL</name>
+<name>Lakewood, CO</name>
+<name>Lamoine, ME</name>
+<name>Leeds, MA</name>
+<name>Leeds, West Yorkshire, UK</name>
+<name>Leesburg, VA</name>
+<name>Guam, US-Territory, Micronesia</name>
+<name>Manila, Philippines</name>
+<name>Novosibirsk Oblast, Russia</name>
+<name>55 Palulu Way</name>
+<name>Aba, Nigeria</name>
+<name>Abington, PA</name>
+<name>Agadir, Morocco</name>
+<name>Albany, NZ</name>
+<name>Alhambra, CA</name>
+<name>Allston, MA</name>
+<name>Alva, FL</name>
+<name>Jalan Amed, Indonesia</name>
+<name>Amityville, NY</name>
+<name>Ankeny, IA</name>
+<name>Ankpa, Nigeria</name>
+<name>Arbúcies, Spain</name>
+<name>Arendal, Norway</name>
+<name>Arlington, TX</name>
+<name>Arrowtown, NZ</name>
+<name>Ås, Norway</name>
+<name>Ashland, OR</name>
+<name>Athens, OH</name>
+<name>Athol, ID</name>
+<name>Atlit, Israel</name>
+<name>Auburn, ME</name>
+<name>Avalon, Santa Catalina Island, CA</name>
+<name>Aurora, IL</name>
+<name>Avon, CT</name>
+<name>Ayabe, Kyoto, Japan</name>
+<name>Azeitao, Portugal</name>
+<name>Baguio, Philippines</name>
+<name>Baldock, UK</name>
+<name>Bangkok, Thailand</name>
+<name>Barnet, Heardfordshire</name>
+<name>Barranco, Peru</name>
+<name>Barrington, IL</name>
+<name>Barrington, RI</name>
+<name>Basingstoke, UK</name>
+<name>Bat Hefer, Israel</name>
+<name>Bay Village, OH</name>
+<name>Bayside, NY</name>
+<name>Beaverton, MI</name>
+<name>Beccles, UK</name>
+<name>Beirut, Lebanon</name>
+<name>Belfast, N-Irland, UK</name>
+<name>Bella Vista, Argentina</name>
+<name>Bellerose, NY</name>
+<name>Benaque, Spain</name>
+<name>Bend, OR</name>
+<name>Benicia, CA</name>
+<name>Berkeley Heights, NJ</name>
+<name>Bern, Switzerland</name>
+<name>Bethpage, NY</name>
+<name>Beulah, MI</name>
+<name>Big Bend, WI</name>
+<name>Binningen, Switzerland</name>
+<name>Blaenavon, UK</name>
+<name>Blandon, PA</name>
+<name>Blenheim, New Zealand</name>
+<name>Bloomfield, NJ</name>
+<name>Bloomington, IL</name>
+<name>Bloomington, MN</name>
+<name>Blue Mountains National Park, Australia</name>
+<name>Bolinas, CA</name>
+<name>Bologna, Italy</name>
+<name>Bonduel, WI</name>
+<name>Bonsall, CA</name>
+<name>Boonton Township, NJ</name>
+<name>Boulder Creek</name>
+<name>Boxford, MA</name>
+<name>Boynton Beach, FL</name>
+<name>Braga, Portugal</name>
+<name>Brandon, VT</name>
+<name>Bratislava, Slovakia</name>
+<name>Breda, NL</name>
+<name>Brookline, MA</name>
+<name>Brooklyn, Baltimore, MD</name>
+<name>Brookmans Park, UK</name>
+<name>Buccoo, Trinidad and Tobago</name>
+<name>Buchanan, VA</name>
+<name>Bucharest, Romania</name>
+<name>Buena Vista, NM</name>
+<name>Buhl, ID</name>
+<name>Bury St Edmunds, UK</name>
+<name>Butuan City, Philippines</name>
+<name>Galway, Ireland</name>
+<name>Cagayan de Oro, Philippines</name>
+<name>Cambridge, UK</name>
+<name>Camden, NJ</name>
+<name>Cancún, Mexico</name>
+<name>Canton, GA</name>
+<name>Canton, TX</name>
+<name>Capistrano Beach, CA</name>
+<name>Caracas, Venezuela</name>
+<name>Cardiff, UK</name>
+<name>Carlisle, PA</name>
+<name>Carlsbad, CA</name>
+<name>Carmel, IN</name>
+<name>Carriere, MS</name>
+<name>Cataumet, MA</name>
+<name>Cayce, SC</name>
+<name>Ciudad del Carmen, Mexico</name>
+<name>Cebu City, Philippines</name>
+<name>Centennial, CO</name>
+<name>Centerville, OH</name>
+<name>Centurion, South Africa</name>
+<name>Cercedilla, Spain</name>
+<name>Champaign, IL</name>
+<name>Chandler, AZ</name>
+<name>Chaska, MN</name>
+<name>Chatham, NY</name>
+<name>Chatsworth, CA</name>
+<name>Cherry Hill, NJ</name>
+<name>Chester, CT</name>
+<name>Chestnut Hill, MA</name>
+<name>Chiang Mai, Thailand</name>
+<name>Chino Hills, CA</name>
+<name>Christchurch, NZ</name>
+<name>Christchurch, UK</name>
+<name>Chuckey, TN</name>
+<name>Chula Vista, CA</name>
+<name>Clarksville, TN</name>
+<name>Cleveland Heights, OH</name>
+<name>Cleveland, GA</name>
+<name>Clifton, NJ</name>
+<name>Clonmel, Ireland</name>
+<name>Cohasset, MA</name>
+<name>Colfax, WI</name>
+<name>Conroe, TX</name>
+<name>Coonoor, India</name>
+<name>Copper Hill, VA</name>
+<name>Coronado, CA</name>
+<name>Cortlandt Manor, NY</name>
+<name>Covington, LA</name>
+<name>Kraków, Poland</name>
+<name>Cranberry Isles, ME</name>
+<name>Crestview, FL</name>
+<name>Croton-on-Hudson, NY</name>
+<name>Culver City, CA</name>
+<name>Cupertino, CA</name>
+<name>Cypress, TX</name>
+<name>Damascus, Syria</name>
+<name>Dania Beach, FL</name>
+<name>Danvers, MA</name>
+<name>Deerfield Beach, FL</name>
+<name>Del Mar, CA</name>
+<name>Delran, NJ</name>
+<name>Delray Beach, FL</name>
+<name>Denton, TX</name>
+<name>Derby, UK</name>
+<name>Derby, VT</name>
+<name>Des Plaines, IL</name>
+<name>Detroit, MI</name>
+<name>Diessen, NL</name>
+<name>Díli, Indonesia</name>
+<name>Dixon, NM</name>
+<name>Dolores, Spain</name>
+<name>Donostialdea, Spain</name>
+<name>Douglasville, GA</name>
+<name>Doylestown, PA</name>
+<name>Dudley, UK</name>
+<name>Duluth, GA</name>
+<name>Dulzura, CA</name>
+<name>Dunedin, FL</name>
+<name>Eagle Creek, OR</name>
+<name>East Aurora, NY</name>
+<name>East Brunswick, NJ</name>
+<name>East Dummerston, VT</name>
+<name>East Greenville, PA</name>
+<name>East Orange, NJ</name>
+<name>East Point, GA</name>
+<name>East Rutherford, NJ</name>
+<name>East Wenatchee, WA</name>
+<name>Eastport, MI</name>
+<name>Efrat, Jerusalem</name>
+<name>Egg Harbor Township, NJ</name>
+<name>Ekerö, Sweden</name>
+<name>El Cajon, CA</name>
+<name>Elkin, NC</name>
+<name>Elkton, MD</name>
+<name>Elma, NY</name>
+<name>Elyria, OH</name>
+<name>Emerson, Canada</name>
+<name>Encinitas, CA</name>
+<name>Encino, CA</name>
+<name>Enugu, Nigeria</name>
+<name>Erdenheim, PA</name>
+<name>Eskilstuna, Sweden</name>
+<name>Essex Junction, VT</name>
+<name>Eureka Springs, AR</name>
+<name>Fair Lawn, NJ</name>
+<name>Fair Oaks, CA</name>
+<name>Fall River, MA</name>
+<name>Fancy Gap, VA</name>
+<name>Farmington, CT</name>
+<name>Farmington, NH</name>
+<name>Farmington, ME</name>
+<name>Farr West, UT</name>
+<name>Federal Heights, CO</name>
+<name>Federal Way, WA</name>
+<name>Fenton, MO</name>
+<name>Flagstaff, AZ</name>
+<name>Fleetwood, PA</name>
+<name>Florence, KY</name>
+<name>Florham Park, NJ</name>
+<name>Flourtown, PA</name>
+<name>Fond du Lac, WI</name>
+<name>Forest Knolls, CA</name>
+<name>Fort Bragg, CA</name>
+<name>Foster City, CA</name>
+<name>Franklin, MA</name>
+<name>Franklin, TN</name>
+<name>Fremont, CA</name>
+<name>Fresno, CA</name>
+<name>Friendswood, TX</name>
+<name>Frinton-on-Sea, UK</name>
+<name>Fort Collins, CO</name>
+<name>Fuenlabrada, Spain</name>
+<name>Gan Yavne, Israel</name>
+<name>Gandia, Spain</name>
+<name>Gants Hill, UK</name>
+<name>Gardnerville, NV</name>
+<name>Gävle, Sveden</name>
+<name>Gaza, Palestine</name>
+<name>Geneva, Switzerland</name>
+<name>Georgetown, TX</name>
+<name>Geraldine, NZ</name>
+<name>Gettysburg, PA</name>
+<name>Gilroy, CA</name>
+<name>Givatayim, Israel</name>
+<name>Glasgow, UK</name>
+<name>Glendale Heights, IL</name>
+<name>Glenview, IL</name>
+<name>Glenwood Springs, CO</name>
+<name>Goffstown, NH</name>
+<name>Gold Hill, OR</name>
+<name>Gosport, UK</name>
+<name>Grand Island, NE</name>
+<name>Grand Prairie, TX</name>
+<name>Great Barrington, MA</name>
+<name>Great Offley</name>
+<name>Greece, NY</name>
+<name>Greenport, NY</name>
+<name>Greenville, RI</name>
+<name>Greenwood, IN</name>
+<name>Guatemala</name>
+<name>Gweru, Zimbabwe</name>
+<name>Hadera, Israel</name>
+<name>Haifa, Israel</name>
+<name>Hamamatsu, Japan</name>
+<name>Hamburg, NY</name>
+<name>Hamilton, NZ</name>
+<name>Hamilton, UK</name>
+<name>Hanover, PA</name>
+<name>Harduf, Israel</name>
+<name>Harrisburg, PA</name>
+<name>Hartwell, GA</name>
+<name>Hartwell, UK</name>
+<name>Hebden Bridge, UK</name>
+<name>Hebron, KY</name>
+<name>Heilig Landstichting, Netherlands</name>
+<name>Hendersonville, NC</name>
+<name>Henderson, NV</name>
+<name>Herzliya, Israel</name>
+<name>Hexham, UK</name>
+<name>Hickory, NC</name>
+<name>High Wycombe, UK</name>
+<name>Highland Park, IL</name>
+<name>Hillsboro, OR</name>
+<name>Hillsborough Township, NJ</name>
+<name>Hillsville, VA</name>
+<name>Ho Chi Minh City, Vietnam</name>
+<name>Hoboken, NJ</name>
+<name>Holland, NY</name>
+<name>Holly Springs, NC</name>
+<name>Holon, Israel</name>
+<name>Homs Governorate, Syria</name>
+<name>Hong Kong, Honk Kong</name>
+<name>Honokaa, HI</name>
+<name>Hudson, FL</name>
+<name>Hudson, NY</name>
+<name>Hull, MA</name>
+<name>Hyattsville, MD</name>
+<name>Incek Taxi, Turkey</name>
+<name>Ipswich, UK</name>
+<name>Irvine, CA</name>
+<name>Jackson, MO</name>
+<name>Jamaica Plain, MA</name>
+<name>Jeffersonville, IN</name>
+<name>Midbar Yehuda HaTichon Reserve, Israel</name>
+<name>Jinja, Uganda</name>
+<name>Johannesburg,l South Africa</name>
+<name>Kabul, Afghanistan</name>
+<name>Kailua, HI</name>
+<name>Kailua-Kona, HI</name>
+<name>Kakamega, Kenya</name>
+<name>Kalya, Israel</name>
+<name>Kamakura, Japan</name>
+<name>Katy, TX</name>
+<name>Kealakekua, HI</name>
+<name>Kelowna, BC, Canada</name>
+<name>Kensington, CA</name>
+<name>Kenya, Africa</name>
+<name>Kfar Haim, Israel</name>
+<name>Kefar Sava, Israel</name>
+<name>Kings Point, NY</name>
+<name>Kingston, MA</name>
+<name>Kingston, NY</name>
+<name>Kirkby-in-Furness, UK</name>
+<name>Kirkland, WA</name>
+<name>Cologne, Germany</name>
+<name>Kraków, Poland</name>
+<name>Kuala Lumpur, Malaysia</name>
+<name>Kubu, Indonesia</name>
+<name>La Jolla, CA</name>
+<name>La Marque, TX</name>
+<name>La Marsa, Tunisia</name>
+<name>La Mesa, CA</name>
+<name>La Verkin, UT</name>
+<name>Lacey, WA</name>
+<name>Ladson, SC</name>
+<name>Laguna Beach, CA</name>
+<name>Laguna Niguel, CA</name>
+<name>Lake Forest, IL</name>
+<name>Lake Tapps, WA</name>
+<name>Lakewood, CA</name>
+<name>Lakewood, WA</name>
+<name>Lansdowne, PA</name>
+<name>Laurel, NY</name>
+<name>Lawrence, KS</name>
+<name>Le Mont-Pélerin, Switzerland</name>
+<name>Lebanon, NH</name>
+<name>Leganés, Spain</name>
+<name>Leiden Netherlands</name>
+<name>Lexington, KY</name>
+<name>Lillesand, Norway</name>
+<name>Lima, Peru</name>
+<name>Lincoln Park, MI</name>
+<name>Littleton, CO</name>
+<name>Livingston, NJ</name>
+<name>Lomita, CA</name>
+<name>Longmont, CO</name>
+<name>Lorane, OR</name>
+<name>Loughborough, UK</name>
+<name>Louisville, TN</name>
+<name>Louisville, KY</name>
+<name>Lower Hutt, NZ</name>
+<name>Luang Prabang, Laos</name>
+<name>Lugano, CH</name>
+<name>Lyme, NH</name>
+<name>Lyndhurst, NJ</name>
+<name>Lynn, MA</name>
+<name>Macau, Macau</name>
+<name>Málaga, Spain</name>
+<name>Malmesbury, UK</name>
+<name>Malvern, PA</name>
+<name>Manchester Township, NJ</name>
+<name>Mannheim, Germany</name>
+<name>Maple Shade Township, NJ</name>
+<name>Maplewood, NJ</name>
+<name>Marion Station, MD</name>
+<name>Marshall, CA</name>
+<name>Marshalltown, IA</name>
+<name>Marshfield, MA</name>
+<name>Martinez, GA</name>
+<name>Maryknoll Seminary, NY</name>
+<name>Mason, OH</name>
+<name>Massapequa Park, NY</name>
+<name>McAllen, TX</name>
+<name>Melbourne,m FL</name>
+<name>Melvin, IA</name>
+<name>Mequon, WI</name>
+<name>Meran, Italy</name>
+<name>Mexico City, Mexico</name>
+<name>Miami Gardens, FL</name>
+<name>Mikhmoret, Israel</name>
+<name>Middle Island, NY</name>
+<name>Middlebury, VT</name>
+<name>Middletown, CA</name>
+<name>Milan, Italy</name>
+<name>Milton, VT</name>
+<name>Mission Viejo, CA</name>
+<name>Mobara, Japan</name>
+<name>Monroe, NC</name>
+<name>Monrovia, CA</name>
+<name>Montebello, CA</name>
+<name>Montevideo, Uruguay</name>
+<name>Monza, Italy</name>
+<name>Morrisville, PA</name>
+<name>Mount Vernon, OH</name>
+<name>Mountlake Terrace, WA</name>
+<name>Mundelein, IL</name>
+<name>Murphysboro, IL</name>
+<name>Musashino, Japan</name>
+<name>Mwanza, Tanzania</name>
+<name>Napa, CA</name>
+<name>Nawabshah, Pakistan</name>
+<name>Neptune City, NJ</name>
+<name>Neve Yarak, Israel</name>
+<name>New Market, MD</name>
+<name>New Rochelle, NY</name>
+<name>Newark, NJ</name>
+<name>Newark, NY</name>
+<name>Newport, OR</name>
+<name>Newton Centre, MA</name>
+<name>Niskayuna, NY</name>
+<name>Nokdim, Jerusalem, Israel</name>
+<name>Norfolk, MA</name>
+<name>Norman, OK</name>
+<name>Norrköping, Sweden</name>
+<name>North Canton, OH</name>
+<name>North Chittenden, VT</name>
+<name>North Easton, MA</name>
+<name>North Hills, CA</name>
+<name>Norwood, MA</name>
+<name>Norwood, CO</name>
+<name>Novara, Italy</name>
+<name>Novato, CA</name>
+<name>Oakley, CA</name>
+<name>Oban, New Zealand</name>
+<name>Oceano, CA</name>
+<name>Ojai, CA</name>
+<name>Okanogan, WA</name>
+<name>Old Saybrook, CT</name>
+<name>Olivebridge, NY</name>
+<name>Omak, WA</name>
+<name>Onalaska, WI</name>
+<name>Oneida, WI</name>
+<name>Ontario, OR</name>
+<name>Ooltewah, TN</name>
+<name>Oosterland, Netherlands</name>
+<name>Oreland, PA</name>
+<name>Orleans, MA</name>
+<name>Oro Valley, AZ</name>
+<name>Orselina, Switzerland</name>
+<name>Otley, UK</name>
+<name>Otumoetai, NZ</name>
+<name>Oxford, NZ</name>
+<name>Pai, Thailand</name>
+<name>Palisades Park, NJ</name>
+<name>Palo Alto, CA</name>
+<name>Panama, Panama</name>
+<name>Paonia, CO</name>
+<name>Paradise Valley, AZ</name>
+<name>Parkton, MD</name>
+<name>Passaic, NJ</name>
+<name>Pawtucket, RI</name>
+<name>Pembroke, MA</name>
+<name>Penarth, UK</name>
+<name>Peniche, Portugal</name>
+<name>Peru, VT</name>
+<name>Pittsburgh, PA</name>
+<name>Piedmont, CA</name>
+<name>Pierpont, OH</name>
+<name>Pietermaritzburg, South Africa</name>
+<name>Pine Grove, CA</name>
+<name>Pinole, CA</name>
+<name>Placerville, CA</name>
+<name>Plainfield, NJ</name>
+<name>Plantation, FL</name>
+<name>Playa Vista, CA</name>
+<name>Pleasant Grove, AL</name>
+<name>Pleasant Hill, IA</name>
+<name>Plymouth, MA</name>
+<name>Ponte Capriasca, CH</name>
+<name>Poreč, Croatia</name>
+<name>Port Charlotte, FL</name>
+<name>Port Orange, FL</name>
+<name>Port Royal, PA</name>
+<name>Porter, TX</name>
+<name>Potomac, MD</name>
+<name>Prieska, South Africa</name>
+<name>Puebla, Mexico</name>
+<name>Purcellvillem, VA</name>
+<name>Purvis, MS</name>
+<name>Queen Creek, AZ</name>
+<name>Queensbury, NY</name>
+<name>Quezon City, Philippines</name>
+<name>Raglan,NZ</name>
+<name>Ramat Hasharon, Israel</name>
+<name>Ramat Gan, Israel</name>
+<name>Ramat Yishai, Israel</name>
+<name>Ramot HaShavim, Israel</name>
+<name>Ramsey, NJ</name>
+<name>Randolph, NJ</name>
+<name>Redondo Beach, CA</name>
+<name>Reykjavík, Iceland</name>
+<name>Rhinebeck, NY</name>
+<name>Rice Lake, WI</name>
+<name>Richboro, PA</name>
+<name>Richmond, New Zealand</name>
+<name>Richmond, CA</name>
+<name>Richmond, NH</name>
+<name>Richmond Hill, NY</name>
+<name>Ridgewood, NY</name>
+<name>Ringwood, NJ</name>
+<name>Rishon LeTsiyon, Israel</name>
+<name>Riverside, CA</name>
+<name>Robbinsville, NJ</name>
+<name>Rochester, MN</name>
+<name>Rock Hill, SC</name>
+<name>Rockaway Beach, NY</name>
+<name>Roermond, NL</name>
+<name>Rolle, CH</name>
+<name>Roswell, GA</name>
+<name>Rotterdam, NL</name>
+<name>Rutland, VT</name>
+<name>Saint Louis</name>
+<name>Salem, CT</name>
+<name>Salem, OR</name>
+<name>Salida, CO</name>
+<name>Saline, MI</name>
+<name>San Carlos, CA</name>
+<name>San Clemente, CA</name>
+<name>San Jose, Costa Rica</name>
+<name>San Juan, Philippines</name>
+<name>San Marcos, CA</name>
+<name>San Sebastián, Spain</name>
+<name>San Tan Valley, AZ</name>
+<name>Sandbach, UK</name>
+<name>Santa Clarita, CA</name>
+<name>Santa Fe, Panama</name>
+<name>Santa Maria, CA</name>
+<name>Schijndel, NL</name>
+<name>Schull, Ireland</name>
+<name>Scituate, MA</name>
+<name>Scottsdale, AZ</name>
+<name>Scranton, PA</name>
+<name>Sedona, AZ</name>
+<name>Seoul, South Korea</name>
+<name>Seymour, TN</name>
+<name>Seymour, IL</name>
+<name>Sharjah, UAE</name>
+<name>Shiloh, IL</name>
+<name>Shippenville, PA</name>
+<name>Shirebrook, UK</name>
+<name>Singapore, Malaysia</name>
+<name>Sinking Spring, PA</name>
+<name>Sioux Falls, SD</name>
+<name>Skärholmen, Sweden</name>
+<name>Salt Lake City, UT</name>
+<name>Sligo, Ireland</name>
+<name>Smyrna, GA</name>
+<name>Solihull, UK</name>
+<name>Somerset County, NJ</name>
+<name>Sonoma, CA</name>
+<name>Soperton, GA</name>
+<name>South Freeport, ME</name>
+<name>South Milwaukee, WI</name>
+<name>Southgate, KY</name>
+<name>Springdale, UT</name>
+<name>Springfield, OR</name>
+<name>Springfield Gardens, NY</name>
+<name>St Albans, UK</name>
+<name>Saint Augustine Beach, FL</name>
+<name>Saint Charles, MO</name>
+<name>Saint James City, FL</name>
+<name>Saint Gallen, CH</name>
+<name>Standish, ME</name>
+<name>Stanley, NY</name>
+<name>Star, ID</name>
+<name>Sterling, VA</name>
+<name>Stewart Island, NZ</name>
+<name>Stockholm, Sweden</name>
+<name>Strafford, PA</name>
+<name>Sun Prairie, WI</name>
+<name>Superior, CO</name>
+<name>Suwanee, GA</name>
+<name>Swanton, OH</name>
+<name>Tacoma, WA</name>
+<name>Taipei, Taiwan</name>
+<name>Tallahassee, FL</name>
+<name>Tartu, Estonia</name>
+<name>Tehran, Iran</name>
+<name>Tel Aviv-Yafo, Israel</name>
+<name>Temecula, CA</name>
+<name>Terlingua, TX</name>
+<name>Theodosia, MO</name>
+<name>Thousand Oaks, CA</name>
+<name>Toledo, OH</name>
+<name>Tonasket, WA</name>
+<name>Trnava, Slovakia</name>
+<name>Troy, MI</name>
+<name>Trumbull, CT</name>
+<name>Tucker, GA</name>
+<name>Tulsa, OK</name>
+<name>Tumwater, WA</name>
+<name>Ubud, Bali, Indonesia</name>
+<name>University Place, WA</name>
+<name>Upper Marlboro,MD</name>
+<name>Urbana, IL</name>
+<name>Utuado, Puerto Rico</name>
+<name>Uxbridge, UK</name>
+<name>Valatie, NY</name>
+<name>Valencia, Spain</name>
+<name>Valladolid, Spain</name>
+<name>Valley Stream, NY</name>
+<name>Valparaiso, FL</name>
+<name>Van Meter, IA</name>
+<name>Vashon Island, WA</name>
+<name>Velika Loka, Slovenia</name>
+<name>Ventura, CA</name>
+<name>Vernonia, OR</name>
+<name>Vero Beach, FL</name>
+<name>Vessy, CH</name>
+<name>Vicksburg, MI</name>
+<name>Villa Hills, KY</name>
+<name>Virgin, UT</name>
+<name>Viroqua, WI</name>
+<name>Waco, TX</name>
+<name>Wadhurst, UK</name>
+<name>Waldoboro, ME</name>
+<name>Waltham, MA</name>
+<name>Wapella, IL</name>
+<name>Ward, CO</name>
+<name>Warmenhuizen, NL</name>
+<name>Washington, MO</name>
+<name>Washington, UT</name>
+<name>Waterford, VT</name>
+<name>Wayne, ME</name>
+<name>Weatherford, TX</name>
+<name>Webster, NY</name>
+<name>Webster, NH</name>
+<name>Wendell, MA</name>
+<name>West Babylon, NY</name>
+<name>West Chester, PA</name>
+<name>West Chester, OH</name>
+<name>West Lafayette, IN</name>
+<name>West Lebanon, NH</name>
+<name>West Milford, NJ</name>
+<name>Westbrook, ME</name>
+<name>Westerly, RI</name>
+<name>Westfield, MA</name>
+<name>Westlake Village, CA</name>
+<name>Weston, CT</name>
+<name>Westport, ME</name>
+<name>Weybridge, UK</name>
+<name>Whakatane, NZ</name>
+<name>Wheat Ridge, CO</name>
+<name>Wilmington, DE</name>
+<name>Wilton, CT</name>
+<name>Windermere, FL</name>
+<name>Windsor, ME</name>
+<name>Winston-Salem, NC</name>
+<name>Winter Garden, FL</name>
+<name>Winter Haven, FL</name>
+<name>Woodbury, VT</name>
+<name>Woodville, VA</name>
+<name>Worthing, UK</name>
+<name>Worthington, OH</name>
+<name>Yangon, Myanmar (Burma)</name>
+<name>Yangsan-si, South Korea</name>
+<name>Yardley, PA</name>
+<name>Yavne, Israel</name>
+<name>Yellowknife, Canada</name>
+<name>Ylöjärvi, Finland</name>
+<name>York, UK</name>
+<name>Satara, India</name>
+<name>Zaltbommel, NL</name>
+<name>Zapopán, Mexico</name>
+<name>Zwolle, NL</name>
+<name>Red Hook</name>
+<name>Fairborn</name>
+<name>Northampton</name>
+<name>Mead</name>
+<name>Rutledge</name>
+<name>Haydenville</name>
+<name>North Waterboro</name>
+<name>Brinnon</name>
+<name>Hamilton Township</name>
+<name>Hoffman Estates</name>
+<name>Cambridge</name>
+<name>Port Townsend</name>
+<name>Kettering</name>
+<name>Dallas</name>
+<name>New Castle</name>
+<name>Masonville</name>
+<name>Bradenton</name>
+<name>Rutledge</name>
+<name>Wasilla</name>
+<name>Stevenson</name>
+<name>Nordland</name>
+<name>Ridgway</name>
+<name>Woodland Hills</name>
+<name>Alexander</name>
+<name>Torrington</name>
+<name>Hamilton Township</name>
+<name>Fort Meade</name>
+<name>West Windsor Township</name>
+<name>Morganville</name>
+<name>West Windsor Township</name>
+<name>Morganville</name>
+<name>La Cañada Flintridge</name>
+<name>Tucson</name>
+<name>Charlottesville</name>
+<name>Greenbelt</name>
+<name>Columbia</name>
+<name>East Dummerston</name>
+<name>Manhattan</name>
+<name>Coarsegold</name>
+<name>Stevenson</name>
+<name>Adkins</name>
+<name>South Portland</name>
+<name>Villa Rica</name>
+<name>Northampton</name>
+<name>Waimea</name>
+<name>Narberth</name>
+<name>Quakertown</name>
+<name>Poughkeepsie</name>
+<name>Fort Worth</name>
+<name>La Porte</name>
+<name>Pāhoa</name>
+<name>Indio</name>
+<name>Port Townsend</name>
+<name>Hunter</name>
+<name>Kinnelon</name>
+<name>Grosse Pointe Park</name>
+<name>Albany</name>
+<name>Albany</name>
+<name>West Suffield</name>
+<name>Sutton</name>
+<name>South Fallsburg</name>
+<name>Saint Johnsbury</name>
+<name>De Pere</name>
+<name>Wenatchee</name>
+<name>Brisbane</name>
+<name>Lakewood</name>
+<name>Port Townsend</name>
+<name>South Pasadena</name>
+<name>Danbury</name>
+<name>West Hills</name>
+<name>Clarkston</name>
+<name>Port Townsend</name>
+<name>Randolph Center</name>
+<name>Fallbrook</name>
+<name>Somerset County</name>
+<name>Lake Wales</name>
+<name>Las Vegas</name>
+<name>Darien</name>
+<name>Northampton</name>
+<name>Hamilton Township</name>
+<name>Peña Blanca</name>
+<name>Havertown</name>
+<name>Lusaka</name>
+<name>Olivos</name>
+<name>Adelaide</name>
+<name>Wentworth Falls</name>
+<name>Perth</name>
+<name>Sale</name>
+<name>Grodno</name>
+<name>São Paulo</name>
+<name>Barrie</name>
+<name>Verdun</name>
+<name>Orillia</name>
+<name>Windsor</name>
+<name>Montreal</name>
+<name>Carignan</name>
+<name>Kanata</name>
+<name>Xiamen</name>
+<name>Santiago</name>
+<name>San Carlos</name>
+<name>Quesada</name>
+<name>Santa Ana</name>
+<name>Sabalito</name>
+<name>Pula</name>
+<name>Berkshire</name>
+<name>Tsim Sha Tsui</name>
+<name>New Delhi</name>
+<name>Mount Abu</name>
+<name>Gaunaha</name>
+<name>Jalna</name>
+<name>Dublin</name>
+<name>Gort</name>
+<name>Baltimore</name>
+<name>Bray</name>
+<name>Gorey</name>
+<name>Mount Howard</name>
+<name>Kinvarra</name>
+<name>Metropolitan City of Rome</name>
+<name>Songdo-dong</name>
+<name>Kuwait</name>
+<name>San Miguel de Allende</name>
+<name>Mexico City</name>
+<name>Ajijic</name>
+<name>Ranui</name>
+<name>Nelson</name>
+<name>Førde</name>
+<name>Reine</name>
+<name>Caxias</name>
+<name>Évora</name>
+<name>Saint-Gilles</name>
+<name>Ciutadella de Menorca</name>
+<name>Sant Pere de Ribes</name>
+<name>Villarreal</name>
+<name>Burgsvik</name>
+<name>Lisse</name>
+<name>Breda Noord</name>
+<name>Cambridge</name>
+<name>River Avon</name>
+<name>Honiton</name>
+<name>London</name>
+<name>Totnes</name>
+<name>Bordon</name>
+<name>Keswick</name>
+<name>Highbury</name>
+<name>Dnepropetrovsk</name>
+<name>Torquay</name>
+<name>Battersea</name>
+<name>Westminster</name>
+<name>Kettering</name>
+<name>São Paulo</name>
+<name>Barrie</name>
+<name>Windsor</name>
+<name>Hudson</name>
+<name>Montreal</name>
+<name>Santiago</name>
+<name>San Carlos</name>
+<name>Santa Ana</name>
+<name>Sabalito</name>
+<name>Pula</name>
+<name>Northampton</name>
+<name>Leicester</name>
+<name>Luanco</name>
+<name>Domène</name>
+<name>Abbeyfeale</name>
+<name>Adelaide</name>
+<name>Baltimore</name>
+<name>Oakton</name>
+<name>Gouveia</name>
+<name>Québec City</name>
+<name>Rainier</name>
+<name>Rehovot</name>
+<name>Salford</name>
+<name>San Antonio</name>
+<name>Sandomil</name>
+<name>São Paulo</name>
+<name>Shawnigan Lake</name>
+<name>Sheffield</name>
+<name>Shilat</name>
+<name>Silver Spring</name>
+<name>Smorum</name>
+<name>South Jakarta City</name>
+<name>Aarhus</name>
+<name>Abbeyfeale</name>
+<name>Abergavenny</name>
+<name>Abu Dhabi</name>
+<name>Abuja</name>
+<name>Accra</name>
+<name>Adachi</name>
+<name>Adrian</name>
+<name>Al Khobar</name>
+<name>Alburtis</name>
+<name>Alcala de Henares</name>
+<name>Alexis</name>
+<name>Algemesí</name>
+<name>Alicante</name>
+<name>Alingsås</name>
+<name>Almaty</name>
+<name>Almere</name>
+<name>Almoster</name>
+<name>Alresford</name>
+<name>Alto do Moinho</name>
+<name>Altoona</name>
+<name>Amersfoort</name>
+<name>Ames</name>
+<name>Amstelveen</name>
+<name>Andergrove</name>
+<name>Andrews</name>
+<name>Angus</name>
+<name>Annaka</name>
+<name>Annandale</name>
+<name>Antananarivo</name>
+<name>Anyigba</name>
+<name>Apple Valley</name>
+<name>Arlon</name>
+<name>Assen</name>
+<name>Asuncion</name>
+<name>Atenas</name>
+<name>Athens</name>
+<name>Athens</name>
+<name>Auburn</name>
+<name>Auburn</name>
+<name>Auburn Hills</name>
+<name>Augusta</name>
+<name>Aurora</name>
+<name>Aurora</name>
+<name>Avoca</name>
+<name>Ayr</name>
+<name>Azogues</name>
+<name>Bad Mergentheim</name>
+<name>Badajoz</name>
+<name>Badger</name>
+<name>Baia Mare</name>
+<name>Bakersville</name>
+<name>Bala Cynwyd</name>
+<name>Balikesir</name>
+<name>Ballarat</name>
+<name>Ballina</name>
+<name>Balquhidder</name>
+<name>Baltimore</name>
+<name>Bamako</name>
+<name>Bamenda</name>
+<name>Bandung City</name>
+<name>Bangor</name>
+<name>Barendrecht</name>
+<name>Barnesville</name>
+<name>Barnet</name>
+<name>Barrigada</name>
+<name>Bart Township</name>
+<name>Bartlett</name>
+<name>Bass Lake</name>
+<name>Bat Ayin Street</name>
+<name>Batam City</name>
+<name>Bath</name>
+<name>Bathmen</name>
+<name>Bay City</name>
+<name>Bayville</name>
+<name>Beachburg</name>
+<name>Beachwood</name>
+<name>Beacon Hill</name>
+<name>Beaconsfield</name>
+<name>Beaumont</name>
+<name>Beaver Falls</name>
+<name>Bebedouro</name>
+<name>Bedford</name>
+<name>Belchertown</name>
+<name>Bethlehem</name>
+<name>Belfair</name>
+<name>Belleville</name>
+<name>Bellevue Hill</name>
+<name>Bellmore</name>
+<name>Antwerpen-Berchem</name>
+<name>Berlin</name>
+<name>Bhaktapur</name>
+<name>Charikot</name>
+<name>Bhopal</name>
+<name>Biały Kościół</name>
+<name>Biddeford</name>
+<name>Bielsko-Biala</name>
+<name>Billings</name>
+<name>Birmingham</name>
+<name>Blacktown</name>
+<name>Blainville</name>
+<name>Blarney</name>
+<name>Blasdell</name>
+<name>Blockhouse</name>
+<name>Bloemfontein</name>
+<name>Bloomfield</name>
+<name>Bloomfield Township</name>
+<name>Bloomsburg</name>
+<name>Bluffton</name>
+<name>Blythewood</name>
+<name>Boa Vista</name>
+<name>Boechout</name>
+<name>Bogalusa</name>
+<name>Bogor</name>
+<name>Bogotá</name>
+<name>Bolzano</name>
+<name>Bonlee</name>
+<name>Boolarra</name>
+<name>Boracay</name>
+<name>Borden</name>
+<name>Borden</name>
+<name>Boring</name>
+<name>Bothell</name>
+<name>Bountiful</name>
+<name>Bournemouth</name>
+<name>Bovenkarspel</name>
+<name>Bow</name>
+<name>Bow</name>
+<name>Brading</name>
+<name>Brainerd</name>
+<name>Brande</name>
+<name>Brasilia</name>
+<name>Brasschaat</name>
+<name>Brentwood Bay</name>
+<name>Bridgeton</name>
+<name>Brighton</name>
+<name>Brighton</name>
+<name>Bristol</name>
+<name>Bristol</name>
+<name>Bristol</name>
+<name>Brodhead</name>
+<name>Bryn Mawr</name>
+<name>Bude</name>
+<name>Buderim</name>
+<name>Budleigh Salterton</name>
+<name>Bulli</name>
+<name>Bulverde</name>
+<name>Bundaberg</name>
+<name>Bunker Hill</name>
+<name>Burlington</name>
+<name>Burnsville</name>
+<name>Bursa</name>
+<name>Burton upon Trent</name>
+<name>Byron</name>
+<name>Byron Bay</name>
+<name>Cairns</name>
+<name>Caledon</name>
+<name>Cali</name>
+<name>Kozhikode</name>
+<name>Calumet Township</name>
+<name>Camano Island</name>
+<name>Cambria</name>
+<name>Cambridge</name>
+<name>Cambrils</name>
+<name>Campbell River</name>
+<name>Campinas</name>
+<name>Canoinhas</name>
+<name>Canyon</name>
+<name>Cape Girardeau</name>
+<name>Capitan</name>
+<name>Captain Cook</name>
+<name>Carbondale</name>
+<name>Cardigan</name>
+<name>Carmichael</name>
+<name>Carolina Beach</name>
+<name>Carrickfergus</name>
+<name>Carrollton</name>
+<name>Carshalton</name>
+<name>Cartwright</name>
+<name>Casablanca</name>
+<name>Castle Rock</name>
+<name>Castlebar</name>
+<name>Catford</name>
+<name>Catonsville</name>
+<name>Cave Creek</name>
+<name>Cave Junction</name>
+<name>Mexico City</name>
+<name>Cedar Falls</name>
+<name>Cedar Rapids</name>
+<name>Cedarville</name>
+<name>Centereach</name>
+<name>Centerton</name>
+<name>Cernex</name>
+<name>Cerville</name>
+<name>CH43 5RY</name>
+<name>Champaign</name>
+<name>Chapel Hill</name>
+<name>Charleston</name>
+<name>Charleston</name>
+<name>Charlotte</name>
+<name>Chatham</name>
+<name>Chattanooga</name>
+<name>Chaudfontaine</name>
+<name>Chernex</name>
+<name>Chester</name>
+<name>Chesterfield</name>
+<name>Chesterfield</name>
+<name>Chevy Chase</name>
+<name>Cheyenne</name>
+<name>Chigasaki</name>
+<name>Chiltern</name>
+<name>Chirnside Park</name>
+<name>Chitwan</name>
+<name>Churchill</name>
+<name>Goiás</name>
+<name>Cinnaminson</name>
+<name>Civitavecchia</name>
+<name>Clackamas</name>
+<name>Clarkdale</name>
+<name>Clarkston</name>
+<name>Clarkston</name>
+<name>Clear Lake</name>
+<name>Clearwater</name>
+<name>Clementi</name>
+<name>Cleveland</name>
+<name>Clinton</name>
+<name>Clive</name>
+<name>Nubeena</name>
+<name>La Jolla</name>
+<name>Vienna</name>
+<name>Hamburg</name>
+<name>Wedel</name>
+<name>Kiel</name>
+<name>Heiligenkreuz</name>
+<name>Hatten</name>
+<name>Katzelsdorf</name>
+<name>Wildeshausen</name>
+<name>Bielefeld</name>
+<name>Kassel</name>
+<name>Grünberg</name>
+<name>Velbert</name>
+<name>Goch</name>
+<name>Hennef</name>
+<name>Witten</name>
+<name>Absam</name>
+<name>Saarbrücken</name>
+<name>Bad Überkingen</name>
+<name>Sinsheim</name>
+<name>Bad Rappenau</name>
+<name>Landau</name>
+<name>Stockach</name>
+<name>Dänikon</name>
+<name>Gersthofen</name>
+<name>Obdach</name>
+<name>Neu-Ulm</name>
+<name>Pegnitz</name>
+<name>Bechhofen</name>
+<name>Neumarkt</name>
+<name>Viereth-Trunstadt</name>
+<name>Aach-Linz</name>
+<name>Aachen</name>
+<name>Aarau</name>
+<name>Abtwil</name>
+<name>Ackendorf</name>
+<name>Adelebsen</name>
+<name>Aglasterhausen</name>
+<name>Ahrensburg</name>
+<name>Alpen</name>
+<name>Alsdorf</name>
+<name>Altach</name>
+<name>Altenholz</name>
+<name>Altrip</name>
+<name>Altusried</name>
+<name>Am Haarberg</name>
+<name>Am Meisenbühel</name>
+<name>Ammersbek</name>
+<name>Arlesheim</name>
+<name>Armsheim</name>
+<name>Arzbach</name>
+<name>Aschaffenburg</name>
+<name>Nord - Holland</name>
+<name>Auerbach</name>
+<name>Auetal</name>
+<name>Augsburg</name>
+<name>Außernzell</name>
+<name>Bad Aibling</name>
+<name>Bad Dürkheim</name>
+<name>Bad Oeynhausen</name>
+<name>Bad Ragaz</name>
+<name>Bad Salzschlirf</name>
+<name>Bad Segeberg</name>
+<name>Bargteheide</name>
+<name>Bayreuth</name>
+<name>Bergisch Gladbach</name>
+<name>Bestwig</name>
+<name>Beyharting</name>
+<name>Biberstein</name>
+<name>Bingen</name>
+<name>Birkenfeld</name>
+<name>Birnbach</name>
+<name>Bisingen</name>
+<name>Bochum</name>
+<name>Böblingen</name>
+<name>Bornheim</name>
+<name>Braderup</name>
+<name>Braubach</name>
+<name>Breitscheid</name>
+<name>Bremen</name>
+<name>Bruck an der Mur</name>
+<name>Bruckberg</name>
+<name>Bruckmühl</name>
+<name>Calberlah</name>
+<name>Corte Brique</name>
+<name>Cottbus</name>
+<name>Darmstadt</name>
+<name>Denkendorf</name>
+<name>Dettelbach</name>
+<name>Diepoldsau</name>
+<name>Dinhard</name>
+<name>Dinkelsbühl</name>
+<name>Dornbirn</name>
+<name>Ebersburg</name>
+<name>Eberbach</name>
+<name>Ebreichsdorf</name>
+<name>Edling</name>
+<name>Eggstätt</name>
+<name>Eichstätt</name>
+<name>Ellenberg</name>
+<name>Elsbethen</name>
+<name>Ennsdorf</name>
+<name>Enzesfeld-Lindabrunn</name>
+<name>Erfurt</name>
+<name>Erkrath</name>
+<name>Esslingen</name>
+<name>Ettlingen</name>
+<name>Filderstadt</name>
+<name>Fischamend</name>
+<name>Fischeln</name>
+<name>Flintbek</name>
+<name>Forchtenberg</name>
+<name>Frankfurt</name>
+<name>Crissiumal</name>
+<name>Seville</name>
+<name>Colbún</name>
+<name>Villa Adelina</name>
+<name>El Prat de Llobregat</name>
+<name>Friedrichshafen</name>
+<name>Santana de Parnaíba</name>
+<name>Trujillo</name>
+<name>San Vito Lo Capo</name>
+<name>Friedberg</name>
+<name>Gaggenau</name>
+<name>Gaienhofen</name>
+<name>Gailingen</name>
+<name>Gamlitz</name>
+<name>Ganderkesee</name>
+<name>Garching</name>
+<name>Gehrden</name>
+<name>Geilenkirchen</name>
+<name>Buenos Aires</name>
+<name>Benavidez</name>
+<name>San José</name>
+<name>Managua</name>
+<name>Quito</name>
+<name>Monterrey</name>
+<name>Mérida</name>
+<name>Gevelsberg</name>
+<name>Gernlinden</name>
+<name>Giessen</name>
+<name>Chapineria</name>
+<name>Malaga</name>
+<name>Marbella</name>
+<name>Fresnedillas de la Oliva</name>
+<name>Gleisdorf</name>
+<name>Göttingen</name>
+<name>Chilpancingo</name>
+<name>Oaxaca</name>
+<name>Gratkorn</name>
+<name>La Serena</name>
+<name>Grävenwiesbach</name>
+<name>Arenillas</name>
+<name>Hermosillo</name>
+<name>Grenzach-Wyhlen</name>
+<name>Grevenbroich</name>
+<name>Conil de la Frontera</name>
+<name>San Juan</name>
+<name>Grödig</name>
+<name>Großharrie</name>
+<name>Zestoa</name>
+<name>Pelotas</name>
+<name>Gubkow</name>
+<name>Gummersbach</name>
+<name>Riudoms</name>
+<name>Tarragona</name>
+<name>Moscow</name>
+<name>Vilanova i la Geltrú</name>
+<name>Tolosa</name>
+<name>Zizurkil</name>
+<name>Asteasu</name>
+<name>Point 2730</name>
+<name>La Paz</name>
+<name>Harzgerode</name>
+<name>Hausen</name>
+<name>Hauzenberg</name>
+<name>Heinsberg</name>
+<name>Helmbrechts</name>
+<name>Nunkiní</name>
+<name>Hengsberg</name>
+<name>La Floresta</name>
+<name>Herzogenbuchsee</name>
+<name>Tradate</name>
+<name>Hilchenbach</name>
+<name>Hildesheim</name>
+<name>Vilanova I La Geltru</name>
+<name>Hochdonn</name>
+<name>Cervelló</name>
+<name>Hörstel</name>
+<name>Hofbieber</name>
+<name>Hohegeiß</name>
+<name>Irun</name>
+<name>Hondrich</name>
+<name>Cozumel</name>
+<name>Hude</name>
+<name>Bragança Paulista</name>
+<name>Huningue</name>
+<name>São Paulo</name>
+<name>Bogota</name>
+<name>Ingolstadt</name>
+<name>San Francisco de Macoris</name>
+<name>Hempstead</name>
+<name>Inzing</name>
+<name>Joldelund</name>
+<name>Kandern</name>
+<name>Mexico City</name>
+<name>Karlsdorf-Neuthard</name>
+<name>Bilbao</name>
+<name>Katerbow</name>
+<name>João Pessoa, Paraíba</name>
+<name>Kaufering</name>
+<name>Kefermarkt</name>
+<name>Kempten</name>
+<name>Palma</name>
+<name>Kerken</name>
+<name>Collado Mediano</name>
+<name>Keutschach</name>
+<name>Xochitepec</name>
+<name>Pampaneira</name>
+<name>Kirch Mulsow</name>
+<name>Olocau</name>
+<name>Kirschau</name>
+<name>Kobenz</name>
+<name>Königswinter</name>
+<name>San Rafael</name>
+<name>Galapagar</name>
+<name>Konz</name>
+<name>Krefeld</name>
+<name>Maracaibo</name>
+<name>Tarifa</name>
+<name>Kühnsdorf</name>
+<name>Lachendorf</name>
+<name>El Puerto De Santa Maria</name>
+<name>Caceres</name>
+<name>Barbate</name>
+<name>Lahntal Goßfelden</name>
+<name>Ciudadela</name>
+<name>Landshut</name>
+<name>Cochabamba</name>
+<name>Langenfeld</name>
+<name>Langenzersdorf</name>
+<name>Rosario</name>
+<name>Laufen</name>
+<name>Munich</name>
+<name>San Carlos de Bariloche</name>
+<name>Leibnitz</name>
+<name>Loja</name>
+<name>Cornellà de Llobregat</name>
+<name>Woodbridge</name>
+<name>Machala</name>
+<name>Sant Antoni de Portmany</name>
+<name>Coral Springs</name>
+<name>Arequipa</name>
+<name>Badalona</name>
+<name>Lendorf</name>
+<name>Leoben</name>
+<name>Mar del Plata</name>
+<name>Baños</name>
+<name>Reus</name>
+<name>Lindenfels</name>
+<name>Moreno</name>
+<name>Lippstadt</name>
+<name>Lormanberg</name>
+<name>Lübeck</name>
+<name>Curitiba</name>
+<name>Santa Cruz do Sul</name>
+<name>Florianópolis</name>
+<name>São Gonçalo</name>
+<name>Ludwigsburg</name>
+<name>Ludwigshafen</name>
+<name>Huesca</name>
+<name>Navarro</name>
+<name>General Pacheco</name>
+<name>Tigre</name>
+<name>Lund</name>
+<name>Granada</name>
+<name>Córdoba</name>
+<name>Lüneburg</name>
+<name>Vienna</name>
+<name>Piracicaba</name>
+<name>Guarulhos</name>
+<name>Itatiaia</name>
+<name>São José dos Campos</name>
+<name>El Pinar</name>
+<name>Pereira</name>
+<name>Merzhausen</name>
+<name>Bjärred</name>
+<name>Bordeaux</name>
+<name>Cusco</name>
+<name>Torremolinos</name>
+<name>Lavras</name>
+<name>Itapetininga</name>
+<name>Abrera</name>
+<name>Cajamarca</name>
+<name>Betim</name>
+<name>Tubarão</name>
+<name>Grimisuat</name>
+<name>Mieming</name>
+<name>Cascavel</name>
+<name>Santos</name>
+<name>Poá</name>
+<name>São Lourenço da Serra</name>
+<name>Valdepiélagos</name>
+<name>Sao Jose do Rio Preto</name>
+<name>Presidente Prudente</name>
+<name>Mitteilen + Gestalten</name>
+<name>Bariloche</name>
+<name>Mittweida</name>
+<name>San Francisco de Yojoa</name>
+<name>Mödling</name>
+<name>Mollmannsdorf</name>
+<name>Mönchengladbach</name>
+<name>Paracatu</name>
+<name>Nova Iguaçu</name>
+<name>Münster</name>
+<name>Peruíbe</name>
+<name>Juiz de Fora</name>
+<name>Serra Grande</name>
+<name>Colonia del Sacramento</name>
+<name>Mülheim</name>
+<name>Balneário Camboriú</name>
+<name>Tepoztlán</name>
+<name>Santa Maria</name>
+<name>Calama</name>
+<name>North York</name>
+<name>La Garriga</name>
+<name>Uberaba</name>
+<name>Burgos</name>
+<name>Netphen</name>
+<name>Cristo Rey</name>
+<name>Nettetal</name>
+<name>Palafrugell</name>
+<name>Neunkirchen</name>
+<name>Nümbrecht</name>
+<name>Oberrüti</name>
+<name>Odenthal</name>
+<name>Olpe</name>
+<name>Osnabrück</name>
+<name>Osterhofen</name>
+<name>Ostfildern</name>
+<name>Overath</name>
+<name>Paderborn</name>
+<name>Pécs</name>
+<name>Peine</name>
+<name>Perchtoldsdorf</name>
+<name>Pforzheim</name>
+<name>Philippsreut</name>
+<name>Piesendorf</name>
+<name>Pinggau</name>
+<name>Plön</name>
+<name>Poppenhausen</name>
+<name>Pößneck</name>
+<name>Prambachkirchen</name>
+<name>Prutting</name>
+<name>Radenthein</name>
+<name>Radolfzell</name>
+<name>Rafz</name>
+<name>Rankweil</name>
+<name>Ratingen</name>
+<name>Rattenberg</name>
+<name>Ravensburg</name>
+<name>Rechberg</name>
+<name>Rednitzhembach</name>
+<name>Regensburg</name>
+<name>Reilingen</name>
+<name>Tournai</name>
+<name>Reutlingen</name>
+<name>Ribeirão Preto</name>
+<name>Riehen</name>
+<name>Ringgenberg</name>
+<name>Rosegg</name>
+<name>Rosenheim</name>
+<name>Rostock</name>
+<name>Röthis</name>
+<name>Rüsselsheim</name>
+<name>Rust</name>
+<name>Sachsenkam</name>
+<name>Sagau</name>
+<name>Salzburg</name>
+<name>Samaipata</name>
+<name>Sasbach</name>
+<name>Sauerlach</name>
+<name>Scharnstein</name>
+<name>Schleinbach</name>
+<name>Schmittweiler</name>
+<name>Schöndorf</name>
+<name>Schrobenhausen</name>
+<name>Schwalbach</name>
+<name>Schwarzenbek</name>
+<name>Schweich</name>
+<name>Schweinfurt</name>
+<name>Seckau</name>
+<name>Seeheim-Jugenheim</name>
+<name>Serrig</name>
+<name>Sersheim</name>
+<name>Siegen</name>
+<name>Solingen</name>
+<name>Sonsbeck</name>
+<name>Spalding</name>
+<name>Saint Gallen</name>
+<name>Saint Margrethen</name>
+<name>Sportplatz St. Marein / Feistritz</name>
+<name>Stade</name>
+<name>Stadthagen</name>
+<name>Steffenshagen</name>
+<name>Stegen</name>
+<name>Stein am Rhein</name>
+<name>Steinbergkirche</name>
+<name>Steinheim</name>
+<name>Stockelsdorf</name>
+<name>Suresnes Longchamp</name>
+<name>Süßen</name>
+<name>Tannheim</name>
+<name>Telfs</name>
+<name>Thalgau</name>
+<name>Thun</name>
+<name>Trebur</name>
+<name>Unzmarkt</name>
+<name>Uster</name>
+<name>Vahldorf</name>
+<name>Vaihingen</name>
+<name>Verl</name>
+<name>Valldal</name>
+<name>Viersen</name>
+<name>Weimar</name>
+<name>Zwingenberg</name>
+<name>Wüstenrot</name>
+<name>Abakaliki</name>
+<name>Abingdon</name>
+<name>Adachi</name>
+<name>Adana</name>
+<name>Adapazarı</name>
+<name>Adjuntas</name>
+<name>Adrogué</name>
+<name>Afula</name>
+<name>Águas de Lindoia</name>
+<name>Ahmedabad</name>
+<name>Aiken</name>
+<name>Aleppo</name>
+<name>Alès</name>
+<name>Almería</name>
+<name>Alon HaGalil</name>
+<name>Alstead</name>
+<name>Alto Paraíso</name>
+<name>Point 3004</name>
+<name>Alvarado</name>
+<name>Alvaro Obregón</name>
+<name>Ambleside</name>
+<name>American Canyon</name>
+<name>Amman</name>
+<name>Amritapuri</name>
+<name>Angleton</name>
+<name>Ankeny</name>
+<name>Ansonia</name>
+<name>Antipolo</name>
+<name>Aquebogue</name>
+<name>Ara Damansara</name>
+<name>Ağrı</name>
+<name>Arnhem</name>
+<name>Arouca</name>
+<name>Arundel</name>
+<name>Asthall</name>
+<name>Avtalion</name>
+<name>Azogues</name>
+<name>Azusa</name>
+<name>Bad Homburg</name>
+<name>Baddeck</name>
+<name>Badhoevedorp</name>
+<name>Baependi</name>
+<name>Bairnsdale</name>
+<name>Ballston Spa</name>
+<name>Banjul</name>
+<name>Banning</name>
+<name>Vadodara</name>
+<name>Batticaloa</name>
+<name>Baulkham Hills</name>
+<name>Bauru</name>
+<name>Bay Point</name>
+<name>Beachlands</name>
+<name>Beachport</name>
+<name>Bedford Corners</name>
+<name>Beijing</name>
+<name>Beit Zayit</name>
+<name>Bel Air</name>
+<name>Belize City</name>
+<name>Belle Harbor</name>
+<name>Belleville</name>
+<name>Belton</name>
+<name>Bemidji</name>
+<name>Benin City</name>
+<name>Benton</name>
+<name>Benzonia</name>
+<name>Berchem</name>
+<name>Bergenfield</name>
+<name>Bernardston</name>
+<name>Berryville</name>
+<name>Berwyn</name>
+<name>Beit Herut</name>
+<name>Beit Keshet</name>
+<name>Beverly Hills</name>
+<name>Bexhill</name>
+<name>Bhakkar</name>
+<name>Charikot - Lamabagar Road</name>
+<name>Bhubaneswar</name>
+<name>Bialystok</name>
+<name>Bonogin</name>
+<name>Botucatu</name>
+<name>Bridgton</name>
+<name>Brusyliv</name>
+<name>Bryansk</name>
+<name>Cedar Knolls</name>
+<name>Tzur Yitzhak</name>
+<name>Zirconia</name>
+<name>Zielona Gora</name>
+<name>Zhubei City</name>
+<name>Zephyrhills</name>
+<name>Zeltweg</name>
+<name>Zelienople</name>
+<name>Zarzalejo</name>
+<name>Zaporizhia</name>
+<name>Zamosc</name>
+<name>Yverdon-les-Bains</name>
+<name>Yoyogi</name>
+<name>Youngstown</name>
+<name>Youghal</name>
+<name>Yotsukaido</name>
+<name>Yorktown</name>
+<name>Yongin-si</name>
+<name>Special Region of Yogyakarta</name>
+<name>Yeongcheon-si</name>
+<name>Yelgun</name>
+<name>Yaroomba</name>
+<name>Yandina</name>
+<name>Xinying District</name>
+<name>Wyoming</name>
+<name>Wynnewood</name>
+<name>Wukari</name>
+<name>Wrocław</name>
+<name>Woerden</name>
+<name>Wisconsin Rapids</name>
+<name>Winthrop</name>
+<name>Winneconne</name>
+<name>Wimbledon</name>
+<name>Wilmore</name>
+<name>Willunga</name>
+<name>Willowbrook</name>
+<name>Willis</name>
+<name>Wildomar</name>
+<name>Whitmore Lake</name>
+<name>Whitland</name>
+<name>Whitehorse</name>
+<name>Whitehall</name>
+<name>Whippany</name>
+<name>Whaley Bridge</name>
+<name>Weymouth</name>
+<name>Wetaskiwin</name>
+<name>Westerville</name>
+<name>West Covina</name>
+<name>West Gardiner</name>
+<name>Pashchim Champaran</name>
+<name>Wernersville</name>
+<name>Webster Groves</name>
+<name>West Roxbury</name>
+<name>West Nyack</name>
+<name>Wayzata</name>
+<name>Wayland</name>
+<name>Weed</name>
+<name>Wausau</name>
+<name>Waupaca</name>
+<name>Waukesha</name>
+<name>Washougal</name>
+<name>Wantagh</name>
+<name>Wangaratta</name>
+<name>Wamego</name>
+<name>Wailuku</name>
+<name>Viseu</name>
+<name>Visby</name>
+<name>Vilcabamba</name>
+<name>Vila do Conde</name>
+<name>Versoix</name>
+<name>Vichte</name>
+<name>Metropolitan City of Venice</name>
+<name>Vermillion</name>
+<name>Vejle</name>
+<name>Velp</name>
+<name>Vellore</name>
+<name>Vanderbijlpark</name>
+<name>Varanasi</name>
+<name>Van Nuys</name>
+<name>Ushiku</name>
+<name>Urbandale</name>
+<name>Urayasu</name>
+<name>Twizel</name>
+<name>Tuxtla Gutiérrez</name>
+<name>Tsukuba</name>
+<name>Trempealeau</name>
+<name>Tramayes</name>
+<name>Toowong</name>
+<name>Toorak</name>
+<name>Tongyeong-si</name>
+<name>Tollebeek</name>
+<name>Toluca</name>
+<name>Timaru</name>
+<name>Nagasaki</name>
+<name>Timișoara</name>
+<name>Tirana</name>
+<name>Todmorden</name>
+<name>Tiverton</name>
+<name>Templemore</name>
+<name>Tepoztlán</name>
+<name>Temara</name>
+<name>Tegucigalpa</name>
+<name>Taupo</name>
+<name>Tàrrega</name>
+<name>Tamano</name>
+<name>Taguig</name>
+<name>Sylvan Lake</name>
+<name>Sycamore</name>
+<name>Swartz Creek</name>
+<name>Swakopmund</name>
+<name>Suzano</name>
+<name>Sutton Coldfield</name>
+<name>Subang</name>
+<name>Strathaven</name>
+<name>Steinsel</name>
+<name>Squamish</name>
+<name>Sonoma</name>
+<name>Snohomish</name>
+<name>Smorum</name>
+<name>Sivas</name>
+<name>Siliguri</name>
+<name>Shumen</name>
+<name>Shrewsbury</name>
+<name>Simcoe</name>
+<name>Shiki</name>
+<name>Sherrard</name>
+<name>Shawnee</name>
+<name>Shah Alam</name>
+<name>Sežana</name>
+<name>Seoul</name>
+<name>Seminole</name>
+<name>Selah</name>
+<name>Seclin</name>
+<name>Schömberg</name>
+<name>Schiller Park</name>
+<name>Schertz</name>
+<name>Schaumburg</name>
+<name>Sandvika</name>
+<name>Saint-Cannat</name>
+<name>Rougemont</name>
+<name>Rosny-sous-Bois</name>
+<name>Recife</name>
+<name>Quebec</name>
+<name>Qormi</name>
+<name>Haridwar</name>
+<name>Hardwicke</name>
+<name>Harbor Springs</name>
+<name>Hardy</name>
+<name>Harpenden</name>
+<name>Harpers Ferry</name>
+<name>Harrietta</name>
+<name>Harrington Park</name>
+<name>Harrogate</name>
+<name>Hartland Road</name>
+<name>Harvard</name>
+<name>Haskell Street</name>
+<name>Haslemere</name>
+<name>Hastings</name>
+<name>Hatay</name>
+<name>Hawley</name>
+<name>Hectorville</name>
+<name>Heitersheim</name>
+<name>Hellertown</name>
+<name>Helmetta</name>
+<name>Herat</name>
+<name>Hercules</name>
+<name>Heredia</name>
+<name>Heriot Bay</name>
+<name>Hermiston</name>
+<name>Herndon</name>
+<name>Herne Bay</name>
+<name>Herriman</name>
+<name>Herzliya</name>
+<name>Heusden</name>
+<name>Hewitt</name>
+<name>Hiawatha</name>
+<name>Hicksville</name>
+<name>Higashimurayama</name>
+<name>High Bridge</name>
+<name>Highclere</name>
+<name>Highlands</name>
+<name>Hillsdale</name>
+<name>Hilversum</name>
+<name>Hingham</name>
+<name>Hiratsuka</name>
+<name>Ho-Ho-Kus</name>
+<name>Hod Hasharon</name>
+<name>Honselersdijk</name>
+<name>Hood River</name>
+<name>Houghton</name>
+<name>Hsinchu City</name>
+<name>Hualien City</name>
+<name>Huatabampo</name>
+<name>Huddersfield</name>
+<name>Hudson Falls</name>
+<name>Humansdorp</name>
+<name>Huntersville</name>
+<name>Huntingdon</name>
+<name>Huron</name>
+<name>Hyannis Port</name>
+<name>Ibarra</name>
+<name>Ibiza</name>
+<name>Ilkley</name>
+<name>Ilorin</name>
+<name>Imlay City</name>
+<name>Imperial Beach</name>
+<name>Indaiatuba</name>
+<name>Indialantic</name>
+<name>Indian Trail</name>
+<name>Indore</name>
+<name>Iowa City</name>
+<name>Ishigaki</name>
+<name>Iskenderun</name>
+<name>Islamabad</name>
+<name>Itatiba</name>
+<name>Itoshima</name>
+<name>Izmir</name>
+<name>Jamshedpur</name>
+<name>Jarbidge</name>
+<name>Jarinu</name>
+<name>Jarrahdale</name>
+<name>Jemez Springs</name>
+<name>Jesolo</name>
+<name>Jiutepec</name>
+<name>Catalonia</name>
+<name>Ghana</name>
+<name>Cyprus</name>
+<name>The Gambia</name>
+<name>Jazan</name>
+<name>Iraq</name>
+<name>Zambia</name>
+<name>Haiti</name>
+<name>Burkina Faso</name>
+<name>Latvia</name>
+<name>Cameroon</name>
+<name>Cambodia</name>
+<name>Burke</name>
+<name>Carapicuiba</name>
+<name>Chernogolovka</name>
+<name>Chesterville</name>
+<name>Chiba</name>
+<name>Codrington Street</name>
+<name>Commack</name>
+<name>Conakry</name>
+<name>Coquille</name>
+<name>Corinth</name>
+<name>Corvallis</name>
+<name>Coteau-du-Lac</name>
+<name>Creazzo</name>
+<name>Creswick</name>
+<name>Culemborg</name>
+<name>Dakar</name>
+<name>Dalat</name>
+<name>Dalfsen</name>
+<name>Darjeeling</name>
+<name>Daylesford</name>
+<name>Denizli</name>
+<name>Delmar</name>
+<name>Dehradun</name>
+<name>Descanso</name>
+<name>Deurne</name>
+<name>Deva</name>
+<name>Dhahran</name>
+<name>Dhaka</name>
+<name>Dietikon</name>
+<name>Diósjenő</name>
+<name>Diriamba</name>
+<name>Dodowa</name>
+<name>Doncaster</name>
+<name>Donkorkrom</name>
+<name>Douala</name>
+<name>Dresden</name>
+<name>Drexel Hill</name>
+<name>Dromahair</name>
+<name>Drummoyne</name>
+<name>Dún Laoghaire</name>
+<name>Duncormick</name>
+<name>Dududu</name>
+<name>Duarte</name>
+<name>Dromona</name>
+<name>Duncraig</name>
+<name>Dunfermline</name>
+<name>Durgapur</name>
+<name>Dwejra</name>
+<name>Eagle Heights</name>
+<name>East Falmouth</name>
+<name>East Hills</name>
+<name>Setauket- East Setauket</name>
+<name>East Windsor</name>
+<name>Eastlake</name>
+<name>Ecatepec</name>
+<name>El Hoyo</name>
+<name>El Sobrante</name>
+<name>Eldridge</name>
+<name>Embu das Artes</name>
+<name>Essaouira</name>
+<name>Exshaw</name>
+<name>Fafe</name>
+<name>Ferndale</name>
+<name>Fort Myers Beach</name>
+<name>Fortaleza</name>
+<name>Fostoria</name>
+<name>Fuchu</name>
+<name>Gandhinagar</name>
+<name>Gatton</name>
+<name>Girona</name>
+<name>Gorham</name>
+<name>Goshen</name>
+<name>Gouldsboro</name>
+<name>Grantsville</name>
+<name>Great Yarmouth</name>
+<name>Greensburg</name>
+<name>Gresham</name>
+<name>Grosseto</name>
+<name>Groton</name>
+<name>Guarujá</name>
+<name>Guiyang</name>
+<name>Gulf Breeze</name>
+<name>Hadley</name>
+<name>Haleiwa</name>
+<name>Halmstad</name>
+<name>Hanaton</name>
+<name>Harare</name>
+<name>Haifa District</name>
+<name>Jeddah</name>
+<name>Joplin</name>
+<name>Joppa</name>
+<name>Jundiaí</name>
+<name>Kamloops</name>
+<name>Katowice</name>
+<name>Kennesaw</name>
+<name>Kenosha</name>
+<name>Kepez</name>
+<name>Kerikeri</name>
+<name>Ketchum</name>
+<name>Kfar Yehoshua</name>
+<name>Kilcolgan</name>
+<name>La Junta</name>
+<name>Lago Vista</name>
+<name>Lahti</name>
+<name>La Moille</name>
+<name>Lawai</name>
+<name>Lerum</name>
+<name>Limeria (Spilies tou Digeni)</name>
+<name>Kópavogur</name>
+<name>Loxahatchee</name>
+<name>Luanda</name>
+<name>Lubny</name>
+<name>Luton</name>
+<name>Mâcon</name>
+<name>Brussels</name>
+<name>Pardes Hanna-Karkur</name>
+<name>Albany</name>
+<name>Al Haram</name>
+<name>Aigio</name>
+<name>Amberg</name>
+<name>Ciudad López Mateos</name>
+<name>Bamberg</name>
+<name>Barleben</name>
+<name>Noosa Heads</name>
+<name>Bengaluru</name>
+<name>Fox Island</name>
+<name>Wailea</name>
+<name>Aschau im Chiemgau</name>
+<name>Ciudad López Mateos</name>
+<name>Waterloo</name>
+<name>Canberra</name>
+<name>Ridgway</name>
+<name>UTI Giuliana</name>
+<name>Bad Liebenzell</name>
+<name>Bad Schwartau</name>
+<name>Amberg</name>
+<name>Amsterdam</name>
+<name>Bad Liebenzell</name>
+<name>Aigio</name>
+<name>Fohnsdorf</name>
+<name>Flensburg</name>
+<name>Flensburg</name>
+<name>Fernwald</name>
+<name>Fara In Sabina</name>
+<name>Esslingen</name>
+<name>Point 3454</name>
+<name>Barleben</name>
+<name>Bayreuth</name>
+<name>Bayreuth</name>
+<name>Bergisch Gladbach</name>
+<name>Bolanden</name>
+<name>Bomlitz</name>
+<name>Bonn</name>
+<name>Boppard</name>
+<name>Braderup</name>
+<name>Bramsche</name>
+<name>Braunau am Inn</name>
+<name>Brunswick</name>
+<name>Bremen</name>
+<name>Brussels</name>
+<name>Bückeburg</name>
+<name>Cabarete</name>
+<name>Calenzana</name>
+<name>Deutschlandsberg</name>
+<name>Dinslaken</name>
+<name>Dresden</name>
+<name>Düsseldorf</name>
+<name>Eisingen</name>
+<name>Elchingen</name>
+<name>Ellenberg</name>
+<name>Emden</name>
+<name>Engishofen</name>
+<name>Erfurt</name>
+<name>Erpel</name>
+<name>Eschborn</name>
+<name>Eschenz</name>
+<name>Espenau</name>
+<name>Essen</name>
+<name>Esslingen</name>
+<name>Fara In Sabina</name>
+<name>Fernwald</name>
+<name>Flensburg</name>
+<name>Fohnsdorf</name>
+<name>Frankfurt</name>
+<name>Frauenfeld</name>
+<name>Freilassing</name>
+<name>Friedberg</name>
+<name>Friedrichsdorf</name>
+<name>Gailingen</name>
+<name>Geltendorf</name>
+<name>Goldbach</name>
+<name>Gols</name>
+<name>Görlitz</name>
+<name>Göttingen</name>
+<name>Grasse</name>
+<name>Gratkorn</name>
+<name>Graz</name>
+<name>Hagen</name>
+<name>Hamberge</name>
+<name>Hanau</name>
+<name>Hanover</name>
+<name>Hart bei Graz</name>
+<name>Hattingen</name>
+<name>Heidelberg</name>
+<name>Heidenrod</name>
+<name>Hennigsdorf</name>
+<name>Hinte</name>
+<name>Hoeilaart</name>
+<name>Holler</name>
+<name>Horn-Bad Meinberg</name>
+<name>Igensdorf</name>
+<name>Ilsede</name>
+<name>Ingeldorf</name>
+<name>Jesberg</name>
+<name>Kall</name>
+<name>Kelkheim</name>
+<name>Viktring</name>
+<name>Kleinmachnow</name>
+<name>Cologne</name>
+<name>Konstanz</name>
+<name>Kreuztal</name>
+<name>Krummhörn</name>
+<name>Kufstein</name>
+<name>Landau an der Isar</name>
+<name>Laßnitzhöhe</name>
+<name>Lemgo</name>
+<name>Limeshain</name>
+<name>Łódź</name>
+<name>Lofer</name>
+<name>Lohfelden</name>
+<name>Lohmar</name>
+<name>Loit</name>
+<name>Lorentzweiler</name>
+<name>Ludwigshafen</name>
+<name>Mengen</name>
+<name>Mexico City</name>
+<name>Mönsheim</name>
+<name>Müllheim</name>
+<name>Munich</name>
+<name>Neuhausen am Rheinfall</name>
+<name>Neustadt</name>
+<name>Nideggen</name>
+<name>Nuremberg</name>
+<name>Oberkotzau</name>
+<name>Oberursel</name>
+<name>Rehringhausen</name>
+<name>Oryol</name>
+<name>Ottobeuren</name>
+<name>Oyten</name>
+<name>Pernitz</name>
+<name>Pilsum</name>
+<name>Pleidelsheim</name>
+<name>Poggersdorf</name>
+<name>Poing</name>
+<name>Poppenberg</name>
+<name>Reinfeld</name>
+<name>Reutlingen</name>
+<name>Waterloo</name>
+<name>Trieste</name>
+<name>Fremantle</name>
+<name>Castlemaine</name>
+<name>Freeport</name>
+<name>Oxford</name>
+<name>Phoenixville</name>
+<name>Grapevine</name>
+<name>Lome</name>
+<name>Beverly Hills</name>
+<name>Osasco</name>
+<name>Ijero</name>
+<name>Palmerston City</name>
+<name>Issaquah</name>
+<name>Jamestown</name>
+<name>Marshall</name>
+<name>Kuta Selatan</name>
+<name>Farmington Hills</name>
+<name>Humlebaek</name>
+<name>Kyiv</name>
+<name>San Ignacio</name>
+<name>Saint Lucia</name>
+<name>Dexter</name>
+<name>Bodrum</name>
+<name>Bodrum</name>
+<name>Wimbledon</name>
+<name>Phnom Penh</name>
+<name>Gabriola Island</name>
+<name>McKenzie Hill</name>
+<name>Halls Head</name>
+<name>Port Elizabeth</name>
+<name>Sutter Creek</name>
+<name>Eagle</name>
+<name>Greenville</name>
+<name>Simpsonville</name>
+<name>Rogers</name>
+<name>Easley</name>
+<name>Durban</name>
+<name>Apex</name>
+<name>Saint Anton am Arlberg</name>
+<name>Jablonec nad Nisou</name>
+<name>Salisbury</name>
+<name>Redwood City</name>
+<name>Hilton</name>
+<name>Truth or Consequences</name>
+<name>Westminster</name>
+<name>Lyon</name>
+<name>Auckland</name>
+<name>Los Gatos</name>
+<name>Kismayo</name>
+<name>Billingshurst</name>
+<name>Aberdeen</name>
+<name>Kenilworth</name>
+<name>Sharon</name>
+<name>Guilford</name>
+<name>Paarl</name>
+<name>Basel</name>
+<name>Hamilton</name>
+<name>Blacklick</name>
+<name>Brahmapur</name>
+<name>Tangsel</name>
+<name>Gravatá</name>
+<name>Forres</name>
+<name>Santa Luce</name>
+<name>Stephentown</name>
+<name>Durango</name>
+<name>Carver</name>
+<name>Manhattan</name>
+<name>Xalapa</name>
+<name>Brookvale</name>
+<name>East Troy</name>
+<name>Volta Redonda</name>
+<name>Moose Lake</name>
+<name>Newark</name>
+<name>Park Way</name>
+<name>Afton</name>
+<name>Chatham</name>
+<name>Gdynia</name>
+<name>Damascus</name>
+<name>Deadwood</name>
+<name>Hemet</name>
+<name>Fraddon</name>
+<name>Glenside</name>
+<name>Park Way</name>
+<name>Afton</name>
+<name>Deadwood</name>
+<name>Hemet</name>
+<name>Glenside</name>
+<name>Montes de Oca</name>
+<name>Grimes</name>
+<name>Litchfield</name>
+<name>Winnetka</name>
+<name>Belém</name>
+<name>San Ramon</name>
+<name>Nicoya</name>
+<name>Uppsala</name>
+<name>Quathiaski Cove</name>
+<name>Golden Beach</name>
+<name>Huéscar</name>
+<name>Huescar</name>
+<name>Middle Cove</name>
+<name>Dartmouth</name>
+<name>Monteverde</name>
+<name>Newtown Forbes</name>
+<name>Tyngsborough</name>
+<name>Prague 5</name>
+<name>Columbus</name>
+<name>North Port</name>
+<name>Green Bay</name>
+<name>Lincoln</name>
+<name>Drumshanbo</name>
+<name>Kraków</name>
+<name>Pacific Palisades</name>
+<name>Manaus</name>
+<name>Glen Ellyn</name>
+<name>Clarksville</name>
+<name>Miami Springs</name>
+<name>Sechelt</name>
+<name>Riga</name>
+<name>Palangkaraya</name>
+<name>Château-Richer</name>
+<name>Prague</name>
+<name>Marikina</name>
+<name>Wadestown</name>
+<name>Oviedo</name>
+<name>Murwillumbah</name>
+<name>Kuranda</name>
+<name>Crescent City</name>
+<name>Battaramulla</name>
+<name>Stockport</name>
+<name>Shelburne</name>
+<name>Launceston</name>
+<name>Campbell Hall</name>
+<name>Sellersville</name>
+<name>Bydgoszcz</name>
+<name>Lake Macquarie</name>
+<name>Karlstad</name>
+<name>Charlotte</name>
+<name>Redmond</name>
+<name>South Egremont</name>
+<name>Freiburg im Breisgau</name>
+<name>Lake Elmo</name>
+<name>Plutarco Elías Calles</name>
+<name>Bartlett</name>
+<name>Otford</name>
+<name>Hendon</name>
+<name>Honomu</name>
+<name>Luton</name>
+<name>Kapaʻa</name>
+<name>Sorocaba</name>
+<name>San Gabriel</name>
+<name>Saillans</name>
+<name>Haverhill</name>
+<name>Côte Saint-Luc</name>
+<name>Hilo</name>
+<name>Tathra</name>
+<name>Yucaipa</name>
+<name>Chigny</name>
+<name>Inverness</name>
+<name>Gig Harbor</name>
+<name>Rudná</name>
+<name>Rhodes</name>
+<name>Schleswig-Holstein</name>
+<name>Netiv HaLamed-Heh</name>
+<name>Cluj-Napoca</name>
+<name>Navan</name>
+<name>Alanson</name>
+<name>Tilburg</name>
+<name>Ketu</name>
+<name>Jordan</name>
+<name>Jordan</name>
+<name>Faro</name>
+<name>Tigard</name>
+<name>Anderson Island</name>
+<name>Duncan</name>
+<name>Mawson Lakes</name>
+<name>Cummington</name>
+<name>Mineola</name>
+<name>Cedar Park</name>
+<name>Kalamaria Municipality</name>
+<name>Mechanicsburg</name>
+<name>Cary</name>
+<name>Rogers</name>
+<name>Sunbury</name>
+<name>Rancho Cucamonga</name>
+<name>Unanderra</name>
+<name>Sandpoint</name>
+<name>Lake Mills</name>
+<name>Neutral Bay</name>
+<name>Collingwood</name>
+<name>Winnellie</name>
+<name>Mokelumne Hill</name>
+<name>Viola</name>
+<name>Plymouth</name>
+<name>Medellin</name>
+<name>Newtown</name>
+<name>Figtree</name>
+<name>Rotonda West</name>
+<name>Potrero</name>
+<name>Chania</name>
+<name>Claremont</name>
+<name>Sinnai</name>
+<name>Loma Linda</name>
+<name>Western Australia</name>
+<name>Timișoara</name>
+<name>Bourg-de-Péage</name>
+<name>Barnsley</name>
+<name>Florence</name>
+<name>Agege</name>
+<name>Agra</name>
+<name>Wilsonton</name>
+<name>Shortland</name>
+<name>Swanton</name>
+<name>Douro-Dummer</name>
+<name>Hackett</name>
+<name>Balingup</name>
+<name>South Hadley</name>
+<name>Congers</name>
+<name>Medina</name>
+<name>Manchester Township</name>
+<name>Wexford</name>
+<name>High Springs</name>
+<name>Stillwater</name>
+<name>Stourbridge</name>
+<name>High Springs</name>
+<name>Karlovac</name>
+<name>Lagos</name>
+<name>Montville</name>
+<name>Toledo</name>
+<name>Gilbert</name>
+<name>Warsaw</name>
+<name>Saint James</name>
+<name>Petoskey</name>
+<name>Happy Valley</name>
+<name>Clifton Park</name>
+<name>Cañon City</name>
+<name>Capitola</name>
+<name>Cañon City</name>
+<name>Manof</name>
+<name>El Granada</name>
+<name>Cowaramup</name>
+<name>Delhi</name>
+<name>Charlotte</name>
+<name>Hillsboro</name>
+<name>Mesa</name>
+<name>Dugspur</name>
+<name>Salvador</name>
+<name>Spring Lake</name>
+<name>Spring Lake</name>
+<name>Luziânia</name>
+<name>Centerville</name>
+<name>Warners</name>
+<name>Port Orchard</name>
+<name>Baidoa</name>
+<name>Plymouth</name>
+<name>Wałbrzych</name>
+<name>Eagle Bridge</name>
+<name>Rozelle</name>
+<name>Morayfield</name>
+<name>Kew</name>
+<name>North Tonawanda</name>
+<name>Passo Fundo</name>
+<name>Clover</name>
+<name>Araras</name>
+<name>Srikakulam</name>
+<name>Okotoks</name>
+<name>Manhattan</name>
+<name>Shorewood</name>
+<name>South Bend</name>
+<name>Antioch</name>
+<name>Pardubice</name>
+<name>Marion</name>
+<name>Marion</name>
+<name>Luxembourg</name>
+<name>Zonkwa</name>
+<name>Anderson</name>
+<name>Wolcott</name>
+<name>Moorhead</name>
+<name>Willits</name>
+<name>Brno</name>
+<name>Saint Ives</name>
+<name>Pardubice</name>
+<name>Saskatoon</name>
+<name>Pardes Hanna-Karkur</name>
+<name>Ciudad Nezahualcóyotl</name>
+<name>Chelmsford</name>
+<name>Wilsonville</name>
+<name>Neve Yamin</name>
+<name>Masset</name>
+<name>San Jose</name>
+<name>Oak Ridge</name>
+<name>Warwick</name>
+<name>Adams</name>
+<name>Tamborine</name>
+<name>Aguanga</name>
+<name>Stoughton</name>
+<name>Belton</name>
+<name>White Rock</name>
+<name>Nambour</name>
+<name>Margate</name>
+<name>Belle Mead</name>
+<name>Union City</name>
+<name>Old Greenwich</name>
+<name>Kings Park</name>
+<name>Tirupati</name>
+<name>Palakkad</name>
+<name>Lakeport</name>
+<name>Uki</name>
+<name>Hino</name>
+<name>Rogue River</name>
+<name>Twin Cities</name>
+<name>Tiruppur</name>
+<name>Gorsai</name>
+<name>Kalispell</name>
+<name>Vincennes</name>
+<name>Tampere</name>
+<name>Buxton</name>
+<name>Arlington Heights</name>
+<name>Saint Petersburg</name>
+<name>Tzununa</name>
+<name>Stone Mountain</name>
+<name>Portarlington</name>
+<name>Turre</name>
+<name>Topanga</name>
+<name>Hauppauge</name>
+<name>Gurley</name>
+<name>Houlton Way</name>
+<name>Ashland</name>
+<name>Afton</name>
+<name>Directions from Eagle Creek, OR to East Aurora</name>
+<name>Directions from Eagle Creek, OR to East Aurora</name>
+<name>Eagle Creek, OR</name>
+<name>East Aurora</name>
+<name>Directions from Tullnerbach to Tullnerbach</name>
+<name>Directions from Tullnerbach to Tullnerbach</name>
+<name>Tullnerbach</name>
+<name>Tullnerbach</name>
+<name>Untitled layer</name>

@@ -1,61 +1,71 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore, setLogLevel as setFirestoreLogLevel } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
-import { getAnalytics } from "firebase/analytics";
-import { getFunctions } from "firebase/functions";
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import {
+  getFirestore,
+  setLogLevel as setFirestoreLogLevel,
+  type Firestore,
+} from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
+import { getAnalytics, type Analytics } from "firebase/analytics";
+import { getFunctions, type Functions } from "firebase/functions";
 
-// Firebase config - env vars with fallbacks for Compassion Course Website (compassion-course-websit-937d6)
+// Firebase config - ONLY from Vite env vars (single source of truth)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyAAMFrWpsv1BIAKPIjNjGnV61IkZ8EIeRY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "compassion-course-websit-937d6.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "compassion-course-websit-937d6",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-console.log('🏛️ Initializing Firebase for Compassion Course');
-console.log('🔧 Firebase config:', {
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain,
-  apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'MISSING',
-  storageBucket: firebaseConfig.storageBucket
-});
-// Use this projectId when deploying: firebase use <projectId> && firebase deploy --only firestore
-if (firebaseConfig.projectId) {
-  console.log('📌 Firestore projectId:', firebaseConfig.projectId, '(must match firebase deploy target)');
+// Runtime sanity check (safe - does NOT throw)
+console.log(
+  "Firebase apiKey in use:",
+  firebaseConfig.apiKey ? `${firebaseConfig.apiKey.slice(0, 12)}...` : "(undefined)"
+);
+
+// Decide when Firebase is “configured enough” to initialize
+export const isFirebaseConfigured =
+  !!firebaseConfig.apiKey &&
+  !String(firebaseConfig.apiKey).includes("YOUR_") &&
+  !!firebaseConfig.projectId &&
+  !!firebaseConfig.appId;
+
+if (!isFirebaseConfigured) {
+  console.warn(
+    "[firebase] Missing/invalid env vars; running with Firebase disabled (UI-only mode). " +
+      "Set VITE_FIREBASE_* values in .env to enable auth/db."
+  );
 }
 
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error('❌ Missing Firebase env vars. Ensure VITE_FIREBASE_* are set at build time.');
-  console.error('Required variables:', {
-    VITE_FIREBASE_API_KEY: !!firebaseConfig.apiKey,
-    VITE_FIREBASE_PROJECT_ID: !!firebaseConfig.projectId,
-    VITE_FIREBASE_AUTH_DOMAIN: !!firebaseConfig.authDomain
+// Initialize Firebase ONLY if configured (and only once)
+export const app: FirebaseApp | null = isFirebaseConfigured
+  ? (getApps().length > 0 ? (getApps()[0] as FirebaseApp) : initializeApp(firebaseConfig))
+  : null;
+
+if (app && getApps().length === 1) {
+  console.log("Firebase init:", {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
   });
-  throw new Error('Firebase configuration is incomplete. Check environment variables.');
 }
 
-// Validate API key format (Firebase API keys typically start with 'AIza')
-if (firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('AIza')) {
-  console.warn('⚠️ API key format looks unusual. Firebase API keys typically start with "AIza"');
-}
+// Export services as nullable when Firebase is disabled
+export const auth: Auth | null = app ? getAuth(app) : null;
 
-const app = initializeApp(firebaseConfig);
+export const db: Firestore | null = app ? getFirestore(app) : null;
+if (db) setFirestoreLogLevel("error");
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-setFirestoreLogLevel('error');
-export const storage = getStorage(app);
-export const functions = getFunctions(app, 'us-central1');
+export const storage: FirebaseStorage | null = app ? getStorage(app) : null;
+
+export const functions: Functions | null = app ? getFunctions(app, "us-central1") : null;
 
 // Only initialize analytics in browser and if measurementId is provided
-export const analytics = (typeof window !== 'undefined' && firebaseConfig.measurementId)
-  ? getAnalytics(app)
-  : undefined as unknown as ReturnType<typeof getAnalytics>;
-
-console.log('✅ Firebase services initialized for Compassion Course');
+export const analytics: Analytics | null =
+  app && typeof window !== "undefined" && firebaseConfig.measurementId
+    ? getAnalytics(app)
+    : null;
 
 export default app;

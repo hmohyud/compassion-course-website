@@ -78,7 +78,7 @@ export async function createMentionNotifications(
   fromUserName: string,
   mentionedUserIds: string[]
 ): Promise<void> {
-  const deduped = [...new Set(mentionedUserIds)].filter((id) => id && id !== fromUserId);
+  const deduped = [...new Set(mentionedUserIds)].filter((id) => id);
   if (deduped.length === 0) return;
 
   const ref = collection(db, COLLECTION);

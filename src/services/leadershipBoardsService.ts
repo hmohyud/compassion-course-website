@@ -1,12 +1,12 @@
 import {
   collection,
   doc,
-  getDocs,
   getDoc,
-  setDoc,
+  getDocs,
   query,
-  where,
+  setDoc,
   serverTimestamp,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import type { LeadershipBoard } from '../types/leadership';
@@ -23,6 +23,7 @@ function toBoard(docSnap: { id: string; data: () => Record<string, unknown> }): 
   };
 }
 
+/** @deprecated Prefer createTeamWithBoard (backend) which creates team + board with boardId/whiteboardIds. Do not use for team board resolution. */
 export async function createBoardForTeam(teamId: string): Promise<LeadershipBoard> {
   const ref = doc(collection(db, COLLECTION));
   await setDoc(ref, {
@@ -34,6 +35,17 @@ export async function createBoardForTeam(teamId: string): Promise<LeadershipBoar
   return toBoard({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
+/** Get board by doc id. Prefer resolving via team.boardId (single source of truth). */
+export async function getBoard(boardId: string): Promise<LeadershipBoard | null> {
+  if (!boardId) return null;
+  const ref = doc(db, COLLECTION, boardId);
+  const snap = await getDoc(ref);
+  return snap.exists() ? toBoard({ id: snap.id, data: () => snap.data() ?? {} }) : null;
+}
+
+/**
+ * @deprecated Resolve board via team.boardId and getBoard(team.boardId) instead. Do not query by teamId.
+ */
 export async function getBoardByTeamId(teamId: string): Promise<LeadershipBoard | null> {
   const ref = collection(db, COLLECTION);
   const q = query(ref, where('teamId', '==', teamId));

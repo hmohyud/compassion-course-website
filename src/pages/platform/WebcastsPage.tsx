@@ -12,20 +12,21 @@ const WebcastsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    const loadWebcasts = async () => {
+      setLoading(true);
+      try {
+        const data = await getUpcomingWebcasts();
+        if (!cancelled) setWebcasts(data);
+      } catch (error) {
+        console.error('Error loading webcasts:', error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
     loadWebcasts();
+    return () => { cancelled = true; };
   }, []);
-
-  const loadWebcasts = async () => {
-    setLoading(true);
-    try {
-      const data = await getUpcomingWebcasts();
-      setWebcasts(data);
-    } catch (error) {
-      console.error('Error loading webcasts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleString('en-US', {

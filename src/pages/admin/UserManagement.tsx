@@ -1,10 +1,11 @@
+// Deprecated: user provisioning is self-signup only. Create User tab removed.
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { auth, db, functions } from '../../firebase/firebaseConfig';
+import { db, functions } from '../../firebase/firebaseConfig';
 import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../context/AuthContext';
-import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
+import { listUserProfiles, getUserProfile, createUserProfile, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { listUsersByStatus, type UserDoc } from '../../services/usersService';
 import { listTeams, getTeam, createTeamWithBoard, updateTeam, deleteTeam } from '../../services/leadershipTeamsService';
 import { UserProfile, PortalRole } from '../../types/platform';
@@ -15,7 +16,7 @@ const GOOGLE_ADMIN_CONSOLE_URL = 'https://admin.google.com';
 
 const APPROVE_ROLES: PortalRole[] = ['viewer', 'contributor', 'manager', 'admin'];
 
-export type AdminUserTab = 'directory' | 'teams' | 'create' | 'pending';
+export type AdminUserTab = 'directory' | 'teams' | 'pending';
 
 const UserManagement: React.FC = () => {
   const { user } = useAuth();
@@ -23,7 +24,7 @@ const UserManagement: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const activeTab: AdminUserTab =
-    tabParam === 'teams' || tabParam === 'create' || tabParam === 'pending' ? tabParam : 'directory';
+    tabParam === 'teams' || tabParam === 'pending' ? tabParam : 'directory';
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [adminIds, setAdminIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -38,11 +39,14 @@ const UserManagement: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<'all' | PortalRole>('all');
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [addUserEmail, setAddUserEmail] = useState('');
-  const [addUserName, setAddUserName] = useState('');
-  const [addingUser, setAddingUser] = useState(false);
-  const [addUserResult, setAddUserResult] = useState<{ email: string; temporaryPassword: string } | null>(null);
   const [editingProfile, setEditingProfile] = useState<UserProfile | null>(null);
+
+  // Redirect legacy ?tab=create to directory
+  useEffect(() => {
+    if (searchParams.get('tab') === 'create') {
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   // Team Management tab state
   const [teams, setTeams] = useState<LeadershipTeam[]>([]);
@@ -59,6 +63,7 @@ const UserManagement: React.FC = () => {
   const [pendingUsers, setPendingUsers] = useState<UserDoc[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [approvingUid, setApprovingUid] = useState<string | null>(null);
+  const [openingEditPendingUid, setOpeningEditPendingUid] = useState<string | null>(null);
 
   const setTab = (t: AdminUserTab) => setSearchParams(t === 'directory' ? {} : { tab: t });
 
@@ -82,7 +87,8 @@ const UserManagement: React.FC = () => {
       setTeams(list);
       const profiles = await listUserProfiles();
       setTeamProfiles(profiles);
-    } catch {
+    } catch (err) {
+      console.error('Error loading teams:', err);
       setTeams([]);
       setTeamProfiles([]);
     } finally {
@@ -111,8 +117,24 @@ const UserManagement: React.FC = () => {
     if (activeTab === 'pending') loadPendingUsers();
   }, [activeTab]);
 
+  const openEditForPendingUser = async (u: UserDoc) => {
+    setOpeningEditPendingUid(u.uid);
+    setError('');
+    try {
+      let profile = await getUserProfile(u.uid);
+      if (!profile) {
+        profile = await createUserProfile(u.uid, u.email, u.displayName || '');
+      }
+      setEditingProfile(profile);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to open edit';
+      setError(message);
+    } finally {
+      setOpeningEditPendingUid(null);
+    }
+  };
+
   const approveUser = async (uid: string, role: PortalRole) => {
-    const functions = getFunctions(undefined, 'us-central1');
     const approveUserFn = httpsCallable<{ uid: string; role: string }, { ok: boolean; uid: string; status: string; role: string }>(
       functions,
       'approveUser'
@@ -152,7 +174,8 @@ const UserManagement: React.FC = () => {
           if (email) ids.add(email.toLowerCase());
         });
         setAdminIds(ids);
-      } catch {
+      } catch (err) {
+        console.error('Error loading admin IDs:', err);
         setAdminIds(new Set());
       }
     } catch (err: unknown) {
@@ -190,6 +213,7 @@ const UserManagement: React.FC = () => {
       await deleteUserProfile(profile.id);
       setSuccess('User removed from directory.');
       await loadData();
+      loadPendingUsers();
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to remove user';
@@ -219,6 +243,7 @@ const UserManagement: React.FC = () => {
       await updateUserProfile(userId, { role });
       setSuccess(`Role updated to ${role}.`);
       await loadData();
+      loadPendingUsers();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to update role';
       setError(message);
@@ -319,9 +344,18 @@ const UserManagement: React.FC = () => {
       await createTeamWithBoard(name, []);
       setCreateTeamName('');
       await loadTeams();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create team. In Firestore, check the teams collection exists and rules allow write for authenticated users.';
-      setCreateTeamError(message);
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code ?? '';
+      const message = (err as { message?: string })?.message ?? 'Failed to create team.';
+      if (code === 'functions/unauthenticated') {
+        setCreateTeamError('Sign in required to create teams.');
+      } else if (code === 'functions/permission-denied') {
+        setCreateTeamError('Only admins can create teams.');
+      } else if (code === 'functions/invalid-argument') {
+        setCreateTeamError(message || 'Invalid input.');
+      } else {
+        setCreateTeamError(message);
+      }
       console.error('Create team failed:', err);
     } finally {
       setTeamSaving(false);
@@ -375,71 +409,12 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const createUserByAdmin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setAddUserResult(null);
-    const email = addUserEmail.trim();
-    if (!email) {
-      setError('Please enter an email address.');
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    if (!auth.currentUser) {
-      setError('You must be logged in to add users. Sign in again and try again.');
-      return;
-    }
-    setAddingUser(true);
-    try {
-      console.log('[CreateUser] calling callable');
-      const fn = httpsCallable<
-        { email: string; displayName?: string; role?: string },
-        { ok: boolean; uid: string; email: string; temporaryPassword: string }
-      >(functions, 'createUserByAdmin');
-      const result = await fn({
-        email,
-        displayName: addUserName.trim() || undefined,
-        role: 'viewer',
-      });
-      console.log('[CreateUser] callable result', result.data);
-      const data = result.data;
-      setAddUserResult({ email: data.email, temporaryPassword: data.temporaryPassword });
-      setSuccess('User added. They must change their password on first login.');
-      setAddUserEmail('');
-      setAddUserName('');
-      await loadData();
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code ?? '';
-      const message = (err as { message?: string })?.message ?? 'Failed to add user.';
-      if (code === 'functions/unauthenticated') {
-        setError('You must be logged in to add users. Sign in again and try again.');
-      } else if (code === 'functions/permission-denied') {
-        setError('Only admins can add users. Your account may not have admin access.');
-      } else if (code === 'functions/already-exists') {
-        setError('A user with this email already exists.');
-      } else if (code === 'functions/invalid-argument') {
-        setError(message || 'Invalid input.');
-      } else if (code === 'functions/not-found') {
-        setError('Add user is not available: callable "createUserByAdmin" is not deployed.');
-      } else {
-        setError(message || 'Server error.');
-      }
-    } finally {
-      setAddingUser(false);
-    }
-  };
-
   return (
     <>
     <AdminLayout title="User Management">
       <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb' }}>
         <nav style={{ display: 'flex', gap: '0' }}>
-          {(['directory', 'teams', 'create', 'pending'] as const).map((t) => (
+          {(['directory', 'teams', 'pending'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -455,7 +430,7 @@ const UserManagement: React.FC = () => {
                 fontSize: '1rem',
               }}
             >
-              {t === 'directory' ? 'User Directory' : t === 'teams' ? 'Team Management' : t === 'create' ? 'Create User' : 'Pending approvals'}
+              {t === 'directory' ? 'User Directory' : t === 'teams' ? 'Team Management' : 'Pending approvals'}
             </button>
           ))}
         </nav>
@@ -667,19 +642,37 @@ const UserManagement: React.FC = () => {
                         </select>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          disabled={approvingUid === u.uid}
-                          onClick={() => {
-                            const sel = document.getElementById(`role-${u.uid}`) as HTMLSelectElement;
-                            const role = (sel?.value ?? 'viewer') as PortalRole;
-                            approveUser(u.uid, role);
-                          }}
-                          style={{ padding: '6px 14px', fontSize: '13px' }}
-                        >
-                          {approvingUid === u.uid ? 'Approving…' : 'Approve'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            disabled={openingEditPendingUid === u.uid}
+                            onClick={() => openEditForPendingUser(u)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '13px',
+                              background: 'none',
+                              color: '#002B4D',
+                              border: '1px solid #002B4D',
+                              borderRadius: '6px',
+                              cursor: openingEditPendingUid === u.uid ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            {openingEditPendingUid === u.uid ? '…' : 'Edit'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            disabled={approvingUid === u.uid}
+                            onClick={() => {
+                              const sel = document.getElementById(`role-${u.uid}`) as HTMLSelectElement;
+                              const role = (sel?.value ?? 'viewer') as PortalRole;
+                              approveUser(u.uid, role);
+                            }}
+                            style={{ padding: '6px 14px', fontSize: '13px' }}
+                          >
+                            {approvingUid === u.uid ? 'Approving…' : 'Approve'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -687,51 +680,6 @@ const UserManagement: React.FC = () => {
               </table>
             </div>
           )}
-        </div>
-        )}
-
-        {activeTab === 'create' && (
-        <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', maxWidth: '560px' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '16px' }}>Create User</h2>
-          <p style={{ marginBottom: '20px', color: '#6b7280', fontSize: '0.9rem' }}>
-            Add a new user by email. Their first-time password will be <strong>12341234</strong>; they will be prompted to change it on first login.
-          </p>
-          <form onSubmit={createUserByAdmin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label htmlFor="add-user-email" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Email</label>
-              <input
-                id="add-user-email"
-                type="email"
-                value={addUserEmail}
-                onChange={(e) => { setAddUserEmail(e.target.value); setAddUserResult(null); }}
-                placeholder="user@example.com"
-                required
-                style={{ width: '100%', maxWidth: '400px', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
-              />
-            </div>
-            <div>
-              <label htmlFor="add-user-name" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Name (optional)</label>
-              <input
-                id="add-user-name"
-                type="text"
-                value={addUserName}
-                onChange={(e) => setAddUserName(e.target.value)}
-                placeholder="Display name"
-                style={{ width: '100%', maxWidth: '400px', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={addingUser} style={{ padding: '10px 20px', fontSize: '14px', alignSelf: 'flex-start' }}>
-              {addingUser ? 'Adding...' : 'Add user'}
-            </button>
-          </form>
-          {addUserResult && (
-            <p style={{ marginTop: '16px', marginBottom: 0, fontSize: '0.875rem', color: '#166534', fontWeight: 500 }}>
-              Temporary password (show to user once): <strong>{addUserResult.temporaryPassword}</strong>. They must change it on first login.
-            </p>
-          )}
-          <p style={{ marginTop: '16px', marginBottom: 0, fontSize: '0.75rem', color: '#6b7280' }}>
-            Uses callable function createUserByAdmin via httpsCallable (no CORS).
-          </p>
         </div>
         )}
 
@@ -923,7 +871,13 @@ const UserManagement: React.FC = () => {
         )}
     </AdminLayout>
 
-      {editingProfile && (
+      {editingProfile && (() => {
+        const isPending = pendingUsers.some((p) => p.uid === editingProfile.id);
+        const closeModal = () => {
+          setEditingProfile(null);
+          loadPendingUsers();
+        };
+        return (
         <div
           style={{
             position: 'fixed',
@@ -934,7 +888,7 @@ const UserManagement: React.FC = () => {
             justifyContent: 'center',
             zIndex: 1000,
           }}
-          onClick={() => setEditingProfile(null)}
+          onClick={closeModal}
         >
           <div
             style={{
@@ -957,6 +911,11 @@ const UserManagement: React.FC = () => {
                 </span>
               )}
             </p>
+            {isPending && (
+              <p style={{ marginBottom: '16px', fontSize: '0.875rem', color: '#6b7280' }}>
+                User is pending. Use Approve in the Pending tab to activate.
+              </p>
+            )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
               <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Portal role</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -981,11 +940,11 @@ const UserManagement: React.FC = () => {
                   </button>
                 ))}
               </div>
-              {isAdmin(editingProfile) && (
+              {!isPending && isAdmin(editingProfile) && (
                 <button
                   type="button"
                   disabled={revokingId === editingProfile.id}
-                  onClick={() => revokeAdmin(editingProfile, () => setEditingProfile(null))}
+                  onClick={() => revokeAdmin(editingProfile, closeModal)}
                   style={{
                     padding: '10px 16px',
                     background: revokingId === editingProfile.id ? '#9ca3af' : '#dc2626',
@@ -1002,7 +961,7 @@ const UserManagement: React.FC = () => {
               <button
                 type="button"
                 disabled={removingId === editingProfile.id}
-                onClick={() => removeFromDirectory(editingProfile, () => setEditingProfile(null))}
+                onClick={() => removeFromDirectory(editingProfile, closeModal)}
                 style={{
                   padding: '10px 16px',
                   background: removingId === editingProfile.id ? '#9ca3af' : '#dc2626',
@@ -1015,11 +974,11 @@ const UserManagement: React.FC = () => {
               >
                 {removingId === editingProfile.id ? 'Removing...' : 'Remove from directory'}
               </button>
-              {(['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
+              {!isPending && (['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
                 <button
                   type="button"
                   onClick={() => {
-                    setEditingProfile(null);
+                    closeModal();
                     openGrantWorkspaceModal(editingProfile.email!);
                   }}
                   style={{
@@ -1038,7 +997,7 @@ const UserManagement: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => setEditingProfile(null)}
+              onClick={closeModal}
               style={{
                 padding: '8px 16px',
                 background: '#e5e7eb',
@@ -1053,7 +1012,8 @@ const UserManagement: React.FC = () => {
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {workspaceModalEmail && (
         <div

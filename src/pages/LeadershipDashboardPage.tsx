@@ -12,6 +12,7 @@ import { getUserProfile } from '../services/userProfileService';
 import type { UserNotification } from '../services/notificationService';
 import type { LeadershipTeam, LeadershipWorkItem, WorkItemLane, WorkItemStatus } from '../types/leadership';
 
+import DashboardTabView from '../components/leadership/DashboardTabView';
 import BoardTabView from '../components/leadership/BoardTabView';
 import BacklogTabView from '../components/leadership/BacklogTabView';
 import TeamTabView from '../components/leadership/TeamTabView';
@@ -20,9 +21,10 @@ import MessagesTabView from '../components/leadership/MessagesTabView';
 import CreateTeamModal from '../components/leadership/CreateTeamModal';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../components/leadership/TaskForm';
 
-type TabId = 'board' | 'backlog' | 'team' | 'settings' | 'messages';
+type TabId = 'dashboard' | 'board' | 'backlog' | 'team' | 'settings' | 'messages';
 
 const TABS: { id: TabId; label: string; requiresTeam: boolean }[] = [
+  { id: 'dashboard', label: 'Dashboard', requiresTeam: false },
   { id: 'board', label: 'Board', requiresTeam: true },
   { id: 'backlog', label: 'Backlog', requiresTeam: false },
   { id: 'team', label: 'Team', requiresTeam: true },
@@ -435,10 +437,17 @@ const LeadershipDashboardPage: React.FC = () => {
 
         {/* ── Tab content ── */}
         <div className="ld-tab-content">
-          {teamDataLoading && activeTab !== 'backlog' && activeTab !== 'messages' ? (
+          {teamDataLoading && activeTab !== 'dashboard' && activeTab !== 'backlog' && activeTab !== 'messages' ? (
             <div className="loading"><div className="spinner"></div></div>
           ) : (
             <>
+              {activeTab === 'dashboard' && (
+                <DashboardTabView
+                  teams={teams}
+                  onSwitchToTeamBoard={handleSwitchToTeamBoard}
+                />
+              )}
+
               {activeTab === 'board' && selectedTeamId && (
                 <BoardTabView
                   teamId={selectedTeamId}

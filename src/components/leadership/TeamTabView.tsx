@@ -11,7 +11,7 @@ import {
 } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from './TaskForm';
-import type { LeadershipWorkItem } from '../../types/leadership';
+import type { LeadershipWorkItem, WorkItemComment } from '../../types/leadership';
 
 interface TeamTabViewProps {
   teamId: string;
@@ -180,6 +180,22 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
     }
   };
 
+  const handleCommentsChanged = async (updatedComments: WorkItemComment[], context?: TaskFormSaveContext) => {
+    if (!editingItem) return;
+    try {
+      await updateWorkItem(editingItem.id, { comments: updatedComments });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(editingItem.id, editingItem.title, teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save comment:', err);
+    }
+  };
+
   // Compute task stats from workItems
   const taskStats = {
     backlog: workItems.filter((w) => w.status === 'backlog').length,
@@ -318,6 +334,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
               memberLabels={memberLabels}
               memberAvatars={memberAvatars}
               onSave={handleEditSave}
+              onCommentsChanged={handleCommentsChanged}
               onCancel={() => { setEditingItem(null); setSaveError(null); }}
               onDelete={handleDelete}
             />

@@ -20,7 +20,7 @@ import {
 import { updateWorkItem, createWorkItem, deleteWorkItem, batchUpdatePositions } from '../../services/leadershipWorkItemsService';
 import { createMentionNotifications } from '../../services/notificationService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from './TaskForm';
-import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane } from '../../types/leadership';
+import type { LeadershipWorkItem, WorkItemStatus, WorkItemLane, WorkItemComment } from '../../types/leadership';
 
 const COLUMNS: { id: WorkItemStatus; label: string; color: string }[] = [
   { id: 'todo', label: 'To Do', color: '#f59e0b' },
@@ -991,6 +991,22 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     }
   };
 
+  const handleCommentsChanged = async (updatedComments: WorkItemComment[], context?: TaskFormSaveContext) => {
+    if (!editingItem) return;
+    try {
+      await updateWorkItem(editingItem.id, { comments: updatedComments });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(editingItem.id, editingItem.title, teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save comment:', err);
+    }
+  };
+
   const handleDelete = async (itemId: string) => {
     try {
       await deleteWorkItem(itemId);
@@ -1091,6 +1107,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
             memberLabels={memberLabels}
             memberAvatars={memberAvatars}
             onSave={handleEditSave}
+            onCommentsChanged={handleCommentsChanged}
             onCancel={() => { setEditingItem(null); setSaveError(null); }}
             onDelete={handleDelete}
           />

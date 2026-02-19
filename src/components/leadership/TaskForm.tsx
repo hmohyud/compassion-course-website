@@ -49,6 +49,9 @@ export interface TaskFormProps {
   onCancel: () => void;
   /** Called when user clicks Delete (edit mode only). Confirm before calling. */
   onDelete?: (itemId: string) => void;
+  /** Called immediately when comments change in edit mode (add/edit/delete).
+   *  Persists comments without requiring the user to click "Save Changes". */
+  onCommentsChanged?: (comments: WorkItemComment[], context?: TaskFormSaveContext) => void;
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({
@@ -62,6 +65,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onSave,
   onCancel,
   onDelete,
+  onCommentsChanged,
 }) => {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
@@ -195,19 +199,26 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       currentCommentMentionedIds.length > 0 ? [...currentCommentMentionedIds] : undefined;
     const id = `c-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     addedCommentIdsRef.current.add(id);
-    setComments((prev) => [
-      ...prev,
-      {
-        id,
-        userId: user.uid,
-        userName: user.displayName || user.email || undefined,
-        text,
-        createdAt: new Date(),
-        ...(mentionedUserIds?.length ? { mentionedUserIds } : {}),
-      },
-    ]);
+    const newComment: WorkItemComment = {
+      id,
+      userId: user.uid,
+      userName: user.displayName || user.email || undefined,
+      text,
+      createdAt: new Date(),
+      ...(mentionedUserIds?.length ? { mentionedUserIds } : {}),
+    };
+    const updatedComments = [...comments, newComment];
+    setComments(updatedComments);
     setNewCommentText('');
     setCurrentCommentMentionedIds([]);
+
+    // In edit mode, persist immediately so user doesn't need to click "Save Changes"
+    if (mode === 'edit' && onCommentsChanged) {
+      const mentionContext = mentionedUserIds?.length
+        ? { newCommentsWithMentions: [newComment] }
+        : undefined;
+      onCommentsChanged(updatedComments, mentionContext);
+    }
   };
 
   const startEditComment = (c: WorkItemComment) => {
@@ -221,15 +232,19 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     if (!editingCommentId) return;
     const trimmed = editingCommentText.trim();
     if (!trimmed) return;
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === editingCommentId
-          ? { ...c, text: trimmed, editedAt: new Date() }
-          : c
-      )
+    const updatedComments = comments.map((c) =>
+      c.id === editingCommentId
+        ? { ...c, text: trimmed, editedAt: new Date() }
+        : c
     );
+    setComments(updatedComments);
     setEditingCommentId(null);
     setEditingCommentText('');
+
+    // In edit mode, persist immediately
+    if (mode === 'edit' && onCommentsChanged) {
+      onCommentsChanged(updatedComments);
+    }
   };
 
   const cancelEditComment = () => {
@@ -244,9 +259,15 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
   const executeDeleteComment = () => {
     if (!deletingCommentId) return;
-    setComments((prev) => prev.filter((c) => c.id !== deletingCommentId));
+    const updatedComments = comments.filter((c) => c.id !== deletingCommentId);
+    setComments(updatedComments);
     addedCommentIdsRef.current.delete(deletingCommentId);
     setDeletingCommentId(null);
+
+    // In edit mode, persist immediately
+    if (mode === 'edit' && onCommentsChanged) {
+      onCommentsChanged(updatedComments);
+    }
   };
 
   const formatCommentDate = (d: Date | undefined) => {

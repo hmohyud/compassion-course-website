@@ -10,7 +10,7 @@ import {
 import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { getUserProfile } from '../../services/userProfileService';
-import type { LeadershipWorkItem, LeadershipTeam } from '../../types/leadership';
+import type { LeadershipWorkItem, LeadershipTeam, WorkItemComment } from '../../types/leadership';
 
 function formatTimeAgo(date: Date): string {
   const now = new Date();
@@ -139,6 +139,22 @@ const BacklogTabView: React.FC<BacklogTabViewProps> = ({ teams, isAdmin, onSwitc
     }
   };
 
+  const handleCommentsChanged = async (updatedComments: WorkItemComment[], context?: TaskFormSaveContext) => {
+    if (!editingItem) return;
+    try {
+      await updateWorkItem(editingItem.id, { comments: updatedComments });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(editingItem.id, editingItem.title, editingItem.teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save comment:', err);
+    }
+  };
+
   const handleDelete = async (itemId: string) => {
     try {
       await deleteWorkItem(itemId);
@@ -199,6 +215,7 @@ const BacklogTabView: React.FC<BacklogTabViewProps> = ({ teams, isAdmin, onSwitc
             mode="edit"
             initialItem={editingItem}
             onSave={handleEditSave}
+            onCommentsChanged={handleCommentsChanged}
             onCancel={() => { setEditingItem(null); setSaveError(null); }}
             onDelete={handleDelete}
           />

@@ -10,7 +10,7 @@ import { getTeamBoardSettings } from '../services/teamBoardSettingsService';
 import { getBoard, createBoardForTeam } from '../services/leadershipBoardsService';
 import { getUserProfile } from '../services/userProfileService';
 import type { UserNotification } from '../services/notificationService';
-import type { LeadershipTeam, LeadershipWorkItem, WorkItemLane, WorkItemStatus } from '../types/leadership';
+import type { LeadershipTeam, LeadershipWorkItem, WorkItemLane, WorkItemStatus, WorkItemComment } from '../types/leadership';
 
 import BoardTabView from '../components/leadership/BoardTabView';
 import BacklogTabView from '../components/leadership/BacklogTabView';
@@ -561,6 +561,24 @@ const LeadershipDashboardPage: React.FC = () => {
               }
             } catch (err) {
               console.error('Failed to save from messages overlay:', err);
+            }
+          }}
+          onCommentsChanged={async (updatedComments: WorkItemComment[], context?: TaskFormSaveContext) => {
+            if (!messagesOverlayItem) return;
+            try {
+              await updateWorkItem(messagesOverlayItem.id, { comments: updatedComments });
+              if (context?.newCommentsWithMentions?.length) {
+                for (const c of context.newCommentsWithMentions) {
+                  if (c.mentionedUserIds?.length) {
+                    await createMentionNotifications(
+                      messagesOverlayItem.id, messagesOverlayItem.title, messagesOverlayTeamId,
+                      c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds
+                    );
+                  }
+                }
+              }
+            } catch (err) {
+              console.error('Failed to save comment:', err);
             }
           }}
           onCancel={() => setMessagesOverlayItem(null)}

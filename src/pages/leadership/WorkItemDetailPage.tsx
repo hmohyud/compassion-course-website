@@ -6,7 +6,7 @@ import { createMentionNotifications } from '../../services/notificationService';
 import { getTeam } from '../../services/leadershipTeamsService';
 import { getUserProfile } from '../../services/userProfileService';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../../components/leadership/TaskForm';
-import type { LeadershipWorkItem } from '../../types/leadership';
+import type { LeadershipWorkItem, WorkItemComment } from '../../types/leadership';
 
 const WorkItemDetailPage: React.FC = () => {
   const { workItemId } = useParams<{ workItemId: string }>();
@@ -105,6 +105,22 @@ const WorkItemDetailPage: React.FC = () => {
     }
   };
 
+  const handleCommentsChanged = async (updatedComments: WorkItemComment[], context?: TaskFormSaveContext) => {
+    if (!item) return;
+    try {
+      await updateWorkItem(item.id, { comments: updatedComments });
+      if (context?.newCommentsWithMentions?.length) {
+        for (const c of context.newCommentsWithMentions) {
+          if (c.mentionedUserIds?.length) {
+            await createMentionNotifications(item.id, item.title, item.teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save comment:', err);
+    }
+  };
+
   const handleCancel = () => {
     navigate(backUrl);
   };
@@ -173,6 +189,7 @@ const WorkItemDetailPage: React.FC = () => {
           teamMemberIds={memberIds}
           memberLabels={memberLabels}
           onSave={handleSave}
+          onCommentsChanged={handleCommentsChanged}
           onCancel={handleCancel}
           onDelete={handleDelete}
         />

@@ -110,10 +110,18 @@ const LearnMorePage: React.FC = () => {
         </div>
       </section>
 
-      {/* The Origin Story — text-driven, no stock photo */}
+      {/* The Origin Story — timeline + image */}
       <section className="learn-origin reveal">
         <div className="container">
+          <h2 className="section-title">How It All Began</h2>
           <div className="learn-origin-inner">
+            <div className="learn-origin-image">
+              <img
+                src="/images/origin-conversation.jpg"
+                alt="Two people sharing a warm conversation over tea"
+                loading="lazy"
+              />
+            </div>
             <div className="learn-origin-timeline">
               <div className="learn-origin-year">
                 <span className="learn-origin-year-num">2002</span>
@@ -139,11 +147,22 @@ const LearnMorePage: React.FC = () => {
       {/* How It Works */}
       <section id="how-it-works" className="learn-how reveal">
         <div className="container">
-          <h2 className="section-title">How the Course Works</h2>
-          <p className="section-description">
-            No classrooms, no rigid schedules. The Compassion Course fits
-            into the life you already have.
-          </p>
+          <div className="learn-how-intro">
+            <div className="learn-how-intro-text">
+              <h2 className="section-title" style={{ textAlign: 'left' }}>How the Course Works</h2>
+              <p className="section-description" style={{ textAlign: 'left', maxWidth: 'none' }}>
+                No classrooms, no rigid schedules. The Compassion Course fits
+                into the life you already have.
+              </p>
+            </div>
+            <div className="learn-how-intro-image">
+              <img
+                src="/images/how-friends-laughing.jpg"
+                alt="Group of friends laughing and enjoying time together"
+                loading="lazy"
+              />
+            </div>
+          </div>
 
           <div className="learn-how-steps">
             <div className="learn-how-step-card reveal">
@@ -204,16 +223,61 @@ const LearnMorePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Photo Strip — community & kindness imagery */}
+      <section className="learn-photo-strip">
+        <div className="learn-photo-strip-inner">
+          <div className="learn-photo-strip-item">
+            <img
+              src="/images/strip-grandparent.jpg"
+              alt="Grandmother and grandchild smiling together"
+              loading="lazy"
+            />
+          </div>
+          <div className="learn-photo-strip-item">
+            <img
+              src="/images/strip-friends-diverse.jpg"
+              alt="Diverse friends laughing together outdoors"
+              loading="lazy"
+            />
+          </div>
+          <div className="learn-photo-strip-item">
+            <img
+              src="/images/strip-woman-dog.jpg"
+              alt="Woman smiling with her dog in a park"
+              loading="lazy"
+            />
+          </div>
+          <div className="learn-photo-strip-item">
+            <img
+              src="/images/strip-volunteers.jpg"
+              alt="Volunteers smiling while working together"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* A Peek Inside the Course */}
       <section className="learn-peek reveal">
         <div className="container">
-          <h2 className="section-title">A Peek Inside the Course</h2>
-          <p className="section-description">
-            The 52-week journey is built on one core idea: <strong>everything
-            we do, we do to meet a need.</strong> Each week builds on the
-            last, gradually shifting how you see yourself, others, and
-            conflict itself.
-          </p>
+          <div className="learn-peek-header">
+            <div className="learn-peek-header-text">
+              <h2 className="section-title" style={{ textAlign: 'left' }}>A Peek Inside the Course</h2>
+              <p className="section-description" style={{ textAlign: 'left', maxWidth: 'none' }}>
+                The 52-week journey is built on one core idea: <strong>everything
+                we do, we do to meet a need.</strong> Each week builds on the
+                last, gradually shifting how you see yourself, others, and
+                conflict itself.
+              </p>
+            </div>
+            <div className="learn-peek-header-image">
+              <img
+                src="/images/peek-journaling.jpg"
+                alt="Woman journaling in a peaceful setting"
+                loading="lazy"
+              />
+            </div>
+          </div>
           <div className="learn-peek-columns">
             <div className="learn-peek-col">
               <h3 className="learn-peek-col-title">First 10 Weeks</h3>
@@ -254,11 +318,20 @@ const LearnMorePage: React.FC = () => {
       {/* What Makes This Different */}
       <section className="learn-different reveal">
         <div className="container">
-          <h2 className="section-title">What Makes This Different</h2>
-          <p className="section-description">
-            This isn't a weekend workshop that fades by Monday.
-            It's a year of gradual, real change.
-          </p>
+          <div className="learn-different-hero">
+            <img
+              src="/images/different-friends-sunset.jpg"
+              alt="Diverse group of friends sitting together watching a sunset"
+              loading="lazy"
+            />
+            <div className="learn-different-hero-overlay">
+              <h2>What Makes This Different</h2>
+              <p>
+                This isn't a weekend workshop that fades by Monday.
+                It's a year of gradual, real change.
+              </p>
+            </div>
+          </div>
           <div className="learn-different-grid">
             <div className="learn-different-card reveal">
               <div className="learn-different-icon">

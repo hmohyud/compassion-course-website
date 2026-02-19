@@ -4829,3 +4829,56 @@ export const MARKER_POINTS: [number, number][] = [
   [34.7017558, -86.3758201], [52.3678956, -1.20805210000003], [38.4784144, -82.6379387], [38.0323988, -78.8395137],
   [45.3575518, -122.3588166], [42.7679233, -78.6133553], [48.21553, 16.08556], [48.2155328, 16.0855598],
 ];
+
+// ===== Marker Clustering for Density Visualization =====
+
+export interface MarkerCluster {
+  lat: number;
+  lon: number;
+  count: number;
+  names: string[];   // up to 5 representative names
+}
+
+/**
+ * Grid-based spatial clustering of MARKER_LOCATIONS.
+ * Divides lat/lon space into cells of `gridSize` degrees.
+ * Returns ~200-400 clusters with counts and representative names.
+ */
+export function clusterMarkers(gridSize = 3): MarkerCluster[] {
+  const cells = new Map<string, { lats: number[]; lons: number[]; names: string[] }>();
+
+  for (const loc of MARKER_LOCATIONS) {
+    // Snap to grid cell
+    const cellLat = Math.floor(loc.lat / gridSize) * gridSize;
+    const cellLon = Math.floor(loc.lon / gridSize) * gridSize;
+    const key = `${cellLat},${cellLon}`;
+
+    let cell = cells.get(key);
+    if (!cell) {
+      cell = { lats: [], lons: [], names: [] };
+      cells.set(key, cell);
+    }
+    cell.lats.push(loc.lat);
+    cell.lons.push(loc.lon);
+    // Only keep unique named locations (skip "Placemark N" and duplicates)
+    // Deduplicate by city name (part before first comma) to avoid "City, ST" / "City, ST" repeats
+    if (!loc.name.startsWith('Placemark ')) {
+      const cityPart = loc.name.split(',')[0].trim().toLowerCase();
+      const alreadyHas = cell.names.some(n => n.split(',')[0].trim().toLowerCase() === cityPart);
+      if (!alreadyHas && cell.names.length < 8) {
+        cell.names.push(loc.name.split(',')[0].trim()); // store just the city name
+      }
+    }
+  }
+
+  const clusters: MarkerCluster[] = [];
+  for (const cell of cells.values()) {
+    const count = cell.lats.length;
+    // Use centroid of all points in the cell
+    const lat = cell.lats.reduce((a, b) => a + b, 0) / count;
+    const lon = cell.lons.reduce((a, b) => a + b, 0) / count;
+    clusters.push({ lat, lon, count, names: cell.names });
+  }
+
+  return clusters;
+}

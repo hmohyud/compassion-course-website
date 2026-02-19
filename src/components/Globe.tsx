@@ -1,274 +1,458 @@
-import { useEffect, useRef, useState } from 'react';
-import createGlobe from 'cobe';
-import { MARKER_POINTS } from '../data/markerPoints';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import * as THREE from 'three';
+import { clusterMarkers, type MarkerCluster } from '../data/markerPoints';
 
 const PI = Math.PI;
-const TWO_PI = PI * 2;
-const GLOBE_RADIUS = 0.8; // cobe's hardcoded sphere radius in normalized space
 
-// Matches cobe's exact lat/lon → 3D → rotate → 2D projection
-// Optional radiusMultiplier places points above the globe surface (1.0 = on surface)
-function projectPoint(
-  lat: number,
-  lon: number,
-  phi: number,
-  theta: number,
-  size: number,
-  scale: number,
-  radiusMultiplier = 1.0
-): [number, number, boolean] {
-  const latRad = lat * PI / 180;
-  const lonRad = lon * PI / 180 - PI;
-  const cosLat = Math.cos(latRad);
-  const px3d = -cosLat * Math.cos(lonRad) * radiusMultiplier;
-  const py3d = Math.sin(latRad) * radiusMultiplier;
-  const pz3d = cosLat * Math.sin(lonRad) * radiusMultiplier;
-
-  const cx = Math.cos(theta);
-  const cy = Math.cos(phi);
-  const sx = Math.sin(theta);
-  const sy = Math.sin(phi);
-
-  const rx = px3d * cy        + py3d * 0   + pz3d * sy;
-  const ry = px3d * (sy * sx) + py3d * cx  + pz3d * (-cy * sx);
-  const rz = px3d * (-sy * cx) + py3d * sx + pz3d * (cy * cx);
-
-  const visible = rz > 0.05;
-
-  const halfSize = size / 2;
-  const pixelScale = halfSize * GLOBE_RADIUS * scale;
-  const screenX = halfSize + rx * pixelScale;
-  const screenY = halfSize - ry * pixelScale;
-
-  return [screenX, screenY, visible];
+// Convert lat/lon to 3D position on unit sphere
+function latLonToVec3(lat: number, lon: number, radius = 1): THREE.Vector3 {
+  const phi = (90 - lat) * (PI / 180);
+  const theta = (lon + 180) * (PI / 180);
+  return new THREE.Vector3(
+    -radius * Math.sin(phi) * Math.cos(theta),
+    radius * Math.cos(phi),
+    radius * Math.sin(phi) * Math.sin(theta)
+  );
 }
+
+// Generate a clean marker texture with subtle outer ring
+function createMarkerTexture(size = 64, color = '239, 142, 47'): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  const center = size / 2;
+  const radius = size * 0.3;
+
+  // Outer glow
+  const gradient = ctx.createRadialGradient(center, center, radius * 0.6, center, center, radius * 1.5);
+  gradient.addColorStop(0, `rgba(${color}, 0.5)`);
+  gradient.addColorStop(1, `rgba(${color}, 0)`);
+  ctx.beginPath();
+  ctx.arc(center, center, radius * 1.5, 0, PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // White outline ring
+  ctx.beginPath();
+  ctx.arc(center, center, radius + 1, 0, PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fill();
+
+  // Solid core
+  ctx.beginPath();
+  ctx.arc(center, center, radius, 0, PI * 2);
+  ctx.fillStyle = `rgba(${color}, 1)`;
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+interface TooltipData {
+  visible: boolean;
+  dotX: number;
+  dotY: number;
+  spriteIdx: number; // index of the selected sprite for live tracking
+  dotBehind: boolean; // true when dot is on back side of globe
+  names: string[];
+  count: number;
+}
+
+const MOBILE_BREAKPOINT = 1080;
 
 const Globe: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const overlayRef = useRef<HTMLCanvasElement>(null);
-  const cloudRef = useRef<HTMLCanvasElement>(null);
+  const cloudCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const cloudDataRef = useRef<ImageData | null>(null);
   const [canvasSize, setCanvasSize] = useState(500);
+  const [isMobile, setIsMobile] = useState(false);
+  const [tooltip, setTooltip] = useState<TooltipData>({
+    visible: false, dotX: 0, dotY: 0, spriteIdx: -1, dotBehind: false, names: [], count: 0,
+  });
 
-  // Smooth drag state
+  // Refs for animation state
   const pointerDown = useRef(false);
   const lastPointerX = useRef(0);
+  const pointerStartX = useRef(0);
+  const pointerStartY = useRef(0);
+  const pointerStartTime = useRef(0);
   const velocity = useRef(0);
   const targetPhi = useRef(0);
   const smoothPhi = useRef(0);
 
-  // Separate cloud rotation — drifts slower than globe
-  const cloudPhi = useRef(0);
+  // Three.js refs
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const markersRef = useRef<THREE.Sprite[]>([]);
+  const markerGroupRef = useRef<THREE.Group | null>(null);
+  const clustersRef = useRef<MarkerCluster[]>([]);
+  const cloudDrift = useRef(0);
+  const frameId = useRef(0);
+  const raycaster = useRef(new THREE.Raycaster());
+  const tooltipRef = useRef(tooltip);
+  tooltipRef.current = tooltip;
+  const isMobileRef = useRef(isMobile);
+  isMobileRef.current = isMobile;
+  const hoveredIdx = useRef(-1);
+  const baseScales = useRef<number[]>([]);
 
-  // Load cloud texture
-  useEffect(() => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = '/images/earth-clouds.png';
-    img.onload = () => {
-      // Extract pixel data
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = img.width;
-      tempCanvas.height = img.height;
-      const tempCtx = tempCanvas.getContext('2d')!;
-      tempCtx.drawImage(img, 0, 0);
-      cloudDataRef.current = tempCtx.getImageData(0, 0, img.width, img.height);
-    };
-  }, []);
-
+  // Responsive sizing + mobile detection
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
         const width = containerRef.current.offsetWidth;
         setCanvasSize(Math.min(width, 600));
       }
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
     };
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // Handle click on marker
+  const handleMarkerClick = useCallback((event: PointerEvent) => {
+    if (isMobileRef.current) return; // disable dot selection on mobile
+    if (!canvasRef.current || !cameraRef.current || !sceneRef.current) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouse = new THREE.Vector2(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -((event.clientY - rect.top) / rect.height) * 2 + 1
+    );
+
+    raycaster.current.setFromCamera(mouse, cameraRef.current);
+    const intersects = raycaster.current.intersectObjects(markersRef.current);
+
+    if (intersects.length > 0) {
+      const sprite = intersects[0].object as THREE.Sprite;
+      const idx = markersRef.current.indexOf(sprite);
+      if (idx >= 0 && clustersRef.current[idx]) {
+        // Don't allow clicking dots on the back side of the globe
+        const worldPos = sprite.getWorldPosition(new THREE.Vector3());
+        const camToOrigin = cameraRef.current.position.clone().negate().normalize();
+        const markerDir = worldPos.clone().normalize();
+        if (camToOrigin.dot(markerDir) > 0.15) return; // behind globe
+
+        const cluster = clustersRef.current[idx];
+        const projected = worldPos.clone().project(cameraRef.current);
+        const screenX = (projected.x * 0.5 + 0.5) * rect.width;
+        const screenY = (-projected.y * 0.5 + 0.5) * rect.height;
+
+        setTooltip({
+          visible: true,
+          dotX: screenX,
+          dotY: screenY,
+          spriteIdx: idx,
+          dotBehind: false,
+          names: cluster.names,
+          count: cluster.count,
+        });
+        return;
+      }
+    }
+
+    setTooltip(prev => prev.visible ? { ...prev, visible: false, spriteIdx: -1, dotBehind: false } : prev);
+  }, []);
+
+  // Main Three.js setup
   useEffect(() => {
-    if (!canvasRef.current || !overlayRef.current || !cloudRef.current) return;
+    if (!canvasRef.current || !cloudCanvasRef.current) return;
 
     const width = canvasSize;
     const dpr = Math.min(window.devicePixelRatio, 2);
-    const theta = 0.25;
-    const globeScale = 1.05;
 
-    // Setup overlay canvas (markers)
-    const overlay = overlayRef.current;
-    const ctx = overlay.getContext('2d')!;
-    overlay.width = width * dpr;
-    overlay.height = width * dpr;
+    // --- Main Scene (earth + markers) ---
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
-    // Setup cloud canvas (separate layer)
-    const cloudCanvas = cloudRef.current;
-    const cloudCtx = cloudCanvas.getContext('2d')!;
-    cloudCanvas.width = width * dpr;
-    cloudCanvas.height = width * dpr;
+    // --- Cloud Scene (clouds only, rendered to separate canvas) ---
+    const cloudScene = new THREE.Scene();
 
-    const CLOUD_RADIUS_MULT = 1.06; // clouds float 6% above surface
-    const CLOUD_OPACITY = 0.4; // overall cloud opacity
-    const CLOUD_SPEED_RATIO = 0.3; // clouds rotate at 30% of globe speed
+    // --- Camera (shared) ---
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 3.45);
+    cameraRef.current = camera;
 
-    const globe = createGlobe(canvasRef.current, {
-      devicePixelRatio: dpr,
-      width: width * dpr,
-      height: width * dpr,
-      phi: 0,
-      theta: theta,
-      dark: 0,
-      diffuse: 1.4,
-      mapSamples: 50000,
-      mapBrightness: 4,
-      baseColor: [0.96, 0.95, 0.93],
-      markerColor: [0.059, 0.216, 0.376],
-      glowColor: [0.9, 0.95, 0.92],
-      markers: [],
-      scale: globeScale,
-      offset: [0, 0],
-      onRender: (state) => {
-        // Smooth rotation with momentum
-        if (!pointerDown.current) {
-          velocity.current *= 0.95;
-          targetPhi.current += 0.0012 + velocity.current;
-        }
-
-        smoothPhi.current += (targetPhi.current - smoothPhi.current) * 0.15;
-
-        // Clouds drift at a different (slower) rate
-        cloudPhi.current += 0.0004; // slow independent drift
-
-        state.phi = smoothPhi.current;
-        state.width = width * dpr;
-        state.height = width * dpr;
-
-        // Clear both overlays
-        ctx.clearRect(0, 0, overlay.width, overlay.height);
-        cloudCtx.clearRect(0, 0, cloudCanvas.width, cloudCanvas.height);
-
-        const canvasPixels = width * dpr;
-        const cloudData = cloudDataRef.current;
-
-        // Draw cloud texture on a sphere slightly above the globe
-        if (cloudData) {
-          const halfSize = canvasPixels / 2;
-          const cloudPixelScale = halfSize * GLOBE_RADIUS * globeScale * CLOUD_RADIUS_MULT;
-          const imgW = cloudData.width;
-          const imgH = cloudData.height;
-          const pixels = cloudData.data;
-
-          // Scan within the cloud sphere bounding box
-          const minX = Math.max(0, Math.floor(halfSize - cloudPixelScale));
-          const maxX = Math.min(canvasPixels, Math.ceil(halfSize + cloudPixelScale));
-          const minY = Math.max(0, Math.floor(halfSize - cloudPixelScale));
-          const maxY = Math.min(canvasPixels, Math.ceil(halfSize + cloudPixelScale));
-
-          const regionW = maxX - minX;
-          const regionH = maxY - minY;
-
-          if (regionW > 0 && regionH > 0) {
-            // Use ImageData buffer — pixel-perfect, single putImageData call
-            const imgData = cloudCtx.createImageData(regionW, regionH);
-            const buf = imgData.data;
-
-            // Cloud rotation = globe rotation * speed ratio + independent drift
-            const curCloudPhi = smoothPhi.current * CLOUD_SPEED_RATIO + cloudPhi.current;
-            const cTheta = Math.cos(theta);
-            const sTheta = Math.sin(theta);
-            const cPhi = Math.cos(curCloudPhi);
-            const sPhi = Math.sin(curCloudPhi);
-            const invPixelScale = 1 / cloudPixelScale;
-
-            for (let sy = minY; sy < maxY; sy++) {
-              const ry = -(sy - halfSize) * invPixelScale;
-              const ry2 = ry * ry;
-
-              for (let sx = minX; sx < maxX; sx++) {
-                const rx = (sx - halfSize) * invPixelScale;
-
-                // Check if inside sphere
-                const r2 = rx * rx + ry2;
-                if (r2 > 1.0) continue;
-
-                const rz = Math.sqrt(1.0 - r2);
-
-                // Inverse rotation (inlined for performance)
-                const px3d = rx * cPhi + ry * (sPhi * sTheta) + rz * (-sPhi * cTheta);
-                const py3d = ry * cTheta + rz * sTheta;
-                const pz3d = rx * sPhi + ry * (-cPhi * sTheta) + rz * (cPhi * cTheta);
-
-                // 3D → lat/lon
-                const lat = Math.asin(py3d > 1 ? 1 : py3d < -1 ? -1 : py3d);
-                const lonRad = Math.atan2(pz3d, -px3d);
-
-                // Map to texture UV
-                let u = (lonRad + PI) / TWO_PI; // 0–1
-                const v = 0.5 - lat / PI; // 0–1 (north pole = 0)
-                if (u < 0) u += 1;
-                else if (u >= 1) u -= 1;
-
-                const texX = (u * imgW) | 0;
-                const texY = (v * imgH) | 0;
-                const idx = (texY * imgW + texX) * 4;
-
-                // Use ALPHA channel for this RGBA cloud texture
-                const alpha = pixels[idx + 3];
-                if (alpha < 10) continue;
-
-                const bi = ((sy - minY) * regionW + (sx - minX)) * 4;
-                buf[bi] = 255;     // R
-                buf[bi + 1] = 255; // G
-                buf[bi + 2] = 255; // B
-                buf[bi + 3] = (alpha * CLOUD_OPACITY) | 0; // A
-              }
-            }
-
-            cloudCtx.putImageData(imgData, minX, minY);
-          }
-        }
-
-        // Draw location dots on marker overlay
-        for (let i = 0; i < MARKER_POINTS.length; i++) {
-          const [lat, lon] = MARKER_POINTS[i];
-          const [px, py, visible] = projectPoint(lat, lon, smoothPhi.current, theta, canvasPixels, globeScale);
-
-          if (!visible) continue;
-
-          ctx.beginPath();
-          ctx.arc(px, py, 2 * dpr, 0, PI * 2);
-          ctx.fillStyle = 'rgba(239, 142, 47, 0.9)';
-          ctx.fill();
-        }
-      },
+    // --- Main Renderer ---
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.current,
+      alpha: true,
+      antialias: true,
     });
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(width, width);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // --- Cloud Renderer (separate canvas, sits above hand overlay) ---
+    const cloudRenderer = new THREE.WebGLRenderer({
+      canvas: cloudCanvasRef.current,
+      alpha: true,
+      antialias: false,
+    });
+    cloudRenderer.setPixelRatio(dpr);
+    cloudRenderer.setSize(width, width);
+    cloudRenderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // --- Lights ---
+    const ambientLight = new THREE.AmbientLight(0xfff5e6, 0.7);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    directionalLight.position.set(2, 1, 3);
+    scene.add(directionalLight);
+
+    const fillLight = new THREE.DirectionalLight(0xc4dff6, 0.3);
+    fillLight.position.set(-2, -0.5, -1);
+    scene.add(fillLight);
+
+    // --- Texture Loader ---
+    const loader = new THREE.TextureLoader();
+
+    // --- Earth Sphere ---
+    const earthGeom = new THREE.SphereGeometry(1, 64, 64);
+    const earthMat = new THREE.MeshPhongMaterial({
+      shininess: 15,
+      specular: new THREE.Color(0x333333),
+    });
+    const earthMesh = new THREE.Mesh(earthGeom, earthMat);
+    scene.add(earthMesh);
+
+    loader.load('/textures/earth-day.jpg', (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      earthMat.map = tex;
+      earthMat.needsUpdate = true;
+    });
+    loader.load('/textures/earth-topology.png', (tex) => {
+      earthMat.bumpMap = tex;
+      earthMat.bumpScale = 0.02;
+      earthMat.needsUpdate = true;
+    });
+
+    // --- Cloud Sphere (in cloud scene only) ---
+    const cloudGeom = new THREE.SphereGeometry(1.02, 48, 48);
+    const cloudMat = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false,
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeom, cloudMat);
+    cloudScene.add(cloudMesh);
+
+    loader.load('/images/earth-clouds.png', (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      cloudMat.map = tex;
+      cloudMat.needsUpdate = true;
+    });
+
+    // --- Density Markers ---
+    const clusters = clusterMarkers(3);
+    clustersRef.current = clusters;
+    const markerTexture = createMarkerTexture(64, '239, 142, 47');   // orange
+    const hoverTexture = createMarkerTexture(64, '196, 74, 26');     // dark orange-red #c44a1a
+    const sprites: THREE.Sprite[] = [];
+    const maxCount = Math.max(...clusters.map(c => c.count));
+
+    const scales: number[] = [];
+    for (const cluster of clusters) {
+      const mat = new THREE.SpriteMaterial({
+        map: markerTexture,
+        transparent: true,
+        depthTest: true,
+        depthWrite: false,
+        sizeAttenuation: true,
+      });
+      const sprite = new THREE.Sprite(mat);
+
+      const pos = latLonToVec3(cluster.lat, cluster.lon, 1.005);
+      sprite.position.copy(pos);
+
+      // Density sizing — small to medium dots with glow
+      const normalizedCount = Math.log2(cluster.count + 1) / Math.log2(maxCount + 1);
+      const scale = 0.022 + normalizedCount * 0.05;
+      sprite.scale.set(scale, scale, 1);
+      scales.push(scale);
+
+      sprite.userData.clusterIndex = sprites.length;
+      scene.add(sprite);
+      sprites.push(sprite);
+    }
+    markersRef.current = sprites;
+    baseScales.current = scales;
+
+    // Tilt + marker group
+    const thetaTilt = 0.25;
+    earthMesh.rotation.x = thetaTilt;
+    cloudMesh.rotation.x = thetaTilt;
+
+    const markerGroup = new THREE.Group();
+    markerGroup.rotation.x = thetaTilt;
+    markerGroupRef.current = markerGroup;
+    for (const s of sprites) {
+      scene.remove(s);
+      markerGroup.add(s);
+    }
+    scene.add(markerGroup);
+
+    // --- Animation Loop ---
+    const animate = () => {
+      frameId.current = requestAnimationFrame(animate);
+
+      if (!pointerDown.current) {
+        velocity.current *= 0.95;
+        targetPhi.current += 0.0006 + velocity.current;
+      }
+      smoothPhi.current += (targetPhi.current - smoothPhi.current) * 0.15;
+      cloudDrift.current += 0.00012; // slow independent drift
+
+      earthMesh.rotation.y = smoothPhi.current;
+      markerGroup.rotation.y = smoothPhi.current;
+      // Clouds: slow horizontal drift + gentle vertical tilt that changes over time
+      cloudMesh.rotation.y = smoothPhi.current * 0.25 + cloudDrift.current;
+      cloudMesh.rotation.x = thetaTilt + Math.sin(cloudDrift.current * 0.8) * 0.06; // slow up-down drift
+      cloudMesh.rotation.z = Math.sin(cloudDrift.current * 0.4) * 0.03; // subtle axial wobble
+
+      renderer.render(scene, camera);
+      cloudRenderer.render(cloudScene, camera);
+
+      // Live-track the selected sprite for tooltip stem
+      const tt = tooltipRef.current;
+      if (tt.visible && tt.spriteIdx >= 0 && tt.spriteIdx < sprites.length) {
+        const sprite = sprites[tt.spriteIdx];
+        const worldPos = sprite.getWorldPosition(new THREE.Vector3());
+        const projected = worldPos.clone().project(camera);
+        const sx = (projected.x * 0.5 + 0.5) * width;
+        const sy = (-projected.y * 0.5 + 0.5) * width;
+
+        // Check if dot is on back side of globe:
+        // Dot product of marker position (from origin) with camera direction toward origin
+        // If the marker faces away from the camera, it's on the back side
+        const camToOrigin = camera.position.clone().negate().normalize();
+        const markerDir = worldPos.clone().normalize();
+        const facingDot = camToOrigin.dot(markerDir);
+        const isBehind = facingDot > 0.15; // slightly past the edge
+
+        setTooltip(prev => {
+          if (!prev.visible || prev.spriteIdx !== tt.spriteIdx) return prev;
+          const posChanged = Math.abs(prev.dotX - sx) >= 0.5 || Math.abs(prev.dotY - sy) >= 0.5;
+          const behindChanged = prev.dotBehind !== isBehind;
+          if (!posChanged && !behindChanged) return prev;
+          return { ...prev, dotX: sx, dotY: sy, dotBehind: isBehind };
+        });
+      }
+    };
+    animate();
+
+    // --- Pointer Interaction (on cloud canvas since it's on top) ---
+    const interactCanvas = cloudCanvasRef.current!;
 
     const onPointerDown = (e: PointerEvent) => {
       pointerDown.current = true;
       lastPointerX.current = e.clientX;
+      pointerStartX.current = e.clientX;
+      pointerStartY.current = e.clientY;
+      pointerStartTime.current = Date.now();
       velocity.current = 0;
-      if (cloudRef.current) cloudRef.current.style.cursor = 'grabbing';
+      interactCanvas.style.cursor = 'grabbing';
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e: PointerEvent) => {
+      const dx = e.clientX - pointerStartX.current;
+      const dy = e.clientY - pointerStartY.current;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const elapsed = Date.now() - pointerStartTime.current;
+
       pointerDown.current = false;
-      if (cloudRef.current) cloudRef.current.style.cursor = 'grab';
+      interactCanvas.style.cursor = 'grab';
+
+      if (dist < 5 && elapsed < 400) {
+        handleMarkerClick(e);
+      }
     };
 
     const onPointerOut = () => {
       pointerDown.current = false;
-      if (cloudRef.current) cloudRef.current.style.cursor = 'grab';
+      interactCanvas.style.cursor = 'grab';
+      // Reset hover
+      if (hoveredIdx.current >= 0) {
+        const oldS = baseScales.current[hoveredIdx.current];
+        if (oldS) sprites[hoveredIdx.current]?.scale.set(oldS, oldS, 1);
+        (sprites[hoveredIdx.current]?.material as THREE.SpriteMaterial).map = markerTexture;
+        hoveredIdx.current = -1;
+      }
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!pointerDown.current) return;
-      const delta = e.clientX - lastPointerX.current;
-      lastPointerX.current = e.clientX;
-      const dragSpeed = delta / 150;
-      targetPhi.current += dragSpeed;
-      velocity.current = dragSpeed;
+      if (pointerDown.current) {
+        // Dragging — rotate globe
+        const delta = e.clientX - lastPointerX.current;
+        lastPointerX.current = e.clientX;
+        const dragSpeed = delta / 150;
+        targetPhi.current += dragSpeed;
+        velocity.current = dragSpeed;
+        setTooltip(prev => prev.visible ? { ...prev, visible: false, spriteIdx: -1, dotBehind: false } : prev);
+        // Reset hover during drag
+        if (hoveredIdx.current >= 0) {
+          const oldS = baseScales.current[hoveredIdx.current];
+          if (oldS) sprites[hoveredIdx.current]?.scale.set(oldS, oldS, 1);
+          (sprites[hoveredIdx.current]?.material as THREE.SpriteMaterial).map = markerTexture;
+          hoveredIdx.current = -1;
+          interactCanvas.style.cursor = 'grabbing';
+        }
+      } else {
+        // Not dragging — check hover on markers (disabled on mobile)
+        if (isMobileRef.current) return;
+        const rect = canvasRef.current?.getBoundingClientRect();
+        if (!rect || !cameraRef.current) return;
+        const mouse = new THREE.Vector2(
+          ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          -((e.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        raycaster.current.setFromCamera(mouse, cameraRef.current);
+        const intersects = raycaster.current.intersectObjects(sprites);
+
+        let hitIdx = intersects.length > 0
+          ? sprites.indexOf(intersects[0].object as THREE.Sprite)
+          : -1;
+
+        // Don't hover dots on back side of globe
+        if (hitIdx >= 0) {
+          const wp = sprites[hitIdx].getWorldPosition(new THREE.Vector3());
+          const camToOrigin = camera.position.clone().negate().normalize();
+          if (camToOrigin.dot(wp.clone().normalize()) > 0.15) hitIdx = -1;
+        }
+
+        if (hitIdx !== hoveredIdx.current) {
+          // Unhover previous
+          if (hoveredIdx.current >= 0) {
+            const oldS = baseScales.current[hoveredIdx.current];
+            if (oldS) sprites[hoveredIdx.current]?.scale.set(oldS, oldS, 1);
+            (sprites[hoveredIdx.current]?.material as THREE.SpriteMaterial).map = markerTexture;
+          }
+          // Hover new — enlarge + swap to coral texture
+          if (hitIdx >= 0) {
+            const s = baseScales.current[hitIdx];
+            if (s) sprites[hitIdx].scale.set(s * 1.6, s * 1.6, 1);
+            (sprites[hitIdx].material as THREE.SpriteMaterial).map = hoverTexture;
+            interactCanvas.style.cursor = 'pointer';
+          } else {
+            interactCanvas.style.cursor = 'grab';
+          }
+          hoveredIdx.current = hitIdx;
+        }
+      }
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      pointerDown.current = true;
+      lastPointerX.current = e.touches[0].clientX;
+      pointerStartX.current = e.touches[0].clientX;
+      pointerStartY.current = e.touches[0].clientY;
+      pointerStartTime.current = Date.now();
+      velocity.current = 0;
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -280,27 +464,55 @@ const Globe: React.FC = () => {
       velocity.current = dragSpeed;
     };
 
-    // Attach events to cloud canvas (top-most interactive layer)
-    const topCanvas = cloudRef.current;
-    topCanvas.addEventListener('pointerdown', onPointerDown);
-    topCanvas.addEventListener('pointerup', onPointerUp);
-    topCanvas.addEventListener('pointerout', onPointerOut);
-    topCanvas.addEventListener('pointermove', onPointerMove);
-    topCanvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    const onTouchEnd = () => {
+      pointerDown.current = false;
+    };
+
+    interactCanvas.addEventListener('pointerdown', onPointerDown);
+    interactCanvas.addEventListener('pointerup', onPointerUp);
+    interactCanvas.addEventListener('pointerout', onPointerOut);
+    interactCanvas.addEventListener('pointermove', onPointerMove);
+    interactCanvas.addEventListener('touchstart', onTouchStart, { passive: true });
+    interactCanvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    interactCanvas.addEventListener('touchend', onTouchEnd);
 
     return () => {
-      globe.destroy();
-      topCanvas.removeEventListener('pointerdown', onPointerDown);
-      topCanvas.removeEventListener('pointerup', onPointerUp);
-      topCanvas.removeEventListener('pointerout', onPointerOut);
-      topCanvas.removeEventListener('pointermove', onPointerMove);
-      topCanvas.removeEventListener('touchmove', onTouchMove);
+      cancelAnimationFrame(frameId.current);
+      interactCanvas.removeEventListener('pointerdown', onPointerDown);
+      interactCanvas.removeEventListener('pointerup', onPointerUp);
+      interactCanvas.removeEventListener('pointerout', onPointerOut);
+      interactCanvas.removeEventListener('pointermove', onPointerMove);
+      interactCanvas.removeEventListener('touchstart', onTouchStart);
+      interactCanvas.removeEventListener('touchmove', onTouchMove);
+      interactCanvas.removeEventListener('touchend', onTouchEnd);
+
+      renderer.dispose();
+      cloudRenderer.dispose();
+      earthGeom.dispose();
+      earthMat.dispose();
+      cloudGeom.dispose();
+      cloudMat.dispose();
+      markerTexture.dispose();
+      hoverTexture.dispose();
+      for (const s of sprites) {
+        (s.material as THREE.SpriteMaterial).dispose();
+      }
     };
-  }, [canvasSize]);
+  }, [canvasSize, handleMarkerClick]);
+
+  const tooltipName = tooltip.names.length > 0
+    ? tooltip.names[0]
+    : 'This region';
+  const tooltipExtra = tooltip.names.length > 1
+    ? ` +${tooltip.names.length - 1} more`
+    : '';
+
+  // Fixed tooltip anchor position (top-right area of the globe canvas)
+  const tooltipAnchorX = canvasSize * 0.82;
+  const tooltipAnchorY = canvasSize * 0.08;
 
   return (
     <div className="globe-container" ref={containerRef}>
-      <div className="globe-glow" />
       <div
         className="globe-canvas-wrap"
         style={{
@@ -310,43 +522,70 @@ const Globe: React.FC = () => {
           position: 'relative',
         }}
       >
-        {/* Layer 1: cobe WebGL globe */}
+        <div className="globe-glow" />
+        {/* Main canvas: earth + markers */}
         <canvas
           ref={canvasRef}
           className="globe-canvas"
           style={{
             width: canvasSize,
             height: canvasSize,
-            position: 'absolute',
-            top: 0,
-            left: 0,
           }}
         />
-        {/* Layer 2: marker dots overlay */}
+        {/* Cloud canvas: layered above hand (z-index 2) via CSS */}
         <canvas
-          ref={overlayRef}
-          className="globe-canvas"
+          ref={cloudCanvasRef}
+          className="globe-cloud-layer"
           style={{
             width: canvasSize,
             height: canvasSize,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-          }}
-        />
-        {/* Layer 3: cloud overlay — z-index set via CSS to go above hand image */}
-        <canvas
-          ref={cloudRef}
-          className="globe-canvas globe-cloud-layer"
-          style={{
-            width: canvasSize,
-            height: canvasSize,
-            position: 'absolute',
-            top: 0,
-            left: 0,
             cursor: 'grab',
           }}
         />
+        {/* SVG stem line connecting tooltip to dot — z-index drops behind globe when dot is on back */}
+        {!isMobile && tooltip.visible && (
+          <svg
+            className="globe-tooltip-stem"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: canvasSize,
+              height: canvasSize,
+              pointerEvents: 'none',
+              zIndex: tooltip.dotBehind ? -1 : 3,
+            }}
+          >
+            <line
+              x1={tooltipAnchorX}
+              y1={tooltipAnchorY + 30}
+              x2={tooltip.dotX}
+              y2={tooltip.dotY}
+              stroke="rgba(239, 142, 47, 0.7)"
+              strokeWidth="1.5"
+              strokeDasharray="4 3"
+            />
+            <circle
+              cx={tooltip.dotX}
+              cy={tooltip.dotY}
+              r={tooltip.dotBehind ? 2.5 : 3.5}
+              fill={tooltip.dotBehind ? 'none' : 'rgba(239, 142, 47, 0.9)'}
+              stroke={tooltip.dotBehind ? 'rgba(239, 142, 47, 0.5)' : 'white'}
+              strokeWidth={tooltip.dotBehind ? 1 : 1.5}
+            />
+          </svg>
+        )}
+        <div
+          className={`globe-tooltip ${!isMobile && tooltip.visible ? 'visible' : ''}`}
+          style={{ left: tooltipAnchorX, top: tooltipAnchorY }}
+        >
+          <div className="globe-tooltip-name">
+            {tooltipName}{tooltipExtra}
+          </div>
+          <div className="globe-tooltip-count">
+            {tooltip.count} participant{tooltip.count !== 1 ? 's' : ''} in this area
+          </div>
+        </div>
       </div>
     </div>
   );

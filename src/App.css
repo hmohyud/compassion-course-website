@@ -1116,11 +1116,12 @@
     pointer-events: none;
     z-index: 4;
     filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.15));
+    transition: opacity 0.4s ease;
 }
 
 .hero-hand-overlay {
     position: absolute;
-    top: 8%;
+    top: 14%;
     left: 52%;
     transform: translate(-50%, -50%) rotate(21deg);
     width: 17%;
@@ -1129,6 +1130,13 @@
     pointer-events: none;
     z-index: 1;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+    transition: opacity 0.4s ease;
+}
+
+/* Fade overlays when interacting with globe */
+.hero-globe:hover .hero-embrace-overlay,
+.hero-globe:hover .hero-hand-overlay {
+    opacity: 0.3;
 }
 
 /* Globe Component */
@@ -1155,7 +1163,55 @@
 
 /* Cloud layer sits above the hand overlay (z-index 1) but below the girl (z-index 4) */
 .globe-cloud-layer {
-    z-index: 3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+/* Globe Tooltip with stem — frosted dark glass pane */
+.globe-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(20, 20, 30, 0.55);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transform: translate(-80%, 0);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 11;
+    max-width: 220px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.globe-tooltip.visible {
+    opacity: 1;
+    transform: translate(-80%, 0);
+}
+
+.globe-tooltip-name {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 2px;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.globe-tooltip-count {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+}
+
+.globe-tooltip-stem {
+    transition: opacity 0.25s ease;
 }
 
 /* ==========================================

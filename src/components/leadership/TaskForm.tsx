@@ -42,6 +42,8 @@ export interface TaskFormProps {
   mode: 'create' | 'edit';
   initialItem?: LeadershipWorkItem | null;
   defaultLane?: WorkItemLane;
+  /** Default status when mode is 'create'. */
+  defaultStatus?: WorkItemStatus;
   teamId?: string;
   teamMemberIds?: string[];
   memberLabels?: Record<string, string>;
@@ -56,6 +58,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   mode,
   initialItem,
   defaultLane = 'standard',
+  defaultStatus,
   teamId,
   teamMemberIds = [],
   memberLabels = {},
@@ -111,7 +114,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     } else {
       setTitle('');
       setDescription('');
-      setStatus('todo');
+      setStatus(defaultStatus ?? 'todo');
       setLane(defaultLane);
       setEstimate('');
       setBlocked(false);
@@ -119,7 +122,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setComments([]);
     }
     setConfirmDelete(false);
-  }, [mode, initialItem, defaultLane]);
+  }, [mode, initialItem, defaultLane, defaultStatus]);
 
   const mentionQueryStart = useMemo(() => {
     const before = newCommentText.slice(0, cursorPosition);

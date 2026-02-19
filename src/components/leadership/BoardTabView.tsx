@@ -238,6 +238,7 @@ function DraggableCard({
       onKeyDown={(e) => e.key === 'Enter' && onEdit(item)}
     >
       <div className="ld-board-card">
+        {item.blocked && <div className="ld-board-card-blocked">block</div>}
         <CardContent item={item} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
       </div>
     </div>
@@ -555,7 +556,7 @@ function BoardColumn({
           </button>
         )}
       </div>
-      {(column.id === 'todo' || isBacklog) && (
+      {isBacklog && (
         <button type="button" className="ld-board-add-btn" onClick={onAddItem}>
           + Add task
         </button>
@@ -579,6 +580,7 @@ function BoardColumn({
           <React.Fragment key={item.id}>
             {showGhost && (
               <div className="ld-board-card ld-board-card--ghost">
+                {dropPreviewItem!.blocked && <div className="ld-board-card-blocked">block</div>}
                 <CardContent item={dropPreviewItem!} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
               </div>
             )}
@@ -604,6 +606,7 @@ function BoardColumn({
         return dropPreviewIndex != null && dropPreviewIndex >= visibleItems.length && !isNoOp && dropPreviewItem
           ? (
             <div className="ld-board-card ld-board-card--ghost">
+              {dropPreviewItem.blocked && <div className="ld-board-card-blocked">block</div>}
               <CardContent item={dropPreviewItem} memberLabels={memberLabels} memberAvatars={memberAvatars} isDone={isDone} />
             </div>
           )
@@ -971,7 +974,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         title: data.title,
         description: data.description,
         teamId,
-        status: data.status,
+        status: 'backlog',
         lane: data.lane,
         estimate: data.estimate,
         assigneeIds: data.assigneeIds,
@@ -1114,6 +1117,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         <DragOverlay dropAnimation={null}>
           {activeItem ? (
             <div className="ld-drag-overlay">
+              {activeItem.blocked && <div className="ld-board-card-blocked">block</div>}
               <CardContent item={activeItem} memberLabels={memberLabels} memberAvatars={memberAvatars ?? {}} />
             </div>
           ) : null}
@@ -1125,6 +1129,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
           {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
           <TaskForm
             mode="create"
+            defaultStatus="backlog"
             teamId={teamId}
             teamMemberIds={memberIds}
             memberLabels={memberLabels}

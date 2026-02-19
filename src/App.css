@@ -4160,6 +4160,7 @@ section {
 
 /* Board drag overlay */
 .ld-drag-overlay {
+    position: relative;
     background: #fff;
     border: 2px solid #22c55e;
     border-radius: 8px;

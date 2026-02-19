@@ -92,9 +92,9 @@ const HomePage: React.FC = () => {
               )}
             </p>
             <div className="hero-buttons">
-              <a href="#learn-more" className="btn-primary">
+              <Link to="/learn-more" className="btn-primary">
                 {getContent('hero', 'ctaPrimary', 'Learn More')}
-              </a>
+              </Link>
               <JotformPopup
                 formId={JOTFORM_FORM_ID}
                 buttonText={getContent('hero', 'ctaSecondary', 'Register Now')}

@@ -6,7 +6,7 @@ import { usePermissions } from '../context/PermissionsContext';
 import { getUserProfile } from '../services/userProfileService';
 import type { UserProfile } from '../types/platform';
 
-const DESKTOP_BREAKPOINT = 768;
+const DESKTOP_BREAKPOINT = 1080;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -104,12 +104,10 @@ const Navigation: React.FC = () => {
             <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
           </li>
           <li className="nav-item">
-            <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
+            <Link to="/learn-more" className={`nav-link ${isActive('/learn-more') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Learn More</Link>
           </li>
           <li className="nav-item">
-            <Link to="/compass-companion" className={`nav-link ${isActive('/compass-companion') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-              Compass Companions
-            </Link>
+            <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
           </li>
           {user && (
             <>
@@ -128,26 +126,24 @@ const Navigation: React.FC = () => {
               </li>
             </>
           )}
-          {/* Mobile-only account items */}
+          {/* Mobile-only: Compass Companions + account items */}
           {!isDesktop && (
             <>
+              <li className="nav-item">
+                <a href="https://www.compass-companions.com/" target="_blank" rel="noopener noreferrer" className="nav-link nav-link--external" onClick={() => setIsMenuOpen(false)}>
+                  Compass Companions
+                  <i className="fas fa-external-link-alt nav-external-icon"></i>
+                </a>
+              </li>
               <li className="nav-item nav-menu-account-item nav-account-divider">
                 <span className="nav-account-divider-line" aria-hidden="true" />
               </li>
               {user ? (
-                <>
-                  <li className="nav-item nav-menu-account-item">
-                    <Link to="/portal" className="nav-link" onClick={() => setIsMenuOpen(false)}>Portal</Link>
-                  </li>
-                  <li className="nav-item nav-menu-account-item">
-                    <Link to="/platform/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>Profile settings</Link>
-                  </li>
-                  <li className="nav-item nav-menu-account-item">
-                    <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
-                      Logout
-                    </button>
-                  </li>
-                </>
+                <li className="nav-item nav-menu-account-item">
+                  <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
+                    Logout
+                  </button>
+                </li>
               ) : (
                 <li className="nav-item nav-menu-account-item">
                   <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}>
@@ -160,6 +156,18 @@ const Navigation: React.FC = () => {
         </ul>
 
         <div className="nav-right">
+          <a
+            href="https://www.compass-companions.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-companion-link"
+            title="Compass Companions"
+          >
+            <i className="fas fa-compass nav-companion-icon"></i>
+            <span className="nav-companion-text">Compass Companions</span>
+            <i className="fas fa-external-link-alt nav-companion-ext"></i>
+          </a>
+
           {/* Visible Log in / Sign up button when not logged in */}
           {!user && !authLoading && (
             <button
@@ -178,7 +186,13 @@ const Navigation: React.FC = () => {
                 type="button"
                 className="nav-avatar-link"
                 aria-label="Account menu"
-                onClick={() => setAccountOpen((prev) => !prev)}
+                onClick={() => {
+                  if (isDesktop) {
+                    setAccountOpen((prev) => !prev);
+                  } else {
+                    navigate('/portal');
+                  }
+                }}
               >
                 <span className="nav-avatar-circle">
                   {profile?.avatar || user.photoURL ? (

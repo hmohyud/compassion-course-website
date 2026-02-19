@@ -14,6 +14,7 @@ import AboutPage from './pages/AboutPage'
 import ProgramsPage from './pages/ProgramsPage'
 import ContactPage from './pages/ContactPage'
 import CompassCompanionPage from './pages/CompassCompanionPage'
+import LearnMorePage from './pages/LearnMorePage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 
 // User Pages
@@ -62,6 +63,7 @@ function App() {
               <Route path="/programs" element={<ProgramsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/compass-companion" element={<CompassCompanionPage />} />
+              <Route path="/learn-more" element={<LearnMorePage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               
               {/* User Routes */}

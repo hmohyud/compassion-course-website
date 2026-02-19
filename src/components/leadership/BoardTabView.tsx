@@ -39,6 +39,8 @@ const LANE_META: Record<WorkItemLane, { label: string; color: string; icon: stri
   intangible: { label: 'Background', color: '#8b5cf6', icon: 'fas fa-wrench' },
 };
 
+const DEFAULT_LANES: WorkItemLane[] = ['expedited', 'fixed_date', 'standard', 'intangible'];
+
 const MAX_VISIBLE_AVATARS = 3;
 const DONE_PREVIEW_LIMIT = 5;
 const DONE_INLINE_MAX = 20;
@@ -460,10 +462,10 @@ const slotPrioritizedCollision: CollisionDetection = (args) => {
 };
 
 /* ─── Drop slot between cards — provides a droppable region for precise positioning ─── */
-function CardDropSlot({ columnId, index }: { columnId: WorkItemStatus; index: number }) {
+function CardDropSlot({ lane, columnId, index }: { lane: WorkItemLane; columnId: WorkItemStatus; index: number }) {
   const { setNodeRef } = useDroppable({
-    id: `slot-${columnId}-${index}`,
-    data: { type: 'slot', status: columnId, index },
+    id: `slot-${lane}-${columnId}-${index}`,
+    data: { type: 'slot', lane, status: columnId, index },
   });
 
   return <div ref={setNodeRef} className="ld-board-drop-slot" />;
@@ -471,6 +473,7 @@ function CardDropSlot({ columnId, index }: { columnId: WorkItemStatus; index: nu
 
 /* ─── Droppable column ─── */
 function BoardColumn({
+  lane,
   column,
   items,
   memberLabels,
@@ -485,6 +488,7 @@ function BoardColumn({
   activeItemId,
   isDropTarget,
 }: {
+  lane: WorkItemLane;
   column: (typeof COLUMNS)[0];
   items: LeadershipWorkItem[];
   memberLabels: Record<string, string>;
@@ -501,8 +505,8 @@ function BoardColumn({
   isDropTarget?: boolean;
 }) {
   const { setNodeRef } = useDroppable({
-    id: `column-${column.id}`,
-    data: { type: 'column', status: column.id },
+    id: `column-${lane}-${column.id}`,
+    data: { type: 'column', lane, status: column.id },
   });
 
   const isDone = column.id === 'done';
@@ -563,7 +567,7 @@ function BoardColumn({
         <p className="ld-board-empty-col">Drop here</p>
       )}
       {/* Cards with drop slots between them for precise positioning */}
-      {isDragging && <CardDropSlot columnId={column.id} index={0} />}
+      {isDragging && <CardDropSlot lane={lane} columnId={column.id} index={0} />}
       {visibleItems.map((item, idx) => {
         const isBeingDragged = item.id === activeItemId;
         // Show ghost preview: suppress when it's right above or below the dragged card (same column no-op)
@@ -589,7 +593,7 @@ function BoardColumn({
                 onEdit={onEditItem}
               />
             )}
-            {isDragging && <CardDropSlot columnId={column.id} index={idx + 1} />}
+            {isDragging && <CardDropSlot lane={lane} columnId={column.id} index={idx + 1} />}
           </React.Fragment>
         );
       })}
@@ -699,6 +703,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   onInitialEditConsumed,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [dropTargetLane, setDropTargetLane] = useState<WorkItemLane | null>(null);
   const [dropTargetColumn, setDropTargetColumn] = useState<WorkItemStatus | null>(null);
   const [dropInsertIndex, setDropInsertIndex] = useState<number | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -732,6 +737,11 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
   const showBacklogOnBoard = boardSettings?.showBacklogOnBoard ?? false;
 
+  const effectiveLanes = useMemo((): WorkItemLane[] => {
+    const v = boardSettings?.visibleLanes;
+    return v && v.length > 0 ? v : DEFAULT_LANES;
+  }, [boardSettings?.visibleLanes]);
+
   const effectiveColumns = useMemo(() => {
     const cols = showBacklogOnBoard
       ? [{ ...BACKLOG_COLUMN, label: boardSettings?.columnHeaders?.backlog?.trim() || BACKLOG_COLUMN.label }, ...COLUMNS]
@@ -742,55 +752,71 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     }));
   }, [showBacklogOnBoard, boardSettings]);
 
+  const getItemLane = useCallback((w: LeadershipWorkItem): WorkItemLane => w.lane ?? 'standard', []);
+
+  const itemsForLaneAndColumn = useCallback(
+    (lane: WorkItemLane, status: WorkItemStatus) =>
+      displayItems.filter((w) => getItemLane(w) === lane && w.status === status),
+    [displayItems, getItemLane]
+  );
+
   const handleDragStart = (e: DragStartEvent) => {
     setActiveId(e.active.id as string);
+    setDropTargetLane(null);
     setDropTargetColumn(null);
     setDropInsertIndex(null);
   };
 
-  /** Parse an over target to determine the target column status and insert index */
+  /** Parse an over target to determine the target lane, column status and insert index */
   const resolveDropTarget = useCallback((overId: string, items: LeadershipWorkItem[], activeItemId: string): {
+    targetLane: WorkItemLane | null;
     targetStatus: WorkItemStatus | null;
     insertIndex: number;
   } => {
-    // Slot target: "slot-{status}-{index}"
+    // Slot target: "slot-{lane}-{status}-{index}"
     if (overId.startsWith('slot-')) {
       const parts = overId.split('-');
-      // slot-in_progress-2 → status = "in_progress", index = 2
-      const indexStr = parts[parts.length - 1];
-      const statusStr = parts.slice(1, -1).join('-') as WorkItemStatus;
-      if (effectiveColumns.some((c) => c.id === statusStr)) {
-        return { targetStatus: statusStr, insertIndex: parseInt(indexStr, 10) };
+      const indexVal = parseInt(parts[parts.length - 1], 10);
+      const statusStr = parts[parts.length - 2] as WorkItemStatus;
+      const laneStr = parts.slice(1, -2).join('-') as WorkItemLane;
+      if (effectiveColumns.some((c) => c.id === statusStr) && DEFAULT_LANES.includes(laneStr)) {
+        return { targetLane: laneStr, targetStatus: statusStr, insertIndex: indexVal };
       }
     }
 
-    // Column target: "column-{status}"
+    // Column target: "column-{lane}-{status}"
     if (overId.startsWith('column-')) {
-      const statusStr = overId.replace('column-', '') as WorkItemStatus;
-      if (effectiveColumns.some((c) => c.id === statusStr)) {
+      const rest = overId.replace('column-', '');
+      const parts = rest.split('-');
+      // status is last segment (may contain underscore: in_progress); lane is the rest
+      const statusStr = parts[parts.length - 1] as WorkItemStatus;
+      const laneStr = (parts.length > 1 ? parts.slice(0, -1).join('-') : parts[0]) as WorkItemLane;
+      if (effectiveColumns.some((c) => c.id === statusStr) && DEFAULT_LANES.includes(laneStr)) {
         const colItems = items
-          .filter((w) => w.status === statusStr && w.id !== activeItemId)
+          .filter((w) => getItemLane(w) === laneStr && w.status === statusStr && w.id !== activeItemId)
           .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
-        return { targetStatus: statusStr, insertIndex: colItems.length };
+        return { targetLane: laneStr, targetStatus: statusStr, insertIndex: colItems.length };
       }
     }
 
     // Card target: item ID
     const overItem = items.find((w) => w.id === overId);
     if (overItem && effectiveColumns.some((c) => c.id === overItem.status)) {
+      const tl = getItemLane(overItem);
       const colItems = items
-        .filter((w) => w.status === overItem.status && w.id !== activeItemId)
+        .filter((w) => getItemLane(w) === tl && w.status === overItem.status && w.id !== activeItemId)
         .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
       const idx = colItems.findIndex((w) => w.id === overId);
-      return { targetStatus: overItem.status, insertIndex: idx >= 0 ? idx : colItems.length };
+      return { targetLane: tl, targetStatus: overItem.status, insertIndex: idx >= 0 ? idx : colItems.length };
     }
 
-    return { targetStatus: null, insertIndex: 0 };
-  }, [effectiveColumns]);
+    return { targetLane: null, targetStatus: null, insertIndex: 0 };
+  }, [effectiveColumns, getItemLane]);
 
   const handleDragOver = useCallback((e: DragOverEvent) => {
     const { active, over } = e;
     if (!over) {
+      setDropTargetLane(null);
       setDropTargetColumn(null);
       setDropInsertIndex(null);
       return;
@@ -800,13 +826,24 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     const overId = over.id as string;
     const item = displayItems.find((w) => w.id === activeItemId);
     if (!item) {
+      setDropTargetLane(null);
       setDropTargetColumn(null);
       setDropInsertIndex(null);
       return;
     }
 
-    const { targetStatus, insertIndex } = resolveDropTarget(overId, displayItems, activeItemId);
-    if (!targetStatus) {
+    const activeLane = getItemLane(item);
+    const { targetLane, targetStatus, insertIndex } = resolveDropTarget(overId, displayItems, activeItemId);
+    if (!targetStatus || !targetLane) {
+      setDropTargetLane(null);
+      setDropTargetColumn(null);
+      setDropInsertIndex(null);
+      return;
+    }
+
+    // Only allow drop in the same swimlane (same lane as the dragged item)
+    if (targetLane !== activeLane) {
+      setDropTargetLane(null);
       setDropTargetColumn(null);
       setDropInsertIndex(null);
       return;
@@ -814,34 +851,27 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
     const isSlotTarget = overId.startsWith('slot-');
 
-    // Slot targets are precise — always trust them.
     if (isSlotTarget) {
+      setDropTargetLane(targetLane);
       setDropTargetColumn(targetStatus);
       setDropInsertIndex(insertIndex);
       return;
     }
 
-    // For non-slot targets (column background, card hover):
-    // If we already have a precise slot-based index in this same target column,
-    // keep it — don't flicker the ghost to an imprecise card/column position.
-    // This applies to BOTH same-column reorder AND cross-column drags.
-    if (dropTargetColumn === targetStatus && dropInsertIndex != null) {
+    if (dropTargetColumn === targetStatus && dropTargetLane === targetLane && dropInsertIndex != null) {
       return;
     }
 
-    // First entry into a new target column (no slot hit yet):
-    // Show ghost at the resolved position (end of column for column targets,
-    // or at the hovered card's index for card targets).
+    setDropTargetLane(targetLane);
     setDropTargetColumn(targetStatus);
     setDropInsertIndex(insertIndex);
-  }, [displayItems, resolveDropTarget, dropTargetColumn, dropInsertIndex]);
+  }, [displayItems, resolveDropTarget, getItemLane, dropTargetColumn, dropTargetLane, dropInsertIndex]);
 
   const handleDragEnd = useCallback(async (e: DragEndEvent) => {
-    // Use the VISUAL state (dropTargetColumn + dropInsertIndex) directly —
-    // this is what the ghost card showed, so the drop must go exactly there.
     const targetStatus = dropTargetColumn;
     const visualIndex = dropInsertIndex;
     setActiveId(null);
+    setDropTargetLane(null);
     setDropTargetColumn(null);
     setDropInsertIndex(null);
 
@@ -860,36 +890,30 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       return;
     }
 
+    const targetLane = getItemLane(originalItem);
     const isCrossColumn = originalItem.status !== targetStatus;
 
-    // Get the sorted items for the target column (excluding the dragged item)
+    // Get the sorted items for the target (lane, column) cell (excluding the dragged item)
     const targetColumnItems = items
-      .filter((w) => w.status === targetStatus && w.id !== activeItemId)
+      .filter((w) => getItemLane(w) === targetLane && w.status === targetStatus && w.id !== activeItemId)
       .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
 
-    // Convert visual slot index to the "excluding dragged item" coordinate system.
-    // Visual slots are indexed in the full list (including placeholder).
-    // For same-column drags, slots after the placeholder are off-by-one because
-    // the placeholder occupies a slot but isn't in targetColumnItems.
     let adjustedIndex = visualIndex;
     if (!isCrossColumn) {
       const fullColumnItems = items
-        .filter((w) => w.status === targetStatus)
+        .filter((w) => getItemLane(w) === targetLane && w.status === targetStatus)
         .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
       const draggedVisualIdx = fullColumnItems.findIndex((w) => w.id === activeItemId);
-      // Slots after the placeholder need -1 to map to the list without the dragged item
       if (draggedVisualIdx >= 0 && visualIndex > draggedVisualIdx) {
         adjustedIndex = visualIndex - 1;
       }
     }
 
-    // Clamp to valid range
     const newIndex = Math.max(0, Math.min(adjustedIndex, targetColumnItems.length));
 
-    // For same-column: check if the item is actually moving
     if (!isCrossColumn) {
       const fullColumnItems = items
-        .filter((w) => w.status === targetStatus)
+        .filter((w) => getItemLane(w) === targetLane && w.status === targetStatus)
         .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
       const currentIndex = fullColumnItems.findIndex((w) => w.id === activeItemId);
       // In the "without dragged item" list, the original position is currentIndex
@@ -924,10 +948,11 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       console.error(err);
       setOptimisticItems(null);
     }
-  }, [displayItems, onQuietRefresh, effectiveColumns, dropTargetColumn, dropInsertIndex]);
+  }, [displayItems, onQuietRefresh, effectiveColumns, getItemLane, dropTargetColumn, dropInsertIndex]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);
+    setDropTargetLane(null);
     setDropTargetColumn(null);
     setDropInsertIndex(null);
     setOptimisticItems(null);
@@ -1036,24 +1061,46 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
-          {effectiveColumns.map((col) => (
-            <BoardColumn
-              key={col.id}
-              column={col}
-              items={itemsForColumn(col.id)}
-              memberLabels={memberLabels}
-              memberAvatars={memberAvatars}
-              onEditItem={setEditingItem}
-              onAddItem={() => setShowCreateForm(true)}
-              onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
-              dropPreviewIndex={dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
-              dropPreviewItem={dropTargetColumn === col.id ? dropPreviewItem : null}
-              isBacklog={col.id === 'backlog'}
-              isDragging={!!activeId}
-              activeItemId={activeId}
-              isDropTarget={dropTargetColumn === col.id}
-            />
+        <div className="ld-board-swimlanes">
+          {effectiveLanes.map((lane) => (
+            <div key={lane} className="ld-board-swimlane">
+              <div
+                className="ld-board-lane-label"
+                style={{
+                  color: LANE_META[lane].color,
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  marginBottom: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
+                {LANE_META[lane].label}
+              </div>
+              <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
+                {effectiveColumns.map((col) => (
+                  <BoardColumn
+                    key={col.id}
+                    lane={lane}
+                    column={col}
+                    items={itemsForLaneAndColumn(lane, col.id)}
+                    memberLabels={memberLabels}
+                    memberAvatars={memberAvatars}
+                    onEditItem={setEditingItem}
+                    onAddItem={() => setShowCreateForm(true)}
+                    onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
+                    dropPreviewIndex={dropTargetLane === lane && dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
+                    dropPreviewItem={dropTargetLane === lane && dropTargetColumn === col.id ? dropPreviewItem : null}
+                    isBacklog={col.id === 'backlog'}
+                    isDragging={!!activeId}
+                    activeItemId={activeId}
+                    isDropTarget={dropTargetLane === lane && dropTargetColumn === col.id}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 

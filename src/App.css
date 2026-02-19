@@ -3519,6 +3519,19 @@ section {
 }
 
 /* Board tab */
+.ld-board-swimlanes {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.ld-board-swimlane {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.ld-board-lane-label {
+    flex-shrink: 0;
+}
 .ld-board-columns {
     display: flex;
     gap: 16px;

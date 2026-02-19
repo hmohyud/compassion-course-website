@@ -3080,10 +3080,6 @@ section {
         display: list-item;
     }
 
-    .nav-account-dropdown {
-        display: none !important;
-    }
-
     .hamburger {
         display: flex;
     }

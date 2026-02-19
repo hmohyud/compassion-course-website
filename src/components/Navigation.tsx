@@ -186,13 +186,7 @@ const Navigation: React.FC = () => {
                 type="button"
                 className="nav-avatar-link"
                 aria-label="Account menu"
-                onClick={() => {
-                  if (isDesktop) {
-                    setAccountOpen((prev) => !prev);
-                  } else {
-                    navigate('/portal');
-                  }
-                }}
+                onClick={() => setAccountOpen((prev) => !prev)}
               >
                 <span className="nav-avatar-circle">
                   {profile?.avatar || user.photoURL ? (
@@ -210,21 +204,25 @@ const Navigation: React.FC = () => {
                 )}
                 <i className="fas fa-chevron-down nav-avatar-chevron"></i>
               </button>
-              {accountOpen && isDesktop && (
+              {accountOpen && (
                 <div className="nav-account-dropdown">
-                  <div className="nav-account-dropdown-header">
-                    <span className="nav-account-dropdown-name">{profile?.name || user.displayName || 'User'}</span>
-                    <span className="nav-account-dropdown-email">{user.email}</span>
-                  </div>
-                  <div className="nav-account-dropdown-divider" />
-                  <Link
-                    to="/portal"
-                    className="nav-account-dropdown-item"
-                    onClick={() => setAccountOpen(false)}
-                  >
-                    <i className="fas fa-th-large nav-dropdown-icon"></i>
-                    Portal
-                  </Link>
+                  {isDesktop && (
+                    <>
+                      <div className="nav-account-dropdown-header">
+                        <span className="nav-account-dropdown-name">{profile?.name || user.displayName || 'User'}</span>
+                        <span className="nav-account-dropdown-email">{user.email}</span>
+                      </div>
+                      <div className="nav-account-dropdown-divider" />
+                      <Link
+                        to="/portal"
+                        className="nav-account-dropdown-item"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        <i className="fas fa-th-large nav-dropdown-icon"></i>
+                        Portal
+                      </Link>
+                    </>
+                  )}
                   <Link
                     to="/platform/profile"
                     className="nav-account-dropdown-item"
@@ -233,7 +231,7 @@ const Navigation: React.FC = () => {
                     <i className="fas fa-user-cog nav-dropdown-icon"></i>
                     Profile settings
                   </Link>
-                  <div className="nav-account-dropdown-divider" />
+                  {isDesktop && <div className="nav-account-dropdown-divider" />}
                   <button
                     type="button"
                     className="nav-account-dropdown-item nav-account-dropdown-btn"

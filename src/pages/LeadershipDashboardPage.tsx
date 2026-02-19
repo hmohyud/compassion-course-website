@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { listTeams, listTeamsForUser, getTeam, patchTeamBoardId } from '../services/leadershipTeamsService';
 import { listWorkItems, getWorkItem, updateWorkItem, deleteWorkItem } from '../services/leadershipWorkItemsService';
-import { listNotificationsForUser, createMentionNotifications } from '../services/notificationService';
+import { listNotificationsForUser, createMentionNotifications, markNotificationRead } from '../services/notificationService';
 import { getTeamBoardSettings } from '../services/teamBoardSettingsService';
 import { getBoard, createBoardForTeam } from '../services/leadershipBoardsService';
 import { getUserProfile } from '../services/userProfileService';
@@ -63,6 +63,10 @@ const LeadershipDashboardPage: React.FC = () => {
   // Notifications
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
+
+  // Dashboard tab: work items across all user's teams (for My Tasks / Blocked widgets)
+  const [allDashboardWorkItems, setAllDashboardWorkItems] = useState<LeadershipWorkItem[]>([]);
+  const [allDashboardMemberLabels, setAllDashboardMemberLabels] = useState<Record<string, string>>({});
 
   // Pending work item to auto-open (from notification click)
   const [pendingEditItemId, setPendingEditItemId] = useState<string | null>(null);
@@ -224,6 +228,40 @@ const LeadershipDashboardPage: React.FC = () => {
     if (selectedTeamId) loadTeamData(selectedTeamId);
   }, [selectedTeamId, loadTeamData]);
 
+  // Load all work items for dashboard tab (My Tasks, Blocked widgets)
+  useEffect(() => {
+    if (activeTab !== 'dashboard' || !user?.uid || teams.length === 0) {
+      setAllDashboardWorkItems([]);
+      setAllDashboardMemberLabels({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(teams.map((t) => listWorkItems(t.id)))
+      .then((arrays) => {
+        if (cancelled) return;
+        const flat = arrays.flat();
+        setAllDashboardWorkItems(flat);
+        const assigneeIds = new Set<string>();
+        flat.forEach((w) => {
+          if (w.assigneeIds?.length) w.assigneeIds.forEach((id) => assigneeIds.add(id));
+          else if (w.assigneeId) assigneeIds.add(w.assigneeId);
+        });
+        return Promise.all(
+          Array.from(assigneeIds).map((uid) =>
+            getUserProfile(uid).then((p) => ({ uid, name: p?.name || p?.email || uid }))
+          )
+        );
+      })
+      .then((profiles) => {
+        if (cancelled || !profiles) return;
+        setAllDashboardMemberLabels(Object.fromEntries(profiles.map((r) => [r.uid, r.name])));
+      })
+      .catch(() => {
+        if (!cancelled) setAllDashboardWorkItems([]);
+      });
+    return () => { cancelled = true; };
+  }, [activeTab, user?.uid, teams]);
+
   const refreshTeamData = useCallback(() => {
     if (selectedTeamId) loadTeamData(selectedTeamId);
   }, [selectedTeamId, loadTeamData]);
@@ -307,6 +345,21 @@ const LeadershipDashboardPage: React.FC = () => {
     setSelectedTeamId(teamId);
     setActiveTab('board');
   }, []);
+
+  // Dashboard: All teams button → switch to Backlog tab
+  const handleAllTeamsClick = useCallback(() => {
+    setActiveTab('backlog');
+  }, []);
+
+  // Dashboard Messages widget: navigate to task detail and mark read
+  const handleDashboardMessageClick = useCallback(
+    (n: UserNotification) => {
+      if (!n.read) markNotificationRead(n.id).catch(() => {});
+      refreshNotifications();
+      if (n.workItemId) navigate(`/portal/leadership/tasks/${n.workItemId}`);
+    },
+    [navigate, refreshNotifications]
+  );
 
   // Handle create team (team creation is admin-only via CF)
   const handleTeamCreated = (teamId: string) => {
@@ -441,10 +494,17 @@ const LeadershipDashboardPage: React.FC = () => {
             <div className="loading"><div className="spinner"></div></div>
           ) : (
             <>
-              {activeTab === 'dashboard' && (
+              {activeTab === 'dashboard' && user?.uid && (
                 <DashboardTabView
                   teams={teams}
+                  notifications={notifications}
+                  notificationsLoading={notificationsLoading}
+                  allDashboardWorkItems={allDashboardWorkItems}
+                  allDashboardMemberLabels={allDashboardMemberLabels}
+                  userId={user.uid}
                   onSwitchToTeamBoard={handleSwitchToTeamBoard}
+                  onMessageClick={handleDashboardMessageClick}
+                  onAllTeamsClick={handleAllTeamsClick}
                 />
               )}
 

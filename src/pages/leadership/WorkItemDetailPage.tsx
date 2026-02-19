@@ -98,7 +98,11 @@ const WorkItemDetailPage: React.FC = () => {
           }
         }
       }
-      navigate(backUrl);
+      if (item.teamId) {
+        navigate(`/portal/leadership?team=${item.teamId}&tab=board`);
+      } else {
+        navigate('/portal/leadership?tab=backlog');
+      }
     } catch (err) {
       console.error(err);
       setSaveError(err instanceof Error ? err.message : 'Failed to save task');

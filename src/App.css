@@ -3533,6 +3533,11 @@ section {
     font-weight: 600;
     color: #1f2937;
 }
+.ld-board-tab-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
 .ld-board-swimlanes {
     display: flex;
     flex-direction: column;
@@ -4606,6 +4611,9 @@ section {
     border-radius: 20px;
     border: 1px solid #e5e7eb;
 }
+.ld-team-overview-actions {
+    margin-bottom: 16px;
+}
 .ld-team-members-row {
     display: flex;
     flex-wrap: wrap;
@@ -5269,6 +5277,17 @@ section {
     color: #374151;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+}
+.tf-label--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none;
+    cursor: pointer;
+}
+.tf-checkbox {
+    width: auto;
+    margin: 0;
 }
 .tf-input {
     width: 100%;

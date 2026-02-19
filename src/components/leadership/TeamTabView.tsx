@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   getWorkingAgreementsByTeam,
   updateWorkingAgreements,
 } from '../../services/workingAgreementsService';
-import {
-  listTeamBacklog,
-  updateWorkItem,
-  createWorkItem,
-  deleteWorkItem,
-} from '../../services/leadershipWorkItemsService';
-import { createMentionNotifications } from '../../services/notificationService';
-import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from './TaskForm';
 import type { LeadershipWorkItem } from '../../types/leadership';
 
 interface TeamTabViewProps {
@@ -36,37 +29,22 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
   const [agreementItems, setAgreementItems] = useState<string[]>([]);
   const [newAgreement, setNewAgreement] = useState('');
   const [savingAgreements, setSavingAgreements] = useState(false);
-  const [backlogItems, setBacklogItems] = useState<LeadershipWorkItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    Promise.all([
-      getWorkingAgreementsByTeam(teamId),
-      listTeamBacklog(teamId),
-    ])
-      .then(([ag, backlog]) => {
+    getWorkingAgreementsByTeam(teamId)
+      .then((ag) => {
         if (cancelled) return;
         setAgreementItems(ag?.items ?? []);
-        setBacklogItems(backlog ?? []);
       })
       .catch(() => {
-        if (!cancelled) {
-          setAgreementItems([]);
-          setBacklogItems([]);
-        }
+        if (!cancelled) setAgreementItems([]);
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [teamId]);
-
-  const loadBacklog = () => {
-    listTeamBacklog(teamId).then(setBacklogItems).catch(() => {});
-  };
 
   const handleAddAgreement = async () => {
     const text = newAgreement.trim();
@@ -93,93 +71,6 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
     }
   };
 
-  const handleMoveToBoard = async (itemId: string) => {
-    try {
-      await updateWorkItem(itemId, { status: 'todo' });
-      loadBacklog();
-      onRefresh();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleAssignMember = async (itemId: string, assigneeId: string) => {
-    try {
-      await updateWorkItem(itemId, { assigneeId: assigneeId || undefined });
-      loadBacklog();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleDelete = async (itemId: string) => {
-    try {
-      await deleteWorkItem(itemId);
-      setEditingItem(null);
-      loadBacklog();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleCreateSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
-    setSaveError(null);
-    try {
-      const created = await createWorkItem({
-        title: data.title,
-        description: data.description,
-        teamId,
-        status: data.status,
-        lane: data.lane,
-        estimate: data.estimate,
-        assigneeIds: data.assigneeIds,
-        assigneeId: data.assigneeId,
-        comments: data.comments,
-      });
-      if (context?.newCommentsWithMentions?.length) {
-        for (const c of context.newCommentsWithMentions) {
-          if (c.mentionedUserIds?.length) {
-            await createMentionNotifications(created.id, data.title, teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
-          }
-        }
-      }
-      setShowCreateForm(false);
-      loadBacklog();
-    } catch (err) {
-      console.error(err);
-      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
-    }
-  };
-
-  const handleEditSave = async (data: TaskFormPayload, context?: TaskFormSaveContext) => {
-    if (!editingItem) return;
-    setSaveError(null);
-    try {
-      await updateWorkItem(editingItem.id, {
-        title: data.title,
-        description: data.description,
-        status: data.status,
-        lane: data.lane,
-        estimate: data.estimate,
-        assigneeIds: data.assigneeIds,
-        assigneeId: data.assigneeId,
-        comments: data.comments,
-      });
-      if (context?.newCommentsWithMentions?.length) {
-        for (const c of context.newCommentsWithMentions) {
-          if (c.mentionedUserIds?.length) {
-            await createMentionNotifications(editingItem.id, data.title, teamId, c.id, c.text, c.userId, c.userName || '', c.mentionedUserIds);
-          }
-        }
-      }
-      setEditingItem(null);
-      loadBacklog();
-    } catch (err) {
-      console.error(err);
-      setSaveError(err instanceof Error ? err.message : 'Failed to save task');
-    }
-  };
-
   // Compute task stats from workItems
   const taskStats = {
     backlog: workItems.filter((w) => w.status === 'backlog').length,
@@ -199,6 +90,13 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
         <div className="ld-team-overview-header">
           <h2 className="ld-team-overview-name">{teamName}</h2>
           <span className="ld-team-overview-count">{memberIds.length} member{memberIds.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        <div className="ld-team-overview-actions">
+          <Link to="/whiteboards" className="ld-create-team-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+            <i className="fas fa-table-cells" aria-hidden />
+            Whiteboards
+          </Link>
         </div>
 
         {/* Member avatars */}
@@ -282,77 +180,6 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
             Add
           </button>
         </div>
-      </div>
-
-      {/* Team backlog */}
-      <div className="ld-team-section">
-        <h3 className="ld-team-section-title">Team backlog</h3>
-        <p className="ld-backlog-desc">Items not yet on the board. Move to board to add to Planned work.</p>
-        <button type="button" className="ld-backlog-add-btn" onClick={() => setShowCreateForm(true)}>
-          Add to backlog
-        </button>
-
-        {showCreateForm && (
-          <>
-            {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
-            <TaskForm
-              mode="create"
-              defaultLane="standard"
-              teamId={teamId}
-              teamMemberIds={memberIds}
-              memberLabels={memberLabels}
-              memberAvatars={memberAvatars}
-              onSave={handleCreateSave}
-              onCancel={() => { setShowCreateForm(false); setSaveError(null); }}
-            />
-          </>
-        )}
-        {editingItem && (
-          <>
-            {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
-            <TaskForm
-              mode="edit"
-              initialItem={editingItem}
-              teamId={teamId}
-              teamMemberIds={memberIds}
-              memberLabels={memberLabels}
-              memberAvatars={memberAvatars}
-              onSave={handleEditSave}
-              onCancel={() => { setEditingItem(null); setSaveError(null); }}
-              onDelete={handleDelete}
-            />
-          </>
-        )}
-
-        {backlogItems.length === 0 ? (
-          <p className="ld-empty">No items in team backlog.</p>
-        ) : (
-          <div>
-            {backlogItems.map((item) => (
-              <div key={item.id} className="ld-backlog-item">
-                <div className="ld-backlog-item-title">{item.title}</div>
-                <div className="ld-backlog-item-actions">
-                  <button type="button" className="ld-btn-sm" onClick={() => setEditingItem(item)}>
-                    Edit
-                  </button>
-                  <button type="button" className="ld-btn-sm ld-btn-sm--primary" onClick={() => handleMoveToBoard(item.id)}>
-                    Move to board
-                  </button>
-                  <select
-                    value={item.assigneeId || ''}
-                    onChange={(e) => handleAssignMember(item.id, e.target.value)}
-                    className="ld-select-sm"
-                  >
-                    <option value="">Assign to…</option>
-                    {memberIds.map((uid) => (
-                      <option key={uid} value={uid}>{memberLabels[uid] || uid}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </>
   );

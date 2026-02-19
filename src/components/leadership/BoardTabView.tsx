@@ -833,17 +833,8 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       return;
     }
 
-    const activeLane = getItemLane(item);
     const { targetLane, targetStatus, insertIndex } = resolveDropTarget(overId, displayItems, activeItemId);
     if (!targetStatus || !targetLane) {
-      setDropTargetLane(null);
-      setDropTargetColumn(null);
-      setDropInsertIndex(null);
-      return;
-    }
-
-    // Only allow drop in the same swimlane (same lane as the dragged item)
-    if (targetLane !== activeLane) {
       setDropTargetLane(null);
       setDropTargetColumn(null);
       setDropInsertIndex(null);
@@ -871,6 +862,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   const handleDragEnd = useCallback(async (e: DragEndEvent) => {
     const targetStatus = dropTargetColumn;
     const visualIndex = dropInsertIndex;
+    const targetLaneFromDrop = dropTargetLane;
     setActiveId(null);
     setDropTargetLane(null);
     setDropTargetColumn(null);
@@ -891,8 +883,9 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       return;
     }
 
-    const targetLane = getItemLane(originalItem);
-    const isCrossColumn = originalItem.status !== targetStatus;
+    const targetLane = targetLaneFromDrop ?? getItemLane(originalItem);
+    const isCrossCell =
+      getItemLane(originalItem) !== targetLane || originalItem.status !== targetStatus;
 
     // Get the sorted items for the target (lane, column) cell (excluding the dragged item)
     const targetColumnItems = items
@@ -900,7 +893,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
 
     let adjustedIndex = visualIndex;
-    if (!isCrossColumn) {
+    if (!isCrossCell) {
       const fullColumnItems = items
         .filter((w) => getItemLane(w) === targetLane && w.status === targetStatus)
         .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
@@ -912,7 +905,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
     const newIndex = Math.max(0, Math.min(adjustedIndex, targetColumnItems.length));
 
-    if (!isCrossColumn) {
+    if (!isCrossCell) {
       const fullColumnItems = items
         .filter((w) => getItemLane(w) === targetLane && w.status === targetStatus)
         .sort((a, b) => getEffectivePosition(a) - getEffectivePosition(b));
@@ -933,14 +926,18 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
     setOptimisticItems(
       items.map((w) =>
         w.id === activeItemId
-          ? { ...w, status: targetStatus!, position: newPosition }
+          ? { ...w, status: targetStatus!, position: newPosition, lane: targetLane }
           : w
       )
     );
 
     try {
-      if (isCrossColumn) {
-        await updateWorkItem(activeItemId, { status: targetStatus, position: newPosition });
+      if (isCrossCell) {
+        await updateWorkItem(activeItemId, {
+          status: targetStatus,
+          position: newPosition,
+          lane: targetLane,
+        });
       } else {
         await batchUpdatePositions([{ id: activeItemId, position: newPosition }]);
       }
@@ -949,7 +946,15 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
       console.error(err);
       setOptimisticItems(null);
     }
-  }, [displayItems, onQuietRefresh, effectiveColumns, getItemLane, dropTargetColumn, dropInsertIndex]);
+  }, [
+    displayItems,
+    onQuietRefresh,
+    effectiveColumns,
+    getItemLane,
+    dropTargetColumn,
+    dropTargetLane,
+    dropInsertIndex,
+  ]);
 
   const handleDragCancel = useCallback(() => {
     setActiveId(null);
@@ -998,6 +1003,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         status: data.status,
         lane: data.lane,
         estimate: data.estimate,
+        blocked: data.blocked,
         assigneeIds: data.assigneeIds,
         assigneeId: data.assigneeId,
         comments: data.comments,

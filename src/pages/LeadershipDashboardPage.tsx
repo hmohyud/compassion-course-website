@@ -512,16 +512,26 @@ const LeadershipDashboardPage: React.FC = () => {
                 <>
                   <div className="ld-board-tab-header">
                     <h2 className="ld-board-tab-team-name">{teamName || 'Board'}</h2>
-                    {(isAdminUser || isAdmin) && (
+                    <div className="ld-board-tab-header-actions">
                       <button
                         type="button"
                         className="ld-create-team-btn"
-                        onClick={() => setActiveTab('settings')}
+                        onClick={() => setActiveTab('team')}
                       >
-                        <i className="fas fa-cog" aria-hidden />
-                        Board settings
+                        <i className="fas fa-users" aria-hidden />
+                        Team Page
                       </button>
-                    )}
+                      {(isAdminUser || isAdmin) && (
+                        <button
+                          type="button"
+                          className="ld-create-team-btn"
+                          onClick={() => setActiveTab('settings')}
+                        >
+                          <i className="fas fa-cog" aria-hidden />
+                          Board settings
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <BoardTabView
                     teamId={selectedTeamId}
@@ -625,6 +635,7 @@ const LeadershipDashboardPage: React.FC = () => {
                 status: data.status,
                 lane: data.lane,
                 estimate: data.estimate,
+                blocked: data.blocked,
                 assigneeIds: data.assigneeIds,
                 comments: data.comments,
               });

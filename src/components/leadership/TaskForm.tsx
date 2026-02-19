@@ -26,6 +26,7 @@ export type TaskFormPayload = {
   status: WorkItemStatus;
   lane: WorkItemLane;
   estimate?: number;
+  blocked?: boolean;
   assigneeId?: string;
   assigneeIds?: string[];
   teamId?: string;
@@ -69,6 +70,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [status, setStatus] = useState<WorkItemStatus>('todo');
   const [lane, setLane] = useState<WorkItemLane>(defaultLane);
   const [estimate, setEstimate] = useState<number | ''>('');
+  const [blocked, setBlocked] = useState(false);
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -103,6 +105,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setStatus(initialItem.status);
       setLane(initialItem.lane ?? 'standard');
       setEstimate(initialItem.estimate ?? '');
+      setBlocked(initialItem.blocked ?? false);
       setAssigneeIds(initialItem.assigneeIds?.filter(Boolean) ?? (initialItem.assigneeId ? [initialItem.assigneeId] : []));
       setComments(initialItem.comments ?? []);
     } else {
@@ -111,6 +114,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setStatus('todo');
       setLane(defaultLane);
       setEstimate('');
+      setBlocked(false);
       setAssigneeIds([]);
       setComments([]);
     }
@@ -173,6 +177,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           status,
           lane,
           estimate: estimate === '' ? undefined : Number(estimate),
+          blocked: mode === 'edit' ? blocked : undefined,
           assigneeId: assigneeIds[0] || undefined,
           assigneeIds: assigneeIds.length > 0 ? assigneeIds : undefined,
           teamId,
@@ -310,6 +315,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               className="tf-input tf-textarea"
             />
           </div>
+
+          {/* Blocked (edit mode only) */}
+          {mode === 'edit' && (
+            <div className="tf-field">
+              <label className="tf-label tf-label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={blocked}
+                  onChange={(e) => setBlocked(e.target.checked)}
+                  className="tf-checkbox"
+                />
+                Blocked
+              </label>
+            </div>
+          )}
 
           {/* Status toggle buttons */}
           <div className="tf-field">

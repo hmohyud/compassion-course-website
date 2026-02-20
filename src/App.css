@@ -494,6 +494,8 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    white-space: nowrap;
+    flex-wrap: nowrap;
 }
 
 .nav-item {
@@ -509,8 +511,9 @@
     align-items: center;
     gap: 0.4rem;
     font-size: var(--font-size-sm);
-    padding: 0.5rem 0.875rem;
+    padding: 0.5rem 0.7rem;
     border-radius: var(--radius-full);
+    white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -739,6 +742,76 @@
     padding-left: var(--space-6);
     z-index: 2;
     flex-shrink: 0;
+}
+
+/* Google Translate — lives in #google-translate-portal outside React.
+   GoogleTranslate.tsx positions it fixed next to .nav-logo via JS measurement.
+   It never enters the React DOM tree, so route changes can't destroy it. */
+#google-translate-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: var(--nav-height, 80px);
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+    transition: left 0.15s ease;
+}
+
+.nav-translate .goog-te-gadget {
+    font-size: 0 !important;
+    line-height: 0 !important;
+    margin: 0 !important;
+}
+
+.nav-translate .goog-te-gadget-simple {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    cursor: pointer;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    text-decoration: none !important;
+}
+
+.nav-translate .goog-te-gadget-icon {
+    display: none !important;
+}
+
+.nav-translate .goog-te-gadget-simple .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
+    font-size: 0.75rem !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: var(--color-gray-500, #777) !important;
+    font-weight: 500 !important;
+}
+
+.nav-translate .goog-te-gadget-simple:hover .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
+    color: var(--color-primary, #5fa9e3) !important;
+}
+
+.nav-translate .goog-te-gadget-simple img[width="1"],
+.nav-translate .goog-te-gadget-simple span[style*="border-left"] {
+    display: none !important;
+}
+
+.nav-translate .goog-te-gadget-simple span[aria-hidden="true"] {
+    font-size: 0.5rem !important;
+    color: var(--color-gray-400, #999) !important;
+    margin-left: 1px !important;
+}
+
+/* Hide the Google Translate top banner/frame that pushes body down */
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
 }
 
 /* Visible login button in nav */
@@ -1005,6 +1078,30 @@
     letter-spacing: -0.02em;
     color: var(--color-white);
     margin-bottom: 0;
+}
+
+#hero-subtitle {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 0.03em;
+    margin-top: var(--space-2);
+}
+
+#hero-subtitle a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    transition: color 0.2s ease, border-color 0.2s ease;
+    font-weight: 500;
+}
+
+#hero-subtitle a:hover {
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.7);
 }
 
 .hero-heart-inline {
@@ -3330,6 +3427,27 @@ section {
 }
 
 /* ==========================================
+   IFRAME PAGES (Community, Backlog, etc.)
+   ========================================== */
+.iframe-page {
+    height: calc(100vh - var(--nav-height, 80px));
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    box-sizing: border-box;
+}
+
+.iframe-page-content {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: var(--color-white);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ==========================================
    ELEVENLABS CHATBOT
    ========================================== */
 .chatbot-widget {
@@ -3459,6 +3577,7 @@ section {
     .hamburger.active .bar:nth-child(3) {
         transform: translateY(-7px) rotate(-45deg);
     }
+
 }
 
 /* Tablet (768px) — page layout responsive styles */

@@ -512,7 +512,7 @@ const Globe: React.FC = () => {
   const tooltipAnchorY = canvasSize * 0.08;
 
   return (
-    <div className="globe-container" ref={containerRef}>
+    <div className="globe-container notranslate" translate="no" ref={containerRef}>
       <div
         className="globe-canvas-wrap"
         style={{

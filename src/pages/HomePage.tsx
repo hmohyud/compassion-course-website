@@ -112,6 +112,7 @@ const HomePage: React.FC = () => {
               />
               <div className="hero-brand-text">
                 <h1 className="hero-heading">The<br />Compassion<br />Course</h1>
+                <span id="hero-subtitle">with <a href="https://thombond.com/">Thom Bond</a></span>
               </div>
             </div>
             <p className="hero-description">

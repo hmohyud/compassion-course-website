@@ -5,13 +5,14 @@ import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { listTeams, listTeamsForUser, getTeam, patchTeamBoardId } from '../services/leadershipTeamsService';
 import { listWorkItems, getWorkItem, updateWorkItem, deleteWorkItem } from '../services/leadershipWorkItemsService';
-import { listNotificationsForUser, createMentionNotifications } from '../services/notificationService';
+import { listNotificationsForUser, createMentionNotifications, markNotificationRead } from '../services/notificationService';
 import { getTeamBoardSettings } from '../services/teamBoardSettingsService';
 import { getBoard, createBoardForTeam } from '../services/leadershipBoardsService';
 import { getUserProfile } from '../services/userProfileService';
 import type { UserNotification } from '../services/notificationService';
 import type { LeadershipTeam, LeadershipWorkItem, WorkItemLane, WorkItemStatus, WorkItemComment } from '../types/leadership';
 
+import DashboardTabView from '../components/leadership/DashboardTabView';
 import BoardTabView from '../components/leadership/BoardTabView';
 import BacklogTabView from '../components/leadership/BacklogTabView';
 import TeamTabView from '../components/leadership/TeamTabView';
@@ -20,14 +21,16 @@ import MessagesTabView from '../components/leadership/MessagesTabView';
 import CreateTeamModal from '../components/leadership/CreateTeamModal';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../components/leadership/TaskForm';
 
-type TabId = 'board' | 'backlog' | 'team' | 'settings' | 'messages';
+type TabId = 'dashboard' | 'board' | 'backlog' | 'team' | 'settings' | 'messages' | 'adminPortal';
 
 const TABS: { id: TabId; label: string; requiresTeam: boolean }[] = [
+  { id: 'dashboard', label: 'Dashboard', requiresTeam: false },
   { id: 'board', label: 'Board', requiresTeam: true },
   { id: 'backlog', label: 'Backlog', requiresTeam: false },
   { id: 'team', label: 'Team', requiresTeam: true },
   { id: 'settings', label: 'Settings', requiresTeam: true },
   { id: 'messages', label: 'Messages', requiresTeam: false },
+  { id: 'adminPortal', label: 'Admin Portal', requiresTeam: false },
 ];
 
 const LeadershipDashboardPage: React.FC = () => {
@@ -42,7 +45,7 @@ const LeadershipDashboardPage: React.FC = () => {
   const [teamsLoading, setTeamsLoading] = useState(true);
 
   // Active tab
-  const [activeTab, setActiveTab] = useState<TabId>('board');
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
 
   // Team-specific data
   const [workItems, setWorkItems] = useState<LeadershipWorkItem[]>([]);
@@ -61,6 +64,10 @@ const LeadershipDashboardPage: React.FC = () => {
   // Notifications
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
+
+  // Dashboard tab: work items across all user's teams (for My Tasks / Blocked widgets)
+  const [allDashboardWorkItems, setAllDashboardWorkItems] = useState<LeadershipWorkItem[]>([]);
+  const [allDashboardMemberLabels, setAllDashboardMemberLabels] = useState<Record<string, string>>({});
 
   // Pending work item to auto-open (from notification click)
   const [pendingEditItemId, setPendingEditItemId] = useState<string | null>(null);
@@ -87,7 +94,7 @@ const LeadershipDashboardPage: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (selectedTeamId) params.set('team', selectedTeamId);
-    if (activeTab !== 'board') params.set('tab', activeTab);
+    if (activeTab !== 'dashboard') params.set('tab', activeTab);
     const newSearch = params.toString();
     const currentSearch = searchParams.toString();
     if (newSearch !== currentSearch) {
@@ -222,6 +229,40 @@ const LeadershipDashboardPage: React.FC = () => {
     if (selectedTeamId) loadTeamData(selectedTeamId);
   }, [selectedTeamId, loadTeamData]);
 
+  // Load all work items for dashboard tab (My Tasks, Blocked widgets)
+  useEffect(() => {
+    if (activeTab !== 'dashboard' || !user?.uid || teams.length === 0) {
+      setAllDashboardWorkItems([]);
+      setAllDashboardMemberLabels({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(teams.map((t) => listWorkItems(t.id)))
+      .then((arrays) => {
+        if (cancelled) return;
+        const flat = arrays.flat();
+        setAllDashboardWorkItems(flat);
+        const assigneeIds = new Set<string>();
+        flat.forEach((w) => {
+          if (w.assigneeIds?.length) w.assigneeIds.forEach((id) => assigneeIds.add(id));
+          else if (w.assigneeId) assigneeIds.add(w.assigneeId);
+        });
+        return Promise.all(
+          Array.from(assigneeIds).map((uid) =>
+            getUserProfile(uid).then((p) => ({ uid, name: p?.name || p?.email || uid }))
+          )
+        );
+      })
+      .then((profiles) => {
+        if (cancelled || !profiles) return;
+        setAllDashboardMemberLabels(Object.fromEntries(profiles.map((r) => [r.uid, r.name])));
+      })
+      .catch(() => {
+        if (!cancelled) setAllDashboardWorkItems([]);
+      });
+    return () => { cancelled = true; };
+  }, [activeTab, user?.uid, teams]);
+
   const refreshTeamData = useCallback(() => {
     if (selectedTeamId) loadTeamData(selectedTeamId);
   }, [selectedTeamId, loadTeamData]);
@@ -256,6 +297,10 @@ const LeadershipDashboardPage: React.FC = () => {
 
   // Handle tab change
   const handleTabChange = (tabId: TabId) => {
+    if (tabId === 'adminPortal') {
+      navigate('/admin');
+      return;
+    }
     const tab = TABS.find((t) => t.id === tabId);
     if (tab?.requiresTeam && !selectedTeamId) return;
     setActiveTab(tabId);
@@ -306,6 +351,21 @@ const LeadershipDashboardPage: React.FC = () => {
     setActiveTab('board');
   }, []);
 
+  // Dashboard: All teams button → switch to Backlog tab
+  const handleAllTeamsClick = useCallback(() => {
+    setActiveTab('backlog');
+  }, []);
+
+  // Dashboard Messages widget: navigate to task detail and mark read
+  const handleDashboardMessageClick = useCallback(
+    (n: UserNotification) => {
+      if (!n.read) markNotificationRead(n.id).catch(() => {});
+      refreshNotifications();
+      if (n.workItemId) navigate(`/portal/leadership/tasks/${n.workItemId}`);
+    },
+    [navigate, refreshNotifications]
+  );
+
   // Handle create team (team creation is admin-only via CF)
   const handleTeamCreated = (teamId: string) => {
     setShowCreateTeamModal(false);
@@ -324,13 +384,15 @@ const LeadershipDashboardPage: React.FC = () => {
 
   const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
-  // Hide Backlog tab when it's shown as a column on the board
+  // Hide Backlog tab when it's shown as a column on the board; Admin Portal only for admins
   const visibleTabs = useMemo(() => {
-    if (boardSettings?.showBacklogOnBoard) {
-      return TABS.filter((t) => t.id !== 'backlog');
-    }
-    return TABS;
-  }, [boardSettings?.showBacklogOnBoard]);
+    const base = boardSettings?.showBacklogOnBoard
+      ? TABS.filter((t) => t.id !== 'backlog')
+      : TABS;
+    const isAdmin_ = !!(isAdminUser || isAdmin);
+    if (!isAdmin_) return base.filter((t) => t.id !== 'adminPortal');
+    return base;
+  }, [boardSettings?.showBacklogOnBoard, isAdminUser, isAdmin]);
 
   // Auto-switch away from backlog tab if it gets hidden
   useEffect(() => {
@@ -378,7 +440,7 @@ const LeadershipDashboardPage: React.FC = () => {
         <h1 className="ld-heading">Leadership Dashboard</h1>
         <p className="ld-subtitle">Manage teams, boards, backlogs, and settings — all in one place.</p>
 
-        {/* ── Top bar: team selector + create team ── */}
+        {/* ── Top bar: team selector ── */}
         <div className="ld-top-bar">
           <div className="ld-team-selector-wrap">
             {teams.length === 0 ? (
@@ -401,13 +463,6 @@ const LeadershipDashboardPage: React.FC = () => {
               </select>
             )}
           </div>
-          <button
-            type="button"
-            className="ld-create-team-btn"
-            onClick={() => setShowCreateTeamModal(true)}
-          >
-            <i className="fas fa-plus"></i> New Team
-          </button>
           {teamsLoading && <span className="ld-empty" style={{ fontSize: '0.85rem' }}>Loading teams…</span>}
         </div>
 
@@ -435,24 +490,63 @@ const LeadershipDashboardPage: React.FC = () => {
 
         {/* ── Tab content ── */}
         <div className="ld-tab-content">
-          {teamDataLoading && activeTab !== 'backlog' && activeTab !== 'messages' ? (
+          {teamDataLoading && activeTab !== 'dashboard' && activeTab !== 'backlog' && activeTab !== 'messages' ? (
             <div className="loading"><div className="spinner"></div></div>
           ) : (
             <>
-              {activeTab === 'board' && selectedTeamId && (
-                <BoardTabView
-                  teamId={selectedTeamId}
-                  workItems={workItems}
-                  memberIds={memberIds}
-                  memberLabels={memberLabels}
-                  memberAvatars={memberAvatars}
-                  boardSettings={boardSettings}
-                  boardMissingError={boardMissingError}
-                  onRefresh={refreshTeamData}
-                  onQuietRefresh={refreshWorkItemsQuietly}
-                  initialEditItemId={pendingEditItemId}
-                  onInitialEditConsumed={() => setPendingEditItemId(null)}
+              {activeTab === 'dashboard' && user?.uid && (
+                <DashboardTabView
+                  teams={teams}
+                  notifications={notifications}
+                  notificationsLoading={notificationsLoading}
+                  allDashboardWorkItems={allDashboardWorkItems}
+                  allDashboardMemberLabels={allDashboardMemberLabels}
+                  userId={user.uid}
+                  onSwitchToTeamBoard={handleSwitchToTeamBoard}
+                  onMessageClick={handleDashboardMessageClick}
+                  onAllTeamsClick={handleAllTeamsClick}
                 />
+              )}
+
+              {activeTab === 'board' && selectedTeamId && (
+                <>
+                  <div className="ld-board-tab-header">
+                    <h2 className="ld-board-tab-team-name">{teamName || 'Board'}</h2>
+                    <div className="ld-board-tab-header-actions">
+                      <button
+                        type="button"
+                        className="ld-create-team-btn"
+                        onClick={() => setActiveTab('team')}
+                      >
+                        <i className="fas fa-users" aria-hidden />
+                        Team Page
+                      </button>
+                      {(isAdminUser || isAdmin) && (
+                        <button
+                          type="button"
+                          className="ld-create-team-btn"
+                          onClick={() => setActiveTab('settings')}
+                        >
+                          <i className="fas fa-cog" aria-hidden />
+                          Board settings
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <BoardTabView
+                    teamId={selectedTeamId}
+                    workItems={workItems}
+                    memberIds={memberIds}
+                    memberLabels={memberLabels}
+                    memberAvatars={memberAvatars}
+                    boardSettings={boardSettings}
+                    boardMissingError={boardMissingError}
+                    onRefresh={refreshTeamData}
+                    onQuietRefresh={refreshWorkItemsQuietly}
+                    initialEditItemId={pendingEditItemId}
+                    onInitialEditConsumed={() => setPendingEditItemId(null)}
+                  />
+                </>
               )}
 
               {activeTab === 'backlog' && (
@@ -541,6 +635,7 @@ const LeadershipDashboardPage: React.FC = () => {
                 status: data.status,
                 lane: data.lane,
                 estimate: data.estimate,
+                blocked: data.blocked,
                 assigneeIds: data.assigneeIds,
                 comments: data.comments,
               });

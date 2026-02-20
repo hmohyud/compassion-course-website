@@ -141,7 +141,7 @@ const Navigation: React.FC = () => {
               {showLeadership && (
                 <li className="nav-item">
                   <Link to="/portal/leadership" className={`nav-link ${isActivePrefix('/portal/leadership') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-                    Dashboard
+                    Leadership Portal
                   </Link>
                 </li>
               )}

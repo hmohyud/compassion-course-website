@@ -15,7 +15,7 @@ const LANE_OPTIONS: { value: WorkItemLane; label: string; icon: string; desc: st
   { value: 'expedited', label: 'Urgent', icon: 'fas fa-bolt', desc: 'Drop everything — fix now', color: '#ef4444' },
   { value: 'fixed_date', label: 'Deadline', icon: 'fas fa-calendar-day', desc: 'Must ship by a specific date', color: '#f59e0b' },
   { value: 'standard', label: 'Standard', icon: 'fas fa-stream', desc: 'Normal priority work', color: '#3b82f6' },
-  { value: 'intangible', label: 'Background', icon: 'fas fa-wrench', desc: 'Tech debt, maintenance, improvements', color: '#8b5cf6' },
+  { value: 'intangible', label: 'Unknown', icon: 'fas fa-wrench', desc: 'Unknown or uncategorized', color: '#8b5cf6' },
 ];
 
 const ESTIMATE_OPTIONS = [0.5, 1, 1.5, 2, 3, 5];
@@ -26,6 +26,7 @@ export type TaskFormPayload = {
   status: WorkItemStatus;
   lane: WorkItemLane;
   estimate?: number;
+  blocked?: boolean;
   assigneeId?: string;
   assigneeIds?: string[];
   teamId?: string;
@@ -41,6 +42,8 @@ export interface TaskFormProps {
   mode: 'create' | 'edit';
   initialItem?: LeadershipWorkItem | null;
   defaultLane?: WorkItemLane;
+  /** Default status when mode is 'create'. */
+  defaultStatus?: WorkItemStatus;
   teamId?: string;
   teamMemberIds?: string[];
   memberLabels?: Record<string, string>;
@@ -58,6 +61,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   mode,
   initialItem,
   defaultLane = 'standard',
+  defaultStatus,
   teamId,
   teamMemberIds = [],
   memberLabels = {},
@@ -73,6 +77,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [status, setStatus] = useState<WorkItemStatus>('todo');
   const [lane, setLane] = useState<WorkItemLane>(defaultLane);
   const [estimate, setEstimate] = useState<number | ''>('');
+  const [blocked, setBlocked] = useState(false);
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -107,19 +112,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setStatus(initialItem.status);
       setLane(initialItem.lane ?? 'standard');
       setEstimate(initialItem.estimate ?? '');
+      setBlocked(initialItem.blocked ?? false);
       setAssigneeIds(initialItem.assigneeIds?.filter(Boolean) ?? (initialItem.assigneeId ? [initialItem.assigneeId] : []));
       setComments(initialItem.comments ?? []);
     } else {
       setTitle('');
       setDescription('');
-      setStatus('todo');
+      setStatus(defaultStatus ?? 'todo');
       setLane(defaultLane);
       setEstimate('');
+      setBlocked(false);
       setAssigneeIds([]);
       setComments([]);
     }
     setConfirmDelete(false);
-  }, [mode, initialItem, defaultLane]);
+  }, [mode, initialItem, defaultLane, defaultStatus]);
 
   const mentionQueryStart = useMemo(() => {
     const before = newCommentText.slice(0, cursorPosition);
@@ -177,6 +184,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           status,
           lane,
           estimate: estimate === '' ? undefined : Number(estimate),
+          blocked: mode === 'edit' ? blocked : undefined,
           assigneeId: assigneeIds[0] || undefined,
           assigneeIds: assigneeIds.length > 0 ? assigneeIds : undefined,
           teamId,
@@ -331,6 +339,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               className="tf-input tf-textarea"
             />
           </div>
+
+          {/* Blocked (edit mode only) */}
+          {mode === 'edit' && (
+            <div className="tf-field">
+              <label className="tf-label tf-label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={blocked}
+                  onChange={(e) => setBlocked(e.target.checked)}
+                  className="tf-checkbox"
+                />
+                Blocked
+              </label>
+            </div>
+          )}
 
           {/* Status toggle buttons */}
           <div className="tf-field">

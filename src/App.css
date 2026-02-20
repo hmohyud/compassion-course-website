@@ -3925,6 +3925,38 @@ section {
 }
 
 /* Board tab */
+.ld-board-tab-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    margin-bottom: 8px;
+}
+.ld-board-tab-team-name {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+.ld-board-tab-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.ld-board-swimlanes {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.ld-board-swimlane {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.ld-board-lane-label {
+    flex-shrink: 0;
+}
 .ld-board-columns {
     display: flex;
     gap: 16px;
@@ -4534,6 +4566,7 @@ section {
 
 /* Board drag overlay */
 .ld-drag-overlay {
+    position: relative;
     background: #fff;
     border: 2px solid #22c55e;
     border-radius: 8px;
@@ -4623,6 +4656,314 @@ section {
     gap: 8px;
     margin-top: 8px;
 }
+
+/* Dashboard tab */
+.ld-dashboard {
+    width: 100%;
+}
+.ld-dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.ld-dashboard-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #002B4D;
+}
+.ld-dashboard-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    background: #e5e7eb;
+    border: none;
+    border-radius: 8px;
+    color: #374151;
+    cursor: pointer;
+}
+.ld-dashboard-settings-btn:hover {
+    background: #d1d5db;
+}
+.ld-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+@media (min-width: 768px) {
+    .ld-dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.ld-dashboard-widget {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.ld-dashboard-widget-title {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #002B4D;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+.ld-dashboard-widget-body {
+    padding: 12px 16px;
+}
+.ld-dashboard-widget-body--scroll {
+    max-height: 280px;
+    overflow-y: auto;
+}
+.ld-dashboard-widget-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.ld-dashboard-widget-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+.ld-dashboard-widget-link {
+    color: #002B4D;
+    text-decoration: none;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ld-dashboard-widget-link:hover {
+    text-decoration: underline;
+}
+.ld-dashboard-widget-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: #002B4D;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+.ld-dashboard-widget-link-button:hover {
+    text-decoration: underline;
+}
+.ld-dashboard-widget-meta {
+    font-size: 0.8rem;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+.ld-dashboard-widget-btn {
+    margin-top: 12px;
+}
+.ld-dashboard-messages-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.ld-dashboard-message-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.ld-dashboard-message-item:last-child {
+    border-bottom: none;
+}
+.ld-dashboard-message-item:hover {
+    background: #f9fafb;
+}
+.ld-dashboard-message-item .ld-message-content {
+    flex: 1;
+    min-width: 0;
+}
+.ld-dashboard-message-item .ld-message-top {
+    margin-bottom: 2px;
+}
+.ld-dashboard-message-item .ld-message-from {
+    font-weight: 500;
+}
+.ld-dashboard-message-item .ld-message-task {
+    font-weight: 500;
+}
+.ld-dashboard-message-item .ld-message-snippet {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+.ld-dashboard-message-item .ld-message-time {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+.ld-dashboard-message-item .ld-message-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #002B4D;
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+/* Dashboard Settings modal */
+.ld-dashboard-settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+.ld-dashboard-settings-modal {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+.ld-dashboard-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.ld-dashboard-settings-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+}
+.ld-dashboard-settings-close {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #6b7280;
+}
+.ld-dashboard-settings-close:hover {
+    color: #111827;
+}
+.ld-dashboard-settings-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+.ld-dashboard-settings-section {
+    margin: 0 0 24px;
+    padding: 0;
+    border: none;
+}
+.ld-dashboard-settings-section legend {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #374151;
+    margin-bottom: 10px;
+}
+.ld-dashboard-settings-hint {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0 0 10px;
+}
+.ld-dashboard-settings-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.ld-dashboard-settings-radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.ld-dashboard-settings-order-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.ld-dashboard-settings-order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+.ld-dashboard-settings-order-actions {
+    display: flex;
+    gap: 4px;
+}
+.ld-dashboard-settings-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.ld-dashboard-team-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.ld-dashboard-team-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+}
+.ld-dashboard-team-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.ld-dashboard-team-name {
+    font-weight: 500;
+    color: #111827;
+}
+.ld-dashboard-team-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
 .ld-btn-sm {
     padding: 4px 10px;
     font-size: 0.8rem;
@@ -4676,6 +5017,9 @@ section {
     padding: 2px 10px;
     border-radius: 20px;
     border: 1px solid #e5e7eb;
+}
+.ld-team-overview-actions {
+    margin-bottom: 16px;
 }
 .ld-team-members-row {
     display: flex;
@@ -5340,6 +5684,17 @@ section {
     color: #374151;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+}
+.tf-label--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none;
+    cursor: pointer;
+}
+.tf-checkbox {
+    width: auto;
+    margin: 0;
 }
 .tf-input {
     width: 100%;

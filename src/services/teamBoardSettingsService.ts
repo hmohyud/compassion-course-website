@@ -15,7 +15,9 @@ function toSettings(teamId: string, data: Record<string, unknown> | undefined): 
     teamId,
     boardMode: data.boardMode === 'scrum' ? 'scrum' : 'kanban',
     visibleLanes: Array.isArray(visibleLanes)
-      ? (visibleLanes as WorkItemLane[]).filter((l) => DEFAULT_LANES.includes(l))
+      ? (visibleLanes as WorkItemLane[])
+          .filter((l) => DEFAULT_LANES.includes(l))
+          .sort((a, b) => DEFAULT_LANES.indexOf(a) - DEFAULT_LANES.indexOf(b))
       : undefined,
     columnHeaders:
       data.columnHeaders && typeof data.columnHeaders === 'object'

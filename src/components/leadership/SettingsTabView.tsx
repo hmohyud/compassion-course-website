@@ -2,7 +2,16 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { getTeamBoardSettings, setTeamBoardSettings } from '../../services/teamBoardSettingsService';
 import { deleteTeamWithData } from '../../services/leadershipTeamsService';
 import { usePermissions } from '../../context/PermissionsContext';
-import type { WorkItemStatus } from '../../types/leadership';
+import type { WorkItemStatus, WorkItemLane } from '../../types/leadership';
+
+const DEFAULT_LANES: WorkItemLane[] = ['expedited', 'fixed_date', 'standard', 'intangible'];
+
+const SWIMLANE_LABELS: Record<WorkItemLane, string> = {
+  expedited: 'Urgent',
+  fixed_date: 'Deadline',
+  standard: 'Standard',
+  intangible: 'Unknown',
+};
 
 const DEFAULT_COLUMN_LABELS: Record<WorkItemStatus, string> = {
   backlog: 'Backlog',
@@ -29,10 +38,12 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
   const [saved, setSaved] = useState(false);
   const [columnHeaders, setColumnHeaders] = useState<Partial<Record<WorkItemStatus, string>>>({});
   const [showBacklogOnBoard, setShowBacklogOnBoard] = useState(false);
+  const [visibleLanes, setVisibleLanes] = useState<WorkItemLane[]>(DEFAULT_LANES);
 
   // Track initial values so we can detect unsaved changes
   const [initialColumnHeaders, setInitialColumnHeaders] = useState<Partial<Record<WorkItemStatus, string>>>({});
   const [initialShowBacklogOnBoard, setInitialShowBacklogOnBoard] = useState(false);
+  const [initialVisibleLanes, setInitialVisibleLanes] = useState<WorkItemLane[]>(DEFAULT_LANES);
 
   // Delete team state
   const [deleting, setDeleting] = useState(false);
@@ -87,10 +98,13 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
       .then((s) => {
         const headers = s.columnHeaders ?? {};
         const backlog = s.showBacklogOnBoard ?? false;
+        const lanes = s.visibleLanes && s.visibleLanes.length > 0 ? s.visibleLanes : DEFAULT_LANES;
         setColumnHeaders(headers);
         setShowBacklogOnBoard(backlog);
+        setVisibleLanes(lanes);
         setInitialColumnHeaders(headers);
         setInitialShowBacklogOnBoard(backlog);
+        setInitialVisibleLanes(lanes);
       })
       .catch(() => {
         setColumnHeaders({});
@@ -105,8 +119,12 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
     for (const key of COLUMN_KEYS) {
       if ((columnHeaders[key] ?? '') !== (initialColumnHeaders[key] ?? '')) return true;
     }
+    const a = [...visibleLanes].sort();
+    const b = [...initialVisibleLanes].sort();
+    if (a.length !== b.length) return true;
+    if (a.some((v, i) => v !== b[i])) return true;
     return false;
-  }, [columnHeaders, initialColumnHeaders, showBacklogOnBoard, initialShowBacklogOnBoard]);
+  }, [columnHeaders, initialColumnHeaders, showBacklogOnBoard, initialShowBacklogOnBoard, visibleLanes, initialVisibleLanes]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,15 +134,20 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
       const headers = Object.fromEntries(
         COLUMN_KEYS.map((k) => [k, (columnHeaders[k] ?? '').trim() || undefined]).filter(([, v]) => v != null)
       ) as Partial<Record<WorkItemStatus, string>>;
+      const lanesToSave = visibleLanes.length === DEFAULT_LANES.length && DEFAULT_LANES.every((l) => visibleLanes.includes(l))
+        ? undefined
+        : visibleLanes;
       await setTeamBoardSettings(teamId, {
         boardMode: 'kanban',
         columnHeaders: headers,
         showBacklogOnBoard,
+        visibleLanes: lanesToSave,
       });
       setSaved(true);
       // Update initial values so dirty state clears
       setInitialColumnHeaders(headers);
       setInitialShowBacklogOnBoard(showBacklogOnBoard);
+      setInitialVisibleLanes(visibleLanes);
       onSettingsSaved();
     } catch (err) {
       console.error(err);
@@ -184,6 +207,38 @@ const SettingsTabView: React.FC<SettingsTabViewProps> = ({ teamId, teamName, onS
         <p className="ld-settings-toggle-hint">
           When enabled, the backlog appears as a draggable column on the main board instead of only in the Backlog tab.
         </p>
+      </div>
+
+      <div className="ld-settings-card">
+        <h2 className="ld-settings-title">
+          <i className="fas fa-layer-group" style={{ marginRight: 8, fontSize: '0.85rem', opacity: 0.5 }}></i>
+          Swimlanes
+        </h2>
+        <p className="ld-settings-desc">
+          Choose which swimlanes (priority lanes) to show on the board. Each swimlane appears as a row. Tasks without a lane appear in Standard.
+        </p>
+        <div className="ld-settings-cols-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
+          {DEFAULT_LANES.map((lane) => (
+            <label key={lane} className="ld-settings-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="checkbox"
+                checked={visibleLanes.includes(lane)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setVisibleLanes((prev) => (prev.includes(lane) ? prev : [...prev, lane].sort((a, b) => DEFAULT_LANES.indexOf(a) - DEFAULT_LANES.indexOf(b))));
+                  } else {
+                    setVisibleLanes((prev) => {
+                      const next = prev.filter((l) => l !== lane);
+                      return next.length > 0 ? next : prev;
+                    });
+                  }
+                }}
+                className="ld-settings-toggle-checkbox"
+              />
+              <span className="ld-settings-toggle-text">{SWIMLANE_LABELS[lane]}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className={`ld-settings-actions ${isDirty ? 'ld-settings-actions--dirty' : ''}`}>

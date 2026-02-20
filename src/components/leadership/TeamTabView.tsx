@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   getWorkingAgreementsByTeam,
   updateWorkingAgreements,
@@ -36,37 +37,22 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
   const [agreementItems, setAgreementItems] = useState<string[]>([]);
   const [newAgreement, setNewAgreement] = useState('');
   const [savingAgreements, setSavingAgreements] = useState(false);
-  const [backlogItems, setBacklogItems] = useState<LeadershipWorkItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    Promise.all([
-      getWorkingAgreementsByTeam(teamId),
-      listTeamBacklog(teamId),
-    ])
-      .then(([ag, backlog]) => {
+    getWorkingAgreementsByTeam(teamId)
+      .then((ag) => {
         if (cancelled) return;
         setAgreementItems(ag?.items ?? []);
-        setBacklogItems(backlog ?? []);
       })
       .catch(() => {
-        if (!cancelled) {
-          setAgreementItems([]);
-          setBacklogItems([]);
-        }
+        if (!cancelled) setAgreementItems([]);
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [teamId]);
-
-  const loadBacklog = () => {
-    listTeamBacklog(teamId).then(setBacklogItems).catch(() => {});
-  };
 
   const handleAddAgreement = async () => {
     const text = newAgreement.trim();
@@ -215,6 +201,13 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
         <div className="ld-team-overview-header">
           <h2 className="ld-team-overview-name">{teamName}</h2>
           <span className="ld-team-overview-count">{memberIds.length} member{memberIds.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        <div className="ld-team-overview-actions">
+          <Link to="/whiteboards" className="ld-create-team-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+            <i className="fas fa-table-cells" aria-hidden />
+            Whiteboards
+          </Link>
         </div>
 
         {/* Member avatars */}

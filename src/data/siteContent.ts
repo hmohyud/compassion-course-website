@@ -9,24 +9,24 @@ export const siteContent = {
   // ═══════════════════════════════════════════════════════════════════════════
   home: {
     hero: {
-      eyebrowDefault: 'Changing lives in over 120 Countries',
+      eyebrowDefault: 'A Guided Global Journey Into Living Compassion',
       logoAlt: 'The Compassion Course',
       heading: 'The Compassion Course',
       subtitlePrefix: 'with',
       subtitleName: 'Thom Bond',
       subtitleUrl: 'https://thombond.com/',
       descriptionDefault:
-        'An internationally recognized personal growth and development community with more than 30,000 participants worldwide.',
+        ' Changing Lives for 15 years, in over 120 countries, in 20 languages.  Check out our interactive community member globe.',
       ctaPrimaryDefault: 'Learn More',
       ctaPrimaryLink: '/learn-more',
       ctaSecondaryDefault: 'Register Now',
     },
 
     peaceEducation: {
-      title: 'Why Peace Education Matters',
+      title: 'Why The Compassion Course Matters',
       subhead1: 'It Has Been Proven to Work',
       para1:
-        'This course provides the practical \u201Chow to\u201D of creating more understanding, empathy, and compassion in our daily lives. The course starts with foundational concepts and practices that help us understand what engenders compassion and what blocks it, and as the year progresses, we work with more advanced practices that help us effectively bring more compassion into our everyday lives.',
+        'The course provides the practical \u201Chow to\u201D of creating more understanding, empathy, and compassion in our daily lives. The course starts with foundational concepts and practices that help us understand what engenders compassion and what blocks it, and as the year progresses, we work with more advanced practices that help us effectively bring more compassion into our everyday lives.',
       subhead2: 'Be Part of a Growing, Global Community',
       para2:
         'What began as a weekly email to share the tools of compassionate communication has grown into a vibrant community of tens of thousands around the world. Today, The Compassion Course is available in almost every major populated area on earth, on every side of every conflict, in native languages \u2014 a single, universal learning and teaching community.',
@@ -52,8 +52,8 @@ export const siteContent = {
         'Have your needs expressed and understood',
         'Create constructive dialogues with conflict resolution tools',
         'Increase alignment between your values and actions',
-        'Join the Global Compassion Network community',
-        'Access \u201CMentor,\u201D the AI Compassion Mentor',
+        'Be part of our Global Compassion Network community',
+        'Access \u201CMentor,\u201D the AI Compassion Course Mentor',
       ],
     },
 
@@ -131,7 +131,7 @@ export const siteContent = {
           icon: 'fas fa-video',
           heading: '12 Monthly Conferences',
           description:
-            'Live 90-minute Zoom sessions with Thom Bond and guest trainers from around the globe, every second Monday of the month. Interactive Q&A, group practice, and deeper exploration. All sessions are recorded and accessible anytime.',
+            'Live 90-minute Zoom sessions with Thom Bond, joined by guest trainers from around the globe, every second Monday of the month. Review and deeper exploration, interactive Q&A, plus an additional,optional 30 minute group practice and harvest, . All sessions are recorded and accessible anytime.',
           linkText: 'Meet Thom Bond',
           linkHref: '/learn-more#about-thom',
         },
@@ -139,15 +139,15 @@ export const siteContent = {
           icon: 'fas fa-users',
           heading: 'Global Compassion Network',
           description:
-            'The upgraded online community where participants connect worldwide \u2014 discussion groups, empathy buddies, practice partners, mentors, empathy caf\u00E9s, and specialized groups for parenting, relationships, workplace issues, and more.',
+            'The multilingual, multi-cultural connnected community where participants connect worldwide \u2014 discussion groups, empathy buddies, practice partners, mentors, empathy caf\u00E9s, and more.',
           linkText: 'See community options',
           linkHref: '/learn-more#options-extras',
         },
         {
           icon: 'fas fa-bolt',
-          heading: 'Special Training Sessions',
+          heading: '12 monthly Deep-Dive sessions on the Fourth Monday with our guest trainers',
           description:
-            'Intermediate and advanced sessions offered at critical points in the course. An Empathy session and a Working with Anger session \u2014 designed to help participants successfully integrate these skills into daily life.',
+            'Intermediate and advanced sessions offered throughout the course that bring a multi-cultural perspective as we focus in on key concepts, practices and the challenges we all face in the course and in daily life.',
           linkText: 'What makes this different',
           linkHref: '/learn-more#what-makes-different',
         },
@@ -155,7 +155,7 @@ export const siteContent = {
           icon: 'fas fa-star',
           heading: 'Options & Extras',
           description:
-            'Practice groups led by certified facilitators, an optional Certificate of Completion with progress tracking and journaling, one-on-one mentoring with alumni, and an Empathy Buddy Network for year-round support.',
+            'Practice groups led by CCO facilitators, an optional Certificate of Completion, one-on-one mentoring with alumni, and an Empathy Program, including Empathy Cafes, Empathy Buddyships and Epathy Circles for year-round support.',
           linkText: 'Explore options & extras',
           linkHref: '/learn-more#options-extras',
         },
@@ -163,7 +163,7 @@ export const siteContent = {
           icon: 'fas fa-award',
           heading: 'Leadership Opportunities',
           description:
-            'Alumni can join the Organizer/Facilitator Community to lead practice groups worldwide, or join the Mentor Community to guide newer participants \u2014 deepening their own practice while giving back.',
+            'Alumni can join the Leadership Community to lead practice groups worldwide, or join the Mentor Community to guide newer participants \u2014 deepening their own practice while giving back.',
           linkText: 'How the course works',
           linkHref: '/learn-more#how-it-works',
         },
@@ -230,7 +230,7 @@ export const siteContent = {
       eyebrow: 'A Year-Long Journey in Compassion',
       heading: '52 Weeks That Change How You Relate to Yourself and Others',
       description:
-        'Since 2011, The Compassion Course has guided over 50,000 people across 120+ countries through a practical, week-by-week path to deeper empathy, honest communication, and real connection \u2014 built on the work of Marshall Rosenberg and Nonviolent Communication.',
+        'Since 2011, The Compassion Course guides people through a practical, week-by-week path to deeper empathy, honest communication, and real connection \u2014 built on the work of Marshall Rosenberg and Nonviolent Communication.',
       buttonPrimary: 'Register Now',
       buttonSecondary: 'See How It Works',
       buttonSecondaryHref: '#how-it-works',
@@ -415,7 +415,7 @@ export const siteContent = {
       imageAlt: 'Golden sunrise over misty green hills',
       heading: 'What Makes This Different',
       subtitle:
-        "This isn't a weekend workshop that fades by Monday. It's a year of gradual, real change.",
+        "The Compassion Course is rigerous. It is challenging and approaches s a year of gradual, real change.",
       cards: [
         {
           icon: 'fas fa-calendar-week',
@@ -425,7 +425,7 @@ export const siteContent = {
         {
           icon: 'fas fa-layer-group',
           heading: 'Three Traditions Combined',
-          text: "Draws on Marshall Rosenberg's NVC, Werner Erhard's transformational approach, and Albert Ellis's cognitive techniques \u2014 a combination you won't find elsewhere.",
+          text: "Draws on Marshall Rosenberg's NVC, Werner Erhard's transformational approach, and Albert Ellis's cognitive techniques \u2014 both of whom influenced Marshall.",
         },
         {
           icon: 'fas fa-globe-americas',
@@ -435,7 +435,7 @@ export const siteContent = {
         {
           icon: 'fas fa-hands-helping',
           heading: 'Community, Not Isolation',
-          text: "Empathy buddies, practice groups, mentors, monthly live sessions \u2014 you're not learning alone. The relationships you build are part of the transformation.",
+          text: "Empathy buddies, practice groups, mentors, monthly live sessions \u2014 you're not learning alone. If you want to go far, go with others.",
         },
       ],
     },
@@ -448,7 +448,7 @@ export const siteContent = {
         {
           icon: 'fas fa-user-friends',
           heading: 'Practice Groups',
-          text: 'Join an online or in-person practice group led by certified Organizer/Facilitators who receive ongoing guidance throughout the course.',
+          text: 'Join an online or in-person practice group led by CCO Facilitators who receive ongoing guidance throughout the course.',
         },
         {
           icon: 'fas fa-certificate',
@@ -463,7 +463,7 @@ export const siteContent = {
         {
           icon: 'fas fa-heart',
           heading: 'Empathy Support',
-          text: 'Monthly Empathy Caf\u00E9s, Empathy Circles with a 6-week training program, and an Empathy Buddy Network for year-round practice.',
+          text: 'Monthly Empathy Caf\u00E9s, Empathy Circles and an Empathy Buddy Network for year-round practice.',
         },
       ],
     },
@@ -488,7 +488,7 @@ export const siteContent = {
         {
           question: 'When does the course start and when does registration open?',
           answer:
-            'The Compassion Course is offered once a year. It begins each June and runs for 52 consecutive weeks. Registration opens March 1st and closes the second Wednesday of July every year.',
+            'The Compassion Course is offered once a year. It begins on June 24 2026 and runs for 52 consecutive weeks. Registration opens March 1st and closes 14 days after the course starts .',
         },
         {
           question: 'How does the course work?',
@@ -503,12 +503,12 @@ export const siteContent = {
         {
           question: 'Who teaches the course?',
           answer:
-            'Thom Bond wrote the Compassion Course and leads the monthly conferences. He brings over 20 years of experience studying and teaching compassionate communication, and co-founded the New York Center for Nonviolent Communication (NYCNVC), a United Nations Civil Society Organization.',
+            'Thom Bond wrote the Compassion Course and leads the monthly conferences. He brings over 24 years of experience studying and teaching compassionate communication, and co-founded the New York Center for Nonviolent Communication (NYCNVC).',
         },
         {
           question: 'Do I need any prior experience with NVC?',
           answer:
-            "Not at all. The course starts from the ground up and builds gradually over 52 weeks. Whether you've never heard of Nonviolent Communication or you've been practicing for years, the weekly rhythm meets you where you are.",
+            "Not at all. The course starts from the ground up and builds gradually over 52 weeks. Whether you've never heard of Nonviolent Communication or you've been practicing for years, the weekly rhythm and progression is enjoyed by everyone.",
         },
         {
           question: 'What if I fall behind on weekly lessons?',
@@ -538,12 +538,12 @@ export const siteContent = {
         {
           question: 'Is there a certification option?',
           answer:
-            'Yes. You can earn a Certificate of Completion by tracking your weekly progress and keeping a private online journal throughout the year. Attending monthly conferences can also count toward CNVC certification hours \u2014 up to 18 hours from 12 calls. Organizer/Facilitator Track participants may earn additional hours. We recommend confirming with your assessor.',
+            'Yes. For a small additional fee, you can earn a Certificate of Completion by tracking your weekly progress and keeping a private journal throughout the year and submitting it for verification.',
         },
         {
           question: 'What is the cost? Is financial help available?',
           answer:
-            'Tuition is announced each March 1st when registration opens. Accessibility is a founding value of the course \u2014 the course is available to everyone regardless of ability to pay, and alternative payment options are available so that cost is never a barrier to participation.',
+            'Tuition for the Participant Track is 240-190 U.S. Dollars  Leadership Track is the same (240-190), however has prerequisites. Accessibility is a founding value of the course \u2014 the course is available to any inspired human, regardless of ability to pay, and alternative payment options are available. CLICK HERE for financial aid information.',
         },
         {
           question: 'How are refunds and cancellations handled?',
@@ -574,9 +574,9 @@ export const siteContent = {
     story: {
       tagline: 'Be Part of Something Beautiful',
       paragraphs: [
-        'The Compassion Course Online is a year-long journey in peace education, created by Thom Bond and supported by the New York Center for Nonviolent Communication (NYCNVC), a United Nations Civil Society Organization. Our mission is to make the skills of compassionate living available to anyone, regardless of time and money constraints.',
+        'The Compassion Course Online is a year-long journey in peace education, created by Thom Bond and supported by the New York Center for Nonviolent Communication (NYCNVC). Our mission is to make the skills of compassionate living available to anyone, regardless of time and money constraints.',
         'What began in 2011 as a weekly email sharing the tools of compassionate communication has grown into a vibrant global community. Today, The Compassion Course is available in almost every major populated area on earth, on every side of every conflict, in native languages \u2014 a single, universal learning and teaching community.',
-        "The course draws on three traditions: Marshall Rosenberg's Nonviolent Communication, Werner Erhard's transformational approach, and Albert Ellis's cognitive techniques \u2014 a unique combination you won't find elsewhere.",
+        "The course draws on three traditions: Marshall Rosenberg's Nonviolent Communication, Werner Erhard's transformational approach, and Albert Ellis's Rational Emotive Behavioral perspective, both of whom influenced Marshall's path.",
       ],
       timeline: [
         { year: '2002', text: 'Thom Bond discovers Nonviolent Communication' },
@@ -957,7 +957,7 @@ export const siteContent = {
         {
           icon: 'fas fa-hands-helping',
           bold: 'Community members helping each other.',
-          text: 'Globally through our course message boards and conferences, and locally through self-organized practice and study groups.',
+          text: 'Globally through our course message boards and conferences, and locally through self-organized practice and study groups. This year the course offers the chance to make tax deductive donations to our own Nonprofit arm, The Compassion Course Foundation, Inc. specifically designed so our community can support our community.',
         },
       ],
     },
@@ -986,7 +986,7 @@ export const siteContent = {
   donate: {
     hero: {
       eyebrow: 'Support the Mission',
-      heading: 'Help Keep Compassion Free',
+      heading: 'Help Keep Compassion Accessible',
       description:
         'The Compassion Course has always been committed to accessibility \u2014 ensuring that cost is never a barrier to learning the skills of compassionate living. Your donation helps sustain this mission for 50,000+ participants across 120+ countries.',
       buttonText: 'Donate via PayPal',
@@ -1039,14 +1039,14 @@ export const siteContent = {
   shared: {
     donateBanner: {
       heading: 'Support Compassion Education',
-      text: 'Your donation helps keep the course free and accessible to anyone in the world.',
+      text: 'Your donation helps keep the course accessible to anyone in the world.',
       buttonText: 'Make a Donation',
       buttonLink: '/donate',
     },
     donateCard: {
       icon: 'fas fa-heart',
       heading: 'Make a Donation',
-      text: 'Your financial support helps keep the course free and accessible to anyone in the world, regardless of their ability to pay.',
+      text: 'Your financial support helps keep the course accessible',
       linkText: 'Donate now',
       linkHref: '/donate',
     },

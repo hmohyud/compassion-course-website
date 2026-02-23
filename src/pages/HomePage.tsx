@@ -15,7 +15,7 @@ const { home, shared } = siteContent;
 
 const HomePage: React.FC = () => {
   const { getContent } = useContent();
-  const chatbotContainerRef = useRef<HTMLDivElement>(null);
+  // const chatbotContainerRef = useRef<HTMLDivElement>(null); // ElevenLabs — commented out
   const heroLogoRef = useRef<HTMLImageElement>(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
@@ -48,32 +48,32 @@ const HomePage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Load ElevenLabs chatbot script
-  useEffect(() => {
-    const existingScript = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
-    if (existingScript || !chatbotContainerRef.current) return;
-
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-    script.async = true;
-    script.type = 'text/javascript';
-    script.setAttribute('data-elevenlabs-chatbot', 'true');
-    script.onload = () => {
-      if (chatbotContainerRef.current) {
-        chatbotContainerRef.current.innerHTML = '';
-        const chatbotElement = document.createElement('elevenlabs-convai');
-        chatbotElement.setAttribute('agent-id', 'agent_0301kaf26r60eqkr3x8qe2v8wdq0');
-        chatbotContainerRef.current.appendChild(chatbotElement);
-      }
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      const scriptToRemove = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
-      if (scriptToRemove) scriptToRemove.remove();
-      if (chatbotContainerRef.current) chatbotContainerRef.current.innerHTML = '';
-    };
-  }, []);
+  // ElevenLabs chatbot — commented out for now
+  // useEffect(() => {
+  //   const existingScript = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
+  //   if (existingScript || !chatbotContainerRef.current) return;
+  //
+  //   const script = document.createElement('script');
+  //   script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+  //   script.async = true;
+  //   script.type = 'text/javascript';
+  //   script.setAttribute('data-elevenlabs-chatbot', 'true');
+  //   script.onload = () => {
+  //     if (chatbotContainerRef.current) {
+  //       chatbotContainerRef.current.innerHTML = '';
+  //       const chatbotElement = document.createElement('elevenlabs-convai');
+  //       chatbotElement.setAttribute('agent-id', 'agent_0301kaf26r60eqkr3x8qe2v8wdq0');
+  //       chatbotContainerRef.current.appendChild(chatbotElement);
+  //     }
+  //   };
+  //   document.head.appendChild(script);
+  //
+  //   return () => {
+  //     const scriptToRemove = document.querySelector('script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]');
+  //     if (scriptToRemove) scriptToRemove.remove();
+  //     if (chatbotContainerRef.current) chatbotContainerRef.current.innerHTML = '';
+  //   };
+  // }, []);
 
   return (
     <Layout>
@@ -331,8 +331,8 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ElevenLabs Chatbot Widget - scaled to ~67% */}
-      <div ref={chatbotContainerRef} className="chatbot-widget-container" />
+      {/* ElevenLabs Chatbot Widget — commented out for now */}
+      {/* <div ref={chatbotContainerRef} className="chatbot-widget-container" /> */}
     </Layout>
   );
 };

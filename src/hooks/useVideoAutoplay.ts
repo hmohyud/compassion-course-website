@@ -3,12 +3,12 @@ import { useLocation } from 'react-router-dom';
 
 /**
  * Observes all <video> elements on the page using IntersectionObserver.
- * - When a video scrolls into view (≥40% visible), it starts playing (muted).
- * - When it scrolls out of view (<40% visible), it pauses.
- * - Tracks whether the user has manually paused; if so, won't auto-resume.
- * - Videos that already have `autoplay` + `loop` (e.g., hero bg videos) are
- *   left alone since the browser handles them natively.
- * - Uses MutationObserver to pick up dynamically-added videos (SPA navigation).
+ * - When a video scrolls into view (≥40% visible), it auto-plays (muted).
+ * - When it scrolls out of view, it auto-pauses — UNLESS the user manually
+ *   clicked play, in which case it keeps playing.
+ * - If the user manually pauses, we won't auto-resume on next scroll-in.
+ * - Videos with `autoplay` + `loop` (hero bg videos) are skipped.
+ * - Uses MutationObserver for dynamically-added videos (SPA navigation).
  *
  * Call once in Layout so it covers all pages.
  */
@@ -16,24 +16,27 @@ export function useVideoAutoplay() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Set of videos the user has manually paused — we respect their choice
+    // Videos the user manually paused — won't auto-resume
     const userPaused = new WeakSet<HTMLVideoElement>();
+    // Videos the user manually started — won't auto-pause on scroll-off
+    const userPlayed = new WeakSet<HTMLVideoElement>();
     // Track which videos we've already wired up
     const observed = new WeakSet<HTMLVideoElement>();
 
-    /**
-     * Distinguish user pauses from our programmatic pauses via a data attribute.
-     */
     function handlePause(e: Event) {
       const video = e.target as HTMLVideoElement;
       if (video.dataset.autoplayPausing === 'true') return;
+      // User manually paused
       userPaused.add(video);
+      userPlayed.delete(video);
     }
 
     function handlePlay(e: Event) {
       const video = e.target as HTMLVideoElement;
       if (video.dataset.autoplayStarting !== 'true') {
+        // User manually clicked play — respect it, don't auto-pause
         userPaused.delete(video);
+        userPlayed.add(video);
       }
     }
 
@@ -48,7 +51,10 @@ export function useVideoAutoplay() {
           if (isNativeAutoplay(video)) return;
 
           if (entry.isIntersecting) {
+            // Video scrolled into view — auto-play if user hasn't manually paused
             if (userPaused.has(video)) return;
+            // If user is already playing it manually, leave it alone
+            if (!video.paused) return;
 
             video.muted = true;
             video.dataset.autoplayStarting = 'true';
@@ -60,7 +66,9 @@ export function useVideoAutoplay() {
                 delete video.dataset.autoplayStarting;
               });
           } else {
-            if (!video.paused) {
+            // Video scrolled out of view
+            // Only auto-pause if the user didn't manually start it
+            if (!video.paused && !userPlayed.has(video)) {
               video.dataset.autoplayPausing = 'true';
               video.pause();
               requestAnimationFrame(() => {
@@ -115,5 +123,5 @@ export function useVideoAutoplay() {
         video.removeEventListener('play', handlePlay);
       });
     };
-  }, [pathname]); // Re-run when route changes
+  }, [pathname]);
 }

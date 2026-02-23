@@ -1201,7 +1201,7 @@ body {
     padding: 14px 36px;
     font-size: var(--font-size-base);
     border: 1px solid rgba(227, 114, 99, 0.45);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-full);
     backdrop-filter: blur(8px);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1506,10 +1506,28 @@ section {
     display: block;
 }
 
-.home-impact-video {
+/* ==========================================
+   VIDEO — Animated wave border (shared)
+   ========================================== */
+@property --wave-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes videoWaveRotate {
+    to { --wave-angle: 360deg; }
+}
+
+.home-impact-video,
+.social-proof-video-side,
+.learn-origin-image,
+.learn-different-video,
+.volunteer-growth-video {
     position: relative;
     border-radius: var(--radius-2xl);
     padding: 4px;
+    overflow: visible;
     background:
         conic-gradient(
             from var(--wave-angle, 0deg),
@@ -1530,17 +1548,12 @@ section {
         0 2px 12px rgba(227, 114, 99, 0.12);
 }
 
-@property --wave-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-}
-
-@keyframes videoWaveRotate {
-    to { --wave-angle: 360deg; }
-}
-
-.home-impact-video video {
+.home-impact-video video,
+.social-proof-video-side video,
+.learn-origin-image video,
+.learn-origin-image img,
+.learn-different-video video,
+.volunteer-growth-video video {
     width: 100%;
     display: block;
     border-radius: calc(var(--radius-2xl) - 4px);
@@ -2081,7 +2094,6 @@ section {
     background: linear-gradient(160deg, #3d2a35 0%, #4d3548 30%, #725868 55%, #5f839f 80%, #74b5e8 100%);
     padding: 0;
     margin-top: 0;
-    min-height: 50vh;
     display: flex;
     align-items: center;
     position: relative;
@@ -2102,7 +2114,7 @@ section {
     position: relative;
     z-index: 2;
     text-align: center;
-    padding: calc(var(--nav-height) + 60px) var(--space-6) 60px;
+    padding: calc(var(--nav-height) + 48px) var(--space-6) 48px;
 }
 
 .volunteer-hero-eyebrow {
@@ -2112,23 +2124,23 @@ section {
     text-transform: uppercase;
     letter-spacing: 0.15em;
     color: rgba(255, 255, 255, 0.9);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .volunteer-hero-heading {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
     font-weight: 700;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     line-height: 1.2;
 }
 
 .volunteer-hero-description {
-    font-size: var(--font-size-lg);
-    max-width: 650px;
+    font-size: var(--font-size-base);
+    max-width: 620px;
     margin: 0 auto;
-    color: rgba(255, 255, 255, 0.95);
-    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.65;
 }
 
 /* Ways to Help */
@@ -2327,15 +2339,8 @@ section {
 .volunteer-growth-video {
     max-width: 560px;
     margin: 0 auto var(--space-8);
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
 }
-
-.volunteer-growth-video video {
-    width: 100%;
-    display: block;
-}
+/* volunteer-growth-video video: wave border + video styles applied via shared rule */
 
 .volunteer-growth-cards {
     display: grid;
@@ -2586,17 +2591,7 @@ section {
     margin: 0 auto;
 }
 
-.social-proof-video-side {
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
-
-.social-proof-video-side video {
-    width: 100%;
-    display: block;
-    border-radius: var(--radius-2xl);
-}
+/* social-proof-video-side: wave border applied via shared rule above */
 
 .social-proof-text-side {
     text-align: center;
@@ -4256,20 +4251,9 @@ section {
     margin: 0 auto;
 }
 
-.learn-origin-image {
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
+/* learn-origin-image: wave border applied via shared rule */
 
-.learn-origin-image img,
-.learn-origin-image video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    min-height: 400px;
-}
+/* Video displays at natural aspect ratio; no cropping */
 
 .learn-origin-timeline {
     position: relative;
@@ -4612,15 +4596,8 @@ section {
 .learn-different-video {
     max-width: 900px;
     margin: 0 auto var(--space-12);
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
 }
-
-.learn-different-video video {
-    width: 100%;
-    display: block;
-}
+/* learn-different-video video: wave border + video styles applied via shared rule */
 
 .learn-different-grid {
     display: grid;
@@ -4853,15 +4830,6 @@ section {
     .learn-origin-inner {
         grid-template-columns: 1fr;
         gap: var(--space-8);
-    }
-
-    .learn-origin-image {
-        max-height: 300px;
-    }
-
-    .learn-origin-image img,
-    .learn-origin-image video {
-        min-height: 250px;
     }
 
     .learn-how-intro {

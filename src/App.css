@@ -1507,15 +1507,43 @@ section {
 }
 
 .home-impact-video {
+    position: relative;
     border-radius: var(--radius-2xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    padding: 4px;
+    background:
+        conic-gradient(
+            from var(--wave-angle, 0deg),
+            #5fa9e3 0%,
+            #7dbdee 12%,
+            rgba(29, 142, 63, 0.35) 22%,
+            #ef8e2f 34%,
+            #e37263 46%,
+            #ed9a8f 56%,
+            #5fa9e3 68%,
+            #a8d4f5 80%,
+            rgba(29, 142, 63, 0.35) 90%,
+            #5fa9e3 100%
+        );
+    animation: videoWaveRotate 8s linear infinite;
+    box-shadow:
+        0 4px 24px rgba(95, 169, 227, 0.18),
+        0 2px 12px rgba(227, 114, 99, 0.12);
+}
+
+@property --wave-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes videoWaveRotate {
+    to { --wave-angle: 360deg; }
 }
 
 .home-impact-video video {
     width: 100%;
     display: block;
-    border-radius: var(--radius-2xl);
+    border-radius: calc(var(--radius-2xl) - 4px);
 }
 
 .home-impact-stats {

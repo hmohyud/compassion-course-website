@@ -3985,7 +3985,7 @@ section {
    TEAM PAGE — SEARCH HIGHLIGHT
    ========================================== */
 .team-highlight {
-    background: rgba(95, 169, 227, 0.2);
+    background-color: rgba(250, 204, 21, 0.4) !important;
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;

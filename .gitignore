@@ -38,4 +38,12 @@ firebase-current-state.json
 firebase-export.json
 my-backup.json
 
+# Preview/dev pages (local only)
+src/pages/StylePreviewPage.tsx
+src/pages/StylePreview.css
+src/pages/StylePreview2Page.tsx
+src/pages/StylePreview2.css
+src/pages/GlobePreviewPage.tsx
+src/pages/GlobePreview.css
+
 nul

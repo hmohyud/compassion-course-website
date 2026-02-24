@@ -40,10 +40,10 @@ const CompassionCourseUniversityPage: React.FC = () => {
     <Layout>
       <div style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
         <Link
-          to="/portal"
+          to="/"
           style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
         >
-          ← Back to Portal
+          ← Back to Home
         </Link>
         <h1 style={{ fontSize: '2.5rem', color: '#002B4D', marginBottom: '10px' }}>
           Compassion Course University

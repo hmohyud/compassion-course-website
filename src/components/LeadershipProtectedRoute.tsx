@@ -23,7 +23,7 @@ const LeadershipProtectedRoute: React.FC<LeadershipProtectedRouteProps> = ({ chi
       ) : allowed ? (
         children
       ) : (
-        <Navigate to="/portal" replace />
+        <Navigate to="/unauthorized" replace />
       )}
     </UserProtectedRoute>
   );

@@ -48,13 +48,22 @@ const TeamGrid: React.FC<TeamGridProps> = ({
     return sections;
   }, [sections, activeSection]);
 
-  // Get members for a section, applying search filter
+  // Get members for a section, applying search filter + dedup
   const getMembersForSection = (sectionName: string): TeamMember[] => {
     const normalized = ensureTeamSuffix(sectionName);
-    const members = [
+    const raw = [
       ...(membersBySection[sectionName] ?? []),
       ...(sectionName !== normalized ? (membersBySection[normalized] ?? []) : []),
     ];
+
+    // Deduplicate within a section (same name from both raw + normalized keys)
+    const seen = new Set<string>();
+    const members = raw.filter((m) => {
+      const key = m.name.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     if (!searchQuery.trim()) return members;
 
@@ -86,14 +95,17 @@ const TeamGrid: React.FC<TeamGridProps> = ({
   const allMembersAlpha = useMemo(() => {
     if (sortMode !== 'alpha') return [];
     const all: TeamMember[] = [];
-    const seen = new Set<string>();
+    const seenIds = new Set<string>();
+    const seenNames = new Set<string>();
     visibleSections.forEach((section) => {
       getMembersForSection(section.name).forEach((m) => {
-        const key = m.id ?? m.name;
-        if (!seen.has(key)) {
-          seen.add(key);
-          all.push(m);
-        }
+        const idKey = m.id ?? '';
+        const nameKey = m.name.toLowerCase().trim();
+        // Deduplicate by both id and normalized name
+        if ((idKey && seenIds.has(idKey)) || seenNames.has(nameKey)) return;
+        if (idKey) seenIds.add(idKey);
+        seenNames.add(nameKey);
+        all.push(m);
       });
     });
     all.sort((a, b) => a.name.localeCompare(b.name));

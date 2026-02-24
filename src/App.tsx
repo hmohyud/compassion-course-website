@@ -23,7 +23,7 @@ import UnauthorizedPage from './pages/UnauthorizedPage'
 import UserLoginPage from './pages/UserLoginPage'
 import UserRegisterPage from './pages/UserRegisterPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
-import PortalPage from './pages/PortalPage'
+// PortalPage removed — /portal now redirects to /portal/leadership
 import CirclePage from './pages/CirclePage'
 import BacklogPage from './pages/BacklogPage'
 import CompassionCourseUniversityPage from './pages/CompassionCourseUniversityPage'
@@ -78,11 +78,7 @@ function App() {
                   <ChangePasswordPage />
                 </UserProtectedRoute>
               } />
-              <Route path="/portal" element={
-                <UserProtectedRoute>
-                  <PortalPage />
-                </UserProtectedRoute>
-              } />
+              <Route path="/portal" element={<Navigate to="/portal/leadership" replace />} />
               <Route path="/portal/circle" element={
                 <UserProtectedRoute>
                   <CirclePage />

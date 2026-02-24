@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TeamMember } from '../../services/contentService';
 import { highlightMatch } from './highlightMatch';
 
@@ -20,6 +20,28 @@ const renderBio = (bio: string | string[]): React.ReactNode => {
   return <p>{bio}</p>;
 };
 
+const CopyEmailBtn: React.FC<{ email: string }> = ({ email }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button
+      type="button"
+      className="team-email-copy-btn"
+      onClick={handleCopy}
+      title={copied ? 'Copied!' : 'Copy email'}
+      aria-label={copied ? 'Copied!' : 'Copy email'}
+    >
+      <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
+    </button>
+  );
+};
+
 const TeamMemberExpanded: React.FC<TeamMemberExpandedProps> = ({ member, searchQuery = '' }) => {
   return (
     <article className="team-expanded">
@@ -33,9 +55,12 @@ const TeamMemberExpanded: React.FC<TeamMemberExpandedProps> = ({ member, searchQ
           onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_AVATAR; }}
         />
         {member.contact && (
-          <a href={`mailto:${member.contact}`} className="team-expanded__contact">
-            <i className="fas fa-envelope"></i> {member.contact}
-          </a>
+          <span className="team-expanded__contact-wrap">
+            <a href={`mailto:${member.contact}`} className="team-expanded__contact">
+              <i className="fas fa-envelope"></i> {member.contact}
+            </a>
+            <CopyEmailBtn email={member.contact} />
+          </span>
         )}
       </div>
       <div className="team-expanded__body">

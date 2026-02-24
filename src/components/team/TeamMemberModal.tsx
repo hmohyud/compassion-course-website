@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TeamMember } from '../../services/contentService';
 
 interface TeamMemberModalProps {
@@ -17,6 +17,33 @@ const renderBio = (bio: string | string[]): React.ReactNode => {
     return paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>);
   }
   return <p>{bio}</p>;
+};
+
+const CopyEmail: React.FC<{ email: string }> = ({ email }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <span className="team-modal__contact-wrap">
+      <a href={`mailto:${email}`} className="team-modal__contact">
+        <i className="fas fa-envelope"></i> {email}
+      </a>
+      <button
+        type="button"
+        className="team-email-copy-btn"
+        onClick={handleCopy}
+        title={copied ? 'Copied!' : 'Copy email'}
+        aria-label={copied ? 'Copied!' : 'Copy email'}
+      >
+        <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
+      </button>
+    </span>
+  );
 };
 
 const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, onClose }) => {
@@ -63,9 +90,7 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({ member, onClose }) =>
             <h2 id="team-modal-name" className="team-modal__name">{member.name}</h2>
             {member.role && <p className="team-modal__role">{member.role}</p>}
             {member.contact && (
-              <a href={`mailto:${member.contact}`} className="team-modal__contact">
-                <i className="fas fa-envelope"></i> {member.contact}
-              </a>
+              <CopyEmail email={member.contact} />
             )}
           </div>
         </div>

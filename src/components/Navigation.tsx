@@ -7,7 +7,7 @@ import { getUserProfile } from '../services/userProfileService';
 import type { UserProfile } from '../types/platform';
 import GoogleTranslate from './GoogleTranslate';
 
-const DESKTOP_BREAKPOINT = 1080;
+const DESKTOP_BREAKPOINT = 1140;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -135,7 +135,7 @@ const Navigation: React.FC = () => {
           {user && showLeadership && (
             <li className="nav-item">
               <Link to="/portal/leadership" className={`nav-link ${isActivePrefix('/portal/leadership') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-                Portal
+                Dashboard
               </Link>
             </li>
           )}
@@ -241,15 +241,19 @@ const Navigation: React.FC = () => {
                         <span className="nav-account-dropdown-name">{profile?.name || user.displayName || 'User'}</span>
                         <span className="nav-account-dropdown-email">{user.email}</span>
                       </div>
-                      <div className="nav-account-dropdown-divider" />
-                      <Link
-                        to="/portal"
-                        className="nav-account-dropdown-item"
-                        onClick={() => setAccountOpen(false)}
-                      >
-                        <i className="fas fa-th-large nav-dropdown-icon"></i>
-                        Portal
-                      </Link>
+                      {showLeadership && (
+                        <>
+                          <div className="nav-account-dropdown-divider" />
+                          <Link
+                            to="/portal/leadership"
+                            className="nav-account-dropdown-item"
+                            onClick={() => setAccountOpen(false)}
+                          >
+                            <i className="fas fa-columns nav-dropdown-icon"></i>
+                            Dashboard
+                          </Link>
+                        </>
+                      )}
                     </>
                   )}
                   <Link

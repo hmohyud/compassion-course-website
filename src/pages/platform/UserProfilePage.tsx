@@ -200,8 +200,8 @@ const UserProfilePage: React.FC = () => {
   return (
     <Layout>
       <div className="profile-page">
-        <Link to="/portal" className="profile-back-link">
-          ← Back to Portal
+        <Link to="/" className="profile-back-link">
+          ← Back to Home
         </Link>
 
         {/* ── Profile header card ── */}

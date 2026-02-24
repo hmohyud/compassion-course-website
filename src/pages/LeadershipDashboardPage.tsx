@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
@@ -436,7 +436,6 @@ const LeadershipDashboardPage: React.FC = () => {
   return (
     <Layout>
       <div className="ld-page">
-        <Link to="/portal" className="ld-back-link">← Back to Portal</Link>
         <h1 className="ld-heading">Leadership Dashboard</h1>
         <p className="ld-subtitle">Manage teams, boards, backlogs, and settings — all in one place.</p>
 

@@ -7,10 +7,10 @@ const CoursesPage: React.FC = () => {
     <Layout>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         <Link
-          to="/portal"
+          to="/"
           style={{ color: '#002B4D', textDecoration: 'none', marginBottom: '20px', display: 'inline-block' }}
         >
-          ← Back to Portal
+          ← Back to Home
         </Link>
         <h1 style={{ color: '#002B4D', marginBottom: '10px' }}>
           Courses

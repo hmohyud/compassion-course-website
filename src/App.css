@@ -3799,153 +3799,6 @@ section {
 }
 
 /* ==========================================
-   PORTAL PAGE
-   ========================================== */
-.portal-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 60px 24px 100px;
-}
-
-.portal-header {
-    text-align: center;
-    margin-bottom: 48px;
-}
-
-.portal-greeting {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-gray-900);
-    margin-bottom: 10px;
-    font-family: var(--font-heading);
-}
-
-.portal-subtitle {
-    font-size: 1.1rem;
-    color: var(--color-gray-500);
-    line-height: 1.5;
-}
-
-.portal-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-}
-
-.portal-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 28px 32px;
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-100);
-    border-radius: 16px;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.portal-card:hover {
-    border-color: var(--color-primary, #5fa9e3);
-    box-shadow: 0 8px 24px rgba(95, 169, 227, 0.12);
-    transform: translateY(-3px);
-}
-
-.portal-card-icon {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(95, 169, 227, 0.08), rgba(95, 169, 227, 0.15));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    color: var(--color-primary, #5fa9e3);
-    transition: transform 0.25s ease;
-}
-
-.portal-card:hover .portal-card-icon {
-    transform: scale(1.05);
-}
-
-.portal-card-icon--community {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.16));
-    color: #3b82f6;
-}
-
-.portal-card-icon--library {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.16));
-    color: #a855f7;
-}
-
-.portal-card-icon--leadership {
-    background: linear-gradient(135deg, rgba(95, 169, 227, 0.1), rgba(95, 169, 227, 0.2));
-    color: var(--color-primary, #5fa9e3);
-}
-
-.portal-card-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.portal-card-content h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--color-gray-900);
-    margin: 0 0 6px;
-}
-
-.portal-card-content p {
-    font-size: 0.9rem;
-    color: var(--color-gray-500);
-    margin: 0;
-    line-height: 1.5;
-}
-
-.portal-card-arrow {
-    flex-shrink: 0;
-    color: var(--color-gray-300);
-    font-size: 0.9rem;
-    transition: all 0.25s ease;
-}
-
-.portal-card:hover .portal-card-arrow {
-    color: var(--color-primary, #5fa9e3);
-    transform: translateX(4px);
-}
-
-.portal-card--leadership {
-    border-left: 3px solid var(--color-primary, #5fa9e3);
-}
-
-@media (max-width: 640px) {
-    .portal-page {
-        padding: 36px 16px 60px;
-    }
-
-    .portal-greeting {
-        font-size: 1.5rem;
-    }
-
-    .portal-card {
-        padding: 20px;
-        gap: 16px;
-    }
-
-    .portal-card-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 1.2rem;
-    }
-
-    .portal-card-content h3 {
-        font-size: 1rem;
-    }
-}
-
-/* ==========================================
    FOOTER
    ========================================== */
 .footer {
@@ -4788,6 +4641,38 @@ section {
 
 .team-modal__contact i {
     margin-right: var(--space-1);
+}
+
+.team-modal__contact-wrap,
+.team-expanded__contact-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.team-email-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 6px;
+    background: var(--color-gray-100);
+    color: var(--color-gray-400);
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.team-email-copy-btn:hover {
+    background: var(--color-primary-50, #f0f7fd);
+    color: var(--color-primary);
+}
+
+.team-email-copy-btn .fa-check {
+    color: #16a34a;
 }
 
 .team-modal__bio p {
@@ -6255,8 +6140,21 @@ section {
     }
 }
 
-/* Hamburger collapse (1080px) */
-@media (max-width: 1080px) {
+/* Between 1140–1250px the translate widget crowds the first nav links */
+@media (max-width: 1250px) and (min-width: 1141px) {
+    #google-translate-portal {
+        transform: scale(0.85);
+        transform-origin: left center;
+    }
+    .nav-link {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        font-size: 0.88rem !important;
+    }
+}
+
+/* Hamburger collapse (1140px) */
+@media (max-width: 1140px) {
     .nav-menu {
         position: fixed;
         left: 0;
@@ -6407,7 +6305,7 @@ section {
 }
 
 /* When Google Translate is active, force hamburger nav on all screen sizes.
-   Mirrors the @media (max-width: 1080px) styles above. */
+   Mirrors the @media (max-width: 1140px) styles above. */
 .gt-translated .nav-menu {
     position: fixed;
     left: 0;

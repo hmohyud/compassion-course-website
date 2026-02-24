@@ -33,6 +33,35 @@ const FlipCard: React.FC<{
   );
 };
 
+// Collapsible section for sample week content
+const CollapsibleSection: React.FC<{
+  labelClass?: string;
+  icon: string;
+  title: string;
+  cardClass?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}> = ({ labelClass = '', icon, title, cardClass = '', defaultOpen = false, children }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className={`learn-sample-collapsible ${cardClass} ${isOpen ? 'learn-sample-collapsible--open' : ''}`}>
+      <button
+        className={`learn-sample-section-label ${labelClass}`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        type="button"
+      >
+        <i className={icon}></i>
+        <span>{title}</span>
+        <i className={`fas fa-chevron-down learn-sample-chevron ${isOpen ? 'learn-sample-chevron--open' : ''}`}></i>
+      </button>
+      <div className={`learn-sample-collapsible-body ${isOpen ? 'learn-sample-collapsible-body--open' : ''}`}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const JOTFORM_FORM_ID = import.meta.env.VITE_JOTFORM_FORM_ID || '260333329475357';
 
 const { learnMore } = siteContent;
@@ -146,6 +175,23 @@ const LearnMorePage: React.FC = () => {
                       ))}
                     </div>
                   )}
+                  {'bullets' in step && (
+                    <ul className="learn-step-bullets">
+                      {(step as any).bullets.map((b: string) => (
+                        <li key={b}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {'outcomeHeading' in step && (
+                    <>
+                      <p className="learn-step-outcome-heading">{(step as any).outcomeHeading}</p>
+                      <ul className="learn-step-outcomes">
+                        {(step as any).outcomes.map((o: string) => (
+                          <li key={o}>{o}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -226,27 +272,111 @@ const LearnMorePage: React.FC = () => {
             <h2 className="section-title">{learnMore.sampleEmpathy.title}</h2>
           </div>
           <div className="learn-sample-body">
+            {/* Opening Quote */}
+            {'quote' in learnMore.sampleEmpathy && (
+              <blockquote className="learn-sample-quote">
+                <span className="learn-sample-quote-mark">{'\u201C'}</span>
+                <p>{(learnMore.sampleEmpathy as any).quote.text}</p>
+                <cite>{'\u2014'} {(learnMore.sampleEmpathy as any).quote.author}</cite>
+              </blockquote>
+            )}
+
+            {/* The Concept — always visible */}
             <div className="learn-sample-concept">
-              <h3><i className="fas fa-lightbulb"></i> {learnMore.sampleEmpathy.concept.heading}</h3>
-              {learnMore.sampleEmpathy.concept.paragraphs.map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+              <div className="learn-sample-section-label">
+                <i className="fas fa-lightbulb"></i>
+                <span>{learnMore.sampleEmpathy.concept.heading}</span>
+              </div>
+              {'paragraphs' in learnMore.sampleEmpathy.concept &&
+                (learnMore.sampleEmpathy.concept as any).paragraphs.map((para: string, i: number) => (
+                  <p key={i}>{para}</p>
+                ))
+              }
             </div>
-            <div className="learn-sample-story">
-              <h3><i className="fas fa-book-open"></i> {learnMore.sampleEmpathy.story.heading}</h3>
-              <p>{learnMore.sampleEmpathy.story.text}</p>
-            </div>
-            <div className="learn-sample-practice">
-              <h3><i className="fas fa-hands"></i> {learnMore.sampleEmpathy.practicesHeading}</h3>
+
+            {/* Non-Empathic Examples — collapsible */}
+            {'nonEmpathicExamples' in learnMore.sampleEmpathy && (
+              <CollapsibleSection
+                icon="fas fa-comments"
+                title="What Empathy Is Not"
+                labelClass="learn-sample-section-label--accent"
+                cardClass="learn-sample-examples"
+              >
+                <p className="learn-sample-examples-intro">
+                  {(learnMore.sampleEmpathy as any).examplesIntro}
+                </p>
+                <div className="learn-sample-example-prompt">
+                  <i className="fas fa-quote-left learn-sample-prompt-icon"></i>
+                  <p>{(learnMore.sampleEmpathy as any).examplePrompt}</p>
+                </div>
+                <div className="learn-sample-examples-list">
+                  {(learnMore.sampleEmpathy as any).nonEmpathicExamples.map((ex: any, i: number) => (
+                    <div key={ex.heading} className="learn-sample-example-item">
+                      <div className="learn-sample-example-number">{i + 1}</div>
+                      <div className="learn-sample-example-content">
+                        <h4>{ex.heading}</h4>
+                        <p className="learn-sample-example-quote">{ex.text}</p>
+                        <div className="learn-sample-example-reflection">
+                          <i className="fas fa-seedling"></i>
+                          <span>{ex.reflection}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleSection>
+            )}
+
+            {/* Empathy Conclusion — collapsible */}
+            {'empathyConclusion' in learnMore.sampleEmpathy && (
+              <CollapsibleSection
+                icon="fas fa-heart"
+                title="So What Then? Perhaps Empathy"
+                labelClass="learn-sample-section-label--warm"
+                cardClass="learn-sample-conclusion"
+              >
+                {(learnMore.sampleEmpathy as any).empathyConclusion.map((para: string, i: number) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </CollapsibleSection>
+            )}
+
+            {/* The Story — collapsible */}
+            <CollapsibleSection
+              icon="fas fa-book-open"
+              title={learnMore.sampleEmpathy.story.heading}
+              labelClass="learn-sample-section-label--story"
+              cardClass="learn-sample-story"
+            >
+              <div className="learn-sample-story-content">
+                {'paragraphs' in learnMore.sampleEmpathy.story
+                  ? (learnMore.sampleEmpathy.story as any).paragraphs.map((para: string, i: number) => (
+                      <p key={i}>{para}</p>
+                    ))
+                  : <p>{(learnMore.sampleEmpathy.story as any).text}</p>
+                }
+              </div>
+            </CollapsibleSection>
+
+            {/* Practices — collapsible */}
+            <CollapsibleSection
+              icon="fas fa-hands"
+              title={learnMore.sampleEmpathy.practicesHeading}
+              labelClass="learn-sample-section-label--practice"
+              cardClass="learn-sample-practice"
+            >
               <div className="learn-sample-practice-list">
-                {learnMore.sampleEmpathy.practices.map((practice) => (
+                {learnMore.sampleEmpathy.practices.map((practice, i) => (
                   <div key={practice.heading} className="learn-sample-practice-item">
-                    <strong>{practice.heading}</strong>
-                    <p>{practice.text}</p>
+                    <div className="learn-sample-practice-number">{i + 1}</div>
+                    <div className="learn-sample-practice-content">
+                      <strong>{practice.heading}</strong>
+                      <p>{practice.text}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </CollapsibleSection>
           </div>
         </div>
       </section>
@@ -255,31 +385,82 @@ const LearnMorePage: React.FC = () => {
       <section id="sample-appreciation" className="learn-sample learn-sample--alt reveal">
         <div className="container">
           <div className="learn-sample-header">
-            <span className="learn-sample-badge">{learnMore.sampleAppreciation.badge}</span>
+            <span className="learn-sample-badge learn-sample-badge--alt">{learnMore.sampleAppreciation.badge}</span>
             <h2 className="section-title">{learnMore.sampleAppreciation.title}</h2>
           </div>
           <div className="learn-sample-body">
+            {/* Opening Quote */}
+            {'quote' in learnMore.sampleAppreciation && (
+              <blockquote className="learn-sample-quote learn-sample-quote--alt">
+                <span className="learn-sample-quote-mark">{'\u201C'}</span>
+                <p>{(learnMore.sampleAppreciation as any).quote.text}</p>
+                <cite>{'\u2014'} {(learnMore.sampleAppreciation as any).quote.author}</cite>
+              </blockquote>
+            )}
+
+            {/* The Concept — always visible */}
             <div className="learn-sample-concept">
-              <h3><i className="fas fa-lightbulb"></i> {learnMore.sampleAppreciation.concept.heading}</h3>
-              {learnMore.sampleAppreciation.concept.paragraphs.map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+              <div className="learn-sample-section-label">
+                <i className="fas fa-lightbulb"></i>
+                <span>{learnMore.sampleAppreciation.concept.heading}</span>
+              </div>
+              {'sections' in learnMore.sampleAppreciation.concept
+                ? (learnMore.sampleAppreciation.concept as any).sections.map((section: any, si: number) => (
+                    <div key={si} className="learn-sample-concept-section">
+                      {section.subheading && (
+                        <h4 className="learn-sample-subheading">
+                          <span className="learn-sample-subheading-marker"></span>
+                          {section.subheading}
+                        </h4>
+                      )}
+                      {section.paragraphs.map((para: string, pi: number) => (
+                        <p key={pi}>{para}</p>
+                      ))}
+                    </div>
+                  ))
+                : 'paragraphs' in learnMore.sampleAppreciation.concept &&
+                  (learnMore.sampleAppreciation.concept as any).paragraphs.map((para: string, i: number) => (
+                    <p key={i}>{para}</p>
+                  ))
+              }
             </div>
-            <div className="learn-sample-story">
-              <h3><i className="fas fa-book-open"></i> {learnMore.sampleAppreciation.story.heading}</h3>
-              <p>{learnMore.sampleAppreciation.story.text}</p>
-            </div>
-            <div className="learn-sample-practice">
-              <h3><i className="fas fa-hands"></i> {learnMore.sampleAppreciation.practicesHeading}</h3>
+
+            {/* The Story — collapsible */}
+            <CollapsibleSection
+              icon="fas fa-book-open"
+              title={learnMore.sampleAppreciation.story.heading}
+              labelClass="learn-sample-section-label--story"
+              cardClass="learn-sample-story"
+            >
+              <div className="learn-sample-story-content">
+                {'paragraphs' in learnMore.sampleAppreciation.story
+                  ? (learnMore.sampleAppreciation.story as any).paragraphs.map((para: string, i: number) => (
+                      <p key={i}>{para}</p>
+                    ))
+                  : <p>{(learnMore.sampleAppreciation.story as any).text}</p>
+                }
+              </div>
+            </CollapsibleSection>
+
+            {/* Practices — collapsible */}
+            <CollapsibleSection
+              icon="fas fa-hands"
+              title={learnMore.sampleAppreciation.practicesHeading}
+              labelClass="learn-sample-section-label--practice"
+              cardClass="learn-sample-practice"
+            >
               <div className="learn-sample-practice-list">
-                {learnMore.sampleAppreciation.practices.map((practice) => (
+                {learnMore.sampleAppreciation.practices.map((practice, i) => (
                   <div key={practice.heading} className="learn-sample-practice-item">
-                    <strong>{practice.heading}</strong>
-                    <p>{practice.text}</p>
+                    <div className="learn-sample-practice-number">{i + 1}</div>
+                    <div className="learn-sample-practice-content">
+                      <strong>{practice.heading}</strong>
+                      <p>{practice.text}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </CollapsibleSection>
           </div>
         </div>
       </section>

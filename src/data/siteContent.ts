@@ -147,9 +147,9 @@ export const siteContent = {
         },
         {
           icon: 'fas fa-bolt',
-          heading: '12 monthly Deep-Dive sessions on the Fourth Monday with our guest trainers',
+          heading: '12 monthly Deep-Dive Sessions — Guided by our global leadership',
           description:
-            'Intermediate and advanced sessions offered throughout the course that bring a multi-cultural perspective as we focus in on key concepts, practices and the challenges we all face in the course and in daily life.',
+            'On the fourth Monday of every month, our featured guest trainer offers a specialized deep-dive session on one of the four weekly topics. Participants experience how a single NVC distinction can be applied in radically different contexts — learning moves from "understanding the idea" to "seeing how it lives in the world." This creates consistency of core principles with diversity of lived expression.',
           linkText: 'What makes this different',
           linkHref: '/learn-more#what-makes-different',
         },
@@ -282,9 +282,9 @@ export const siteContent = {
         },
         {
           number: 2,
-          icon: 'fas fa-video',
-          heading: '12 Monthly Conferences',
-          text: 'Thom Bond, along with guest trainers from around the globe, hosts 12 monthly 90-minute conferences via Zoom on the second Monday of each month. Each session includes interactive Q&A, group practice, and deeper exploration of the material. Conferences are also hosted in other languages by affiliated course leaders. All sessions are recorded and accessible at any time throughout the course.',
+          icon: 'fas fa-chalkboard-user',
+          heading: '12 Monthly Live Conferences with Thom Bond',
+          text: 'Thom, along with guest trainers from around the globe, hosts 12 monthly 90-minute conferences via Zoom on the second Monday of each month. Each session includes review, deeper exploration of the material, and interactive Q&A. Conferences are also hosted in other languages by affiliated course leaders. All sessions are recorded and may be accessed at any time throughout the course.',
         },
         {
           number: 3,
@@ -294,22 +294,18 @@ export const siteContent = {
         },
         {
           number: 4,
-          icon: 'fas fa-compass',
-          heading: '12 Core Concepts',
-          text: 'The course is built on 12 foundational principles that gradually transform how you relate to yourself and others. Each concept builds on the last, weaving together into a complete compassion practice.',
-          concepts: [
-            { icon: 'fas fa-heart', label: 'Needs Awareness' },
-            { icon: 'fas fa-hands-holding-heart', label: 'Empathy' },
-            { icon: 'fas fa-face-smile', label: 'Feelings' },
-            { icon: 'fas fa-scale-balanced', label: 'Judgments' },
-            { icon: 'fas fa-comments', label: 'Requests' },
-            { icon: 'fas fa-shield-heart', label: 'Boundaries' },
-            { icon: 'fas fa-eye', label: 'Observation' },
-            { icon: 'fas fa-hand-holding-heart', label: 'Self-Empathy' },
-            { icon: 'fas fa-star', label: 'Appreciation' },
-            { icon: 'fas fa-fire', label: 'Anger & Intensity' },
-            { icon: 'fas fa-handshake', label: 'Dialogue' },
-            { icon: 'fas fa-seedling', label: 'Living Compassion' },
+          icon: 'fas fa-bolt',
+          heading: '12 monthly Deep-Dive Sessions — Guided by our global leadership',
+          text: 'On the fourth Monday of every month:',
+          bullets: [
+            'Our featured guest trainer offers a specialized deep-dive session on one of the four weekly topics',
+            'Participants experience how a single NVC distinction can be applied in radically different contexts',
+            'Learning moves from "understanding the idea" to "seeing how it lives in the world"',
+          ],
+          outcomeHeading: 'This creates:',
+          outcomes: [
+            'Consistency of core principles',
+            'Diversity of lived expression',
           ],
         },
       ],
@@ -373,26 +369,100 @@ export const siteContent = {
     sampleEmpathy: {
       badge: 'Sample Week 1',
       title: 'What Empathy Is\u2026 and What It\u2019s Not',
-      practicesHeading: 'The Practices',
+      practicesHeading: 'Practices for the Week',
+      quote: {
+        text: 'The hearing that is only in the ears is one thing. The hearing of understanding is another. But the hearing of the spirit is not limited to any one faculty, to the ear or the mind. Hence it demands emptiness of all of the faculties. And when the faculties are empty, the whole being listens. There is then a direct grasp of what is right there before you that can never be heard with the ear or understood with the mind.',
+        author: 'Chuang-Tzu',
+      },
       concept: {
         heading: 'The Concept',
         paragraphs: [
-          'Most of us were taught to listen by formulating responses or solving problems rather than creating genuine connection. Empathy is different \u2014 it\u2019s the exploration of our human experience, our feelings, our needs, our life energy trying to emerge and guide us. It requires presence and curiosity about another\u2019s experience, rather than habits that fill the space instead of opening it up.',
-          'The lesson identifies eight common non-empathic response patterns: comparing and one-upping, educating and advising, discounting, fixing and counseling, sympathizing, data gathering and interrogating, explaining and defending, and analyzing. Recognizing these habits is the first step toward real empathic listening.',
+          'Empathy is the basic practice that brings me to compassion. It is ultimately quite simple, and quite challenging. As a child growing up, and for most of my adulthood, I learned to listen with my mind\u2026 often with a purpose other than connecting to the person I was with. As I listened to people, I would focus on the future\u2026 \u201CWhat can I say back?\u201D or \u201CWhat can I think of to fix this?\u201D \u2026 Other times I would go to the past, \u201CWhat does that remind me of?\u201D',
+          'When I thought these things I became distracted from the moment, more disconnected and less able to understand what the other person was experiencing. Then I discovered empathy.',
+          'Empathy is the exploration of our human experience\u2026 our feelings\u2026 our needs\u2026 our life energy trying to emerge and guide us. It is the mindful questioning, the wondering and the genuine curiosity about what we or someone else is going through.',
+          'This may sound strange, but I have witnessed over and over again, that this search, or wondering, is the stuff of connection on a deeper plane and sometimes, even an opening of spiritual space.',
+          'The ability to be present in this way challenges many of us 21st century humans, highly trained in thought\u2026 as opposed to simply listening. Often when we are trying to be empathic (even in situations where we are feeling compassionate), we may say things that do not connect us with the other person as well as empathy might.',
+          'We may choose to have \u201Cnon-empathic\u201D forms of communication as part of our lives\u2026 and of course, many can serve us wonderfully. They\u2019re just NOT empathy. They tend to fill the space; they do not tend to open it up. Becoming aware of these \u201Cnon-empathic\u201D forms of communication can help make choices to have a deeper connection when we want it.',
         ],
       },
+      examplesIntro: 'To illustrate, below is a quote\u2026 something we may hear from a friend, followed by some examples of habitual, \u201Cnon-empathic\u201D responses. This is not to say these forms of communication are \u201Cwrong\u201D. They\u2019re just not empathy. Do any of these responses sound familiar?',
+      examplePrompt: '\u201CSometimes I just hate my job. My boss is such a control freak.\u201D',
+      nonEmpathicExamples: [
+        {
+          heading: 'Comparing and One-upping',
+          text: '\u201CYeah, mine too. MY boss is the worst. She makes going to work a living hell. I remember a time when\u2026\u201D',
+          reflection: 'Often, when people share what\u2019s going on for them, it reminds us about our situation. We may, without thinking about it, share that experience. So think about it\u2026 Did we just change the subject? Are they telling us this to elicit our experience? Probably not.',
+        },
+        {
+          heading: 'Educating and Advising',
+          text: '\u201COh yeah, I know what you mean. You know there\u2019s this great book called How to Love a Boss that Stinks\u201D\u2026 or \u201CYeah, when my boss does that, I\u2019ve learned to \u2026\u201D or \u201CHave you ever tried speaking to the HR department?\u201D',
+          reflection: 'When we hear of someone\u2019s pain, we may assume they want us to tell them how to deal with the situation. Are we doing this to understand what is alive in them or are we working on a fix? My friend Marshall Rosenberg told me he only gives advice when it is asked for in writing, notarized and in triplicate. It helps him stay more present. And of course, advice has a place in life\u2026 It\u2019s just not empathy.',
+        },
+        {
+          heading: 'Discounting',
+          text: '\u201CThat\u2019s nothing. In this economy, you should be thankful you even have a job.\u201D',
+          reflection: 'We may have a \u201Cknee-jerk\u201D reaction to try to draw someone\u2019s attention to something else in an attempt to \u201Cmake them feel better\u201D. Can you recall a time when you received this kind of response and you thought to yourself, \u201COh yeah, that\u2019s so true. Thanks for that. I feel better now\u201D. I can\u2019t.',
+        },
+        {
+          heading: 'Fixing and Counseling',
+          text: '\u201COK. Calm down. Don\u2019t worry. We\u2019re gonna get through this. I know it feels bad now, but I\u2019m sure it will get better. These things always have a way of working themselves out.\u201D',
+          reflection: 'When we hear another\u2019s pain, we can feel uncomfortable ourselves and want to somehow fix things. If we check in with ourselves\u2026 whose need is that about?',
+        },
+        {
+          heading: 'Sympathizing',
+          text: '\u201COh, you poor thing. I\u2019m so upset when I hear about that. I just hate that boss of yours.\u201D',
+          reflection: 'Sympathy (the sharing of a feeling through an imagined shared experience) is different than empathy. It\u2019s kind of like responding to a drowning person by jumping into the water and drowning with them. Yes, it may let them know that you get what is going on for them. It\u2019s just not empathy.',
+        },
+        {
+          heading: 'Data Gathering and Interrogating',
+          text: '\u201CSo tell me, exactly what did he do? Has he done this before? Have you noticed a pattern here?\u201D',
+          reflection: 'Data gathering is often a precursor to advising, the warm up to fixing it all. It may come from a sense of OUR curiosity or our discomfort with their pain. We may have a genuine interest, to be sure. It\u2019s just not empathy.',
+        },
+        {
+          heading: 'Explaining and Defending',
+          text: '\u201CWell, as a boss myself, I know sometimes we just need to crack the whip. He\u2019s probably under a lot of stress and doesn\u2019t really mean anything by it.\u201D',
+          reflection: 'Sometimes WE are triggered by someone else\u2019s pain. This can result in what I call TTNRS: \u201Ctwo transmitters, no receivers syndrome\u201D. Sometimes we call it \u201Ca fight\u201D. It\u2019s certainly not empathy.',
+        },
+        {
+          heading: 'Analyzing',
+          text: '\u201CSo where else in your life does this show up? Have you ever considered that this is a pattern for you? Perhaps it\u2019s because of your unfulfilled relationship with your father.\u201D',
+          reflection: 'Sometimes we are so interested in \u201Cgetting to the bottom of things\u201D that we forget about the top. Our urge to understand in order to fix or our discomfort with someone\u2019s pain can have us rushing to our brains for answers. No doubt, there are places in life where analyzing is important. It\u2019s just not empathy.',
+        },
+      ],
+      empathyConclusion: [
+        'I\u2019m sure none of us has ever said anything like these examples (heheheh *wry smile*). OK, I know I have, and likely will again. The difference now is that when I have the awareness of what I\u2019m doing, I have the choice to do something else\u2026 if I want to.',
+        'I can recall times, before I developed my empathic skills and my trust in the power of empathy, when the experience of wanting to connect and not knowing how left me frustrated, confused and disconnected against my will.',
+        'This is where empathy comes in. In the beginning it can be SOOOO hard to refrain from these habitual ways of thinking and speaking. Our \u201Crobot\u201D kicks in and away we go, like always.',
+        'Now we have a chance to add a new way of being to our lives\u2026 a new skill to create a new level of connection\u2026 empathy. Shifting to this new focus on feelings and needs is rarely easy. I know for me, it is a life work\u2026 one that has given me some of the most beautiful moments of my life.',
+      ],
       story: {
-        heading: 'The Story: \u201CThe Car, the Clubs and the Cab Driver\u201D',
-        text: 'A late-night cab ride to retrieve a borrowed car becomes an unexpected lesson in presence. When the driver mentions seeing the USS Intrepid, it triggers memories of his Vietnam service. Through non-directive listening and gentle empathic reflection, a space opens for the driver\u2019s long-held grief about returning home to hostility. The encounter ends with both men shaking hands \u2014 a moment of genuine human connection through the simple act of being truly heard.',
+        heading: 'In Practice: \u201CThe Car, the Clubs and the Cab Driver\u201D',
+        paragraphs: [
+          'A few years back, when I was living in Manhattan, I loaned my car, a station wagon, to a friend who needed it to move into her new apartment. We had agreed that she would return it early that evening. That evening I waited to hear from her. I waited\u2026 and waited, and waited some more. No call, no car. I drifted to sleep waiting on my couch.',
+          'At about 2:30 in the morning, I was awakened by a phone call. \u201CThom, I just finished moving and I just don\u2019t have the energy to return the car tonight.\u201D',
+          'Still a bit groggy, I inquired, \u201CWhere did you leave it?\u201D',
+          'She informed me that it was parked on a street in the meat packing district\u2026 with my golf clubs in plain sight in the back. Ten minutes later, after some serious self-empathy work (that\u2019s a story for another time), I was headed to rescue my car and my precious toys.',
+          'I staggered out into the warm rainy night. After a seemingly endless effort, I found a cab. I climbed in, told him my destination and we headed out, along the edge of Manhattan Island, down the West Side Highway. As we drove along side the Hudson River, we passed the USS Intrepid, a decommissioned battleship that functions as a floating museum.',
+          'The driver spoke. \u201CThe last time I saw that ship, I was stationed in Viet Nam.\u201D From my place in the back seat I could only see the cab driver\u2019s eyes reflected in the rearview mirror.',
+          'We made eye contact in the pale gray light. I replied, \u201CThat must bring up quite a bit for you.\u201D',
+          'After a pause he spoke. \u201CIt does.\u201D',
+          'I listened into the silence that followed. More eye contact, more space. After a time, he spoke again. \u201CWhen we came back, everybody hated us.\u201D',
+          'I sat quietly making space as the tires thumped rhythmically on the seams of the road, sounding eerily like a beating heart. Space for his pain, his need for being seen, for appreciation, for love. I watched the pain slowly seep into his occasional glance.',
+          'I spoke. \u201CI imagine that was tough, risking your life like that. I bet it would have made a big difference to have gotten even some appreciation.\u201D',
+          '\u201CYes\u2026 Yes, it would have.\u201D',
+          'Still seeing only his eyes in the mirror, I watched as the tears slowly filled his eyes. We continued our ride, without speaking a word, as we rolled through the empty streets to our destination.',
+          'A few minutes later we arrived. I reached through the little glass hatch and paid the fare\u2026 and with compassion and connection in my heart said a simple \u201Cthank you\u201D. I swung the door open and started on my way. From behind me, I heard the sound of the cab door opening. As I turned, there was my new found friend, with an outstretched hand and a look of pure relief in his eyes, walking toward me. \u201CThank you.\u201D We shook hands and parted.',
+          'I will never forget that ride. Never.',
+        ],
       },
       practices: [
         {
           heading: 'Practice 1 \u2014 Increase Your Awareness',
-          text: 'Notice your own non-empathic communication patterns this week. When you catch yourself advising, fixing, or sympathizing, pause and imagine an empathic alternative using the feelings and needs lists.',
+          text: 'See if you can notice yourself using any of the mentioned \u201Cnon-empathic\u201D, habitual forms of communication. Later, when you have some time and space, see if you can imagine what an \u201Cempathic\u201D response would be. What was that person feeling? What was that person needing, wanting to have more of, or yearning to experience? Check the feelings list and the needs list for the answer. Now imagine what you might say.',
         },
         {
-          heading: 'Practice 2 \u2014 The Empathy/Non-Empathy Game',
-          text: 'Working with a partner, one person shares a statement needing empathy. The partner responds first with non-empathic patterns, then repeats with an empathic response: \u201CAre you feeling ___ because you need more ___?\u201D',
+          heading: 'Practice 2 \u2014 Play the Empathy/Non-Empathy Game',
+          text: 'Work with a partner in person or on the phone. First, write down a quote, something you might say when you would want some empathy, like \u201CI\u2019m feeling really stressed about my finances.\u201D Say your quote to your partner and have them respond with any of the \u201Cnon-empathic\u201D forms of communication. Next, try saying the same quote again with your partner giving an empathic response. Then, switch roles. For this practice, it may be easier to start out with the simplest form of empathy, \u201CAre you feeling __________ (feeling from the feelings list) because you need more ___________ (need from the needs list).\u201D',
         },
       ],
     },
@@ -400,30 +470,63 @@ export const siteContent = {
     sampleAppreciation: {
       badge: 'Sample Week 2',
       title: 'The Power of Appreciation',
-      practicesHeading: 'The Practices',
+      practicesHeading: 'Practices for the Week',
+      quote: {
+        text: 'The greatest of all gifts is the power to estimate things at their true worth.',
+        author: 'Fran\u00E7ois de la Rochefoucauld',
+      },
       concept: {
-        heading: 'The Concept',
-        paragraphs: [
-          'There\u2019s a fundamental difference between praise and appreciation. Praise (\u201Cgood boy,\u201D \u201Cnice job\u201D) is designed to control behavior through conditional approval. Authentic appreciation creates connection \u2014 it acknowledges what someone did and recognizes the value received, without attaching judgment.',
-          'By connecting feelings to met needs, we begin to recognize the abundant \u201Cmetness\u201D constantly occurring in our lives \u2014 from bodily functions to environmental support to meaningful work. This practice of living in appreciation transforms our perspective and deepens satisfaction.',
+        heading: 'The Concept: More About Appreciation',
+        sections: [
+          {
+            subheading: 'Appreciation versus Praise',
+            paragraphs: [
+              'As a child, I grew up hearing expressions like \u201Cgood boy\u201D or \u201Cnice job\u201D. These expressions of \u201Capproval\u201D were often nice to hear and yet, always left me wondering. What was \u201Cnice\u201D about that? It also left me a bit nervous. Does that mean I might not be \u201Cgood\u201D if I do something else?',
+              'These were the instructions I received on how to be a human. It was the \u201Cpraise\u201D I received from the \u201Cpeople in charge\u201D. From this \u201Cpraise\u201D I learned that certain behaviors earned me the label of \u201Cgood\u201D. They also reminded me that I might lose that label if the \u201Cpeople in charge\u201D decided my behavior wasn\u2019t \u201Cgood\u201D.',
+              'I have come to realize that many of the expressions of \u201Cpraise\u201D that I have received were often designed to get me to \u201Cbehave\u201D. Others were designed to let me know that someone appreciated my actions and was grateful for what I did.',
+              'The second category felt different. These expressions touched me in a way that felt connecting and clear. These are the ones I want to understand and be part of. They were not \u201Cpraise\u201D; they were \u201Cappreciation\u201D.',
+            ],
+          },
+          {
+            subheading: 'Living in Appreciation',
+            paragraphs: [
+              'Using the skills we have learned in this course so far, we can experience a deeper, more satisfying experience of appreciation. Also, through language, we can share that experience with others.',
+              'Inside myself, I can use the skills of feeling feelings and connecting them to my met needs, to notice the copious amounts of \u201Cmetness\u201D I am experiencing throughout my day. Right now, as I write these words, my brain is having thoughts, translating them into words, organizing them into sentences, helping my body type them into the message you are reading and helping me share this with you\u2026 Self-expression, mmmmmmm. All this while I am sitting in my office, which is clearly 30 degrees warmer than it is outside, while I\u2019m fully clothed, while I\u2019m fully rested, while my heart is pumping life through my body, while my lungs are bringing me fresh air, while the trees are helping make that fresh air, while this big blue ball of water, earth and life spins in space, while the sun gives us warmth and light\u2026 Comfort, security, care, well-being, peace of mind, communion\u2026 that\u2019s what I\u2019m talkin\u2019 about! I can notice this. I can feel this; I can see that there are thousands of things happening that are contributing to the \u201Cmetness\u201D of my needs. Simply summarized, the practice of appreciation makes my life and the lives of those around me more wonderful.',
+            ],
+          },
+          {
+            subheading: 'Receiving Appreciation',
+            paragraphs: [
+              'Some years ago, my partner and I had developed a practice of taking a few moments each day to share our appreciation for how we contribute to each other. In the beginning, it was a bit uncomfortable for me. After some self-empathy, I realized it was because when I was growing up, appreciation had usually come with some sense of \u201Capproval\u201D and \u201Cpower over\u201D and even engendered anxiety.',
+              'With some practice I learned to receive appreciation like \u201Ca shower\u201D, as opposed to \u201Csustenance\u201D. Appreciation from others has become something that adds to my life, not something I depend on to feel OK about myself. This shift gives me a very different experience, one that is more choiceful and gratifying.',
+              'I have also noticed that instead of only thinking about the things that we did, or that we do, when we specifically think about the needs that we contribute to for one another through our actions, our experience is even deeper and more satisfying.',
+            ],
+          },
         ],
       },
       story: {
-        heading: 'The Story: \u201CA Moving Experience\u201D',
-        text: 'At a Barnes & Noble bookstore, a father juggling purchases and a stroller attempts the escalator while his three-year-old son freezes at the top, unable to follow. A small act of kindness \u2014 helping the frightened child onto the moving stairs \u2014 becomes a profoundly meaningful exchange. The boy\u2019s look of relief and heartfelt \u201Cthank you\u201D demonstrate what genuine appreciation feels like when we\u2019re fully present to receive it.',
+        heading: 'In Practice: \u201CA Moving Experience\u201D',
+        paragraphs: [
+          'A number of years ago, when I was living on the Upper West Side of Manhattan, I was in my favorite book store, a Barnes and Noble on Broadway.',
+          'I was lining up to get on the escalator, as is common in the city, and noticed a father and his three-year-old son approaching the moving staircase. The father was weighed down with a full day\u2019s payload of purchased goods, a stroller and his son trailing close behind. As \u201CDad\u201D got on the escalator, juggling his bounty, his son stood there frozen, struggling to find a way to step on and keep up with his rapidly descending dad. The little boy called out in a frightened, slightly quivering voice, \u201CDad?\u201D',
+          'By the time his father noticed what was happening, he was hopelessly watching the space between them grow, from half way down the moving mass of metal stairs.',
+          'Seeing this, I stepped up and held my hand out to the soon-to-be panicking little person at the top of the stairs. I spoke. \u201CHold my hand.\u201D He reached up. \u201CReady? Here we go.\u201D We stepped onto the machine together. And down we went.',
+          'As the two of us reached the bottom and stepped onto solid ground, he looked up, straight into my eyes, let out the cutest little sigh of relief and said perhaps the most heartfelt little \u201Cthank you\u201D I have ever heard.',
+          'It was so sincere and chock full of deep appreciation, I almost cried from the joy of this wonderful exchange. I feel warm right now recounting it. I could clearly see and feel what this meant to my little friend. His dad was pretty happy and relieved too. I owe it to my practice of compassion, that this seemingly \u201Clittle\u201D moment was so wonderful for me. Thanks to my ability to fully connect with this little guy\u2019s feelings and the \u201Cmetness\u201D of his needs in the moment\u2026 a moment I will appreciate forever.',
+        ],
       },
       practices: [
         {
-          heading: 'Practice 1 \u2014 Awareness Check-In',
-          text: 'Write a list of ten to twenty things currently happening and needs being met right now (breathing/air, reading/learning, sitting/security). Notice how this awareness affects your feelings.',
+          heading: 'Practice 1 \u2014 Check In Again',
+          text: 'As we did last time, write down a list of things that are happening and the needs that are being met in this very moment. For example, breathing/air, reading this/learning and growth, sitting in a building/security. This time, write down ten to twenty of them. How do you feel?',
         },
         {
           heading: 'Practice 2 \u2014 Appreciate Yourself',
-          text: 'Write three ways you contribute to your own life. Identify the needs these meet. Look in the mirror and say \u201CThank you.\u201D (This practice is difficult without smiling.)',
+          text: 'Write down three ways you contribute to your own life, three things that you do or have done that you enjoy. Then write down the needs you meet for yourself. Then look in the mirror and say, \u201CThank you.\u201D Note: It is difficult to do this without smiling.',
         },
         {
           heading: 'Practice 3 \u2014 Share an Appreciation',
-          text: 'Identify something someone said or did that met your needs. Describe what happened, how it made you feel, and which needs were met. Share it in person, by phone, email, or card.',
+          text: 'Think of something that someone said or did that contributed to your needs being met. Ask them if you could share something you appreciate with them. Then let them know what happened, how it felt and what need (or needs) it met. For example: \u201CI just want to let you know how much I appreciate your company at the movies last night\u2026 and for that matter all the times we\u2019ve spent together\u2026 the friendship, the fun and companionship you bring into my life makes such a difference to me. Thank you, really.\u201D You can do this in person, by phone, through an email or by writing a card.',
         },
       ],
     },

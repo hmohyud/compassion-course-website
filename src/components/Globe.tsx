@@ -23,61 +23,33 @@ function latLonToVec3(lat: number, lon: number, radius = 1): THREE.Vector3 {
 }
 
 // Generate a clean marker texture with subtle outer ring
-function createMarkerTexture(size = 64, color = '217, 174, 76'): THREE.CanvasTexture {
+function createMarkerTexture(size = 64, color = '239, 142, 47'): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
-  const cx = size / 2;
-  const headR = size * 0.22;   // pin head radius
-  const pinTip = size * 0.88;  // bottom tip Y
-  const headCY = size * 0.30;  // pin head center Y
+  const center = size / 2;
+  const radius = size * 0.3;
 
-  // Subtle shadow/glow beneath pin
-  const gradient = ctx.createRadialGradient(cx, pinTip - 2, 0, cx, pinTip - 2, headR * 0.8);
-  gradient.addColorStop(0, `rgba(${color}, 0.35)`);
+  // Outer glow
+  const gradient = ctx.createRadialGradient(center, center, radius * 0.6, center, center, radius * 1.5);
+  gradient.addColorStop(0, `rgba(${color}, 0.5)`);
   gradient.addColorStop(1, `rgba(${color}, 0)`);
   ctx.beginPath();
-  ctx.arc(cx, pinTip - 2, headR * 0.8, 0, PI * 2);
+  ctx.arc(center, center, radius * 1.5, 0, PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  // Teardrop body: circle head + triangle taper to point
+  // White outline ring
   ctx.beginPath();
-  // Start at bottom tip
-  // Left tangent from circle
-  const tangentAngle = Math.asin((headR * 0.35) / (pinTip - headCY));
-  ctx.moveTo(cx, pinTip);
-  // Left side curve up to circle
-  ctx.quadraticCurveTo(
-    cx - headR * 0.5, headCY + headR * 1.2,
-    cx - headR, headCY
-  );
-  // Arc around the top (circle head)
-  ctx.arc(cx, headCY, headR, PI, 0, false);
-  // Right side curve back down to tip
-  ctx.quadraticCurveTo(
-    cx + headR * 0.5, headCY + headR * 1.2,
-    cx, pinTip
-  );
-  ctx.closePath();
+  ctx.arc(center, center, radius + 1, 0, PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fill();
+
+  // Solid core
+  ctx.beginPath();
+  ctx.arc(center, center, radius, 0, PI * 2);
   ctx.fillStyle = `rgba(${color}, 1)`;
-  ctx.fill();
-
-  // Inner highlight on head for 3D look
-  const hlGrad = ctx.createRadialGradient(cx - headR * 0.25, headCY - headR * 0.25, 0, cx, headCY, headR);
-  hlGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-  hlGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-  hlGrad.addColorStop(1, 'rgba(0, 0, 0, 0.15)');
-  ctx.beginPath();
-  ctx.arc(cx, headCY, headR * 0.9, 0, PI * 2);
-  ctx.fillStyle = hlGrad;
-  ctx.fill();
-
-  // Dark center dot
-  ctx.beginPath();
-  ctx.arc(cx, headCY, headR * 0.2, 0, PI * 2);
-  ctx.fillStyle = 'rgba(80, 50, 10, 0.7)';
   ctx.fill();
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -255,176 +227,25 @@ const Globe: React.FC = () => {
     // --- Texture Loader ---
     const loader = new THREE.TextureLoader();
 
-    // --- Earth Sphere (antique map shader) ---
-    // Uses earth-custom.jpg (antique outline map) as base structure,
-    // blends earth-day.jpg detail for variance, tints to match logo_heart.png palette.
+    // --- Earth Sphere ---
     const earthGeom = new THREE.SphereGeometry(1, 64, 64);
-
-    const antiqueVert = `
-      varying vec2 vUv;
-      varying vec3 vNormal;
-      void main() {
-        vUv = uv;
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `;
-
-    const antiqueFrag = `
-      uniform sampler2D customMap;   // earth-custom.jpg — antique outline map
-      uniform sampler2D photoMap;    // earth-day.jpg — photorealistic for detail/variance
-      uniform sampler2D waterTex;   // water-texture.jpg — cloud/parchment texture for water variance
-      uniform vec3 lightDir;
-      varying vec2 vUv;
-      varying vec3 vNormal;
-
-      // Hash for paper grain noise
-      float hash(vec2 p) {
-        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-      }
-
-      // Multi-octave noise for parchment texture
-      float parchmentNoise(vec2 uv, float scale) {
-        float n = 0.0;
-        n += hash(uv * scale) * 0.5;
-        n += hash(uv * scale * 2.13 + 31.7) * 0.25;
-        n += hash(uv * scale * 4.37 + 73.1) * 0.125;
-        n += hash(uv * scale * 8.51 + 117.3) * 0.0625;
-        return n / 0.9375;  // normalize to ~0-1
-      }
-
-      void main() {
-        vec3 custom = texture2D(customMap, vUv).rgb;
-        vec3 photo = texture2D(photoMap, vUv).rgb;
-
-        float photoLum = dot(photo, vec3(0.299, 0.587, 0.114));
-        float customLum = dot(custom, vec3(0.299, 0.587, 0.114));
-
-        // --- Detect water vs land from the custom map ---
-        float customBlue = custom.b - (custom.r + custom.g) * 0.45;
-        float isWater = smoothstep(0.02, 0.12, customBlue);
-
-        // Gold outlines: detect as darker yellowish pixels (narrow band = thinner line)
-        float isOutline = smoothstep(0.48, 0.42, customLum)
-                        * smoothstep(0.0, 0.06, custom.r - custom.b);
-
-        // --- Water: parchment texture tinted to light dusty blue ---
-        vec3 waterSample = texture2D(waterTex, vUv).rgb;
-        float waterTexLum = dot(waterSample, vec3(0.299, 0.587, 0.114));
-
-        // Light blue-gray palette (much lighter than before)
-        vec3 waterLight = vec3(0.65, 0.72, 0.78);   // lighter areas
-        vec3 waterMid   = vec3(0.55, 0.63, 0.70);   // mid tones
-        vec3 waterDeep  = vec3(0.48, 0.56, 0.64);   // slightly deeper
-
-        // Use parchment texture luminance to drive natural paper-like variance
-        vec3 waterColor = mix(waterDeep, waterMid, smoothstep(0.3, 0.5, waterTexLum));
-        waterColor = mix(waterColor, waterLight, smoothstep(0.5, 0.75, waterTexLum));
-
-        // Preserve parchment texture grain/fiber detail as subtle color shifts
-        vec3 texDetail = (waterSample - vec3(waterTexLum)) * 0.12;
-        waterColor += texDetail;
-
-        // A touch of photo detail for ocean depth variance
-        vec3 photoDetail = (photo - vec3(photoLum)) * 0.08;
-        waterColor += photoDetail;
-
-        // Fine paper grain
-        float grain = hash(vUv * 800.0) * 0.02 - 0.01;
-        waterColor += vec3(grain * 0.8, grain * 0.9, grain);
-
-        // --- Land: light manila/cream parchment ---
-        vec3 landDark  = vec3(0.82, 0.78, 0.68);    // shadowed areas — still light
-        vec3 landMid   = vec3(0.89, 0.85, 0.74);    // main manila parchment tone
-        vec3 landLight = vec3(0.94, 0.91, 0.82);    // highlights — near white cream
-
-        vec3 landColor = mix(landDark, landMid, smoothstep(0.2, 0.45, photoLum));
-        landColor = mix(landColor, landLight, smoothstep(0.5, 0.75, photoLum));
-
-        // Subtle terrain detail from photo (toned down to keep it light)
-        landColor += (photo - vec3(photoLum)) * 0.08;
-
-        // Very gentle green tint for vegetated areas
-        float greenness = photo.g - max(photo.r, photo.b);
-        vec3 oliveLight = vec3(0.78, 0.82, 0.68);
-        landColor = mix(landColor, oliveLight, smoothstep(0.02, 0.10, greenness) * 0.2);
-
-        // Warm desert tint (subtle)
-        float arid = smoothstep(0.0, 0.06, photo.r - photo.g) * smoothstep(0.3, 0.5, photoLum);
-        vec3 desertLight = vec3(0.92, 0.86, 0.72);
-        landColor = mix(landColor, desertLight, arid * 0.2);
-
-        // Parchment texture on land too
-        float landParch = parchmentNoise(vUv + 10.0, 150.0);
-        landColor *= 0.97 + landParch * 0.06;
-
-        // Paper grain
-        float grain2 = hash(vUv * 700.0 + 37.0) * 0.015 - 0.0075;
-        landColor += vec3(grain2);
-
-        // --- Gold coastline outlines from custom map --- #D9AE4C
-        vec3 goldOutline = vec3(0.85, 0.68, 0.30);
-
-        // --- Combine ---
-        vec3 color = mix(landColor, waterColor, isWater);
-        color = mix(color, goldOutline, isOutline * 0.8);
-
-        // --- Lighting ---
-        vec3 n = normalize(vNormal);
-        float diff = max(dot(n, normalize(lightDir)), 0.0);
-        float light = 0.38 + diff * 0.62;
-
-        // Rim darkening for spherical depth
-        float rim = 1.0 - max(dot(n, vec3(0.0, 0.0, 1.0)), 0.0);
-        float edgeDarken = smoothstep(0.55, 1.0, rim) * 0.28;
-
-        color *= light;
-        color *= (1.0 - edgeDarken);
-
-        // Warm gamma for aged feel
-        color = pow(color, vec3(0.93));
-
-        gl_FragColor = vec4(color, 1.0);
-      }
-    `;
-
-    const earthUniforms = {
-      customMap: { value: null as THREE.Texture | null },
-      photoMap: { value: null as THREE.Texture | null },
-      waterTex: { value: null as THREE.Texture | null },
-      lightDir: { value: new THREE.Vector3(2, 1, 3).normalize() },
-    };
-
-    const earthMat = new THREE.ShaderMaterial({
-      vertexShader: antiqueVert,
-      fragmentShader: antiqueFrag,
-      uniforms: earthUniforms,
+    const earthMat = new THREE.MeshPhongMaterial({
+      shininess: 15,
+      specular: new THREE.Color(0x333333),
     });
-
     const earthMesh = new THREE.Mesh(earthGeom, earthMat);
     scene.add(earthMesh);
 
-    // Load all 3 textures — reveal globe when all are ready
-    let texLoaded = 0;
-    const checkReady = () => { if (++texLoaded >= 3) setGlobeReady(true); };
-
-    loader.load('/textures/earth-custom.jpg', (tex) => {
-      tex.colorSpace = THREE.SRGBColorSpace;
-      earthUniforms.customMap.value = tex;
-      earthMat.needsUpdate = true;
-      checkReady();
-    });
     loader.load('/textures/earth-day.jpg', (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      earthUniforms.photoMap.value = tex;
+      earthMat.map = tex;
       earthMat.needsUpdate = true;
-      checkReady();
+      setGlobeReady(true);
     });
-    loader.load('/textures/water-texture.jpg', (tex) => {
-      tex.colorSpace = THREE.SRGBColorSpace;
-      earthUniforms.waterTex.value = tex;
+    loader.load('/textures/earth-topology.png', (tex) => {
+      earthMat.bumpMap = tex;
+      earthMat.bumpScale = 0.02;
       earthMat.needsUpdate = true;
-      checkReady();
     });
 
     // --- Cloud Sphere (in cloud scene only) ---
@@ -446,8 +267,8 @@ const Globe: React.FC = () => {
     // --- Density Markers ---
     const clusters = clusterMarkers(3);
     clustersRef.current = clusters;
-    const markerTexture = createMarkerTexture(64, '217, 174, 76');     // gold #D9AE4C
-    const hoverTexture = createMarkerTexture(64, '245, 200, 95');     // brighter gold hover
+    const markerTexture = createMarkerTexture(64, '239, 142, 47');   // orange
+    const hoverTexture = createMarkerTexture(64, '196, 74, 26');     // dark orange-red #c44a1a
     const sprites: THREE.Sprite[] = [];
     const maxCount = Math.max(...clusters.map(c => c.count));
 
@@ -843,7 +664,7 @@ const Globe: React.FC = () => {
               y1={tooltipAnchorY + 30}
               x2={tooltip.dotX}
               y2={tooltip.dotY}
-              stroke="rgba(217, 174, 76, 0.7)"
+              stroke="rgba(239, 142, 47, 0.7)"
               strokeWidth="1.5"
               strokeDasharray="4 3"
             />
@@ -851,8 +672,8 @@ const Globe: React.FC = () => {
               cx={tooltip.dotX}
               cy={tooltip.dotY}
               r={tooltip.dotBehind ? 2.5 : 3.5}
-              fill={tooltip.dotBehind ? 'none' : 'rgba(217, 174, 76, 0.9)'}
-              stroke={tooltip.dotBehind ? 'rgba(217, 174, 76, 0.5)' : 'white'}
+              fill={tooltip.dotBehind ? 'none' : 'rgba(239, 142, 47, 0.9)'}
+              stroke={tooltip.dotBehind ? 'rgba(239, 142, 47, 0.5)' : 'white'}
               strokeWidth={tooltip.dotBehind ? 1 : 1.5}
             />
           </svg>

@@ -8,12 +8,12 @@ service firebase.storage {
     }
 
     // Team member photos - readable by all, writable by admins
-    // Max 5MB, images only
-    match /team-photos/{memberId}/{fileName} {
+    // Max 5MB, images only (including SVG for generated avatars)
+    match /team-photos/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null && isAdmin()
         && request.resource.size < 5 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+        && request.resource.contentType.matches('image/(jpeg|png|webp|gif|svg\\+xml)');
     }
 
     // User avatar photos - readable by all, writable by the owning user only

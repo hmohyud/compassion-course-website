@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TeamMember, TeamLanguageSection } from '../../services/contentService';
 import { ensureTeamSuffix } from '../../utils/contentUtils';
+import { GUEST_TRAINER_SECTION } from '../../hooks/useTeamData';
 import { ViewMode } from './ViewToggle';
 import TeamMemberCard from './TeamMemberCard';
 import TeamMemberRow from './TeamMemberRow';
@@ -83,14 +84,16 @@ const TeamGrid: React.FC<TeamGridProps> = ({
         const members = getMembersForSection(section.name);
         if (members.length === 0) return null;
         const isCollapsed = collapsed.has(section.name);
+        const isGuest = section.name === GUEST_TRAINER_SECTION;
 
         return (
-          <div key={section.name} className="team-section">
+          <div key={section.name} className={`team-section ${isGuest ? 'team-section--guest' : ''}`}>
             <button
               className="team-section__header"
               onClick={() => toggleSection(section.name)}
               aria-expanded={!isCollapsed}
             >
+              {isGuest && <i className="fas fa-star team-section__guest-icon"></i>}
               <h3 className="team-section__title">{section.name}</h3>
               <span className="team-section__count">{members.length}</span>
               <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} team-section__chevron`}></i>

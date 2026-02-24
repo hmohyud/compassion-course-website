@@ -8,6 +8,7 @@ export const GUEST_TRAINER_SECTION = 'Guest Trainers';
 export interface UseTeamDataReturn {
   guestTrainers: TeamMember[];
   regularSections: TeamLanguageSection[];
+  allSections: TeamLanguageSection[];
   membersBySection: Record<string, TeamMember[]>;
   loading: boolean;
   error: string | null;
@@ -75,35 +76,42 @@ export function useTeamData(): UseTeamDataReturn {
     return () => { cancelled = true; };
   }, []);
 
-  const { guestTrainers, regularSections, membersBySection } = useMemo(() => {
-    // Separate guest trainers
+  const { guestTrainers, regularSections, allSections, membersBySection } = useMemo(() => {
+    // Sort by explicit order first, then fall back to createdAt (date added)
+    const sortMembers = (a: TeamMember, b: TeamMember) => {
+      const aOrder = a.order ?? Infinity;
+      const bOrder = b.order ?? Infinity;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      // Fallback: sort by createdAt (newest last)
+      const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+      const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+      return aTime - bTime;
+    };
+
+    // Separate guest trainers (kept for backward compat)
     const guests: TeamMember[] = [];
-    const regular: TeamMember[] = [];
 
     teamMembers.forEach((member) => {
       if (member.teamSection === GUEST_TRAINER_SECTION) {
         guests.push(member);
-      } else {
-        regular.push(member);
       }
     });
+    guests.sort(sortMembers);
 
-    guests.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-    // Group regular members by section
+    // Group ALL members by section (including guest trainers)
     const grouped: Record<string, TeamMember[]> = {};
-    regular.forEach((member) => {
+    teamMembers.forEach((member) => {
       const key = member.teamSection;
       if (!grouped[key]) grouped[key] = [];
       grouped[key].push(member);
     });
 
-    // Sort within each section
+    // Sort within each section by order, then createdAt
     Object.keys(grouped).forEach((key) => {
-      grouped[key].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      grouped[key].sort(sortMembers);
     });
 
-    // Filter and sort regular sections
+    // Regular sections (excluding guest trainers)
     const regSections = languageSections
       .filter((s) => s.name !== GUEST_TRAINER_SECTION)
       .filter((s) => {
@@ -113,12 +121,27 @@ export function useTeamData(): UseTeamDataReturn {
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
+    // All sections (including guest trainers — guest trainers pinned first)
+    const allSects = languageSections
+      .filter((s) => {
+        const name = s.name;
+        const normalized = ensureTeamSuffix(name);
+        return (grouped[name]?.length > 0) || (grouped[normalized]?.length > 0);
+      })
+      .sort((a, b) => {
+        // Guest Trainers always come first
+        if (a.name === GUEST_TRAINER_SECTION) return -1;
+        if (b.name === GUEST_TRAINER_SECTION) return 1;
+        return (a.order ?? 0) - (b.order ?? 0);
+      });
+
     return {
       guestTrainers: guests,
       regularSections: regSections,
+      allSections: allSects,
       membersBySection: grouped,
     };
   }, [teamMembers, languageSections]);
 
-  return { guestTrainers, regularSections, membersBySection, loading, error };
+  return { guestTrainers, regularSections, allSections, membersBySection, loading, error };
 }

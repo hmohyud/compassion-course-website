@@ -8,10 +8,13 @@ import TeamMemberRow from './TeamMemberRow';
 import TeamMemberCompact from './TeamMemberCompact';
 import TeamMemberExpanded from './TeamMemberExpanded';
 
+export type SortMode = 'team' | 'alpha';
+
 interface TeamGridProps {
   sections: TeamLanguageSection[];
   membersBySection: Record<string, TeamMember[]>;
   viewMode: ViewMode;
+  sortMode?: SortMode;
   activeSection: string | null;
   searchQuery: string;
   onSelectMember: (member: TeamMember) => void;
@@ -21,6 +24,7 @@ const TeamGrid: React.FC<TeamGridProps> = ({
   sections,
   membersBySection,
   viewMode,
+  sortMode = 'team',
   activeSection,
   searchQuery,
   onSelectMember,
@@ -77,6 +81,38 @@ const TeamGrid: React.FC<TeamGridProps> = ({
   };
 
   const gridClass = `team-grid team-grid--${viewMode}`;
+
+  // Alphabetical: flatten all visible members, sort A–Z, render without section headers
+  const allMembersAlpha = useMemo(() => {
+    if (sortMode !== 'alpha') return [];
+    const all: TeamMember[] = [];
+    const seen = new Set<string>();
+    visibleSections.forEach((section) => {
+      getMembersForSection(section.name).forEach((m) => {
+        const key = m.id ?? m.name;
+        if (!seen.has(key)) {
+          seen.add(key);
+          all.push(m);
+        }
+      });
+    });
+    all.sort((a, b) => a.name.localeCompare(b.name));
+    return all;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortMode, visibleSections, membersBySection, searchQuery]);
+
+  if (sortMode === 'alpha') {
+    if (allMembersAlpha.length === 0) {
+      return <p className="team-empty">No members found.</p>;
+    }
+    return (
+      <div className="team-sections">
+        <div className={gridClass}>
+          {allMembersAlpha.map(renderMember)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="team-sections">

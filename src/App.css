@@ -4197,6 +4197,54 @@ section {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Sort Toggle */
+.team-sort-toggle {
+    display: flex;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+    padding: 3px;
+    gap: 2px;
+}
+
+.team-sort-btn {
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-gray-400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    transition: all 0.2s ease;
+    font-size: var(--font-size-xs, 0.8125rem);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.team-sort-btn:hover {
+    color: var(--color-gray-600);
+}
+
+.team-sort-btn--active {
+    background: var(--color-primary);
+    color: var(--color-white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.team-sort-btn i {
+    font-size: 0.8rem;
+}
+
+.team-empty {
+    text-align: center;
+    color: var(--color-gray-400);
+    padding: var(--space-10) 0;
+    font-size: var(--font-size-base);
+}
+
 /* Search */
 .team-search {
     position: relative;
@@ -4333,49 +4381,26 @@ section {
    TEAM PAGE — GUEST TRAINERS HIGHLIGHT
    ========================================== */
 .team-section--guest {
-    position: relative;
     border-radius: 20px;
     padding: var(--space-6);
     margin-bottom: var(--space-4);
-    overflow: hidden;
-}
-
-/* Animated gradient border / strobe rim */
-.team-section--guest::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    padding: 2px;
     background: linear-gradient(
-        270deg,
-        #ef8e2f,
-        #f43f5e,
-        #a855f7,
-        #0d9488,
-        #eab308,
-        #ef8e2f
+        135deg,
+        #f0fdfa,
+        #fef9c3,
+        #fff1f2,
+        #ede9fe,
+        #ecfdf5,
+        #fef9c3
     );
     background-size: 600% 600%;
-    animation: guestStrobeRim 6s ease infinite;
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    z-index: 1;
+    animation: guestTintShift 45s ease infinite;
 }
 
-@keyframes guestStrobeRim {
+@keyframes guestTintShift {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
-}
-
-.team-section--guest > * {
-    position: relative;
-    z-index: 2;
 }
 
 .team-section__guest-icon {

@@ -5,7 +5,7 @@ import { useTeamData } from '../hooks/useTeamData';
 import { TeamMember } from '../services/contentService';
 import ViewToggle, { ViewMode } from '../components/team/ViewToggle';
 import TeamSectionFilter from '../components/team/TeamSectionFilter';
-import TeamGrid from '../components/team/TeamGrid';
+import TeamGrid, { SortMode } from '../components/team/TeamGrid';
 import TeamMemberModal from '../components/team/TeamMemberModal';
 import { siteContent } from '../data/siteContent';
 
@@ -14,6 +14,7 @@ const { about } = siteContent;
 const AboutPage: React.FC = () => {
   const { allSections, membersBySection, loading } = useTeamData();
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const [sortMode, setSortMode] = useState<SortMode>('team');
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
@@ -38,6 +39,22 @@ const AboutPage: React.FC = () => {
               <div className="team-controls-row">
                 <div className="team-controls-left">
                   <ViewToggle mode={viewMode} onChange={setViewMode} />
+                  <div className="team-sort-toggle" role="group" aria-label="Sort mode">
+                    <button
+                      className={`team-sort-btn ${sortMode === 'team' ? 'team-sort-btn--active' : ''}`}
+                      onClick={() => setSortMode('team')}
+                      aria-pressed={sortMode === 'team'}
+                    >
+                      <i className="fas fa-layer-group"></i> By Team
+                    </button>
+                    <button
+                      className={`team-sort-btn ${sortMode === 'alpha' ? 'team-sort-btn--active' : ''}`}
+                      onClick={() => setSortMode('alpha')}
+                      aria-pressed={sortMode === 'alpha'}
+                    >
+                      <i className="fas fa-arrow-down-a-z"></i> A–Z
+                    </button>
+                  </div>
                   <div className="team-search">
                     <i className="fas fa-search team-search-icon"></i>
                     <input
@@ -78,6 +95,7 @@ const AboutPage: React.FC = () => {
                 sections={allSections}
                 membersBySection={membersBySection}
                 viewMode={viewMode}
+                sortMode={sortMode}
                 activeSection={activeSection}
                 searchQuery={searchQuery}
                 onSelectMember={setSelectedMember}

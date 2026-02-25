@@ -9,9 +9,9 @@ import {
   query,
   where,
   serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { auth, db, functions } from '../firebase/firebaseConfig';
+import { auth, db } from '../firebase/firebaseConfig';
 import type { LeadershipTeam } from '../types/leadership';
 
 const COLLECTION = 'teams';
@@ -60,39 +60,47 @@ export async function createTeam(name: string, memberIds: string[] = []): Promis
   return toTeam({ id: snap.id, data: () => snap.data() ?? {} });
 }
 
-/** Creates a team and its board (1:1) via Firebase callable createTeamWithBoard. */
+/** Creates a team and its board (1:1) via direct Firestore writes. Admin-only (enforced by security rules). */
 export async function createTeamWithBoard(
   name: string,
   memberIds: string[] = []
 ): Promise<LeadershipTeam> {
-  if (!auth.currentUser) {
-    const err = new Error('Sign in required') as Error & { code?: string };
-    (err as { code?: string }).code = 'functions/unauthenticated';
-    throw err;
-  }
+  const uid = auth?.currentUser?.uid;
+  console.log('[createTeamWithBoard] creating via Firestore', { uid });
 
-  console.log('[createTeamWithBoard] calling callable', { uid: auth.currentUser?.uid });
+  if (!name.trim()) throw new Error('Team name is required');
 
-  const fn = httpsCallable<
-    { name: string; memberIds: string[] },
-    { ok: boolean; teamId: string; boardId: string }
-  >(functions, 'createTeamWithBoard');
-  const res = await fn({ name, memberIds });
-  const data = res.data;
+  const now = serverTimestamp();
+  const teamRef = doc(collection(db, 'teams'));
+  const boardRef = doc(collection(db, 'boards'));
 
-  if (!data?.ok || !data?.teamId || !data?.boardId) {
-    throw new Error('createTeamWithBoard failed');
-  }
+  // Create board first, then team (team references boardId)
+  await setDoc(boardRef, {
+    teamId: teamRef.id,
+    createdAt: now,
+    updatedAt: now,
+    createdBy: uid,
+  });
 
-  const now = new Date();
-  return {
-    id: data.teamId,
-    name,
+  await setDoc(teamRef, {
+    name: name.trim(),
     memberIds,
-    boardId: data.boardId,
+    boardId: boardRef.id,
     whiteboardIds: [],
     createdAt: now,
     updatedAt: now,
+    createdBy: uid,
+  });
+
+  const nowDate = new Date();
+  return {
+    id: teamRef.id,
+    name: name.trim(),
+    memberIds,
+    boardId: boardRef.id,
+    whiteboardIds: [],
+    createdAt: nowDate,
+    updatedAt: nowDate,
   };
 }
 
@@ -128,26 +136,49 @@ export async function deleteTeam(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
 }
 
-/** Cascade-delete a team and all its data (board, work items, settings) via Firebase callable. Admin-only. */
+/** Cascade-delete a team and all its data (board, work items, settings) via direct Firestore. Admin-only (enforced by security rules). */
 export async function deleteTeamWithData(
   teamId: string
 ): Promise<{ ok: boolean; workItemsDeleted: number }> {
-  if (!auth.currentUser) {
-    const err = new Error('Sign in required') as Error & { code?: string };
-    err.code = 'functions/unauthenticated';
-    throw err;
+  if (!teamId) throw new Error('teamId is required');
+
+  // Fetch the team to get its boardId
+  const teamSnap = await getDoc(doc(db, 'teams', teamId));
+  if (!teamSnap.exists()) throw new Error('Team not found.');
+  const teamData = teamSnap.data() || {};
+  const boardId = teamData.boardId || '';
+
+  // Delete all work items belonging to this team (batched)
+  const workItemsSnap = await getDocs(
+    query(collection(db, 'workItems'), where('teamId', '==', teamId))
+  );
+  let workItemsDeleted = 0;
+  if (!workItemsSnap.empty) {
+    // Firestore batch limit is 500 — split if needed
+    const docs = workItemsSnap.docs;
+    for (let i = 0; i < docs.length; i += 450) {
+      const batch = writeBatch(db);
+      const chunk = docs.slice(i, i + 450);
+      chunk.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+      workItemsDeleted += chunk.length;
+    }
   }
 
-  const fn = httpsCallable<
-    { teamId: string },
-    { ok: boolean; teamId: string; workItemsDeleted: number }
-  >(functions, 'deleteTeamWithData');
-  const res = await fn({ teamId });
-  const data = res.data;
+  // Delete team board settings
+  const settingsRef = doc(db, 'teamBoardSettings', teamId);
+  const settingsSnap = await getDoc(settingsRef);
+  if (settingsSnap.exists()) await deleteDoc(settingsRef);
 
-  if (!data?.ok) {
-    throw new Error('deleteTeamWithData failed');
+  // Delete the board
+  if (boardId) {
+    const boardRef = doc(db, 'boards', boardId);
+    const boardSnap = await getDoc(boardRef);
+    if (boardSnap.exists()) await deleteDoc(boardRef);
   }
 
-  return { ok: true, workItemsDeleted: data.workItemsDeleted };
+  // Delete the team itself
+  await deleteDoc(doc(db, 'teams', teamId));
+
+  return { ok: true, workItemsDeleted };
 }

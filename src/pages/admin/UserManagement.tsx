@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db, functions } from '../../firebase/firebaseConfig';
-import { httpsCallable } from 'firebase/functions';
+import { db } from '../../firebase/firebaseConfig';
+import { approveUser as approveUserService, grantAdmin as grantAdminService, revokeAdmin as revokeAdminService } from '../../services/adminService';
 import { useAuth } from '../../context/AuthContext';
 import { listUserProfiles, getUserProfile, createUserProfile, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
 import { listUsersByStatus, updateUserRole, type UserDoc, type UserRole } from '../../services/usersService';
@@ -146,15 +146,11 @@ const UserManagement: React.FC = () => {
   };
 
   const approveUser = async (uid: string, role: PortalRole) => {
-    const approveUserFn = httpsCallable<{ uid: string; role: string }, { ok: boolean; uid: string; status: string; role: string }>(
-      functions,
-      'approveUser'
-    );
     setApprovingUid(uid);
     setError('');
     setSuccess('');
     try {
-      await approveUserFn({ uid, role });
+      await approveUserService(uid, role);
       setSuccess(`User approved with role ${role}.`);
       await loadPendingUsers();
       await loadData();
@@ -302,11 +298,7 @@ const UserManagement: React.FC = () => {
       return;
     }
     try {
-      const grantAdminCallable = httpsCallable<{ targetUid: string; email: string }, { ok: boolean }>(
-        functions,
-        'grantAdmin'
-      );
-      await grantAdminCallable({ targetUid, email: normalizedEmail });
+      await grantAdminService(targetUid, normalizedEmail);
       setSuccess(`Admin rights granted to ${normalizedEmail}. They will have admin access when they log in.`);
       setGrantEmail('');
       setAdminIds((prev) => new Set([...prev, targetUid, normalizedEmail]));
@@ -327,11 +319,7 @@ const UserManagement: React.FC = () => {
     setSuccess('');
     setRevokingId(profile.id);
     try {
-      const revokeAdminCallable = httpsCallable<{ targetUid: string }, { ok: boolean }>(
-        functions,
-        'revokeAdmin'
-      );
-      await revokeAdminCallable({ targetUid: profile.id });
+      await revokeAdminService(profile.id);
       setSuccess(`Admin rights revoked from ${profile.email}`);
       setAdminIds((prev) => {
         const next = new Set(prev);

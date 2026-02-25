@@ -2943,25 +2943,40 @@ section {
 .learn-leadership-callout {
     display: flex;
     align-items: center;
-    gap: 16px;
-    background: linear-gradient(135deg, #0d9488, #0f766e);
-    color: #fff;
+    gap: 20px;
+    background: #fff;
+    border: 2px solid #f43f5e;
     border-radius: 14px;
-    padding: 24px 32px;
+    padding: 28px 36px;
     margin-bottom: 36px;
+    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.learn-leadership-callout::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #f43f5e, #e11d48);
+    border-radius: 14px 0 0 14px;
 }
 
 .learn-leadership-callout i {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     flex-shrink: 0;
-    opacity: 0.9;
+    color: #f43f5e;
 }
 
 .learn-leadership-callout p {
-    font-size: 1.05rem;
-    line-height: 1.6;
+    font-size: 1.1rem;
+    line-height: 1.65;
     margin: 0;
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--color-gray-800);
 }
 
 .learn-leadership-details {

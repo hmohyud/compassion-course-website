@@ -60,7 +60,7 @@ export default function JotformPopup({ formId, buttonText, className = '' }: Jot
             </button>
             <div className="jotform-modal-iframe-wrap">
               <iframe
-                src={`https://form.jotform.com/${formId}`}
+                src={`https://pci.jotform.com/form/${formId}`}
                 title="Registration form"
                 className="jotform-modal-iframe"
               />

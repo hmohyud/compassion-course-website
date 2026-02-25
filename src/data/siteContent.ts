@@ -540,7 +540,7 @@ export const siteContent = {
       cards: [
         {
           icon: 'fas fa-calendar-week',
-          heading: '52 Weeks, Not 2 Days',
+          heading: 'Months, Not Days',
           text: 'Real change takes practice. The weekly rhythm gives concepts time to become habits \u2014 integrated into your actual life, not just understood in theory.',
         },
         {

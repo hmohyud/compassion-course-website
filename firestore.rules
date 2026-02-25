@@ -92,11 +92,13 @@ service cloud.firestore {
     // ADMIN MANAGEMENT
     // ============================================
 
-    // Admins collection - UID-keyed; self-read or admin-list; writes via console/functions only
+    // Admins collection - UID-keyed; self-read or admin-list; admin can manage other admins
     match /admins/{uid} {
       allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow list: if isAdmin();
-      allow create, update, delete: if false;
+      // Admins can grant/revoke admin rights (but not self-revoke is enforced in client code)
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin() && request.auth.uid != uid;
     }
 
     // ============================================

@@ -100,96 +100,63 @@ const SortablePersonItem: React.FC<SortablePersonItemProps> = ({ member, onEdit,
   return (
     <div
       ref={setNodeRef}
-      style={{
-        ...style,
-        padding: '15px',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-        backgroundColor: member.isActive ? '#ffffff' : '#fef2f2',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '10px',
-        cursor: isDragging ? 'grabbing' : 'grab',
-      }}
+      style={style}
+      className={`cm-member-card${!member.isActive ? ' cm-member-card--inactive' : ''}${isDragging ? ' cm-member-card--dragging' : ''}`}
     >
-      <div style={{ display: 'flex', gap: '15px', flex: 1 }}>
+      <div className="cm-member-card__left">
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          style={{
-            cursor: 'grab',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '8px',
-            color: '#6b7280',
-            fontSize: '1.2rem',
-          }}
+          className="cm-member-card__drag"
         >
           ⋮⋮
         </div>
-        
+
         {/* Photo Thumbnail */}
         {member.photo && (
           <img
             src={member.photo}
             alt={member.name}
-            style={{
-              width: '60px',
-              height: '60px',
-              objectFit: 'cover',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-            }}
+            className="cm-member-card__photo"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
           />
         )}
-        
+
         {/* Member Info */}
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-            <strong style={{ color: '#002B4D' }}>{member.name}</strong>
+        <div className="cm-member-card__info">
+          <div className="cm-member-card__name-row">
+            <span className="cm-member-card__name">{member.name}</span>
             {member.role && (
-              <span style={{ color: '#6b7280', fontSize: '0.875rem', fontStyle: 'italic' }}>
-                {member.role}
-              </span>
+              <span className="cm-member-card__role">{member.role}</span>
             )}
             {!member.isActive && (
-              <span style={{
-                fontSize: '0.75rem',
-                padding: '2px 8px',
-                backgroundColor: '#fee2e2',
-                color: '#dc2626',
-                borderRadius: '4px',
-              }}>
-                Inactive
-              </span>
+              <span className="cm-badge--inactive">Inactive</span>
             )}
           </div>
           {member.bio && (
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px' }}>
-              {typeof member.bio === 'string' 
+            <div className="cm-member-card__bio">
+              {typeof member.bio === 'string'
                 ? (member.bio.length > 100 ? member.bio.substring(0, 100) + '...' : member.bio)
                 : 'Bio available'
               }
             </div>
           )}
           {member.contact && (
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px' }}>
+            <div className="cm-member-card__contact">
               Contact: {member.contact}
             </div>
           )}
-          <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+          <div className="cm-member-card__order">
             Order: {member.order ?? 0}
           </div>
         </div>
       </div>
-      
+
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div className="cm-member-card__actions">
         <button
           onClick={() => onEdit(member)}
           className="btn btn-small btn-secondary"
@@ -916,17 +883,7 @@ const ContentManagement: React.FC = () => {
     <div className="ld-admin-view">
       <div className="ld-admin-view-content">
         {error && (
-          <div style={{
-            padding: '12px',
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '10px',
-          }}>
+          <div className="cm-alert cm-alert--error">
             <span>{error}</span>
             <button
               onClick={() => {
@@ -939,11 +896,6 @@ const ContentManagement: React.FC = () => {
                 loadSectionData(activeSection);
               }}
               className="btn btn-small btn-secondary"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.875rem',
-                whiteSpace: 'nowrap',
-              }}
             >
               Retry
             </button>
@@ -951,154 +903,72 @@ const ContentManagement: React.FC = () => {
         )}
 
         {success && (
-          <div style={{
-            padding: '12px',
-            backgroundColor: '#d1fae5',
-            color: '#065f46',
-            borderRadius: '8px',
-            marginBottom: '20px',
-          }}>
+          <div className="cm-alert cm-alert--success">
             {success}
           </div>
         )}
 
         {/* Section Navigation */}
-        <div style={{ marginBottom: '30px' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px',
-            marginBottom: '20px'
-          }}>
-            {SECTIONS.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => {
-                  setActiveSection(section.id);
-                  if (section.id === 'about') {
-                    // Expand first language section if available
-                    if (languageSections.length > 0) {
-                      setExpandedLanguageSections(new Set([languageSections[0].id || '']));
-                    }
+        <div className="cm-section-nav">
+          {SECTIONS.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => {
+                setActiveSection(section.id);
+                if (section.id === 'about') {
+                  if (languageSections.length > 0) {
+                    setExpandedLanguageSections(new Set([languageSections[0].id || '']));
                   }
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                style={{
-                  padding: '20px',
-                  border: '2px solid',
-                  borderColor: activeSection === section.id ? '#93C5FD' : '#e5e7eb',
-                  borderRadius: '12px',
-                  backgroundColor: activeSection === section.id ? '#93C5FD' : '#ffffff',
-                  color: activeSection === section.id ? '#002B4D' : '#002B4D',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.2s ease',
-                  boxShadow: activeSection === section.id ? '0 4px 12px rgba(147, 197, 253, 0.35)' : '0 2px 4px rgba(0,0,0,0.1)',
-                }}
-                onMouseEnter={(e) => {
-                  if (activeSection !== section.id) {
-                    e.currentTarget.style.borderColor = '#002B4D';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeSection !== section.id) {
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }
-                }}
-              >
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem' }}>
-                  {activeSection === section.id && '✓ '}
-                  {section.name}
-                </h3>
-                <p style={{ 
-                  margin: 0, 
-                  fontSize: '0.875rem', 
-                  opacity: 0.9,
-                  color: activeSection === section.id ? '#002B4D' : '#6b7280'
-                }}>
-                  {section.description}
-                </p>
-              </button>
-            ))}
-          </div>
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`cm-section-card${activeSection === section.id ? ' cm-section-card--active' : ''}`}
+            >
+              <h3 className="cm-section-card__title">
+                {activeSection === section.id && <i className="fas fa-check" style={{ fontSize: '0.8rem', marginRight: 4 }} />}
+                {section.name}
+              </h3>
+              <p className="cm-section-card__desc">
+                {section.description}
+              </p>
+            </button>
+          ))}
         </div>
 
         {/* Edit Modal */}
         {editingItem && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}>
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              padding: '30px',
-              maxWidth: '800px',
-              width: '90%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-            }}>
-              <h2 style={{ marginTop: 0, color: '#002B4D' }}>
+          <div className="cm-modal-backdrop">
+            <div className="cm-modal">
+              <h2 className="cm-modal__title">
                 {editingItem.id ? 'Edit Content' : 'Add New Content'}
               </h2>
-              
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Section
-                </label>
+
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Section</label>
                 <input
                   type="text"
                   value={editingItem.section}
                   onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 />
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Key
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Key</label>
                 <input
                   type="text"
                   value={editingItem.key}
                   onChange={(e) => setEditingItem({ ...editingItem, key: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 />
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Type
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Type</label>
                 <select
                   value={editingItem.type}
                   onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value as ContentItem['type'] })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 >
                   <option value="text">Text</option>
                   <option value="html">HTML</option>
@@ -1109,31 +979,23 @@ const ContentManagement: React.FC = () => {
                 </select>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Value
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Value</label>
                 <textarea
                   value={getItemValue(editingItem)}
                   onChange={(e) => handleValueChange(e.target.value)}
                   rows={editingItem.type === 'rich' || editingItem.type === 'html' ? 10 : 6}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontFamily: editingItem.type === 'object' || editingItem.type === 'array' ? 'monospace' : 'inherit',
-                  }}
+                  className={`cm-modal__input${editingItem.type === 'object' || editingItem.type === 'array' ? ' cm-modal__input--mono' : ''}`}
                 />
                 {editingItem.type === 'rich' && (
-                  <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
+                  <p className="cm-modal__hint">
                     Use HTML tags for formatting (e.g., &lt;strong&gt;, &lt;em&gt;, &lt;br&gt;)
                   </p>
                 )}
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="cm-modal__field">
+                <label className="cm-modal__checkbox">
                   <input
                     type="checkbox"
                     checked={editingItem.isActive !== false}
@@ -1143,7 +1005,7 @@ const ContentManagement: React.FC = () => {
                 </label>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <div className="cm-modal__footer">
                 <button
                   onClick={handleCancelEdit}
                   className="btn btn-secondary"
@@ -1165,18 +1027,12 @@ const ContentManagement: React.FC = () => {
 
         {/* About Us Section Editor */}
         {activeSection === 'about' && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            marginBottom: '20px',
-            padding: '20px',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ margin: 0, color: '#002B4D' }}>About Us - Team Members</h2>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="cm-panel">
+            <div className="cm-panel__header">
+              <h2 className="cm-panel__title">About Us - Team Members</h2>
+              <div className="cm-panel__actions">
                 {(membersLoading || sectionsLoading) && (
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Loading team data...</span>
+                  <span className="cm-panel__loading">Loading team data...</span>
                 )}
                 <button
                   onClick={() => {
@@ -1188,80 +1044,54 @@ const ContentManagement: React.FC = () => {
                     loadSectionData('about');
                   }}
                   className="btn btn-small btn-secondary"
-                  style={{ fontSize: '0.875rem' }}
                   disabled={membersLoading || sectionsLoading}
                 >
-                  ↻ Refresh
+                  <i className="fas fa-sync-alt" style={{ fontSize: '0.7rem' }} /> Refresh
                 </button>
                 <button
                   onClick={handleAddNewLanguageSection}
-                  className="btn btn-secondary"
+                  className="btn btn-small btn-primary"
                 >
-                  + Add Language Section
+                  <i className="fas fa-plus" style={{ fontSize: '0.7rem' }} /> Add Language Section
                 </button>
               </div>
             </div>
 
             {/* Language Sections */}
             {languageSections.length === 0 ? (
-              <p style={{ color: '#9ca3af', fontStyle: 'italic', textAlign: 'center', padding: '40px' }}>
+              <p className="cm-empty">
                 No language sections found. Click "Add Language Section" to create one.
               </p>
             ) : (
               languageSections.map((langSection) => {
                 const isExpanded = expandedLanguageSections.has(langSection.id || '');
                 const members = getMembersForSection(langSection.name);
-                
+
                 return (
                   <div
                     key={langSection.id}
-                    style={{
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      marginBottom: '15px',
-                      overflow: 'hidden',
-                      backgroundColor: langSection.isActive ? '#ffffff' : '#fef2f2',
-                    }}
+                    className={`cm-lang-section${!langSection.isActive ? ' cm-lang-section--inactive' : ''}`}
                   >
                     {/* Language Section Header */}
                     <div
-                      style={{
-                        padding: '15px 20px',
-                        backgroundColor: '#f9fafb',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
-                      }}
+                      className={`cm-lang-header${isExpanded ? ' cm-lang-header--expanded' : ''}`}
                       onClick={() => langSection.id && toggleLanguageSection(langSection.id)}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: 1 }}>
-                        <span style={{ fontSize: '1.2rem', color: '#6b7280' }}>
-                          {isExpanded ? '−' : '+'}
-                        </span>
-                        <div>
-                          <h3 style={{ margin: 0, color: '#002B4D', fontSize: '1.1rem' }}>
+                      <div className="cm-lang-header__left">
+                        <i className={`fas fa-chevron-right cm-lang-header__chevron${isExpanded ? ' cm-lang-header__chevron--open' : ''}`} />
+                        <div className="cm-lang-header__info">
+                          <h3 className="cm-lang-header__name">
                             {ensureTeamSuffix(langSection.name)}
                             {!langSection.isActive && (
-                              <span style={{
-                                fontSize: '0.75rem',
-                                marginLeft: '10px',
-                                padding: '2px 8px',
-                                backgroundColor: '#fee2e2',
-                                color: '#dc2626',
-                                borderRadius: '4px',
-                              }}>
-                                Inactive
-                              </span>
+                              <span className="cm-badge--inactive">Inactive</span>
                             )}
                           </h3>
-                          <p style={{ margin: '4px 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+                          <p className="cm-lang-header__count">
                             {members.length} {members.length === 1 ? 'member' : 'members'}
                           </p>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div className="cm-lang-header__actions">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1269,7 +1099,7 @@ const ContentManagement: React.FC = () => {
                           }}
                           className="btn btn-small btn-primary"
                         >
-                          + Add Person
+                          <i className="fas fa-plus" style={{ fontSize: '0.65rem' }} /> Add Person
                         </button>
                         <button
                           onClick={(e) => {
@@ -1294,9 +1124,9 @@ const ContentManagement: React.FC = () => {
 
                     {/* Language Section Content - People List */}
                     {isExpanded && (
-                      <div style={{ padding: '20px' }}>
+                      <div className="cm-lang-body">
                         {members.length === 0 ? (
-                          <p style={{ color: '#9ca3af', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
+                          <p className="cm-empty" style={{ padding: '20px' }}>
                             No members in this section. Click "+ Add Person" to add one.
                           </p>
                         ) : (
@@ -1331,85 +1161,48 @@ const ContentManagement: React.FC = () => {
 
         {/* Language Section Edit Modal */}
         {editingLanguageSection && (
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-            }}
+          <div
+            className="cm-modal-backdrop"
             onClick={(e) => {
-              // Close modal when clicking backdrop
               if (e.target === e.currentTarget) {
                 handleCancelEditLanguageSection();
               }
             }}
           >
-            <div 
-              style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                padding: '30px',
-                maxWidth: '500px',
-                width: '90%',
-                maxHeight: '90vh',
-                overflow: 'auto',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 style={{ marginTop: 0, color: '#002B4D' }}>
+            <div className="cm-modal cm-modal--narrow" onClick={(e) => e.stopPropagation()}>
+              <h2 className="cm-modal__title">
                 {editingLanguageSection.id ? 'Edit Language Section' : 'Add Language Section'}
               </h2>
-              
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Section Name *
-                </label>
+
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Section Name *</label>
                 <input
                   type="text"
                   value={editingLanguageSection.name}
                   onChange={(e) => setEditingLanguageSection({ ...editingLanguageSection, name: e.target.value.trim() })}
                   placeholder="e.g., English Team, Spanish Team, German Team"
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: editingLanguageSection.name === '' ? '1px solid #dc2626' : '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className={`cm-modal__input${editingLanguageSection.name === '' ? ' cm-modal__input--error' : ''}`}
                 />
                 {editingLanguageSection.name === '' && (
-                  <p style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '4px' }}>
+                  <p className="cm-modal__hint cm-modal__hint--error">
                     Section name is required
                   </p>
                 )}
               </div>
 
-              <div style={{ marginBottom: '20px', display: 'flex', gap: '20px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                    Order
-                  </label>
+              <div className="cm-modal__row">
+                <div>
+                  <label className="cm-modal__label">Order</label>
                   <input
                     type="number"
                     value={editingLanguageSection.order ?? 0}
                     onChange={(e) => setEditingLanguageSection({ ...editingLanguageSection, order: parseInt(e.target.value) || 0 })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                    }}
+                    className="cm-modal__input"
                   />
                 </div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <label className="cm-modal__checkbox">
                     <input
                       type="checkbox"
                       checked={editingLanguageSection.isActive !== false}
@@ -1420,7 +1213,7 @@ const ContentManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <div className="cm-modal__footer">
                 <button
                   onClick={handleCancelEditLanguageSection}
                   className="btn btn-secondary"
@@ -1442,79 +1235,39 @@ const ContentManagement: React.FC = () => {
 
         {/* Team Member Edit Modal */}
         {editingMember && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}>
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              padding: '30px',
-              maxWidth: '800px',
-              width: '90%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-            }}>
-              <h2 style={{ marginTop: 0, color: '#002B4D' }}>
+          <div className="cm-modal-backdrop">
+            <div className="cm-modal">
+              <h2 className="cm-modal__title">
                 {editingMember.id ? 'Edit Team Member' : 'Add Team Member'}
               </h2>
-              
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Name *
-                </label>
+
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Name *</label>
                 <input
                   type="text"
                   value={editingMember.name}
                   onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 />
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Title
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Title</label>
                 <input
                   type="text"
                   value={editingMember.role || ''}
                   onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
                   placeholder="e.g., Compassion Course Author and Lead Trainer"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 />
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Language Section *
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Language Section *</label>
                 <select
                   value={editingMember.teamSection}
                   onChange={(e) => setEditingMember({ ...editingMember, teamSection: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 >
                   {languageSections
                     .filter(s => s.isActive !== false)
@@ -1526,34 +1279,21 @@ const ContentManagement: React.FC = () => {
                 </select>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Photo *
-                </label>
-                
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Photo *</label>
+
                 {/* Photo Upload Area */}
                 <div
                   onDrop={handlePhotoDrop}
                   onDragOver={handlePhotoDragOver}
-                  style={{
-                    border: '2px dashed #d1d5db',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    backgroundColor: '#f9fafb',
-                    marginBottom: '10px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
+                  className="cm-photo-drop"
                   onDragEnter={(e) => {
                     e.preventDefault();
-                    e.currentTarget.style.borderColor = '#002B4D';
-                    e.currentTarget.style.backgroundColor = '#f0f9ff';
+                    e.currentTarget.classList.add('cm-photo-drop--active');
                   }}
                   onDragLeave={(e) => {
                     e.preventDefault();
-                    e.currentTarget.style.borderColor = '#d1d5db';
-                    e.currentTarget.style.backgroundColor = '#f9fafb';
+                    e.currentTarget.classList.remove('cm-photo-drop--active');
                   }}
                   onClick={() => {
                     const input = document.createElement('input');
@@ -1573,15 +1313,9 @@ const ContentManagement: React.FC = () => {
                       <img
                         src={photoPreview || editingMember.photo}
                         alt="Preview"
-                        style={{
-                          maxWidth: '200px',
-                          maxHeight: '200px',
-                          borderRadius: '8px',
-                          marginBottom: '10px',
-                          border: '1px solid #e5e7eb',
-                        }}
+                        className="cm-photo-drop__preview"
                       />
-                      <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '8px 0' }}>
+                      <p className="cm-photo-drop__text">
                         Click or drag a new image to replace
                       </p>
                       <button
@@ -1600,31 +1334,29 @@ const ContentManagement: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <p style={{ fontSize: '1rem', color: '#6b7280', marginBottom: '8px' }}>
-                        📷 Drag and drop an image here, or click to select
+                      <p className="cm-photo-drop__text">
+                        <i className="fas fa-camera" style={{ marginRight: 6 }} />
+                        Drag and drop an image here, or click to select
                       </p>
-                      <p style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+                      <p className="cm-photo-drop__hint">
                         Supports JPEG, PNG, WebP, GIF (max 5MB)
                       </p>
                     </div>
                   )}
                 </div>
-                
+
                 {uploadingPhoto && (
-                  <div style={{ padding: '10px', textAlign: 'center', color: '#002B4D' }}>
+                  <div className="cm-panel__loading" style={{ padding: '10px', textAlign: 'center' }}>
                     Uploading photo...
                   </div>
                 )}
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Biography *
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Biography *</label>
                 <textarea
                   value={typeof editingMember.bio === 'string' ? editingMember.bio : JSON.stringify(editingMember.bio)}
                   onChange={(e) => {
-                    // Try to parse as array, otherwise keep as string
                     let bio: string | string[] = e.target.value;
                     try {
                       const parsed = JSON.parse(e.target.value);
@@ -1638,59 +1370,39 @@ const ContentManagement: React.FC = () => {
                   }}
                   rows={8}
                   placeholder="Enter biography text. For multiple paragraphs, use JSON array format: [&quot;Paragraph 1&quot;, &quot;Paragraph 2&quot;]"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontFamily: 'inherit',
-                  }}
+                  className="cm-modal__input"
                 />
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
+                <p className="cm-modal__hint">
                   Enter text or JSON array for multiple paragraphs
                 </p>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                  Contact
-                </label>
+              <div className="cm-modal__field">
+                <label className="cm-modal__label">Contact</label>
                 <input
                   type="text"
                   value={editingMember.contact || ''}
                   onChange={(e) => setEditingMember({ ...editingMember, contact: e.target.value })}
                   placeholder="email@example.com"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                  }}
+                  className="cm-modal__input"
                 />
               </div>
 
-              <div style={{ marginBottom: '20px', display: 'flex', gap: '20px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                    Order
-                  </label>
+              <div className="cm-modal__row">
+                <div>
+                  <label className="cm-modal__label">Order</label>
                   <input
                     type="number"
                     value={editingMember.order ?? 0}
                     onChange={(e) => setEditingMember({ ...editingMember, order: parseInt(e.target.value) || 0 })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                    }}
+                    className="cm-modal__input"
                   />
-                  <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
+                  <p className="cm-modal__hint">
                     Lower numbers appear first
                   </p>
                 </div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <label className="cm-modal__checkbox">
                     <input
                       type="checkbox"
                       checked={editingMember.isActive !== false}
@@ -1701,7 +1413,7 @@ const ContentManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <div className="cm-modal__footer">
                 <button
                   onClick={handleCancelEditMember}
                   className="btn btn-secondary"
@@ -1723,18 +1435,12 @@ const ContentManagement: React.FC = () => {
 
         {/* Programs Section Editor */}
         {activeSection === 'programs' && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            padding: '30px',
-            marginBottom: '20px',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ marginTop: 0, color: '#002B4D', margin: 0 }}>Programs Page Editor</h2>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="cm-panel">
+            <div className="cm-panel__header">
+              <h2 className="cm-panel__title">Programs Page Editor</h2>
+              <div className="cm-panel__actions">
                 {contentLoading && (
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Loading content...</span>
+                  <span className="cm-panel__loading">Loading content...</span>
                 )}
                 {!contentLoading && getContentForSection('programs').length === 0 && (
                   <button
@@ -1747,41 +1453,38 @@ const ContentManagement: React.FC = () => {
                       loadSectionData('programs');
                     }}
                     className="btn btn-small btn-secondary"
-                    style={{ fontSize: '0.875rem' }}
                   >
                     Retry Loading
                   </button>
                 )}
               </div>
             </div>
-            <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            <p className="cm-panel__subtitle">
               Edit content for the Programs page. Add or edit content items below.
             </p>
-            
+
             {getContentForSection('programs').length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
+              <div className="cm-empty">
                 <p>No content items found for Programs page.</p>
-                <p style={{ fontSize: '0.875rem', marginTop: '10px' }}>
+                <p style={{ fontSize: '0.85rem', marginTop: '8px' }}>
                   Use the content structure below to add new content items.
                 </p>
               </div>
             ) : (
               getContentForSection('programs').map((section) => (
-                <div key={section.section} style={{ marginBottom: '20px', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px' }}>
-                  <h3 style={{ color: '#002B4D', marginBottom: '15px' }}>{section.section.replace(/-/g, ' ')}</h3>
+                <div key={section.section} className="cm-content-group">
+                  <h3 className="cm-content-group__title">{section.section.replace(/-/g, ' ')}</h3>
                   {section.items.map((item) => (
-                    <div key={item.id} style={{ marginBottom: '15px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <strong style={{ color: '#002B4D' }}>{item.key}</strong>
-                          <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '5px 0 0 0' }}>
-                            {typeof item.value === 'string' ? item.value.substring(0, 100) : JSON.stringify(item.value).substring(0, 100)}
-                          </p>
-                        </div>
-                        <button onClick={() => handleEdit(item)} className="btn btn-small btn-secondary">
-                          Edit
-                        </button>
+                    <div key={item.id} className="cm-content-item">
+                      <div>
+                        <span className="cm-content-item__key">{item.key}</span>
+                        <p className="cm-content-item__preview">
+                          {typeof item.value === 'string' ? item.value.substring(0, 100) : JSON.stringify(item.value).substring(0, 100)}
+                        </p>
                       </div>
+                      <button onClick={() => handleEdit(item)} className="btn btn-small btn-secondary">
+                        Edit
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -1792,51 +1495,35 @@ const ContentManagement: React.FC = () => {
 
         {/* Contact Section Editor */}
         {activeSection === 'contact' && (
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            padding: '30px',
-            marginBottom: '20px',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ marginTop: 0, color: '#002B4D', margin: 0 }}>Contact Page Editor</h2>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="cm-panel">
+            <div className="cm-panel__header">
+              <h2 className="cm-panel__title">Contact Page Editor</h2>
+              <div className="cm-panel__actions">
                 {contentLoading && (
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Loading content...</span>
+                  <span className="cm-panel__loading">Loading content...</span>
                 )}
               </div>
             </div>
-            <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            <p className="cm-panel__subtitle">
               Edit the contact information shown on the Contact Us page. Changes appear immediately.
             </p>
 
             {/* Contact Info Fields */}
             {[
-              { key: 'email', label: 'Contact Email', defaultValue: 'coursecoordinator@nycnvc.org', icon: '✉️' },
-              { key: 'phone', label: 'Phone Number (tel: link)', defaultValue: '+16462019226', icon: '📞' },
-              { key: 'phone-display', label: 'Phone Display Text', defaultValue: '(646) 201-9226', icon: '📱' },
-              { key: 'address', label: 'Office Address (HTML allowed)', defaultValue: 'NYCNVC<br />645 Gardnertown Road<br />Newburgh, NY 12550', icon: '📍' },
-              { key: 'form-title', label: 'Form Heading', defaultValue: 'Send a Message', icon: '📝' },
-              { key: 'success-message', label: 'Form Success Message', defaultValue: "Thank you for reaching out. We'll get back to you shortly.", icon: '✅' },
+              { key: 'email', label: 'Contact Email', defaultValue: 'coursecoordinator@nycnvc.org', icon: 'fas fa-envelope' },
+              { key: 'phone', label: 'Phone Number (tel: link)', defaultValue: '+16462019226', icon: 'fas fa-phone' },
+              { key: 'phone-display', label: 'Phone Display Text', defaultValue: '(646) 201-9226', icon: 'fas fa-mobile-alt' },
+              { key: 'address', label: 'Office Address (HTML allowed)', defaultValue: 'NYCNVC<br />645 Gardnertown Road<br />Newburgh, NY 12550', icon: 'fas fa-map-marker-alt' },
+              { key: 'form-title', label: 'Form Heading', defaultValue: 'Send a Message', icon: 'fas fa-edit' },
+              { key: 'success-message', label: 'Form Success Message', defaultValue: "Thank you for reaching out. We'll get back to you shortly.", icon: 'fas fa-check-circle' },
             ].map((field) => (
-              <div key={field.key} style={{
-                marginBottom: '15px',
-                padding: '16px 20px',
-                backgroundColor: '#f9fafb',
-                borderRadius: '10px',
-                border: '1px solid #e5e7eb',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '16px',
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span>{field.icon}</span>
-                    <strong style={{ color: '#002B4D', fontSize: '0.95rem' }}>{field.label}</strong>
+              <div key={field.key} className="cm-contact-field">
+                <div className="cm-contact-field__info">
+                  <div className="cm-contact-field__label-row">
+                    <i className={`${field.icon} cm-contact-field__icon`} style={{ color: '#6b7280' }} />
+                    <span className="cm-contact-field__label">{field.label}</span>
                   </div>
-                  <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p className="cm-contact-field__value">
                     {getLocalContent('contact-page', field.key, field.defaultValue)}
                   </p>
                 </div>
@@ -1853,7 +1540,6 @@ const ContentManagement: React.FC = () => {
                     handleEdit(item);
                   }}
                   className="btn btn-small btn-secondary"
-                  style={{ flexShrink: 0 }}
                 >
                   Edit
                 </button>
@@ -1861,18 +1547,12 @@ const ContentManagement: React.FC = () => {
             ))}
 
             {/* Preview */}
-            <div style={{
-              marginTop: '24px',
-              padding: '20px',
-              border: '1px dashed #d1d5db',
-              borderRadius: '10px',
-              backgroundColor: '#fafafa',
-            }}>
-              <h4 style={{ color: '#002B4D', marginTop: 0, marginBottom: '12px', fontSize: '0.9rem' }}>
-                <i className="fas fa-eye" style={{ marginRight: '6px', opacity: 0.6 }} />
+            <div className="cm-preview">
+              <h4 className="cm-preview__title">
+                <i className="fas fa-eye" />
                 Live Preview
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
+              <div className="cm-preview__grid">
                 <div>
                   <span style={{ color: '#6b7280' }}>Email: </span>
                   <span style={{ color: '#002B4D' }}>{getLocalContent('contact-page', 'email', 'coursecoordinator@nycnvc.org')}</span>
@@ -1881,7 +1561,7 @@ const ContentManagement: React.FC = () => {
                   <span style={{ color: '#6b7280' }}>Phone: </span>
                   <span style={{ color: '#002B4D' }}>{getLocalContent('contact-page', 'phone-display', '(646) 201-9226')}</span>
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
+                <div className="cm-preview__grid--full">
                   <span style={{ color: '#6b7280' }}>Address: </span>
                   <span style={{ color: '#002B4D' }} dangerouslySetInnerHTML={{ __html: getLocalContent('contact-page', 'address', 'NYCNVC<br />645 Gardnertown Road<br />Newburgh, NY 12550') }} />
                 </div>

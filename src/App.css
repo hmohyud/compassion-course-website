@@ -6956,7 +6956,7 @@ section {
 
 /* ---- Content Management (admin) ---- */
 
-/* Admin button variants (shared across admin pages) */
+/* Admin compact buttons — reset the large hero-style btn-primary/secondary */
 .btn.btn-small {
     padding: 6px 14px;
     font-size: 0.8rem;
@@ -6965,7 +6965,48 @@ section {
     width: auto;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    box-shadow: none;
+    letter-spacing: 0;
+    transform: none;
+    line-height: 1.4;
+}
+.btn.btn-small:hover {
+    transform: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.btn.btn-small.btn-primary {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    width: auto;
+    border-radius: 6px;
+    background: #002B4D;
+    color: #fff;
+    border: 1px solid #002B4D;
+    box-shadow: none;
+}
+.btn.btn-small.btn-primary:hover {
+    background: #003d6b;
+    box-shadow: 0 2px 6px rgba(0, 43, 77, 0.2);
+    transform: none;
+    filter: none;
+}
+.btn.btn-small.btn-secondary {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    width: auto;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    box-shadow: none;
+}
+.btn.btn-small.btn-secondary:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+    transform: none;
+    box-shadow: none;
 }
 .btn.btn-danger {
     background: #fee2e2;
@@ -6983,17 +7024,18 @@ section {
 .btn.btn-small.btn-danger {
     padding: 6px 14px;
     font-size: 0.8rem;
+    border-radius: 6px;
+    background: #fff;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    box-shadow: none;
 }
-.btn.btn-small.btn-primary {
-    padding: 6px 14px;
-    font-size: 0.8rem;
-    width: auto;
-}
-.btn.btn-small.btn-secondary {
-    padding: 6px 14px;
-    font-size: 0.8rem;
-    width: auto;
-    border-width: 1px;
+.btn.btn-small.btn-danger:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #f87171;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Alert banners */
@@ -7494,6 +7536,41 @@ section {
     margin-top: 24px;
     padding-top: 16px;
     border-top: 1px solid #f0f0f0;
+}
+/* Reset hero-style buttons inside admin modals */
+.cm-modal__footer .btn-primary {
+    padding: 9px 22px;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    width: auto;
+    box-shadow: none;
+    letter-spacing: 0;
+    background: #002B4D;
+    border: 1px solid #002B4D;
+}
+.cm-modal__footer .btn-primary:hover {
+    background: #003d6b;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 43, 77, 0.2);
+    filter: none;
+}
+.cm-modal__footer .btn-secondary {
+    padding: 9px 22px;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    width: auto;
+    box-shadow: none;
+    letter-spacing: 0;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.cm-modal__footer .btn-secondary:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Photo upload area */

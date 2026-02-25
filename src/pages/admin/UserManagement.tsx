@@ -58,6 +58,7 @@ const UserManagement: React.FC = () => {
   const [createTeamName, setCreateTeamName] = useState('');
   const [teamSaving, setTeamSaving] = useState(false);
   const [createTeamError, setCreateTeamError] = useState<string | null>(null);
+  const [teamActionError, setTeamActionError] = useState<string | null>(null);
   const [updatingTeamId, setUpdatingTeamId] = useState<string | null>(null);
   const [editTeamName, setEditTeamName] = useState('');
   const [editTeamMemberIds, setEditTeamMemberIds] = useState<Set<string>>(new Set());
@@ -731,6 +732,12 @@ const UserManagement: React.FC = () => {
           {createTeamError && (
             <p style={{ color: '#dc2626', fontSize: '0.9rem', marginBottom: '16px' }}>{createTeamError}</p>
           )}
+          {teamActionError && (
+            <div style={{ color: '#dc2626', fontSize: '0.9rem', marginBottom: '16px', padding: '10px 14px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
+              {teamActionError}
+              <button type="button" onClick={() => setTeamActionError(null)} style={{ marginLeft: '10px', background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}>✕</button>
+            </div>
+          )}
 
           {teamsLoading ? (
                 <p style={{ color: '#6b7280' }}>Loading teams…</p>
@@ -759,7 +766,7 @@ const UserManagement: React.FC = () => {
                           <h3 style={{ color: '#002B4D', margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{t.name}</h3>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button type="button" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => { setEditingTeam(t); setEditTeamName(t.name); setEditTeamMemberIds(new Set(t.memberIds)); }}>Edit</button>
-                            <button type="button" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: '6px', cursor: 'pointer' }} onClick={async () => { if (!window.confirm(`Delete team "${t.name}" and all its data (board, work items, settings)?`)) return; setTeamSaving(true); try { await deleteTeamWithData(t.id); await loadTeams(); } catch (e) { console.error(e); } finally { setTeamSaving(false); }}} disabled={teamSaving}>Delete</button>
+                            <button type="button" style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: '6px', cursor: 'pointer' }} onClick={async () => { if (!window.confirm(`Delete team "${t.name}" and all its data (board, work items, settings)?`)) return; setTeamSaving(true); setTeamActionError(null); try { await deleteTeamWithData(t.id); await loadTeams(); } catch (e: any) { console.error('Delete team failed:', e); setTeamActionError(`Failed to delete team "${t.name}": ${e?.message || 'Unknown error'}`); } finally { setTeamSaving(false); }}} disabled={teamSaving}>Delete</button>
                           </div>
                         </div>
                         <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '0 0 12px 0' }}>

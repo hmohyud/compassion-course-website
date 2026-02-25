@@ -115,6 +115,7 @@ const CORS_ORIGINS = [
   "https://compassion-course-websit-937d6.web.app",
   "http://localhost:5173",
   "http://localhost:3000",
+  "http://localhost:3004",
 ];
 
 /**
@@ -469,7 +470,7 @@ const FN_CREATE_TEAM = "createTeamWithBoard";
  * Use httpsCallable(functions, "createTeamWithBoard") from the client; no direct fetch to avoid CORS.
  */
 exports.createTeamWithBoard = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     let step = "start";
     try {
@@ -528,7 +529,7 @@ const FN_DELETE_TEAM = "deleteTeamWithData";
  * Cascade-deletes: board, all work items, board settings, and the team itself.
  */
 exports.deleteTeamWithData = onCall(
-  { region: "us-central1", invoker: "public" },
+  { region: "us-central1", invoker: "public", cors: CORS_ORIGINS },
   async (request) => {
     let step = "start";
     try {

@@ -245,8 +245,8 @@ const WebcastManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="admin-dashboard">
-        <div className="admin-content">
+      <div className="ld-admin-view">
+        <div className="ld-admin-view-content">
           <div className="loading">
             <div className="spinner"></div>
           </div>
@@ -256,16 +256,8 @@ const WebcastManagement: React.FC = () => {
   }
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1>Webcast Management</h1>
-        <div className="admin-user-info">
-          <button onClick={() => navigate('/admin')} className="btn btn-secondary">
-            ← Back to Dashboard
-          </button>
-        </div>
-      </div>
-      <div className="admin-content">
+    <div className="ld-admin-view">
+      <div className="ld-admin-view-content">
         <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button onClick={handleCreate} className="btn btn-primary">
             + Create New Webcast

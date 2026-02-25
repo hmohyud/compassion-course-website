@@ -15,12 +15,12 @@ const LoginPage: React.FC = () => {
   const { user, isAdmin, loading: authLoading, login, resetPassword } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to admin dashboard when admin status is confirmed
+  // Redirect to leadership dashboard admin tab when admin status is confirmed
   useEffect(() => {
     console.log('🔄 LoginPage redirect check:', { user: !!user, isAdmin, authLoading });
     if (user && isAdmin && !authLoading) {
       console.log('✅ Admin confirmed, redirecting to dashboard...');
-      navigate('/admin', { replace: true });
+      navigate('/portal/leadership?tab=adminPortal', { replace: true });
     } else if (user && !isAdmin && !authLoading) {
       console.warn('⚠️ User logged in but not admin. isAdmin:', isAdmin);
       console.warn('💡 If you just granted admin access, try logging out and back in.');

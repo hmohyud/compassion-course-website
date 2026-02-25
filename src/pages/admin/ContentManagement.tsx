@@ -965,16 +965,8 @@ const ContentManagement: React.FC = () => {
   // Show UI immediately, don't block on loading
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1>Content Management System</h1>
-        <div className="admin-user-info">
-          <span>Logged in as: {user?.email}</span>
-          <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
-        </div>
-      </div>
-
-      <div className="admin-content">
+    <div className="ld-admin-view">
+      <div className="ld-admin-view-content">
         {error && (
           <div style={{
             padding: '12px',

@@ -6781,6 +6781,106 @@ section {
     min-height: 300px;
 }
 
+/* ---- Admin sub-tabs (inside leadership dashboard) ---- */
+.ld-admin-wrap {
+    width: 100%;
+}
+
+.ld-admin-subtab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px 10px 0 0;
+    padding: 0 8px;
+}
+
+.ld-admin-subtab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    font-family: inherit;
+}
+
+.ld-admin-subtab i {
+    font-size: 0.85rem;
+}
+
+.ld-admin-subtab:hover {
+    color: #002B4D;
+    background: rgba(0, 43, 77, 0.04);
+}
+
+.ld-admin-subtab--active {
+    color: #002B4D;
+    font-weight: 600;
+    border-bottom-color: #002B4D;
+}
+
+.ld-admin-subtab-content {
+    min-height: 300px;
+}
+
+/* Admin embedded view wrapper */
+.ld-admin-view {
+    background: transparent;
+    width: 100%;
+}
+
+.ld-admin-view-header {
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ld-admin-view-header h2 {
+    color: #002B4D;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.ld-admin-view-header p {
+    color: #6b7280;
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+}
+
+.ld-admin-view-content {
+    width: 100%;
+}
+
+/* Responsive: stack admin sub-tabs on small screens */
+@media (max-width: 600px) {
+    .ld-admin-subtab-bar {
+        padding: 0 4px;
+    }
+    .ld-admin-subtab {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        gap: 6px;
+    }
+    .ld-admin-subtab span {
+        display: none;
+    }
+    .ld-admin-subtab i {
+        font-size: 1.1rem;
+    }
+}
+
 /* Board tab */
 .ld-board-tab-header {
     display: flex;

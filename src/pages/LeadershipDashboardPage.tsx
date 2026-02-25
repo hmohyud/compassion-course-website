@@ -18,6 +18,7 @@ import BacklogTabView from '../components/leadership/BacklogTabView';
 import TeamTabView from '../components/leadership/TeamTabView';
 import SettingsTabView from '../components/leadership/SettingsTabView';
 import MessagesTabView from '../components/leadership/MessagesTabView';
+import AdminTabView from '../components/leadership/AdminTabView';
 import CreateTeamModal from '../components/leadership/CreateTeamModal';
 import TaskForm, { type TaskFormPayload, type TaskFormSaveContext } from '../components/leadership/TaskForm';
 
@@ -339,10 +340,6 @@ const LeadershipDashboardPage: React.FC = () => {
 
   // Handle tab change
   const handleTabChange = (tabId: TabId) => {
-    if (tabId === 'adminPortal') {
-      navigate('/admin');
-      return;
-    }
     const tab = TABS.find((t) => t.id === tabId);
     if (tab?.requiresTeam && !selectedTeamId) return;
     setActiveTab(tabId);
@@ -685,6 +682,10 @@ const LeadershipDashboardPage: React.FC = () => {
                   loading={notificationsLoading}
                   onNotificationClick={handleNotificationClick}
                 />
+              )}
+
+              {activeTab === 'adminPortal' && (
+                <AdminTabView />
               )}
 
               {/* No team selected + team-required tab */}

@@ -5,7 +5,6 @@ import { AuthModalProvider } from './context/AuthModalContext'
 import { PermissionsProvider } from './context/PermissionsContext'
 import { ContentProvider } from './context/ContentContext'
 import ScrollToTop from './components/ScrollToTop'
-import ProtectedRoute from './components/ProtectedRoute'
 import UserProtectedRoute from './components/UserProtectedRoute'
 import LeadershipProtectedRoute from './components/LeadershipProtectedRoute'
 
@@ -41,11 +40,6 @@ import MemberHubPage from './pages/platform/MemberHubPage'
 
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import WebcastManagement from './pages/admin/WebcastManagement'
-import ContentManagement from './pages/admin/ContentManagement'
-import UserManagement from './pages/admin/UserManagement'
-import RolePermissionsPage from './pages/admin/RolePermissionsPage'
 
 import './App.css'
 
@@ -160,35 +154,15 @@ function App() {
                 </UserProtectedRoute>
               } />
               
-              {/* Admin Routes */}
+              {/* Admin Routes — login pages still needed, everything else redirects to dashboard */}
               <Route path="/admin/login-4f73b2c" element={<LoginPage />} />
               <Route path="/admin/login" element={<LoginPage />} />
-              <Route path="/admin" element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/webcasts" element={
-                <ProtectedRoute>
-                  <WebcastManagement />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/manage" element={<Navigate to="/admin/users" replace />} />
-              <Route path="/admin/content" element={
-                <ProtectedRoute>
-                  <ContentManagement />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/users" element={
-                <ProtectedRoute>
-                  <UserManagement />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/role-config" element={
-                <ProtectedRoute>
-                  <RolePermissionsPage />
-                </ProtectedRoute>
-              } />
+              <Route path="/admin" element={<Navigate to="/portal/leadership?tab=adminPortal" replace />} />
+              <Route path="/admin/users" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=users" replace />} />
+              <Route path="/admin/manage" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=users" replace />} />
+              <Route path="/admin/content" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=content" replace />} />
+              <Route path="/admin/webcasts" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=webcasts" replace />} />
+              <Route path="/admin/role-config" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=roles" replace />} />
             </Routes>
           </div>
           </AuthModalProvider>

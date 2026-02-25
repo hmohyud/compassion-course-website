@@ -62,16 +62,8 @@ const RolePermissionsPage: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1>User Type Configuration</h1>
-        <div className="admin-user-info">
-          <button onClick={() => navigate('/admin')} className="btn btn-secondary">
-            ← Back to Dashboard
-          </button>
-        </div>
-      </div>
-      <div className="admin-content">
+    <div className="ld-admin-view">
+      <div className="ld-admin-view-content">
         <p style={{ marginBottom: '20px', color: '#6b7280' }}>
           Platform admins have all rights. Configure which rights each portal role (Viewer, Contributor, Manager, Admin) has below.
         </p>

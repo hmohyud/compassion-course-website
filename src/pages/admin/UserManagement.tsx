@@ -10,7 +10,7 @@ import { listUsersByStatus, updateUserRole, type UserDoc, type UserRole } from '
 import { listTeams, getTeam, createTeamWithBoard, updateTeam, deleteTeamWithData } from '../../services/leadershipTeamsService';
 import { UserProfile, PortalRole } from '../../types/platform';
 import type { LeadershipTeam } from '../../types/leadership';
-import AdminLayout from '../../components/AdminLayout';
+// AdminLayout removed — embedded in leadership dashboard AdminTabView
 
 const GOOGLE_ADMIN_CONSOLE_URL = 'https://admin.google.com';
 
@@ -415,7 +415,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <>
-    <AdminLayout title="User Management">
+    <div className="ld-admin-view">
       <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb' }}>
         <nav style={{ display: 'flex', gap: '0' }}>
           {(['directory', 'teams', 'pending'] as const).map((t) => (
@@ -873,7 +873,7 @@ const UserManagement: React.FC = () => {
           </p>
         </div>
         )}
-    </AdminLayout>
+    </div>
 
       {editingProfile && (() => {
         const isPending = pendingUsers.some((p) => p.uid === editingProfile.id);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
   getWorkingAgreementsByTeam,
   updateWorkingAgreements,
@@ -221,10 +220,6 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
         </div>
 
         <div className="ld-team-overview-actions">
-          <Link to="/whiteboards" className="ld-create-team-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-            <i className="fas fa-table-cells" aria-hidden />
-            Whiteboards
-          </Link>
         </div>
 
         {/* Member avatars */}

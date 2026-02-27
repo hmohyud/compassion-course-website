@@ -14,8 +14,8 @@ export interface RolePermissionsConfig {
   admin: string[];
 }
 
-const DEFAULT_VIEWER = ['profile', 'webcasts'] as const;
-const DEFAULT_CONTRIBUTOR = ['profile', 'webcasts', 'whiteboards', 'member_hub', 'communities', 'courses'] as const;
+const DEFAULT_VIEWER = ['profile'] as const;
+const DEFAULT_CONTRIBUTOR = ['profile', 'member_hub', 'courses'] as const;
 const DEFAULT_MANAGER = [...ALL_PERMISSION_IDS];
 const DEFAULT_ADMIN = [...ALL_PERMISSION_IDS];
 

@@ -6,16 +6,11 @@ import { usePermissions } from '../../context/PermissionsContext';
 // Admin page components (rendered as embedded views)
 import UserManagement from '../../pages/admin/UserManagement';
 import ContentManagement from '../../pages/admin/ContentManagement';
-import WebcastManagement from '../../pages/admin/WebcastManagement';
-import RolePermissionsPage from '../../pages/admin/RolePermissionsPage';
-
-type AdminSubTab = 'users' | 'content' | 'webcasts' | 'roles';
+type AdminSubTab = 'users' | 'content';
 
 const ADMIN_SUBTABS: { id: AdminSubTab; label: string; icon: string }[] = [
   { id: 'users', label: 'Users & Teams', icon: 'fas fa-users-cog' },
   { id: 'content', label: 'Content', icon: 'fas fa-edit' },
-  { id: 'webcasts', label: 'Webcasts', icon: 'fas fa-video' },
-  { id: 'roles', label: 'Roles & Permissions', icon: 'fas fa-shield-alt' },
 ];
 
 const AdminTabView: React.FC = () => {
@@ -27,7 +22,7 @@ const AdminTabView: React.FC = () => {
   const adminTabParam = searchParams.get('adminTab') as AdminSubTab | null;
 
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTab>(
-    adminTabParam && ['users', 'content', 'webcasts', 'roles'].includes(adminTabParam)
+    adminTabParam && ['users', 'content'].includes(adminTabParam)
       ? adminTabParam
       : 'users'
   );
@@ -45,7 +40,7 @@ const AdminTabView: React.FC = () => {
 
   // Sync from URL changes (e.g. browser back/forward)
   useEffect(() => {
-    if (adminTabParam && ['users', 'content', 'webcasts', 'roles'].includes(adminTabParam)) {
+    if (adminTabParam && ['users', 'content'].includes(adminTabParam)) {
       setActiveSubTab(adminTabParam);
     }
   }, [adminTabParam]);
@@ -79,8 +74,6 @@ const AdminTabView: React.FC = () => {
       <div className="ld-admin-subtab-content">
         {activeSubTab === 'users' && <UserManagement />}
         {activeSubTab === 'content' && <ContentManagement />}
-        {activeSubTab === 'webcasts' && <WebcastManagement />}
-        {activeSubTab === 'roles' && <RolePermissionsPage />}
       </div>
     </div>
   );

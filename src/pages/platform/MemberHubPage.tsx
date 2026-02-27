@@ -49,7 +49,7 @@ const MemberHubPage: React.FC = () => {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         <h1 style={{ marginBottom: '12px', color: '#002B4D' }}>Member Hub</h1>
         <p style={{ marginBottom: '24px', color: '#6b7280', fontSize: '18px' }}>
-          Shared resources: videos, whiteboards, Meet, Docs, and Drive. Use the email you registered with to access shared links.
+          Shared resources: videos, Meet, Docs, and Drive. Use the email you registered with to access shared links.
         </p>
         {user?.email && (
           <p style={{ marginBottom: '32px', fontSize: '14px', color: '#6b7280' }}>
@@ -67,22 +67,6 @@ const MemberHubPage: React.FC = () => {
           <p style={{ color: '#6b7280' }}>Loading resources…</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-            <Link
-              to="/whiteboards"
-              style={cardStyle}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#002B4D';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <h2 style={{ color: '#002B4D', marginBottom: '8px' }}>Whiteboards</h2>
-              <p style={{ color: '#6b7280', margin: 0 }}>Create and share whiteboards in the app.</p>
-            </Link>
-
             <Link
               to="/portal/backlog"
               style={cardStyle}

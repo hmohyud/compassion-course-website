@@ -44,7 +44,7 @@ import { useContent } from '../../context/ContentContext';
 import { renderHTML, ensureTeamSuffix } from '../../utils/contentUtils';
 
 // Section definitions
-type SectionId = 'about' | 'programs' | 'contact';
+type SectionId = 'about' | 'contact';
 
 interface SectionDefinition {
   id: SectionId;
@@ -59,12 +59,6 @@ const SECTIONS: SectionDefinition[] = [
     name: 'About Us',
     description: 'Manage team members and language sections',
     contentSections: []
-  },
-  {
-    id: 'programs',
-    name: 'Programs',
-    description: 'Edit programs page content',
-    contentSections: ['programs-page']
   },
   {
     id: 'contact',
@@ -356,7 +350,7 @@ const ContentManagement: React.FC = () => {
         } else if (sectionsError) {
           setError(`Language sections: ${sectionsError} Team members loaded successfully.`);
         }
-      } else if (sectionId === 'programs' || sectionId === 'contact') {
+      } else if (sectionId === 'contact') {
         setContentLoading(true);
         try {
           const timeoutPromise = new Promise<never>((_, reject) =>
@@ -1433,66 +1427,6 @@ const ContentManagement: React.FC = () => {
           </div>
         )}
 
-        {/* Programs Section Editor */}
-        {activeSection === 'programs' && (
-          <div className="cm-panel">
-            <div className="cm-panel__header">
-              <h2 className="cm-panel__title">Programs Page Editor</h2>
-              <div className="cm-panel__actions">
-                {contentLoading && (
-                  <span className="cm-panel__loading">Loading content...</span>
-                )}
-                {!contentLoading && getContentForSection('programs').length === 0 && (
-                  <button
-                    onClick={() => {
-                      setLoadedSections(prev => {
-                        const updated = new Set(prev);
-                        updated.delete('programs');
-                        return updated;
-                      });
-                      loadSectionData('programs');
-                    }}
-                    className="btn btn-small btn-secondary"
-                  >
-                    Retry Loading
-                  </button>
-                )}
-              </div>
-            </div>
-            <p className="cm-panel__subtitle">
-              Edit content for the Programs page. Add or edit content items below.
-            </p>
-
-            {getContentForSection('programs').length === 0 ? (
-              <div className="cm-empty">
-                <p>No content items found for Programs page.</p>
-                <p style={{ fontSize: '0.85rem', marginTop: '8px' }}>
-                  Use the content structure below to add new content items.
-                </p>
-              </div>
-            ) : (
-              getContentForSection('programs').map((section) => (
-                <div key={section.section} className="cm-content-group">
-                  <h3 className="cm-content-group__title">{section.section.replace(/-/g, ' ')}</h3>
-                  {section.items.map((item) => (
-                    <div key={item.id} className="cm-content-item">
-                      <div>
-                        <span className="cm-content-item__key">{item.key}</span>
-                        <p className="cm-content-item__preview">
-                          {typeof item.value === 'string' ? item.value.substring(0, 100) : JSON.stringify(item.value).substring(0, 100)}
-                        </p>
-                      </div>
-                      <button onClick={() => handleEdit(item)} className="btn btn-small btn-secondary">
-                        Edit
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
         {/* Contact Section Editor */}
         {activeSection === 'contact' && (
           <div className="cm-panel">
@@ -1571,7 +1505,7 @@ const ContentManagement: React.FC = () => {
         )}
 
         {/* Legacy Content Sections (for backward compatibility - only show if no active section matches) */}
-        {activeSection !== 'about' && activeSection !== 'programs' && activeSection !== 'contact' && sections.map((section) => {
+        {activeSection !== 'about' && activeSection !== 'contact' && sections.map((section) => {
           const sectionStructure = getContentStructureForSection(section.section);
           const isExpanded = expandedSections.has(section.section);
           

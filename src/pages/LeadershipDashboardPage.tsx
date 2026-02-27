@@ -31,7 +31,7 @@ const TABS: { id: TabId; label: string; requiresTeam: boolean }[] = [
   { id: 'team', label: 'Team', requiresTeam: true },
   { id: 'settings', label: 'Settings', requiresTeam: true },
   { id: 'messages', label: 'Messages', requiresTeam: false },
-  { id: 'adminPortal', label: 'Admin Portal', requiresTeam: false },
+  { id: 'adminPortal', label: 'Admin Tools', requiresTeam: false },
 ];
 
 const LeadershipDashboardPage: React.FC = () => {

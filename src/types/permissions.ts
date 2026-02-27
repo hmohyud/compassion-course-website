@@ -2,24 +2,20 @@
 
 export type PermissionId =
   | 'webcasts'
-  | 'whiteboards'
   | 'member_hub'
   | 'profile'
-  | 'communities'
   | 'courses';
 
 export interface PermissionDefinition {
   id: PermissionId;
   label: string;
+  description: string;
 }
 
 export const AVAILABLE_PERMISSIONS: PermissionDefinition[] = [
-  { id: 'webcasts', label: 'Webcasts' },
-  { id: 'whiteboards', label: 'Whiteboards' },
-  { id: 'member_hub', label: 'Member Hub' },
-  { id: 'profile', label: 'My Profile' },
-  { id: 'communities', label: 'Communities' },
-  { id: 'courses', label: 'Courses' },
+  { id: 'member_hub', label: 'Member Hub', description: 'Access shared resources like videos, Meet links, Drive folders, and Google Docs.' },
+  { id: 'profile', label: 'My Profile', description: 'View and edit personal profile settings (name, avatar, bio).' },
+  { id: 'courses', label: 'Courses', description: 'View and enroll in Compassion Course content and lessons.' },
 ];
 
 export const ALL_PERMISSION_IDS: PermissionId[] = AVAILABLE_PERMISSIONS.map(

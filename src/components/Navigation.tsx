@@ -81,7 +81,7 @@ const Navigation: React.FC = () => {
     navigate('/');
   };
 
-  const handleLogInClick = () => {
+  const handleAdminPortalClick = () => {
     setAccountOpen(false);
     openAuthModal();
   };
@@ -136,17 +136,11 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           )}
-          {!user && !authLoading && (
-            <li className="nav-item">
-              <button
-                type="button"
-                className="nav-link nav-link--login"
-                onClick={() => { setIsMenuOpen(false); handleLogInClick(); }}
-              >
-                Log in
-              </button>
-            </li>
-          )}
+          <li className="nav-item">
+            <Link to="/portal/community" className={`nav-link nav-link--login ${isActive('/portal/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+              Log in
+            </Link>
+          </li>
           <li className="nav-item">
             <a href="https://compassioncf.com/donate" target="_blank" rel="noopener noreferrer" className="nav-link nav-link--donate" onClick={() => setIsMenuOpen(false)}>
               <i className="fas fa-heart nav-donate-icon"></i> Donate
@@ -155,7 +149,7 @@ const Navigation: React.FC = () => {
           {user && (
             <>
               <li className="nav-item nav-item--community">
-                <Link to="/portal/circle" className={`nav-link nav-link--community ${isActive('/portal/circle') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                <Link to="/community" className={`nav-link nav-link--community ${isActive('/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                   <i className="fas fa-users nav-community-icon"></i>
                   Community
                 </Link>
@@ -171,6 +165,14 @@ const Navigation: React.FC = () => {
                   <i className="fas fa-external-link-alt nav-external-icon"></i>
                 </a>
               </li>
+              {!user && (
+                <li className="nav-item">
+                  <button type="button" className="nav-link nav-link--admin-mobile" onClick={() => { setIsMenuOpen(false); handleAdminPortalClick(); }}>
+                    <i className="fas fa-lock"></i>
+                    Admin Portal
+                  </button>
+                </li>
+              )}
               {user && (
                 <>
                   <li className="nav-item nav-menu-account-item nav-account-divider">
@@ -194,19 +196,6 @@ const Navigation: React.FC = () => {
                       <i className="fas fa-user-cog nav-menu-account-icon"></i>
                       Profile settings
                     </Link>
-                  </li>
-                  <li className="nav-item nav-menu-account-item">
-                    <a
-                      href="https://login.circle.so/sign_in?request_host=www.theglobalcompassionnetwork.com#email"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="nav-account-btn"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <i className="fas fa-globe-americas nav-menu-account-icon"></i>
-                      2025 GCN Login
-                      <i className="fas fa-external-link-alt nav-menu-account-ext"></i>
-                    </a>
                   </li>
                   <li className="nav-item nav-menu-account-item">
                     <button type="button" className="nav-account-btn" onClick={() => { setIsMenuOpen(false); handlePortalLogout(); }}>
@@ -233,6 +222,19 @@ const Navigation: React.FC = () => {
             <span className="nav-companion-text">Compass Companions</span>
             <i className="fas fa-external-link-alt nav-companion-ext"></i>
           </a>
+
+          {/* Admin Portal button — opens auth modal popup (hidden when signed in) */}
+          {!user && (
+            <button
+              type="button"
+              className="nav-admin-link"
+              title="Admin Portal"
+              onClick={handleAdminPortalClick}
+            >
+              <i className="fas fa-lock nav-admin-icon"></i>
+              <span className="nav-admin-text">Admin Portal</span>
+            </button>
+          )}
 
           {/* Avatar + name + account dropdown when logged in (desktop only — mobile uses hamburger menu) */}
           {user && isDesktop && (
@@ -290,17 +292,6 @@ const Navigation: React.FC = () => {
                     <i className="fas fa-user-cog nav-dropdown-icon"></i>
                     Profile settings
                   </Link>
-                  <a
-                    href="https://login.circle.so/sign_in?request_host=www.theglobalcompassionnetwork.com#email"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="nav-account-dropdown-item"
-                    onClick={() => setAccountOpen(false)}
-                  >
-                    <i className="fas fa-globe-americas nav-dropdown-icon"></i>
-                    2025 GCN Login
-                    <i className="fas fa-external-link-alt nav-dropdown-external"></i>
-                  </a>
                   {isDesktop && <div className="nav-account-dropdown-divider" />}
                   <button
                     type="button"

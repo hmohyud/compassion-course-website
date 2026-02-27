@@ -128,7 +128,7 @@ const AuthModal: React.FC = () => {
         </button>
         <img src="/globalcompnet.png" alt="Global Compassion Network" className="auth-modal-logo" />
         <h2 id="auth-modal-title" className="auth-modal-title">
-          {activeTab === 'login' ? 'Log into your account' : 'Create your account'}
+          {activeTab === 'login' ? 'Admin Portal' : 'Create admin account'}
         </h2>
         <div className="auth-modal-tabs">
           <button
@@ -136,7 +136,7 @@ const AuthModal: React.FC = () => {
             className={`auth-modal-tab ${activeTab === 'login' ? 'active' : ''}`}
             onClick={() => switchTab('login')}
           >
-            Login
+            Sign in
           </button>
           <button
             type="button"
@@ -178,7 +178,7 @@ const AuthModal: React.FC = () => {
                 />
               </div>
               <button type="submit" disabled={loading} className="auth-modal-submit">
-                {loading ? 'Logging in...' : 'Log in'}
+                {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </form>
             <div className="auth-divider"><span>or</span></div>
@@ -277,7 +277,7 @@ const AuthModal: React.FC = () => {
             <p className="auth-modal-footer-link">
               Already have an account?{' '}
               <button type="button" className="auth-modal-link" onClick={() => switchTab('login')}>
-                Log in here
+                Sign in here
               </button>
             </p>
           </>

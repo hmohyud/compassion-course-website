@@ -23,6 +23,8 @@ import UserRegisterPage from './pages/UserRegisterPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 // PortalPage removed — /portal now redirects to /portal/leadership
 import CirclePage from './pages/CirclePage'
+import CommunityPage from './pages/CommunityPage'
+import CommunityComingSoonPage from './pages/CommunityComingSoonPage'
 import BacklogPage from './pages/BacklogPage'
 import CompassionCourseUniversityPage from './pages/CompassionCourseUniversityPage'
 import LibraryPage from './pages/LibraryPage'
@@ -32,8 +34,6 @@ import WorkItemDetailPage from './pages/leadership/WorkItemDetailPage'
 import UserProfilePage from './pages/platform/UserProfilePage'
 import WebcastsPage from './pages/platform/WebcastsPage'
 import WebcastJoinPage from './pages/platform/WebcastJoinPage'
-import WhiteboardsListPage from './pages/WhiteboardsListPage'
-import WhiteboardEditorPage from './pages/WhiteboardEditorPage'
 import EventsPage from './pages/platform/EventsPage'
 import CoursesPage from './pages/platform/CoursesPage'
 import MemberHubPage from './pages/platform/MemberHubPage'
@@ -70,6 +70,8 @@ function App() {
                   <ChangePasswordPage />
                 </UserProtectedRoute>
               } />
+              <Route path="/community" element={<CommunityComingSoonPage />} />
+              <Route path="/portal/community" element={<CommunityPage />} />
               <Route path="/portal" element={<Navigate to="/portal/leadership" replace />} />
               <Route path="/portal/circle" element={
                 <UserProtectedRoute>
@@ -128,16 +130,6 @@ function App() {
                   <WebcastJoinPage />
                 </UserProtectedRoute>
               } />
-              <Route path="/whiteboards" element={
-                <UserProtectedRoute>
-                  <WhiteboardsListPage />
-                </UserProtectedRoute>
-              } />
-              <Route path="/whiteboards/:boardId" element={
-                <UserProtectedRoute>
-                  <WhiteboardEditorPage />
-                </UserProtectedRoute>
-              } />
               <Route path="/platform/events" element={
                 <UserProtectedRoute>
                   <EventsPage />
@@ -161,7 +153,7 @@ function App() {
               <Route path="/admin/users" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=users" replace />} />
               <Route path="/admin/manage" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=users" replace />} />
               <Route path="/admin/content" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=content" replace />} />
-              <Route path="/admin/webcasts" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=webcasts" replace />} />
+              <Route path="/admin/webcasts" element={<Navigate to="/portal/leadership?tab=adminPortal" replace />} />
               <Route path="/admin/role-config" element={<Navigate to="/portal/leadership?tab=adminPortal&adminTab=roles" replace />} />
             </Routes>
           </div>

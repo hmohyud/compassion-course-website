@@ -128,7 +128,7 @@ const CompassionCourseUniversityPage: React.FC = () => {
             >
               <h2 style={{ color: '#002B4D', marginBottom: '6px', fontSize: '1rem' }}>Participants</h2>
               <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                Videos, whiteboards, Meet, Docs, and Drive shared with your email.
+                Videos, Meet, Docs, and Drive shared with your email.
               </p>
             </Link>
           )}

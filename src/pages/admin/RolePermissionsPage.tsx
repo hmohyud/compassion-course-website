@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   getRolePermissions,
   setRolePermissions,
@@ -10,7 +9,6 @@ import { AVAILABLE_PERMISSIONS } from '../../types/permissions';
 import type { PortalRole } from '../../types/platform';
 
 const RolePermissionsPage: React.FC = () => {
-  const navigate = useNavigate();
   const [config, setConfig] = useState<RolePermissionsConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -125,7 +123,30 @@ const RolePermissionsPage: React.FC = () => {
                   <tbody>
                     {AVAILABLE_PERMISSIONS.map((perm) => (
                       <tr key={perm.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <td style={{ padding: '12px 8px' }}>{perm.label}</td>
+                        <td style={{ padding: '12px 8px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            {perm.label}
+                            <span
+                              title={perm.description}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '50%',
+                                background: '#e5e7eb',
+                                color: '#6b7280',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                cursor: 'help',
+                                flexShrink: 0,
+                              }}
+                            >
+                              ?
+                            </span>
+                          </span>
+                        </td>
                         {PORTAL_ROLES.map((r) => (
                           <td key={r} style={{ padding: '12px 8px' }}>
                             <input

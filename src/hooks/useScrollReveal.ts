@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 
 /**
  * Observes elements with the `.reveal` class and adds `.visible`
- * when they scroll into view (IntersectionObserver, threshold 0.15).
+ * when they scroll into view (IntersectionObserver, threshold 0.05).
+ * rootMargin extends the trigger zone 50px below the viewport
+ * so elements begin revealing slightly before they enter view.
  * Call once per page/layout mount.
  */
 export function useScrollReveal() {
@@ -16,7 +18,7 @@ export function useScrollReveal() {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.05, rootMargin: '0px 0px 50px 0px' }
     );
 
     const elements = document.querySelectorAll('.reveal, .reveal-bounce');

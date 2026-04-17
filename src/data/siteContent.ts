@@ -178,7 +178,7 @@ export const siteContent = {
         },
         {
           icon: 'fas fa-bolt',
-          heading: '12 monthly Deep-Dive Sessions — Guided by our global leadership',
+          heading: '11 monthly Deep-Dive Sessions — Guided by our global leadership',
           description:
             'On the fourth Monday of every month, our featured guest trainer offers a specialized deep-dive session on one of the four weekly topics. Participants experience how a single NVC distinction can be applied in radically different contexts — learning moves from "understanding the idea" to "seeing how it lives in the world." This creates consistency of core principles with diversity of lived expression.',
           linkText: 'What makes this different',
@@ -326,7 +326,7 @@ export const siteContent = {
         {
           number: 4,
           icon: 'fas fa-bolt',
-          heading: '12 monthly Deep-Dive Sessions — Guided by our global leadership',
+          heading: '11 monthly Deep-Dive Sessions — Guided by our global leadership',
           text: 'On the fourth Monday of every month:',
           bullets: [
             'Our featured guest trainer offers a specialized deep-dive session on one of the four weekly topics',

@@ -669,7 +669,8 @@ const ContentManagement: React.FC = () => {
       .filter(m => {
         const memberSection = m.teamSection || '';
         // Match by ID (new) or by name/normalized name (backward compat for un-migrated data)
-        return (memberSection === sectionId || memberSection === sectionName || memberSection === normalizedName) && m.isActive !== false;
+        // Note: admins see all members regardless of isActive (inactive ones are shown grayed out)
+        return memberSection === sectionId || memberSection === sectionName || memberSection === normalizedName;
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   };

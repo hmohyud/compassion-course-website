@@ -4239,18 +4239,35 @@ blockquote.typewriter-complete .typewriter-cursor {
   }
 
   function getSectionAudioPath(headerEl) {
-    var card = headerEl.closest('.section-card');
-    var title = headerEl.textContent.trim();
-    var content = card ? getSectionContentText(card) : '';
-    // Content-addressed: hash alone identifies the file, so identical sections
-    // across different weeks share one audio file.
-    return 'audio/' + audioHash(title, content) + '.mp3';
+    // Hardcoded mapping for this static Week 10 sample — filenames are
+    // pinned to the real files in audio/ so the preview-mode DOM injections
+    // (banner, disabled labels) don't break the content-addressed hash lookup.
+    var SAMPLE_WEEK10_MAP = {
+      'The Concept': 'lcuwkj',
+      'In Practice: The Car, the Clubs and the Cab Driver': 'fsf394',
+      'Practice(s) for the Week': '18e1yhh',
+      'Compassion Course Information': 'dsq2m4',
+      'Resources': '1d6v2sz'
+    };
+    var title = (headerEl.textContent || '').trim().replace(/[▼▲]/g, '').trim();
+    var hash = SAMPLE_WEEK10_MAP[title];
+    return hash ? 'audio/' + hash + '.mp3' : '';
   }
 
 
-  // Check if a static file exists (returns promise resolving to boolean)
+  // Check if a static file exists (returns promise resolving to boolean).
+  // Firebase Hosting's SPA fallback rewrites missing paths to /index.html with
+  // a 200 status, so `r.ok` alone is unreliable for audio existence checks.
+  // We verify the response is actually audio/video by checking Content-Type.
   function staticFileExists(path) {
-    return fetch(path, { method: 'HEAD' }).then(function (r) { return r.ok; }).catch(function () { return false; });
+    return fetch(path, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) return false;
+      var ct = (r.headers.get('content-type') || '').toLowerCase();
+      if (ct.indexOf('audio/') === 0 || ct.indexOf('video/') === 0 || ct.indexOf('application/octet-stream') === 0) return true;
+      // Any other Content-Type (notably text/html from the SPA fallback) means
+      // the actual file doesn't exist — don't treat as existing.
+      return false;
+    }).catch(function () { return false; });
   }
 
   // Load all audio parts for a section, returns Promise<Audio[]>

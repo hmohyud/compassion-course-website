@@ -49,14 +49,24 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
     // while keeping them visible so visitors can see the real weekly-message layout.
     // Audio narration stays enabled.
     const applyPreviewMode = (doc: Document) => {
-      // Helper: inject a small "(disabled in preview)" text label after an element, once.
+      // Helper: wrap a disabled element and its label in a flex-row container so
+      // the label sits inline next to the button (not below it on its own line).
       const addDisabledLabel = (el: Element, text = 'Disabled in preview') => {
-        if ((el.nextSibling as HTMLElement | null)?.classList?.contains('sample-preview-label')) return;
+        // Skip if already wrapped
+        if ((el.parentElement as HTMLElement | null)?.classList?.contains('sample-preview-wrap')) return;
+
+        const wrap = doc.createElement('span');
+        wrap.className = 'sample-preview-wrap';
+
         const label = doc.createElement('small');
         label.className = 'sample-preview-label';
         label.setAttribute('aria-hidden', 'true');
         label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>${text}`;
-        el.parentNode?.insertBefore(label, el.nextSibling);
+
+        // Insert wrap in element's place, then move element + label inside wrap
+        el.parentNode?.insertBefore(wrap, el);
+        wrap.appendChild(el);
+        wrap.appendChild(label);
       };
 
       // 1) Journal textareas: readonly + placeholder-as-hint + lock icon overlay
@@ -170,12 +180,27 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
           }
           button[data-preview-disabled] { pointer-events: none; }
 
+          /* Flex-row wrapper that keeps the disabled button and its label on
+             the same line even when the parent is a flex column. */
+          .sample-preview-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: nowrap;
+            max-width: 100%;
+            margin-top: 1.5rem;
+          }
+          /* Move the button's own margin up to the wrap so the two items sit
+             on a shared baseline (otherwise the button gets pushed down). */
+          .sample-preview-wrap .section-read-btn { margin-top: 0 !important; }
+          .sample-preview-wrap .toc-btn { margin-top: 0 !important; }
+          /* Don't add a top margin if the wrap is inside the TOC's action row */
+          .toc-actions .sample-preview-wrap { margin-top: 0; }
           /* Inline "(Disabled in preview)" label injected next to disabled buttons */
           .sample-preview-label {
             display: inline-flex;
             align-items: center;
             gap: 0.35em;
-            margin-left: 0.6rem;
             padding: 0.12rem 0.55rem;
             font-size: 0.7rem;
             font-weight: 600;
@@ -190,9 +215,8 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
             font-family: inherit;
           }
           .sample-preview-label-dot { font-size: 0.72em; line-height: 1; }
-          /* Put the print-button label on its own line below the TOC-actions row */
-          .toc-actions { flex-wrap: wrap; gap: 0.4rem 0.4rem; }
-          .toc-actions .sample-preview-label { margin-left: 0; margin-top: 0.25rem; }
+          /* Keep TOC actions tidy when the print wrapper wraps */
+          .toc-actions { flex-wrap: wrap; gap: 0.4rem; }
 
           /* Parent wrapper padlock badge for disabled journal */
           .practice-card { position: relative; }

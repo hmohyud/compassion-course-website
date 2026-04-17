@@ -366,7 +366,7 @@ const HomePage: React.FC = () => {
             <div className="home-impact-video">
               <video
                 controls
-                preload="metadata"
+                preload="none"
                 poster="/images/how-it-works-video.jpg"
               >
                 <source src={home.peaceEducation.videoSrc} type="video/mp4" />
@@ -448,7 +448,7 @@ const HomePage: React.FC = () => {
         <div className="container">
           <div className="social-proof-layout">
             <div className="social-proof-video-side">
-              <video controls preload="metadata">
+              <video controls preload="none">
                 <source src={home.socialProof.videoSrc} type="video/mp4" />
               </video>
             </div>

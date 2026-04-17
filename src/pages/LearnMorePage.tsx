@@ -1,9 +1,311 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import JotformPopup from '../components/JotformPopup';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { siteContent } from '../data/siteContent';
+
+// Iframe that embeds a self-contained sample weekly message HTML file.
+// Since the file is same-origin (served from /samples/) we can:
+//   1) hide the inner file's duplicated top-nav / footer / progress bar
+//   2) auto-resize the iframe to its content's scrollHeight so there's no inner scrollbar
+const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [height, setHeight] = useState<number>(1400);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    let observer: ResizeObserver | null = null;
+    let clickHandler: ((e: Event) => void) | null = null;
+
+    // Target element to measure — a wrapper that represents "actual content"
+    // so the iframe's own chrome doesn't mess with height reporting.
+    const getMeasureTarget = (doc: Document): HTMLElement | null =>
+      doc.querySelector('.main-content') as HTMLElement | null;
+
+    const measure = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc || !doc.body) return;
+        const target = getMeasureTarget(doc);
+        // Measure real content height — NOT documentElement.scrollHeight.
+        // The iframe's <html> stretches to the iframe's set height (min-height
+        // behavior), so using it creates a one-way feedback loop where the
+        // iframe only ever grows and never shrinks.
+        // Prefer main-content's offsetTop + offsetHeight (reliable). Fall back
+        // to body.scrollHeight which reflects content, not the iframe frame.
+        const mainBottom = target ? target.offsetTop + target.offsetHeight : 0;
+        const bodyScroll = doc.body.scrollHeight;
+        const h = Math.max(mainBottom, bodyScroll);
+        // No hard upper bound — iframe can grow arbitrarily tall when everything
+        // is expanded. Lower bound guards against transient 0-values during load.
+        if (h > 200) setHeight(h + 4);
+      } catch { /* noop — same-origin should be fine */ }
+    };
+
+    // Apply preview-mode treatment: disable journaling, mark-completed, print
+    // while keeping them visible so visitors can see the real weekly-message layout.
+    // Audio narration stays enabled.
+    const applyPreviewMode = (doc: Document) => {
+      // Helper: inject a small "(disabled in preview)" text label after an element, once.
+      const addDisabledLabel = (el: Element, text = 'Disabled in preview') => {
+        if ((el.nextSibling as HTMLElement | null)?.classList?.contains('sample-preview-label')) return;
+        const label = doc.createElement('small');
+        label.className = 'sample-preview-label';
+        label.setAttribute('aria-hidden', 'true');
+        label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>${text}`;
+        el.parentNode?.insertBefore(label, el.nextSibling);
+      };
+
+      // 1) Journal textareas: readonly + placeholder-as-hint + lock icon overlay
+      doc.querySelectorAll<HTMLTextAreaElement>('.journal-area').forEach((ta) => {
+        ta.readOnly = true;
+        ta.setAttribute('aria-disabled', 'true');
+        ta.setAttribute('data-preview-disabled', 'journal');
+        if (!ta.placeholder || !ta.placeholder.includes('Preview')) {
+          ta.placeholder = '🔒 Journal disabled in preview — enrolled participants have a personal journal that autosaves between visits.';
+        }
+      });
+      // 2) Mark-as-read buttons: disabled + tooltip + inline label
+      doc.querySelectorAll<HTMLButtonElement>('.section-read-btn').forEach((btn) => {
+        btn.setAttribute('disabled', 'disabled');
+        btn.setAttribute('aria-disabled', 'true');
+        btn.setAttribute('data-preview-disabled', 'mark-read');
+        btn.title = 'Disabled in preview — enrolled participants can track their progress through the course';
+        addDisabledLabel(btn);
+      });
+      // 3) Print button(s) in the TOC: disabled + inline label
+      doc.querySelectorAll<HTMLButtonElement>('.toc-btn').forEach((btn) => {
+        const txt = (btn.textContent || '').trim().toLowerCase();
+        if (txt.startsWith('print')) {
+          btn.setAttribute('disabled', 'disabled');
+          btn.setAttribute('aria-disabled', 'true');
+          btn.setAttribute('data-preview-disabled', 'print');
+          btn.title = 'Disabled in preview — enrolled participants can print the full lesson';
+          addDisabledLabel(btn);
+        }
+      });
+    };
+
+    const onLoad = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+
+        // Hide chrome that would duplicate what the outer site already has
+        // and style the preview-mode banner + disabled-feature affordances.
+        const style = doc.createElement('style');
+        style.textContent = `
+          .top-nav, .site-footer, #progress-bar, #back-to-top { display: none !important; }
+          html, body { background: transparent !important; }
+          body { padding: 0 !important; margin: 0 !important; }
+          /* Scoped to only the hero inside the sample iframe (tagged via JS
+             below with .sample-embedded-hero). Doesn't affect the outer site. */
+          .hero.sample-embedded-hero { border-radius: 16px; margin: 0 !important; }
+          .main-content { padding-top: 1.5rem !important; padding-bottom: 1.25rem !important; }
+
+          /* Keep section titles from colliding with the absolutely-positioned
+             narrate (audio) button. The button sits at right:4rem / 28px wide.
+             We want titles to hug the button without excessive whitespace, so
+             reserve just enough room (button width + small gap). min-width:0
+             is needed so the flex child can actually shrink/wrap. */
+          .accordion-header h2 {
+            padding-right: 2.75rem !important;
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+          }
+          @media (max-width: 540px) {
+            .accordion-header h2 { padding-right: 2.25rem !important; }
+            .section-narrate-btn { right: 2.75rem !important; }
+          }
+
+          /* Preview banner injected into the main-content wrapper */
+          .sample-preview-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 0 0 1.5rem;
+            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(42,122,110,0.08), rgba(232,168,56,0.08));
+            border: 1px solid rgba(42,122,110,0.25);
+            color: var(--clr-text, #2d2d2d);
+            font-size: 0.9rem;
+            line-height: 1.5;
+          }
+          .sample-preview-banner-icon {
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--clr-primary, #2a7a6e);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 1px;
+          }
+          .sample-preview-banner strong { color: var(--clr-primary, #2a7a6e); }
+
+          /* Disabled-feature visual: show element but make it clearly non-interactive */
+          [data-preview-disabled] {
+            opacity: 0.55;
+            cursor: not-allowed !important;
+            position: relative;
+          }
+          [data-preview-disabled]:hover { opacity: 0.65; }
+          textarea[data-preview-disabled="journal"] {
+            background: repeating-linear-gradient(
+              -45deg,
+              var(--clr-bg-card, #fff),
+              var(--clr-bg-card, #fff) 12px,
+              var(--clr-bg-alt, #f0ece4) 12px,
+              var(--clr-bg-alt, #f0ece4) 24px
+            ) !important;
+            color: var(--clr-text-muted, #8a8a8a) !important;
+            caret-color: transparent;
+          }
+          button[data-preview-disabled] { pointer-events: none; }
+
+          /* Inline "(Disabled in preview)" label injected next to disabled buttons */
+          .sample-preview-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35em;
+            margin-left: 0.6rem;
+            padding: 0.12rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--clr-text-muted, #8a8a8a);
+            background: var(--clr-bg-alt, #f0ece4);
+            border: 1px dashed var(--clr-border, #e0dbd2);
+            border-radius: 999px;
+            white-space: nowrap;
+            vertical-align: middle;
+            line-height: 1.4;
+            font-family: inherit;
+          }
+          .sample-preview-label-dot { font-size: 0.72em; line-height: 1; }
+          /* Put the print-button label on its own line below the TOC-actions row */
+          .toc-actions { flex-wrap: wrap; gap: 0.4rem 0.4rem; }
+          .toc-actions .sample-preview-label { margin-left: 0; margin-top: 0.25rem; }
+
+          /* Parent wrapper padlock badge for disabled journal */
+          .practice-card { position: relative; }
+          .practice-card:has(textarea[data-preview-disabled]) > .journal-footer,
+          .practice-card:has(textarea[data-preview-disabled]) > .journal-saved {
+            display: none !important;
+          }
+          .practice-card:has(textarea[data-preview-disabled])::after {
+            content: '🔒 Journal disabled in preview';
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            background: var(--clr-bg-card, #fff);
+            color: var(--clr-text-muted, #8a8a8a);
+            border: 1px dashed var(--clr-border, #e0dbd2);
+          }
+        `;
+        doc.head.appendChild(style);
+
+        // Tag the hero so our injected CSS can target it narrowly (scoped to
+         // inside this iframe only — no outer-site impact).
+        doc.querySelector('.hero')?.classList.add('sample-embedded-hero');
+
+        // Some dialogue containers in the bundle only have a single line (the
+        // Friend's quote used as setup) — their Next/Reset controls are
+        // vestigial and clicking Next does nothing visible. Hide those
+        // controls so visitors don't mash a non-functional button.
+        doc.querySelectorAll('.dialogue-container').forEach((container) => {
+          const lineCount = container.querySelectorAll('.dialogue-line, .dialogue-narration').length;
+          if (lineCount <= 1) {
+            const controls = container.querySelector('.dialogue-controls') as HTMLElement | null;
+            if (controls) controls.style.display = 'none';
+          }
+        });
+
+        // Inject preview banner at the top of .main-content (once)
+        const main = doc.querySelector('.main-content');
+        if (main && !main.querySelector('.sample-preview-banner')) {
+          const banner = doc.createElement('div');
+          banner.className = 'sample-preview-banner';
+          banner.setAttribute('role', 'note');
+          banner.innerHTML = `
+            <span class="sample-preview-banner-icon" aria-hidden="true">i</span>
+            <span>
+              <strong>Preview mode.</strong>
+              You can read the lesson and play the audio narration.
+              <em>Mark-completed</em>, <em>journaling</em>, and <em>print</em> are disabled here —
+              enrolled participants get full access.
+            </span>
+          `;
+          main.insertBefore(banner, main.firstChild);
+        }
+
+        // Apply disabled treatment to interactive features
+        applyPreviewMode(doc);
+        // Re-apply after the bundled script initializes (buttons are injected late)
+        setTimeout(() => applyPreviewMode(doc), 300);
+        setTimeout(() => applyPreviewMode(doc), 1200);
+
+        // Initial measurement after the browser paints
+        setTimeout(measure, 50);
+        setTimeout(measure, 400);
+
+        // Watch for content size changes on .main-content only (not body).
+        // Watching body can create a feedback loop because the iframe's body
+        // sizes itself to the iframe height.
+        const target = getMeasureTarget(doc);
+        if (target) {
+          observer = new ResizeObserver(measure);
+          observer.observe(target);
+        }
+
+        // Re-measure shortly after any click (accordion animations finish in ~500ms).
+        // Also re-apply preview mode in case new buttons were injected by the bundle's JS.
+        clickHandler = () => {
+          setTimeout(() => { measure(); applyPreviewMode(doc); }, 100);
+          setTimeout(() => { measure(); applyPreviewMode(doc); }, 600);
+        };
+        doc.addEventListener('click', clickHandler);
+      } catch (err) {
+        console.warn('Sample iframe setup failed:', err);
+      }
+    };
+
+    iframe.addEventListener('load', onLoad);
+    return () => {
+      iframe.removeEventListener('load', onLoad);
+      if (observer) observer.disconnect();
+      try {
+        if (clickHandler && iframe.contentDocument) {
+          iframe.contentDocument.removeEventListener('click', clickHandler);
+        }
+      } catch { /* noop */ }
+    };
+  }, []);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      src={src}
+      title={title}
+      className="learn-sample-iframe"
+      style={{ width: '100%', height: `${height}px`, border: 'none', display: 'block', overflow: 'hidden' }}
+      allow="autoplay"
+      scrolling="no"
+      loading="lazy"
+    />
+  );
+};
 // FlipCard component for "What Makes This Different"
 const FlipCard: React.FC<{
   icon: string;
@@ -28,35 +330,6 @@ const FlipCard: React.FC<{
           <p>{text}</p>
           <span className="flip-card-back-label">Click to flip back</span>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// Collapsible section for sample week content
-const CollapsibleSection: React.FC<{
-  labelClass?: string;
-  icon: string;
-  title: string;
-  cardClass?: string;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}> = ({ labelClass = '', icon, title, cardClass = '', defaultOpen = false, children }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  return (
-    <div className={`learn-sample-collapsible ${cardClass} ${isOpen ? 'learn-sample-collapsible--open' : ''}`}>
-      <button
-        className={`learn-sample-section-label ${labelClass}`}
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        type="button"
-      >
-        <i className={icon}></i>
-        <span>{title}</span>
-        <i className={`fas fa-chevron-down learn-sample-chevron ${isOpen ? 'learn-sample-chevron--open' : ''}`}></i>
-      </button>
-      <div className={`learn-sample-collapsible-body ${isOpen ? 'learn-sample-collapsible-body--open' : ''}`}>
-        {children}
       </div>
     </div>
   );
@@ -116,7 +389,7 @@ const LearnMorePage: React.FC = () => {
           <h2 className="section-title">{learnMore.origin.title}</h2>
           <div className="learn-origin-inner">
             <div className="learn-origin-image">
-              <video controls preload="metadata" poster="/images/origin-conversation.jpg">
+              <video controls preload="none" poster="/images/origin-conversation.jpg">
                 <source src={learnMore.origin.videoSrc} type="video/mp4" />
               </video>
             </div>
@@ -264,203 +537,42 @@ const LearnMorePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Sample Week 1 — Empathy */}
+      {/* Sample Week 10 — Empathy */}
       <section id="sample-empathy" className="learn-sample reveal">
         <div className="container">
           <div className="learn-sample-header">
             <span className="learn-sample-badge">{learnMore.sampleEmpathy.badge}</span>
             <h2 className="section-title">{learnMore.sampleEmpathy.title}</h2>
+            <p className="learn-sample-intro">
+              A preview of the full weekly message — expand sections, play the audio narration,
+              and try the practice journal.
+            </p>
           </div>
-          <div className="learn-sample-body">
-            {/* Opening Quote */}
-            {'quote' in learnMore.sampleEmpathy && (
-              <blockquote className="learn-sample-quote">
-                <span className="learn-sample-quote-mark">{'\u201C'}</span>
-                <p>{(learnMore.sampleEmpathy as any).quote.text}</p>
-                <cite>{'\u2014'} {(learnMore.sampleEmpathy as any).quote.author}</cite>
-              </blockquote>
-            )}
-
-            {/* The Concept — always visible */}
-            <div className="learn-sample-concept">
-              <div className="learn-sample-section-label">
-                <i className="fas fa-lightbulb"></i>
-                <span>{learnMore.sampleEmpathy.concept.heading}</span>
-              </div>
-              {'paragraphs' in learnMore.sampleEmpathy.concept &&
-                (learnMore.sampleEmpathy.concept as any).paragraphs.map((para: string, i: number) => (
-                  <p key={i}>{para}</p>
-                ))
-              }
-            </div>
-
-            {/* Non-Empathic Examples — collapsible */}
-            {'nonEmpathicExamples' in learnMore.sampleEmpathy && (
-              <CollapsibleSection
-                icon="fas fa-comments"
-                title="What Empathy Is Not"
-                labelClass="learn-sample-section-label--accent"
-                cardClass="learn-sample-examples"
-              >
-                <p className="learn-sample-examples-intro">
-                  {(learnMore.sampleEmpathy as any).examplesIntro}
-                </p>
-                <div className="learn-sample-example-prompt">
-                  <i className="fas fa-quote-left learn-sample-prompt-icon"></i>
-                  <p>{(learnMore.sampleEmpathy as any).examplePrompt}</p>
-                </div>
-                <div className="learn-sample-examples-list">
-                  {(learnMore.sampleEmpathy as any).nonEmpathicExamples.map((ex: any, i: number) => (
-                    <div key={ex.heading} className="learn-sample-example-item">
-                      <div className="learn-sample-example-number">{i + 1}</div>
-                      <div className="learn-sample-example-content">
-                        <h4>{ex.heading}</h4>
-                        <p className="learn-sample-example-quote">{ex.text}</p>
-                        <div className="learn-sample-example-reflection">
-                          <i className="fas fa-seedling"></i>
-                          <span>{ex.reflection}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleSection>
-            )}
-
-            {/* Empathy Conclusion — collapsible */}
-            {'empathyConclusion' in learnMore.sampleEmpathy && (
-              <CollapsibleSection
-                icon="fas fa-heart"
-                title="So What Then? Perhaps Empathy"
-                labelClass="learn-sample-section-label--warm"
-                cardClass="learn-sample-conclusion"
-              >
-                {(learnMore.sampleEmpathy as any).empathyConclusion.map((para: string, i: number) => (
-                  <p key={i}>{para}</p>
-                ))}
-              </CollapsibleSection>
-            )}
-
-            {/* The Story — collapsible */}
-            <CollapsibleSection
-              icon="fas fa-book-open"
-              title={learnMore.sampleEmpathy.story.heading}
-              labelClass="learn-sample-section-label--story"
-              cardClass="learn-sample-story"
-            >
-              <div className="learn-sample-story-content">
-                {'paragraphs' in learnMore.sampleEmpathy.story
-                  ? (learnMore.sampleEmpathy.story as any).paragraphs.map((para: string, i: number) => (
-                      <p key={i}>{para}</p>
-                    ))
-                  : <p>{(learnMore.sampleEmpathy.story as any).text}</p>
-                }
-              </div>
-            </CollapsibleSection>
-
-            {/* Practices — collapsible */}
-            <CollapsibleSection
-              icon="fas fa-hands"
-              title={learnMore.sampleEmpathy.practicesHeading}
-              labelClass="learn-sample-section-label--practice"
-              cardClass="learn-sample-practice"
-            >
-              <div className="learn-sample-practice-list">
-                {learnMore.sampleEmpathy.practices.map((practice, i) => (
-                  <div key={practice.heading} className="learn-sample-practice-item">
-                    <div className="learn-sample-practice-number">{i + 1}</div>
-                    <div className="learn-sample-practice-content">
-                      <strong>{practice.heading}</strong>
-                      <p>{practice.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CollapsibleSection>
+          <div className="learn-sample-iframe-wrap">
+            <SampleIframe
+              src="/samples/week10.html"
+              title="Sample Week 10: What Empathy Is... and What It's Not"
+            />
           </div>
         </div>
       </section>
 
-      {/* Sample Week 2 — Appreciation */}
+      {/* Sample Week 22 — Appreciation */}
       <section id="sample-appreciation" className="learn-sample learn-sample--alt reveal">
         <div className="container">
           <div className="learn-sample-header">
             <span className="learn-sample-badge learn-sample-badge--alt">{learnMore.sampleAppreciation.badge}</span>
             <h2 className="section-title">{learnMore.sampleAppreciation.title}</h2>
+            <p className="learn-sample-intro">
+              A preview of the full weekly message — expand sections, play the audio narration,
+              and try the practice journal.
+            </p>
           </div>
-          <div className="learn-sample-body">
-            {/* Opening Quote */}
-            {'quote' in learnMore.sampleAppreciation && (
-              <blockquote className="learn-sample-quote learn-sample-quote--alt">
-                <span className="learn-sample-quote-mark">{'\u201C'}</span>
-                <p>{(learnMore.sampleAppreciation as any).quote.text}</p>
-                <cite>{'\u2014'} {(learnMore.sampleAppreciation as any).quote.author}</cite>
-              </blockquote>
-            )}
-
-            {/* The Concept — always visible */}
-            <div className="learn-sample-concept">
-              <div className="learn-sample-section-label">
-                <i className="fas fa-lightbulb"></i>
-                <span>{learnMore.sampleAppreciation.concept.heading}</span>
-              </div>
-              {'sections' in learnMore.sampleAppreciation.concept
-                ? (learnMore.sampleAppreciation.concept as any).sections.map((section: any, si: number) => (
-                    <div key={si} className="learn-sample-concept-section">
-                      {section.subheading && (
-                        <h4 className="learn-sample-subheading">
-                          <span className="learn-sample-subheading-marker"></span>
-                          {section.subheading}
-                        </h4>
-                      )}
-                      {section.paragraphs.map((para: string, pi: number) => (
-                        <p key={pi}>{para}</p>
-                      ))}
-                    </div>
-                  ))
-                : 'paragraphs' in learnMore.sampleAppreciation.concept &&
-                  (learnMore.sampleAppreciation.concept as any).paragraphs.map((para: string, i: number) => (
-                    <p key={i}>{para}</p>
-                  ))
-              }
-            </div>
-
-            {/* The Story — collapsible */}
-            <CollapsibleSection
-              icon="fas fa-book-open"
-              title={learnMore.sampleAppreciation.story.heading}
-              labelClass="learn-sample-section-label--story"
-              cardClass="learn-sample-story"
-            >
-              <div className="learn-sample-story-content">
-                {'paragraphs' in learnMore.sampleAppreciation.story
-                  ? (learnMore.sampleAppreciation.story as any).paragraphs.map((para: string, i: number) => (
-                      <p key={i}>{para}</p>
-                    ))
-                  : <p>{(learnMore.sampleAppreciation.story as any).text}</p>
-                }
-              </div>
-            </CollapsibleSection>
-
-            {/* Practices — collapsible */}
-            <CollapsibleSection
-              icon="fas fa-hands"
-              title={learnMore.sampleAppreciation.practicesHeading}
-              labelClass="learn-sample-section-label--practice"
-              cardClass="learn-sample-practice"
-            >
-              <div className="learn-sample-practice-list">
-                {learnMore.sampleAppreciation.practices.map((practice, i) => (
-                  <div key={practice.heading} className="learn-sample-practice-item">
-                    <div className="learn-sample-practice-number">{i + 1}</div>
-                    <div className="learn-sample-practice-content">
-                      <strong>{practice.heading}</strong>
-                      <p>{practice.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CollapsibleSection>
+          <div className="learn-sample-iframe-wrap">
+            <SampleIframe
+              src="/samples/week22.html"
+              title="Sample Week 22: The Power of Thanks — More About Appreciation"
+            />
           </div>
         </div>
       </section>
@@ -471,7 +583,7 @@ const LearnMorePage: React.FC = () => {
           <h2 className="section-title">{learnMore.whatMakesDifferent.heading}</h2>
           <p className="section-description">{learnMore.whatMakesDifferent.subtitle}</p>
           <div className="learn-different-video">
-            <video controls preload="metadata" poster="/images/hero-community.jpg">
+            <video controls preload="none" poster="/images/hero-community.jpg">
               <source src={learnMore.whatMakesDifferent.videoSrc} type="video/mp4" />
             </video>
           </div>

@@ -3010,6 +3010,37 @@ section {
     gap: var(--space-10, 2.5rem);
 }
 
+/* Intro line shown above the embedded sample week iframe */
+.learn-sample-intro {
+    margin-top: 0.75rem;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--color-gray-600, #52525b);
+    font-size: 1rem;
+    line-height: 1.55;
+    text-align: center;
+}
+
+/* Wrapper that frames the embedded sample weekly message HTML file */
+.learn-sample-iframe-wrap {
+    max-width: 980px;
+    margin: 2rem auto 0;
+    border-radius: 20px;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-100);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.learn-sample-iframe {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    /* height is set inline by the React component based on iframe content */
+}
+
 /* --- Collapsible Section Wrapper --- */
 .learn-sample-collapsible {
     background: var(--color-white);
@@ -7250,6 +7281,46 @@ section {
     bottom: 0;
     right: 0;
     z-index: 999;
+}
+
+/* Lightweight trigger shown instead of the full ConvAI widget until the user
+   opts in. Saves Chrome's WebMediaPlayer budget for in-page audio. */
+.chatbot-widget-trigger {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 999;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 1.15rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-gray-200, #e4e4e7);
+    background: var(--color-white, #fff);
+    color: var(--color-gray-900, #18181b);
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.chatbot-widget-trigger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+    background: var(--color-gray-50, #fafafa);
+}
+.chatbot-widget-trigger i {
+    color: var(--color-primary, #0d9488);
+    font-size: 1rem;
+}
+@media (max-width: 600px) {
+    .chatbot-widget-trigger {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.85rem;
+    }
 }
 
 /* ==========================================

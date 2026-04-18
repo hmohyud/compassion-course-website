@@ -196,6 +196,22 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     `<script>window.__AUTH_CONFIG__={adminHash:"",courseHash:"",weeks:{}};<\/script>`,
   );
 
+  // 3b. Neutralize in-iframe nav links that point to index.html (or week_N.html).
+  //     These are relative to the iframe's srcdoc base, which resolves to
+  //     whatever the outer page URL is — causing clicks to navigate the
+  //     OUTER React app to /weekly/index.html (which our router treats as a
+  //     broken weekNum). We strip the href on .nav-back and .nav-brand so
+  //     they stay visible but no longer navigate; the outer topbar provides
+  //     "← All weeks" already.
+  out = out.replace(
+    /<a(\s[^>]*?)class=(["'])([^"']*\bnav-back\b[^"']*)\2([^>]*)>/gi,
+    '<a$1class=$2$3$2$4 style="pointer-events:none;visibility:hidden">',
+  );
+  out = out.replace(
+    /<a(\s[^>]*?)class=(["'])([^"']*\bnav-brand\b[^"']*)\2([^>]*)>/gi,
+    '<span$1class=$2$3$2$4>',
+  ).replace(/<\/a>(\s*<\/div>\s*<div class="nav-controls")/g, '</span>$1');
+
   // 4. Inject an early script in <head> that:
   //    (a) overrides `fetch` to satisfy the bundle's HEAD-request existence
   //        probes for `audio/xxx.mp3` — the bundle probes with HEAD before

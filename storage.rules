@@ -35,6 +35,35 @@ service firebase.storage {
             || request.resource.contentType == 'application/json');
     }
 
+    // Weekly lesson HTML files — admin-only read/write.
+    // These are the protected course content files.
+    match /weekly-html/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType == 'text/html';
+    }
+
+    // Weekly audio narration MP3s — admin-only read/write.
+    // Max 20MB per file.
+    match /weekly-audio/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin()
+        && request.resource.size < 20 * 1024 * 1024
+        && request.resource.contentType.matches('audio/(mpeg|mp4|mp3)');
+    }
+
+    // Weekly shared assets (CSS + JS) — admin-only read/write.
+    // Shared across all weekly lesson pages.
+    match /weekly-assets/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin()
+        && request.resource.size < 2 * 1024 * 1024
+        && (request.resource.contentType == 'text/css'
+            || request.resource.contentType == 'application/javascript'
+            || request.resource.contentType == 'text/javascript');
+    }
+
     // Default: deny all other access
     match /{allPaths=**} {
       allow read, write: if false;

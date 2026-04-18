@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Seed Weekly Content to Firebase</title>
+<style>
+  body { font-family: system-ui; max-width: 820px; margin: 40px auto; padding: 0 20px; background: #faf7f2; }
+  h1 { color: #0d9488; }
+  .step { background: #fff; border-left: 4px solid #0d9488; padding: 14px 18px; margin: 14px 0; border-radius: 0 10px 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  button { background: #0d9488; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 6px 4px; }
+  button:hover { background: #0f766e; }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+  button.danger { background: #ef4444; }
+  #status { font-weight: 600; margin: 10px 0; }
+  #log { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.82rem; max-height: 600px; overflow-y: auto; margin-top: 14px; }
+  input[type=file] { margin: 6px 0; }
+  .ok { color: #10b981; }
+  .err { color: #ef4444; }
+  .warn { color: #f59e0b; }
+  details { margin: 10px 0; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<h1>Seed Weekly Content → Firebase</h1>
+
+<p>
+  One-time migration tool: uploads the weekly lesson files (HTML, audio, CSS, JS) to
+  Firebase Cloud Storage under admin-only paths, then creates Firestore metadata
+  docs for each week. You must run this <strong>once</strong> after the code ships but
+  before deleting <code>public/weekly/</code>.
+</p>
+
+<div class="step">
+  <strong>Step 1 — Sign in as admin</strong><br>
+  <button id="loginBtn" onclick="doLogin()">Sign In with Google</button>
+  <span id="status">Not signed in</span>
+</div>
+
+<div class="step">
+  <strong>Step 2 — Point at your local <code>cc-weekly-emails</code> folder</strong><br>
+  Use the folder picker to select the <code>cc-weekly-emails</code> directory on your
+  machine. The script reads <code>week_*.html</code>, <code>styles.css</code>,
+  <code>script.js</code>, and <code>audio/*.mp3</code> from that folder.<br>
+  <input id="folderInput" type="file" webkitdirectory directory multiple disabled>
+  <span id="folderStatus"></span>
+</div>
+
+<div class="step">
+  <strong>Step 3 — Dry run (preview what will be uploaded)</strong><br>
+  <button id="dryBtn" onclick="runMigration(true)" disabled>Preview Only (Dry Run)</button>
+</div>
+
+<div class="step">
+  <strong>Step 4 — Apply (upload + seed)</strong><br>
+  <button id="runBtn" onclick="runMigration(false)" disabled class="danger">Upload &amp; Seed Firestore</button>
+</div>
+
+<div id="log"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref as sref, uploadBytes } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+const app = initializeApp({
+  apiKey: "AIzaSyAAMFrWpsv1BIAkPIjNjGnV61IkZ8EIeRY",
+  authDomain: "compassioncourse.org",
+  projectId: "compassion-course-websit-937d6",
+  storageBucket: "compassion-course-websit-937d6.firebasestorage.app",
+  messagingSenderId: "1087479449158",
+  appId: "1:1087479449158:web:882a39db02a25172322c47"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Week release dates (from the existing auth-config.js). Keep in sync if dates change.
+const RELEASE_DATES = {
+  1: "2025-12-29", 2: "2026-01-05", 3: "2026-01-12", 4: "2026-01-19",
+  10: "2026-03-02", 22: "2026-05-25",
+  // Add more weeks here as they get authored. Unlisted weeks default to 2026-12-21 (end of year).
+};
+
+// Known week titles (extend as needed). Unlisted weeks get a placeholder.
+const WEEK_TITLES = {
+  1:  "Everything We Do, We Do to Meet a Need",
+  2:  "Most of Us Were Taught Something Else",
+  3:  "We Are All Equipped with Onboard Need Radar",
+  4:  "What's the Big Deal with Needs?",
+  10: "What Empathy Is… and What It's Not",
+  22: "The Power of Thanks — More About Appreciation",
+};
+
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  const span = document.createElement('span');
+  if (cls) span.className = cls;
+  span.textContent = msg + '\n';
+  el.appendChild(span);
+  el.scrollTop = el.scrollHeight;
+}
+
+let files = null;   // array of { relPath, file } once folder is picked
+let signedIn = false;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    signedIn = true;
+    document.getElementById('status').textContent = 'Signed in: ' + user.email;
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('folderInput').disabled = false;
+    log('Signed in as ' + user.email);
+  }
+});
+
+document.getElementById('folderInput').addEventListener('change', (e) => {
+  const picked = Array.from(e.target.files || []);
+  // Filter to the files we care about
+  const wanted = picked.filter(f => {
+    const p = f.webkitRelativePath || f.name;
+    return /(^|\/)(week_\d+\.html|styles\.css|script\.js|audio\/[^/]+\.mp3)$/.test(p);
+  });
+  files = wanted.map(f => ({ relPath: f.webkitRelativePath || f.name, file: f }));
+  document.getElementById('folderStatus').textContent = ' — ' + files.length + ' file(s) selected';
+  document.getElementById('dryBtn').disabled = false;
+  document.getElementById('runBtn').disabled = false;
+  log('Found ' + files.length + ' weekly files in picked folder');
+});
+
+window.doLogin = async () => {
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (err) { log('Login failed: ' + err.message, 'err'); }
+};
+
+const CT = {
+  '.html': 'text/html',
+  '.mp3':  'audio/mpeg',
+  '.css':  'text/css',
+  '.js':   'application/javascript',
+};
+
+window.runMigration = async (dryRun) => {
+  if (!signedIn) return log('Sign in first.', 'err');
+  if (!files || !files.length) return log('Pick the cc-weekly-emails folder first.', 'err');
+  log('\n' + (dryRun ? '=== DRY RUN ===' : '=== UPLOADING ==='));
+
+  // Classify files
+  const htmlFiles = files.filter(f => /week_\d+\.html$/.test(f.relPath));
+  const audioFiles = files.filter(f => /audio\/[^/]+\.mp3$/.test(f.relPath));
+  const stylesFile = files.find(f => /(^|\/)styles\.css$/.test(f.relPath));
+  const scriptFile = files.find(f => /(^|\/)script\.js$/.test(f.relPath));
+
+  log('HTML: ' + htmlFiles.length + ' | audio: ' + audioFiles.length + ' | styles: ' + (stylesFile?'yes':'NO') + ' | script: ' + (scriptFile?'yes':'NO'));
+
+  // For each HTML file, parse its number and build a plan
+  const plan = [];
+  for (const h of htmlFiles) {
+    const m = h.relPath.match(/week_(\d+)\.html$/);
+    if (!m) continue;
+    const n = parseInt(m[1], 10);
+    const storageHtml = `weekly-html/week-${n}.html`;
+    const audioList = audioFiles.map(a => `weekly-audio/${a.relPath.split('/').pop()}`);
+    plan.push({
+      weekNumber: n,
+      file: h.file,
+      storageHtml,
+      audioList,  // all audio — viewer handles any week's subset from the full pool
+      title: WEEK_TITLES[n] || `Week ${n}`,
+      releaseDate: RELEASE_DATES[n] || '2026-12-21',
+    });
+  }
+  plan.sort((a,b) => a.weekNumber - b.weekNumber);
+
+  log('\nPlan:');
+  for (const p of plan) {
+    log(`  Week ${p.weekNumber}: HTML → ${p.storageHtml}, title="${p.title}", release=${p.releaseDate}`);
+  }
+  log(`  Shared assets: styles.css → weekly-assets/styles.css, script.js → weekly-assets/script.js`);
+  log(`  Audio: ${audioFiles.length} file(s) → weekly-audio/`);
+
+  if (dryRun) {
+    log('\n=== DRY RUN COMPLETE — no uploads made. ===', 'ok');
+    return;
+  }
+
+  // 1. Upload shared assets
+  try {
+    if (stylesFile) {
+      log('Uploading styles.css…');
+      await uploadBytes(sref(storage, 'weekly-assets/styles.css'), stylesFile.file, { contentType: 'text/css' });
+      log('  ✓ styles.css', 'ok');
+    }
+    if (scriptFile) {
+      log('Uploading script.js…');
+      await uploadBytes(sref(storage, 'weekly-assets/script.js'), scriptFile.file, { contentType: 'application/javascript' });
+      log('  ✓ script.js', 'ok');
+    }
+  } catch (err) {
+    log('Shared asset upload failed: ' + err.message, 'err');
+    return;
+  }
+
+  // 2. Upload audio
+  try {
+    log('Uploading ' + audioFiles.length + ' audio file(s)…');
+    let i = 0;
+    for (const a of audioFiles) {
+      const name = a.relPath.split('/').pop();
+      await uploadBytes(sref(storage, `weekly-audio/${name}`), a.file, { contentType: 'audio/mpeg' });
+      i++;
+      log(`  ✓ (${i}/${audioFiles.length}) ${name}`, 'ok');
+    }
+  } catch (err) {
+    log('Audio upload failed: ' + err.message, 'err');
+    return;
+  }
+
+  // 3. Upload HTMLs + seed Firestore docs
+  try {
+    for (const p of plan) {
+      log(`Uploading week ${p.weekNumber} HTML…`);
+      await uploadBytes(sref(storage, p.storageHtml), p.file, { contentType: 'text/html' });
+      const docRef = doc(db, 'weeklyContent', String(p.weekNumber));
+      const existing = await getDoc(docRef);
+      await setDoc(docRef, {
+        weekNumber: p.weekNumber,
+        title: p.title,
+        htmlStoragePath: p.storageHtml,
+        audioStoragePaths: p.audioList,
+        releaseDate: p.releaseDate,
+        requiredRole: 'admin',
+        published: true,
+        updatedAt: Timestamp.now(),
+        updatedBy: auth.currentUser?.email || 'seed-script',
+        ...(existing.exists() ? {} : { createdAt: Timestamp.now() }),
+      }, { merge: true });
+      log(`  ✓ week ${p.weekNumber} uploaded + Firestore doc seeded`, 'ok');
+    }
+  } catch (err) {
+    log('HTML upload / Firestore seed failed: ' + err.message, 'err');
+    return;
+  }
+
+  log('\n=== MIGRATION COMPLETE ===', 'ok');
+  log('You can now visit /weekly on the deployed site to verify.');
+};
+</script>
+</body>
+</html>

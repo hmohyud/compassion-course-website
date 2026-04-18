@@ -7,6 +7,7 @@ import { ContentProvider } from './context/ContentContext'
 import ScrollToTop from './components/ScrollToTop'
 import UserProtectedRoute from './components/UserProtectedRoute'
 import LeadershipProtectedRoute from './components/LeadershipProtectedRoute'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Public Pages
 import HomePage from './pages/HomePage'
@@ -40,6 +41,11 @@ import MemberHubPage from './pages/platform/MemberHubPage'
 
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
+import WeeklyAdminPage from './pages/admin/WeeklyAdminPage'
+
+// Weekly content (admin-only, Firebase-gated)
+import WeeklyListPage from './pages/weekly/WeeklyListPage'
+import WeeklyViewerPage from './pages/weekly/WeeklyViewerPage'
 
 import './App.css'
 
@@ -146,6 +152,26 @@ function App() {
                 </UserProtectedRoute>
               } />
               
+              {/* Weekly content (admin-only, Firebase-gated). Clean URLs:
+                  /weekly → list of all weeks
+                  /weekly/:weekNum → single week viewer
+                  /admin-portal/weekly → admin CRUD for weekly content */}
+              <Route path="/weekly" element={
+                <ProtectedRoute>
+                  <WeeklyListPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/weekly/:weekNum" element={
+                <ProtectedRoute>
+                  <WeeklyViewerPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin-portal/weekly" element={
+                <ProtectedRoute>
+                  <WeeklyAdminPage />
+                </ProtectedRoute>
+              } />
+
               {/* Admin Routes — login pages still needed, everything else redirects to dashboard */}
               <Route path="/admin/login-4f73b2c" element={<LoginPage />} />
               <Route path="/admin/login" element={<LoginPage />} />

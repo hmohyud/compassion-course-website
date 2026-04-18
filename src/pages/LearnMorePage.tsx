@@ -231,28 +231,38 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
 
           /* Make per-section narrate buttons prominent — default bundle has
              them at opacity 0.4 with a faint border, which visitors don't
-             notice. Bump to full opacity, primary-color ring, and slight fill. */
+             notice. Full opacity + primary-color ring + attention-seeking
+             pulse animation when idle (stops while hovering or active). */
+          @keyframes sample-narrate-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(42,122,110,0.42), 0 1px 3px rgba(42,122,110,0.20); }
+            70%  { box-shadow: 0 0 0 10px rgba(42,122,110,0.0),  0 1px 3px rgba(42,122,110,0.20); }
+            100% { box-shadow: 0 0 0 0 rgba(42,122,110,0.0),     0 1px 3px rgba(42,122,110,0.20); }
+          }
           .section-narrate-btn {
             opacity: 1 !important;
-            width: 32px !important;
-            height: 32px !important;
-            min-width: 32px !important;
+            width: 34px !important;
+            height: 34px !important;
+            min-width: 34px !important;
             border-width: 2px !important;
             border-color: var(--clr-primary, #2a7a6e) !important;
             background: var(--clr-bg-card, #fff) !important;
             color: var(--clr-primary, #2a7a6e) !important;
-            box-shadow: 0 1px 3px rgba(42,122,110,0.15);
+            box-shadow: 0 1px 3px rgba(42,122,110,0.20);
+            animation: sample-narrate-pulse 2.2s ease-out infinite;
+            transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
           }
           .section-narrate-btn:hover {
             background: var(--clr-primary, #2a7a6e) !important;
             color: #fff !important;
-            transform: scale(1.08);
+            transform: scale(1.12);
+            animation: none;
           }
           .section-narrate-btn[data-state="playing"],
           .section-narrate-btn[data-state="paused"] {
             background: var(--clr-primary, #2a7a6e) !important;
             color: #fff !important;
             border-color: var(--clr-primary-dark, #1e5c53) !important;
+            animation: none;
           }
 
           /* Injected "Play All" button styled to fit in the TOC actions row. */

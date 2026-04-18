@@ -246,8 +246,45 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   document.documentElement.style.visibility = 'visible';
 })();
 <\/script>`;
+  // Attention-seeking pulse + prominence overrides for the per-section
+  // narrate buttons — the bundle defaults to opacity:0.4 which is too subtle.
+  const buttonStyleOverrides = `
+<style>
+  @keyframes weekly-narrate-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(42,122,110,0.45), 0 1px 3px rgba(42,122,110,0.20); }
+    70%  { box-shadow: 0 0 0 10px rgba(42,122,110,0.0), 0 1px 3px rgba(42,122,110,0.20); }
+    100% { box-shadow: 0 0 0 0 rgba(42,122,110,0.0),    0 1px 3px rgba(42,122,110,0.20); }
+  }
+  .section-narrate-btn {
+    opacity: 1 !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-width: 2px !important;
+    border-color: var(--clr-primary, #2a7a6e) !important;
+    background: var(--clr-bg-card, #fff) !important;
+    color: var(--clr-primary, #2a7a6e) !important;
+    box-shadow: 0 1px 3px rgba(42,122,110,0.20);
+    animation: weekly-narrate-pulse 2.2s ease-out infinite;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+  }
+  .section-narrate-btn:hover {
+    background: var(--clr-primary, #2a7a6e) !important;
+    color: #fff !important;
+    transform: scale(1.12);
+    animation: none;
+  }
+  .section-narrate-btn[data-state="playing"],
+  .section-narrate-btn[data-state="paused"] {
+    background: var(--clr-primary, #2a7a6e) !important;
+    color: #fff !important;
+    border-color: var(--clr-primary-dark, #1e5c53) !important;
+    animation: none;
+  }
+</style>`;
+
   // Insert right after <head>
-  out = out.replace(/<head(\s[^>]*)?>/i, (m) => m + earlyScript);
+  out = out.replace(/<head(\s[^>]*)?>/i, (m) => m + earlyScript + buttonStyleOverrides);
 
   return out;
 }

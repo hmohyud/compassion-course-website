@@ -978,52 +978,82 @@ video {
     transition: left 0.15s ease;
 }
 
+/* Google Translate widget styling — ported from the weekly bundle's
+   styles.css. Renders the widget as a clean pill button with a hover
+   border, hides the "Powered by Google Translate" branding line, and
+   constrains the popup menu so it doesn't spill off-screen on mobile. */
+
 .nav-translate .goog-te-gadget {
     font-size: 0 !important;
-    line-height: 0 !important;
+    color: transparent !important;
     margin: 0 !important;
-    /* Shift the whole widget up a bit so the "Google Translate" branding
-       line beneath the dropdown doesn't visually overflow the navbar's
-       horizontal separator. Value roughly equals the branding line's height. */
-    transform: translateY(-10px);
+}
+
+/* Hide the "Powered by Google Translate" branding line that would otherwise
+   render under the dropdown and overflow the navbar separator. */
+.nav-translate .goog-te-gadget > span {
+    display: none !important;
 }
 
 .nav-translate .goog-te-gadget-simple {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    cursor: pointer;
-    white-space: nowrap !important;
+    background: none !important;
+    border: 1.5px solid var(--color-gray-200, #e4e4e7) !important;
+    border-radius: 8px !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem !important;
     display: flex !important;
     align-items: center !important;
-    gap: 3px !important;
+    cursor: pointer;
+    transition: border-color 0.25s ease;
     text-decoration: none !important;
 }
 
-.nav-translate .goog-te-gadget-icon {
+.nav-translate .goog-te-gadget-simple:hover {
+    border-color: var(--color-primary, #0d9488) !important;
+}
+
+.nav-translate .goog-te-gadget-simple .goog-te-gadget-icon {
     display: none !important;
 }
 
-.nav-translate .goog-te-gadget-simple .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
-    font-size: 0.75rem !important;
-    font-family: 'DM Sans', sans-serif !important;
-    color: var(--color-gray-500, #777) !important;
-    font-weight: 500 !important;
+.nav-translate .goog-te-gadget-simple span {
+    font-size: 0.78rem !important;
+    color: var(--color-gray-600, #52525b) !important;
 }
 
-.nav-translate .goog-te-gadget-simple:hover .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
-    color: var(--color-primary, #5fa9e3) !important;
+.nav-translate .goog-te-gadget-simple span a {
+    text-decoration: none !important;
+    color: var(--color-gray-600, #52525b) !important;
+    font-size: 0.78rem !important;
 }
 
-.nav-translate .goog-te-gadget-simple img[width="1"],
-.nav-translate .goog-te-gadget-simple span[style*="border-left"] {
+.nav-translate .goog-te-gadget-simple span a span:first-child {
+    display: inline !important;
+}
+
+/* Hide separators and the 1x1 tracking pixel */
+.nav-translate .goog-te-gadget-simple span[style*="border-left"],
+.nav-translate .goog-te-gadget-simple img[src*="cleardot"],
+.nav-translate .goog-te-gadget-simple img[width="1"] {
     display: none !important;
 }
 
-.nav-translate .goog-te-gadget-simple span[aria-hidden="true"] {
-    font-size: 0.5rem !important;
-    color: var(--color-gray-400, #999) !important;
-    margin-left: 1px !important;
+/* Constrain the language-picker popup so it never spills off the viewport. */
+.goog-te-menu-frame,
+.goog-te-menu-frame.skiptranslate {
+    max-width: 92vw !important;
+    max-height: 80vh !important;
+    left: auto !important;
+    right: 12px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+/* Keep the trigger compact on narrow screens */
+.nav-translate {
+    max-width: 160px;
+    overflow: hidden;
 }
 
 /* Google Translate top bar offset — set dynamically by GoogleTranslate.tsx */

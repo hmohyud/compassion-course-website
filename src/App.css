@@ -12214,34 +12214,6 @@ section {
     margin-top: var(--gt-bar-height, 0px);
     background: #faf7f2;
 }
-.weekly-viewer-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 1rem;
-    padding: 0.6rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid var(--color-gray-100, #f3f4f6);
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-.weekly-viewer-back {
-    text-decoration: none;
-    color: var(--color-primary, #0d9488);
-    font-weight: 600;
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-}
-.weekly-viewer-back:hover {
-    background: var(--color-gray-50, #fafafa);
-}
-.weekly-viewer-title {
-    font-weight: 600;
-    color: var(--color-gray-900, #18181b);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 .weekly-viewer-iframe {
     flex: 1;
     width: 100%;

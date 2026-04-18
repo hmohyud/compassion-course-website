@@ -984,6 +984,17 @@ video {
     margin: 0 !important;
 }
 
+/* Hide Google Translate branding (Google logo + "Translate" text link
+   that renders beneath the dropdown and visually overflows below the navbar
+   separator line). Keep the <select> dropdown itself untouched. */
+.nav-translate .goog-te-gadget > span,
+.nav-translate .goog-te-gadget > a,
+.nav-translate .goog-logo-link,
+.nav-translate img[src*="translate"],
+.nav-translate a[href*="translate.google"] {
+    display: none !important;
+}
+
 .nav-translate .goog-te-gadget-simple {
     background: transparent !important;
     border: none !important;

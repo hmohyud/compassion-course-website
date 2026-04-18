@@ -246,15 +246,13 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   document.documentElement.style.visibility = 'visible';
 })();
 <\/script>`;
-  // Attention-seeking pulse + prominence overrides for the per-section
-  // narrate buttons — the bundle defaults to opacity:0.4 which is too subtle.
+  // Prominence overrides for the per-section narrate buttons and the
+  // top-nav #narrate-btn — the bundle defaults to a faint grey border
+  // which visitors don't notice. Upgrade to a primary-teal border and
+  // a fuller appearance. No idle pulse — intentional, per design feedback.
   const buttonStyleOverrides = `
 <style>
-  @keyframes weekly-narrate-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(42,122,110,0.45), 0 1px 3px rgba(42,122,110,0.20); }
-    70%  { box-shadow: 0 0 0 10px rgba(42,122,110,0.0), 0 1px 3px rgba(42,122,110,0.20); }
-    100% { box-shadow: 0 0 0 0 rgba(42,122,110,0.0),    0 1px 3px rgba(42,122,110,0.20); }
-  }
+  /* Per-section narrate buttons (next to each .accordion-header) */
   .section-narrate-btn {
     opacity: 1 !important;
     width: 34px !important;
@@ -265,21 +263,41 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     background: var(--clr-bg-card, #fff) !important;
     color: var(--clr-primary, #2a7a6e) !important;
     box-shadow: 0 1px 3px rgba(42,122,110,0.20);
-    animation: weekly-narrate-pulse 2.2s ease-out infinite;
     transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
   }
   .section-narrate-btn:hover {
     background: var(--clr-primary, #2a7a6e) !important;
     color: #fff !important;
     transform: scale(1.12);
-    animation: none;
   }
   .section-narrate-btn[data-state="playing"],
   .section-narrate-btn[data-state="paused"] {
     background: var(--clr-primary, #2a7a6e) !important;
     color: #fff !important;
     border-color: var(--clr-primary-dark, #1e5c53) !important;
-    animation: none;
+  }
+
+  /* Top-nav #narrate-btn — full-lesson narration button next to the
+     dark-mode toggle. Same prominence as the per-section buttons. */
+  #narrate-btn {
+    border-width: 2px !important;
+    border-color: var(--clr-primary, #2a7a6e) !important;
+    color: var(--clr-primary, #2a7a6e) !important;
+    background: var(--clr-bg-card, #fff) !important;
+    box-shadow: 0 1px 3px rgba(42,122,110,0.20) !important;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease !important;
+  }
+  #narrate-btn:hover {
+    background: var(--clr-primary, #2a7a6e) !important;
+    color: #fff !important;
+    transform: scale(1.08);
+  }
+  /* When actively narrating, the bundle's own .narrating class adds a gold
+     pulse — we keep the gold state but override the pulse border/bg to match. */
+  #narrate-btn.narrating {
+    border-color: var(--clr-accent, #e8a838) !important;
+    color: var(--clr-accent, #e8a838) !important;
+    background: rgba(232,168,56,0.12) !important;
   }
 </style>`;
 

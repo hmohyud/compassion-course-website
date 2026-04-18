@@ -5,10 +5,90 @@ import JotformPopup from '../components/JotformPopup';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { siteContent } from '../data/siteContent';
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Cross-iframe audio coordination. Both sample iframes register themselves here
+// so that when one starts narration, the other's audio is stopped first — a
+// single shared playback experience across both samples.
+// ──────────────────────────────────────────────────────────────────────────────
+const sampleIframeRegistry = new Set<HTMLIFrameElement>();
+
+const findAudioBarForIframe = (iframe: HTMLIFrameElement): HTMLElement | null => {
+  const iframeId = iframe.dataset.iframeId;
+  // Bar may be currently reparented to outer body, or parked back inside its
+  // iframe (after another iframe became the active player).
+  if (iframeId) {
+    const outerBar = document.querySelector<HTMLElement>(
+      `#audio-bar[data-owner-iframe="${iframeId}"]`
+    );
+    if (outerBar) return outerBar;
+  }
+  return iframe.contentDocument?.getElementById('audio-bar') as HTMLElement | null;
+};
+
+const stopNarrationInAllExcept = (except: HTMLIFrameElement | null) => {
+  sampleIframeRegistry.forEach((iframe) => {
+    if (iframe === except) return;
+    try {
+      const bar = findAudioBarForIframe(iframe);
+      const stopBtn = bar?.querySelector('#ab-stop') as HTMLButtonElement | null;
+      // Click the audio bar's stop button which invokes the bundle's stopAllNarration()
+      if (stopBtn) stopBtn.click();
+    } catch { /* noop */ }
+  });
+};
+
+// Move the audio bar into the outer document body when an iframe starts playing
+// so `position: fixed` pins it to the outer viewport (not the iframe's
+// layout box, which is set to content-height with scrolling disabled).
+//
+// IMPORTANT: the bundle JS inside each iframe holds a closure reference to its
+// audio bar DOM element. We must NEVER destroy or detach that reference — if
+// another iframe wants to take over, we park the previous iframe's bar BACK
+// inside its owning iframe's body (invisible), so its bundle's classList calls
+// continue to resolve against a live element.
+const reparentAudioBar = (iframe: HTMLIFrameElement) => {
+  try {
+    const doc = iframe.contentDocument;
+    if (!doc) return;
+    const iframeId = iframe.dataset.iframeId || '';
+    // Is the bar already in the outer document, owned by this iframe? If so
+    // we're done. Look there first since a second play-through finds nothing
+    // in iframe.contentDocument (already reparented previously).
+    const existingOwn = document.querySelector<HTMLElement>(
+      `#audio-bar[data-owner-iframe="${iframeId}"]`
+    );
+    if (existingOwn) return;
+
+    // Fetch the bar from inside the iframe (newly created, or parked back)
+    const bar = doc.getElementById('audio-bar');
+    if (!bar) return;
+
+    // Park any currently-reparented OTHER iframe's bar back inside its owning
+    // iframe's body so the owner's closure reference stays valid.
+    document.querySelectorAll<HTMLElement>('#audio-bar').forEach((existing) => {
+      if (existing === bar) return;
+      const ownerId = existing.getAttribute('data-owner-iframe');
+      const ownerIframe = ownerId
+        ? Array.from(sampleIframeRegistry).find((f) => f.dataset.iframeId === ownerId)
+        : null;
+      if (ownerIframe?.contentDocument?.body) {
+        ownerIframe.contentDocument.body.appendChild(existing);
+      } else {
+        existing.remove();
+      }
+    });
+
+    bar.setAttribute('data-owner-iframe', iframeId);
+    document.body.appendChild(bar);
+  } catch { /* noop */ }
+};
+
 // Iframe that embeds a self-contained sample weekly message HTML file.
 // Since the file is same-origin (served from /samples/) we can:
 //   1) hide the inner file's duplicated top-nav / footer / progress bar
 //   2) auto-resize the iframe to its content's scrollHeight so there's no inner scrollbar
+//   3) coordinate audio playback across both sample iframes via a shared registry
+let nextIframeId = 0;
 const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState<number>(1400);
@@ -19,6 +99,7 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
 
     let observer: ResizeObserver | null = null;
     let clickHandler: ((e: Event) => void) | null = null;
+    let printMenuObserver: MutationObserver | null = null;
 
     // Target element to measure — a wrapper that represents "actual content"
     // so the iframe's own chrome doesn't mess with height reporting.
@@ -86,17 +167,32 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
         btn.title = 'Disabled in preview — enrolled participants can track their progress through the course';
         addDisabledLabel(btn);
       });
-      // 3) Print button(s) in the TOC: disabled + inline label
-      doc.querySelectorAll<HTMLButtonElement>('.toc-btn').forEach((btn) => {
-        const txt = (btn.textContent || '').trim().toLowerCase();
-        if (txt.startsWith('print')) {
-          btn.setAttribute('disabled', 'disabled');
-          btn.setAttribute('aria-disabled', 'true');
-          btn.setAttribute('data-preview-disabled', 'print');
-          btn.title = 'Disabled in preview — enrolled participants can print the full lesson';
-          addDisabledLabel(btn);
-        }
-      });
+      // 3) Print popup menu: "Lesson content only" stays enabled. The other
+      //    two modes (both / work) rely on saved journal entries which don't
+      //    exist in preview, so we disable them in the popup when it appears.
+      const disablePrintSubOptions = (menu: HTMLElement) => {
+        if (menu.getAttribute('data-preview-modified') === 'true') return;
+        menu.setAttribute('data-preview-modified', 'true');
+        menu.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+          const mode = b.getAttribute('data-mode');
+          if (mode === 'lesson') return;
+          b.setAttribute('disabled', 'disabled');
+          b.setAttribute('aria-disabled', 'true');
+          b.setAttribute('data-preview-disabled', 'print-option');
+          b.title = 'Disabled in preview — requires saved journal entries';
+          // Inject a small "Disabled in preview" label after the button's text
+          if (!b.querySelector('.sample-preview-label')) {
+            const label = doc.createElement('span');
+            label.className = 'sample-preview-label';
+            label.setAttribute('aria-hidden', 'true');
+            label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>Disabled in preview`;
+            b.appendChild(label);
+          }
+        });
+      };
+      // If the menu is already open when applyPreviewMode re-runs, handle it now.
+      const existingMenu = doc.getElementById('print-menu');
+      if (existingMenu) disablePrintSubOptions(existingMenu);
     };
 
     const onLoad = () => {
@@ -131,6 +227,74 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
           @media (max-width: 540px) {
             .accordion-header h2 { padding-right: 2.25rem !important; }
             .section-narrate-btn { right: 2.75rem !important; }
+          }
+
+          /* Make per-section narrate buttons prominent — default bundle has
+             them at opacity 0.4 with a faint border, which visitors don't
+             notice. Bump to full opacity, primary-color ring, and slight fill. */
+          .section-narrate-btn {
+            opacity: 1 !important;
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            border-width: 2px !important;
+            border-color: var(--clr-primary, #2a7a6e) !important;
+            background: var(--clr-bg-card, #fff) !important;
+            color: var(--clr-primary, #2a7a6e) !important;
+            box-shadow: 0 1px 3px rgba(42,122,110,0.15);
+          }
+          .section-narrate-btn:hover {
+            background: var(--clr-primary, #2a7a6e) !important;
+            color: #fff !important;
+            transform: scale(1.08);
+          }
+          .section-narrate-btn[data-state="playing"],
+          .section-narrate-btn[data-state="paused"] {
+            background: var(--clr-primary, #2a7a6e) !important;
+            color: #fff !important;
+            border-color: var(--clr-primary-dark, #1e5c53) !important;
+          }
+
+          /* Injected "Play All" button styled to fit in the TOC actions row. */
+          .sample-play-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.42rem 0.95rem;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            background: var(--clr-primary, #2a7a6e);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 6px rgba(42,122,110,0.25);
+          }
+          .sample-play-all-btn:hover {
+            background: var(--clr-primary-dark, #1e5c53);
+            transform: translateY(-1px);
+          }
+          .sample-play-all-btn[data-playing="true"] {
+            background: var(--clr-accent, #e8a838);
+            box-shadow: 0 2px 6px rgba(232,168,56,0.35);
+          }
+          .sample-play-all-btn[data-playing="true"]:hover {
+            background: #d49530;
+          }
+          .sample-play-all-btn[data-playing="true"] .sample-play-all-icon {
+            display: inline-block;
+            animation: sample-play-all-spin 2.4s linear infinite;
+          }
+          @keyframes sample-play-all-spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(-360deg); }
+          }
+          .sample-play-all-btn .sample-play-all-icon {
+            font-size: 0.7rem;
+            line-height: 1;
           }
 
           /* Preview banner injected into the main-content wrapper */
@@ -266,8 +430,8 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
             <span class="sample-preview-banner-icon" aria-hidden="true">i</span>
             <span>
               <strong>Preview mode.</strong>
-              You can read the lesson and play the audio narration.
-              <em>Mark-completed</em>, <em>journaling</em>, and <em>print</em> are disabled here —
+              You can read the lesson, play the audio narration, and print the lesson content.
+              <em>Mark-completed</em>, <em>journaling</em>, and print-with-responses are disabled here —
               enrolled participants get full access.
             </span>
           `;
@@ -279,6 +443,124 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
         // Re-apply after the bundled script initializes (buttons are injected late)
         setTimeout(() => applyPreviewMode(doc), 300);
         setTimeout(() => applyPreviewMode(doc), 1200);
+
+        // Print popup menu is created on-demand when the user clicks Print.
+        // Watch for it so we can disable "Lesson with my responses" and
+        // "My responses only" while leaving "Lesson content only" enabled.
+        printMenuObserver = new MutationObserver(() => {
+          const menu = doc.getElementById('print-menu');
+          if (!menu || menu.getAttribute('data-preview-modified') === 'true') return;
+          menu.setAttribute('data-preview-modified', 'true');
+          menu.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+            const mode = b.getAttribute('data-mode');
+            if (mode === 'lesson') return;
+            b.setAttribute('disabled', 'disabled');
+            b.setAttribute('aria-disabled', 'true');
+            b.setAttribute('data-preview-disabled', 'print-option');
+            b.title = 'Disabled in preview — requires saved journal entries';
+            if (!b.querySelector('.sample-preview-label')) {
+              const label = doc.createElement('span');
+              label.className = 'sample-preview-label';
+              label.setAttribute('aria-hidden', 'true');
+              label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>Disabled in preview`;
+              b.appendChild(label);
+            }
+          });
+        });
+        printMenuObserver.observe(doc.body, { childList: true });
+
+        // ── Audio coordination ─────────────────────────────────────────────
+        // Register this iframe and tag it with a unique id
+        if (!iframe.dataset.iframeId) iframe.dataset.iframeId = String(++nextIframeId);
+        sampleIframeRegistry.add(iframe);
+
+        // Inject a "Play All" button into the TOC actions row. Clicking it
+        // always starts narration from the top of the lesson. While narration
+        // is active the button flips to a "Restart" state and re-clicking
+        // fully stops + starts over from the first section.
+        //
+        // We also observe the bundle's own hidden #narrate-btn — it has a
+        // `narrating` class while full-lesson playback is active. We mirror
+        // that state onto our button.
+        const IDLE_LABEL = '<span class="sample-play-all-icon">▶</span><span>PLAY ALL</span>';
+        const PLAYING_LABEL = '<span class="sample-play-all-icon">↻</span><span>RESTART</span>';
+
+        const syncPlayAllState = () => {
+          const btn = doc.querySelector('.sample-play-all-btn') as HTMLButtonElement | null;
+          const narrateBtn = doc.getElementById('narrate-btn');
+          if (!btn) return;
+          const narrating = !!narrateBtn?.classList.contains('narrating');
+          btn.dataset.playing = narrating ? 'true' : 'false';
+          btn.setAttribute(
+            'aria-label',
+            narrating ? 'Restart the lesson audio from the beginning' : 'Play the entire lesson audio',
+          );
+          btn.innerHTML = narrating ? PLAYING_LABEL : IDLE_LABEL;
+        };
+
+        const injectPlayAllButton = () => {
+          const tocActions = doc.querySelector('.toc-actions');
+          if (!tocActions) return false;
+          if (tocActions.querySelector('.sample-play-all-btn')) return true; // already injected
+          const btn = doc.createElement('button');
+          btn.type = 'button';
+          btn.className = 'sample-play-all-btn';
+          btn.dataset.playing = 'false';
+          btn.setAttribute('aria-label', 'Play the entire lesson audio');
+          btn.innerHTML = IDLE_LABEL;
+
+          btn.addEventListener('click', () => {
+            // Stop audio in the other iframe
+            stopNarrationInAllExcept(iframe);
+            // Always restart from the top — find this iframe's current audio
+            // bar and click its stop button first, so the bundle's narrate-btn
+            // sees `idle` state and runs startFullNarration() rather than
+            // pausing mid-track.
+            const currentBar = findAudioBarForIframe(iframe);
+            const stopBtn = currentBar?.querySelector('#ab-stop') as HTMLButtonElement | null;
+            if (stopBtn) stopBtn.click();
+            // Small delay so the state-reset settles before re-kicking narration.
+            setTimeout(() => {
+              const narrateBtn = doc.getElementById('narrate-btn') as HTMLButtonElement | null;
+              if (narrateBtn) {
+                narrateBtn.click();
+                setTimeout(() => { reparentAudioBar(iframe); syncPlayAllState(); }, 50);
+                setTimeout(() => { reparentAudioBar(iframe); syncPlayAllState(); }, 400);
+              }
+            }, 60);
+          });
+
+          tocActions.appendChild(btn);
+
+          // Mirror #narrate-btn's `narrating` class onto our button. Use a
+          // MutationObserver so we catch both starts AND the implicit end
+          // (when the bundle's final-section onEnd callback clears the class).
+          const narrateBtn = doc.getElementById('narrate-btn');
+          if (narrateBtn) {
+            const mo = new MutationObserver(syncPlayAllState);
+            mo.observe(narrateBtn, { attributes: true, attributeFilter: ['class'] });
+          }
+          syncPlayAllState();
+          return true;
+        };
+        if (!injectPlayAllButton()) {
+          setTimeout(injectPlayAllButton, 300);
+          setTimeout(injectPlayAllButton, 1200);
+        }
+
+        // When any section's narrate button is clicked, we also want to stop
+        // the other iframe's audio + reparent the audio bar. Delegate via
+        // capture-phase listener so we fire before the bundle's own handler.
+        doc.addEventListener('click', (e) => {
+          const t = e.target as HTMLElement;
+          const narrateTarget = t.closest?.('.section-narrate-btn, #narrate-btn');
+          if (!narrateTarget) return;
+          stopNarrationInAllExcept(iframe);
+          // Audio bar gets created by the bundle inside the click handler;
+          // reparent it shortly after.
+          setTimeout(() => reparentAudioBar(iframe), 50);
+          setTimeout(() => reparentAudioBar(iframe), 400);
+        }, true);
 
         // Initial measurement after the browser paints
         setTimeout(measure, 50);
@@ -309,11 +591,19 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
     return () => {
       iframe.removeEventListener('load', onLoad);
       if (observer) observer.disconnect();
+      if (printMenuObserver) printMenuObserver.disconnect();
       try {
         if (clickHandler && iframe.contentDocument) {
           iframe.contentDocument.removeEventListener('click', clickHandler);
         }
       } catch { /* noop */ }
+      sampleIframeRegistry.delete(iframe);
+      // If this iframe owned the reparented audio bar, remove it from outer
+      // body — its bundle JS is about to be destroyed along with the iframe.
+      const ownedBar = document.querySelector(
+        `#audio-bar[data-owner-iframe="${iframe.dataset.iframeId}"]`
+      );
+      if (ownedBar && ownedBar.parentElement === document.body) ownedBar.remove();
     };
   }, []);
 

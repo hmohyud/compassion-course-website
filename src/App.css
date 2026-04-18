@@ -3041,6 +3041,68 @@ section {
     /* height is set inline by the React component based on iframe content */
 }
 
+/* Sample-week audio bar. The bundled HTML creates #audio-bar inside the
+   iframe's body, but we reparent it into the outer document so that the
+   position:fixed pinning happens against the outer viewport (not the iframe's
+   content-sized layout box). These rules mirror the bundle's own styles so
+   the reparented element still looks correct. */
+#audio-bar {
+    position: fixed;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+    transition: bottom 0.3s ease;
+    max-width: 420px;
+    width: 90%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #2d2d2d;
+}
+#audio-bar.visible { bottom: 1.5rem; }
+#audio-bar .audio-bar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.2rem 0.3rem;
+    color: #2d2d2d;
+    border-radius: 4px;
+    transition: background 0.15s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+#audio-bar .audio-bar-btn:hover { background: rgba(42, 122, 110, 0.1); }
+#audio-bar #ab-play { width: 2rem; text-align: center; }
+#audio-bar .ab-skip { display: inline-flex; align-items: center; gap: 1px; }
+#audio-bar .ab-skip-arrow { font-size: 0.65rem; }
+#audio-bar .ab-skip-label { font-size: 0.6rem; font-weight: 700; }
+#audio-bar .audio-bar-close { font-size: 1.2rem; margin-left: auto; color: #8a8a8a; }
+#audio-bar #ab-seek {
+    flex: 1;
+    height: 4px;
+    min-width: 60px;
+    accent-color: #2a7a6e;
+    cursor: pointer;
+}
+#audio-bar #ab-time {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #5a5a5a;
+    min-width: 3.5rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
 /* --- Collapsible Section Wrapper --- */
 .learn-sample-collapsible {
     background: var(--color-white);

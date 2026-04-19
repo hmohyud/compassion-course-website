@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
@@ -7,7 +7,10 @@ import { getUserProfile } from '../services/userProfileService';
 import type { UserProfile } from '../types/platform';
 import GoogleTranslate from './GoogleTranslate';
 
-const DESKTOP_BREAKPOINT = 1140;
+// Fallback breakpoint used until JS measures the actual required width.
+const DEFAULT_DESKTOP_BREAKPOINT = 1260;
+// Safety padding so items never "touch" — keep breathing room at the edge.
+const NAV_SAFETY_PADDING = 32;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +19,10 @@ const Navigation: React.FC = () => {
   const [isTranslated, setIsTranslated] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  // Dynamic breakpoint: measured from actual nav content, not hardcoded.
+  const [breakpoint, setBreakpoint] = useState(DEFAULT_DESKTOP_BREAKPOINT);
+  const navRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,13 +34,53 @@ const Navigation: React.FC = () => {
   // When translated, force hamburger regardless of screen size
   const isDesktop = isScreenDesktop && !isTranslated;
 
+  // Measure the nav's natural desktop width once the menu is rendered.
+  // scrollWidth on the menu UL gives the unwrapped row width the flex would
+  // need if the viewport weren't constraining it. Add the logo + nav-right
+  // widths and a safety padding to get the real threshold.
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const menu = menuRef.current;
+    if (!nav || !menu) return;
+
+    function remeasure() {
+      if (!nav || !menu) return;
+      const logo = nav.querySelector<HTMLElement>('.nav-logo');
+      const right = nav.querySelector<HTMLElement>('.nav-right');
+      // Only trust the measurement when the menu is rendered in desktop
+      // layout; in hamburger mode its scrollWidth is 0.
+      if (menu.scrollWidth < 50) return;
+      const needed = (logo?.scrollWidth ?? 0) + menu.scrollWidth + (right?.scrollWidth ?? 0);
+      setBreakpoint(needed + NAV_SAFETY_PADDING);
+    }
+
+    remeasure();
+
+    // Re-measure if fonts load or items change (e.g. sign-in adds account UI).
+    const ro = new ResizeObserver(remeasure);
+    ro.observe(menu);
+    return () => ro.disconnect();
+  }, [user, isAdmin, showLeadership]);
+
+  // Apply the (now-dynamic) breakpoint against the current window width.
   useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT + 1}px)`);
-    const handler = () => setIsScreenDesktop(mq.matches);
-    handler();
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+    function check() {
+      setIsScreenDesktop(window.innerWidth >= breakpoint);
+    }
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [breakpoint]);
+
+  // Toggle an html-level class so the hamburger CSS (which already exists
+  // for .gt-translated) applies whenever JS says we're below the dynamic
+  // breakpoint. Keeps CSS and JS in sync with a single source of truth.
+  useEffect(() => {
+    document.documentElement.classList.toggle('nav-force-hamburger', !isDesktop);
+    return () => {
+      document.documentElement.classList.remove('nav-force-hamburger');
+    };
+  }, [isDesktop]);
 
   // Watch for .gt-translated class on <html> (set by GoogleTranslate.tsx)
   useEffect(() => {
@@ -107,7 +154,7 @@ const Navigation: React.FC = () => {
   })();
 
   return (
-    <nav className="navbar">
+    <nav className="navbar" ref={navRef}>
       <div className="nav-container">
         <div className="nav-logo">
           <Link to="/" className="nav-logo-link">
@@ -119,7 +166,7 @@ const Navigation: React.FC = () => {
           </Link>
         </div>
 
-        <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
+        <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} ref={menuRef}>
           <li className="nav-item">
             <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Home</Link>
           </li>
@@ -131,7 +178,10 @@ const Navigation: React.FC = () => {
           </li>
           {isAdmin && (
             <li className="nav-item">
-              <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>Weekly</Link>
+              <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
+                Weekly
+              </Link>
             </li>
           )}
           {user && showLeadership && (

@@ -12216,14 +12216,17 @@ section {
     background: #faf7f2;
 }
 .weekly-viewer-iframe {
-    flex: 1;
+    /* The iframe auto-sizes to content height — the injected script inside
+       the iframe posts its scrollHeight to the parent on every resize, and
+       the React page sets `iframe.style.height` accordingly. The outer
+       window does all the scrolling; the iframe itself never scrolls. */
     width: 100%;
-    /* Fill the space below the React Nav. --nav-height comes from the site's
-       design tokens. Footer sits below the iframe. */
-    min-height: calc(100vh - var(--nav-height, 80px) - var(--gt-bar-height, 0px));
     border: none;
     display: block;
     background: #faf7f2;
+    /* Initial height before the first message arrives, so the loading
+       transition doesn't collapse the layout. */
+    height: 400px;
 }
 
 /* Icon next to the admin-only "Weekly" nav link. */

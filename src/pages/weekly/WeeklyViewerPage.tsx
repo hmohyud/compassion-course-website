@@ -102,13 +102,20 @@ const WeeklyViewerPage: React.FC = () => {
     };
   }, [weekNum, user, isAdmin, loading, adminLoading]);
 
-  // Receive the "back to all weeks" signal from the bundle and route via
-  // React Router — keeps the SPA state intact instead of a full page load.
+  // Receive messages from the bundle: "back to all weeks" navigation + the
+  // iframe's live content-height so we can auto-size the frame (no internal
+  // scrollbar; the outer window scrolls the whole page including the bundle).
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (e.source !== iframeRef.current?.contentWindow) return;
-      if (e.data && e.data.__weeklyNav === 'all-weeks') {
+      if (!e.data) return;
+      if (e.data.__weeklyNav === 'all-weeks') {
         window.location.href = '/weekly';
+        return;
+      }
+      if (typeof e.data.__weeklyIframeHeight === 'number') {
+        const el = iframeRef.current;
+        if (el) el.style.height = `${e.data.__weeklyIframeHeight}px`;
       }
     }
     window.addEventListener('message', onMessage);
@@ -211,11 +218,17 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   );
 
   // 5. Hide the bundle's own top-nav since the outer React Nav is already
-  //    visible above the iframe. One nav is enough.
+  //    visible above the iframe. Also disable the iframe's internal
+  //    scrollbar — the parent resizes the frame to content height so the
+  //    outer window does all scrolling.
   const hideBundleNavCss = `
 <style>
   .top-nav, #progress-bar { display: none !important; }
-  body { padding-top: 0 !important; }
+  html, body {
+    padding-top: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
 </style>`;
 
   // 6. Early script: intercept audio HEAD probes, redirect new Audio() calls,
@@ -254,6 +267,39 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   window.Audio.prototype = OrigAudio.prototype;
 
   document.documentElement.style.visibility = 'visible';
+
+  // Report live content height to the parent so the iframe can auto-size
+  // and the outer window does all the scrolling. ResizeObserver covers
+  // accordions opening, images loading, etc.
+  function reportHeight() {
+    try {
+      var h = Math.max(
+        document.documentElement.scrollHeight,
+        document.body ? document.body.scrollHeight : 0,
+        document.documentElement.offsetHeight,
+        document.body ? document.body.offsetHeight : 0
+      );
+      window.parent.postMessage({ __weeklyIframeHeight: h }, '*');
+    } catch (err) { /* noop */ }
+  }
+  function startObserving() {
+    if (window.ResizeObserver && document.body) {
+      new ResizeObserver(reportHeight).observe(document.body);
+    }
+    // Also catch dynamic content that doesn't trigger ResizeObserver.
+    if (window.MutationObserver && document.body) {
+      new MutationObserver(reportHeight).observe(document.body, {
+        childList: true, subtree: true, attributes: true, characterData: true,
+      });
+    }
+    reportHeight();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startObserving);
+  } else {
+    startObserving();
+  }
+  window.addEventListener('load', reportHeight);
 
   document.addEventListener('click', function(e) {
     var a = e.target && e.target.closest ? e.target.closest('a') : null;

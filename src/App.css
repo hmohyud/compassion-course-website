@@ -1002,6 +1002,7 @@ video {
     font-size: 0 !important;
     line-height: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
     transform: none !important;
 }
 
@@ -1009,13 +1010,16 @@ video {
     background: var(--color-white, #fff) !important;
     border: 1px solid var(--color-gray-200, #e5e7eb) !important;
     border-radius: 999px !important;
-    padding: 5px 11px 5px 11px !important;
+    /* Taller padding + roomier line-height so descenders and the final
+       glyph of the label (e.g. the "e" in "Language") don't touch the
+       pill's bottom border or the navbar's separator line below. */
+    padding: 7px 12px 7px 12px !important;
     cursor: pointer;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
     text-decoration: none !important;
-    line-height: 1 !important;
+    line-height: 1.25 !important;
     transition: border-color var(--transition-fast), background var(--transition-fast) !important;
 }
 

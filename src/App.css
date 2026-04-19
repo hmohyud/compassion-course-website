@@ -1051,32 +1051,32 @@ video {
     color: var(--color-primary, #5fa9e3);
 }
 
-/* Language name — the first span inside the (hashed) menu-value element.
-   Google uses varying hashed class names, so we target by structure. */
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value,
-.nav-translate .goog-te-gadget-simple > span {
+/* Hide everything inside the trigger by default (images + any of Google's
+   built-in arrow / divider / icon spans), then selectively re-enable the
+   first text span — which holds the current language label. This catches
+   Google's default ▼ triangle even when it lives in hashed-class wrappers
+   we can't predict. */
+.nav-translate .goog-te-gadget-simple,
+.nav-translate .goog-te-gadget-simple * {
+    font-size: 0 !important;
+    color: transparent !important;
+    line-height: 1 !important;
+}
+
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:first-child {
     font-size: 0.8rem !important;
     font-family: 'DM Sans', sans-serif !important;
     color: var(--color-gray-700, #3f3f46) !important;
     font-weight: 500 !important;
-    line-height: 1 !important;
     text-decoration: none !important;
 }
 
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:first-child {
-    font-size: inherit !important;
-    color: inherit !important;
+.nav-translate .goog-te-gadget-simple:hover .goog-te-menu-value > span:first-child {
+    color: var(--color-primary, #5fa9e3) !important;
 }
 
-/* Hide Google's icon and the default divider image. Also hide their
-   built-in aria-hidden arrow since we render our own via ::after. */
-.nav-translate .goog-te-gadget-icon,
-.nav-translate .goog-te-gadget-simple img,
-.nav-translate .goog-te-gadget-simple span[style*="border-left"],
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span[aria-hidden="true"],
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(2),
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(3),
-.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(4) {
+/* Hide image children (Google's logo + divider). */
+.nav-translate .goog-te-gadget-simple img {
     display: none !important;
 }
 

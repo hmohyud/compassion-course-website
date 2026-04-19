@@ -110,6 +110,29 @@ const GoogleTranslate: React.FC = () => {
           { pageLanguage: 'en', layout: 2 },
           'google_translate_element'
         );
+
+        // Google's SIMPLE layout shows "Select Language" until the user
+        // picks a language. Since the page IS already in English, showing
+        // that phrase is both noisy and misleading — replace it with
+        // "English" so the control always reflects the current state.
+        // We watch for the first label node and rewrite it on every
+        // mutation (Google re-renders on language switch).
+        const replaceDefault = () => {
+          const label = portal.querySelector<HTMLElement>(
+            '.goog-te-menu-value > span:first-child'
+          );
+          if (label && label.textContent?.trim() === 'Select Language') {
+            label.textContent = 'English';
+          }
+        };
+        // Kick once after the widget attaches, then observe for changes.
+        window.setTimeout(replaceDefault, 0);
+        const labelObserver = new MutationObserver(replaceDefault);
+        labelObserver.observe(portal, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
       }
     };
 

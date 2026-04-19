@@ -229,7 +229,7 @@ const Navigation: React.FC = () => {
           {user && (
             <>
               <li className="nav-item nav-item--community">
-                <Link to="/community" className={`nav-link nav-link--community ${isActive('/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                <Link to="/portal/community" className={`nav-link nav-link--community ${isActive('/portal/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                   <i className="fas fa-users nav-community-icon"></i>
                   Community
                 </Link>

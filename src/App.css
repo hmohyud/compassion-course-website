@@ -993,52 +993,56 @@ video {
 }
 
 
+/* Compact translate widget — the SIMPLE layout (set in GoogleTranslate.tsx)
+   renders a pill with the current language label + dropdown arrow. We hide
+   all of Google's default text and render a globe icon via ::before so the
+   widget occupies ~40px instead of ~180px. The widget still opens Google's
+   language picker on click. */
 .nav-translate .goog-te-gadget {
     font-size: 0 !important;
     line-height: 0 !important;
     margin: 0 !important;
-    /* Shift the whole widget up a bit so the "Google Translate" branding
-       line beneath the dropdown doesn't visually overflow the navbar's
-       horizontal separator. */
-    transform: translateY(-10px);
+    transform: none !important;
 }
 
 .nav-translate .goog-te-gadget-simple {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
+    background: var(--color-white, #fff) !important;
+    border: 1px solid var(--color-gray-200, #e5e7eb) !important;
+    border-radius: 999px !important;
+    padding: 6px 10px !important;
     cursor: pointer;
-    white-space: nowrap !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
-    gap: 3px !important;
+    gap: 0 !important;
     text-decoration: none !important;
+    transition: border-color var(--transition-fast), background var(--transition-fast) !important;
 }
 
-.nav-translate .goog-te-gadget-icon {
-    display: none !important;
+.nav-translate .goog-te-gadget-simple::before {
+    content: "\f0ac"; /* Font Awesome globe */
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: var(--color-gray-500, #777);
 }
 
-.nav-translate .goog-te-gadget-simple .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
-    font-size: 0.75rem !important;
-    font-family: 'DM Sans', sans-serif !important;
-    color: var(--color-gray-500, #777) !important;
-    font-weight: 500 !important;
+.nav-translate .goog-te-gadget-simple:hover {
+    border-color: var(--color-primary, #5fa9e3) !important;
+    background: var(--color-gray-50, #fafafa) !important;
 }
 
-.nav-translate .goog-te-gadget-simple:hover .VIpgJd-ZVi9od-xl07Ob-lTBxed > span:first-child {
-    color: var(--color-primary, #5fa9e3) !important;
+.nav-translate .goog-te-gadget-simple:hover::before {
+    color: var(--color-primary, #5fa9e3);
 }
 
-.nav-translate .goog-te-gadget-simple img[width="1"],
+/* Hide Google's default icon, text label, and divider — the globe above
+   is our only visible affordance. */
+.nav-translate .goog-te-gadget-icon,
+.nav-translate .goog-te-gadget-simple > span,
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value,
+.nav-translate .goog-te-gadget-simple img,
 .nav-translate .goog-te-gadget-simple span[style*="border-left"] {
     display: none !important;
-}
-
-.nav-translate .goog-te-gadget-simple span[aria-hidden="true"] {
-    font-size: 0.5rem !important;
-    color: var(--color-gray-400, #999) !important;
-    margin-left: 1px !important;
 }
 
 /* Google Translate top bar offset — set dynamically by GoogleTranslate.tsx */
@@ -7850,8 +7854,20 @@ section {
     font-weight: 600;
     background: var(--color-primary-50);
 }
-:is(.gt-translated, .nav-force-hamburger) .nav-link--donate { color: var(--color-accent) !important; }
-:is(.gt-translated, .nav-force-hamburger) .nav-link--donate.active { border-left-color: var(--color-accent); background: #fdf2f8; }
+:is(.gt-translated, .nav-force-hamburger) .nav-link--donate {
+    color: var(--color-accent) !important;
+    /* Kill the pill border used on desktop — in the hamburger list it
+       reads as a floating capsule that doesn't match sibling items. */
+    border: none !important;
+    border-left: 3px solid transparent !important;
+    border-radius: 0 !important;
+    padding: 0.65rem var(--space-6) !important;
+    background: none !important;
+}
+:is(.gt-translated, .nav-force-hamburger) .nav-link--donate.active {
+    border-left-color: var(--color-accent) !important;
+    background: #fdf2f8 !important;
+}
 :is(.gt-translated, .nav-force-hamburger) .nav-item--community { margin-left: 0; padding: 0; }
 :is(.gt-translated, .nav-force-hamburger) .nav-link--community {
     border: none !important;

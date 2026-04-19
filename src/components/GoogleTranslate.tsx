@@ -104,8 +104,10 @@ const GoogleTranslate: React.FC = () => {
 
     window.googleTranslateElementInit = () => {
       if (window.google?.translate) {
+        // layout: 2 = SIMPLE — compact dropdown without the "Google
+        // Translate" branding text, which saves horizontal space.
         new window.google.translate.TranslateElement(
-          { pageLanguage: 'en', layout: 0 },
+          { pageLanguage: 'en', layout: 2 },
           'google_translate_element'
         );
       }
@@ -121,11 +123,22 @@ const GoogleTranslate: React.FC = () => {
       return;
     }
 
-    const script = document.createElement('script');
-    script.src =
-      'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.body.appendChild(script);
+    // Retry the loader a couple of times if it fails (transient network
+    // errors). Without this, the widget just silently disappears.
+    function tryLoad(attempt: number) {
+      const script = document.createElement('script');
+      script.src =
+        'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      script.onerror = () => {
+        script.remove();
+        if (attempt < 2) {
+          window.setTimeout(() => tryLoad(attempt + 1), 800 * (attempt + 1));
+        }
+      };
+      document.body.appendChild(script);
+    }
+    tryLoad(0);
   }, []);
 
   return null;

@@ -102,7 +102,28 @@ const Navigation: React.FC = () => {
     if (right) ro.observe(right);
     const logo = nav.querySelector<HTMLElement>('.nav-logo');
     if (logo) ro.observe(logo);
-    return () => ro.disconnect();
+
+    // Async settling hooks — re-measure once web fonts finish loading
+    // (text widths shift between fallback and real fonts), after the
+    // window load event (images + external resources), and on a final
+    // safety tick. Without these the initial measurement could lock in
+    // a breakpoint computed against fallback-font widths, and the
+    // resulting desktop/hamburger state would be non-deterministic
+    // depending on the font cache state.
+    const timeouts: number[] = [];
+    if ('fonts' in document) {
+      document.fonts.ready.then(() => remeasure());
+    }
+    function onLoad() { remeasure(); }
+    window.addEventListener('load', onLoad);
+    timeouts.push(window.setTimeout(remeasure, 300));
+    timeouts.push(window.setTimeout(remeasure, 1200));
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('load', onLoad);
+      timeouts.forEach((id) => window.clearTimeout(id));
+    };
   }, [user, isAdmin, showLeadership]);
 
   // Apply the (now-dynamic) breakpoint against the current window width.

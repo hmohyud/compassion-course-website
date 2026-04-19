@@ -77,11 +77,13 @@ const WeeklyViewerPage: React.FC = () => {
           return;
         }
 
-        const rawHtml = await fetchWeeklyFileText(content.htmlStoragePath);
-
-        const [cssUrl, scriptUrl, ...audioUrls] = await Promise.all([
+        // Fetch HTML + script.js as text (script inlined so document.write
+        // doesn't treat it as a parser-blocking cross-site script, which
+        // Chrome silently blocks). styles.css stays as a <link>.
+        const [rawHtml, scriptJsText, cssUrl, ...audioUrls] = await Promise.all([
+          fetchWeeklyFileText(content.htmlStoragePath),
+          fetchWeeklyFileText(`${STORAGE_ASSETS_PREFIX}/script.js`),
           getWeeklyFileUrl(`${STORAGE_ASSETS_PREFIX}/styles.css`),
-          getWeeklyFileUrl(`${STORAGE_ASSETS_PREFIX}/script.js`),
           ...content.audioStoragePaths.map((p) => getWeeklyFileUrl(p)),
         ]);
 
@@ -93,7 +95,7 @@ const WeeklyViewerPage: React.FC = () => {
 
         const rewritten = rewriteWeeklyHtml(rawHtml, {
           cssUrl,
-          scriptUrl,
+          scriptJsText,
           audioMap,
         });
 
@@ -167,24 +169,30 @@ export default WeeklyViewerPage;
 
 interface RewriteOptions {
   cssUrl: string;
-  scriptUrl: string;
+  /** Full text of the bundle's script.js — inlined into the HTML. */
+  scriptJsText: string;
   /** Map of relative audio paths ("audio/xxx.mp3") → signed Storage URL. */
   audioMap: Record<string, string>;
 }
 
 export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
-  const { cssUrl, scriptUrl, audioMap } = opts;
+  const { cssUrl, scriptJsText, audioMap } = opts;
 
-  // 1. Swap the stylesheet reference.
+  // 1. Swap the stylesheet reference (a <link> is fine; only scripts are
+  //    affected by Chrome's document.write cross-site blocking).
   let out = html.replace(
     /<link\s+rel=["']stylesheet["']\s+href=["']styles\.css["']\s*\/?>/gi,
     `<link rel="stylesheet" href="${cssUrl}">`,
   );
 
-  // 2. Swap the shared script reference.
+  // 2. Inline the bundle's script.js. Using <script src=...> to Firebase
+  //    Storage gets silently blocked by Chrome when it's reached via
+  //    document.write (parser-blocking cross-site script heuristic).
+  //    Escape any "</script>" inside the JS so it doesn't close our tag.
+  const safeScriptJs = scriptJsText.replace(/<\/script>/gi, '<\\/script>');
   out = out.replace(
     /<script\s+src=["']script\.js["']\s*>\s*<\/script>/gi,
-    `<script src="${scriptUrl}"></script>`,
+    `<script>${safeScriptJs}</script>`,
   );
 
   // 3. Neuter auth-config.js — the client-side password system is gone.
@@ -211,9 +219,24 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     /(<div\s+class=["']nav-controls["'][^>]*>)/i,
     `$1<div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>`,
   );
+  // Load the Google Translate element.js dynamically via appendChild — this
+  // is NOT subject to Chrome's document.write cross-site blocking, so the
+  // widget actually initializes.
   out = out.replace(
     /<\/body>/i,
-    `<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script></body>`,
+    `<script>(function(){
+  function load(){
+    var s=document.createElement('script');
+    s.src='https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    s.async=true;
+    document.head.appendChild(s);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    load();
+  }
+})();<\/script></body>`,
   );
 
   // 4. Early-head script that:

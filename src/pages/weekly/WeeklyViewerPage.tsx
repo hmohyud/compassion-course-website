@@ -11,19 +11,16 @@ import {
   STORAGE_ASSETS_PREFIX,
 } from '../../services/weeklyContentService';
 
-// This page is special. After the admin check passes we replace the *whole*
-// document with the bundle HTML via document.write — no iframe, no srcdoc,
-// no blob URL. That gives the bundle a real document at /weekly/:n, which
-// means Google Translate, hash anchors (#concept TOC links), back/forward,
-// and relative links all behave natively. Earlier iframe-based approaches
-// tripped on srcdoc's lack of a base URL (mixed-content warnings from
-// Google Translate's empty form action, forced reloads on hash nav, etc.).
+// Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
+// Layout-wrapped, with the bundle rendered inside a srcdoc iframe for CSS
+// and JS isolation. The site's React Navigation + Footer surround it; the
+// bundle's own .top-nav is hidden because we don't need two navs.
 //
-// The bundled weekly HTML references styles.css, script.js, auth-config.js,
-// and audio/*.mp3 relatively. We rewrite those to signed Firebase Storage
-// URLs before writing the HTML to the document. audio/*.mp3 URLs are
-// intercepted at runtime by an override of `window.Audio` + `window.fetch`
-// because the bundle probes them with a HEAD request first.
+// The bundled HTML references styles.css, script.js, auth-config.js, and
+// audio/*.mp3 relatively. We rewrite the static refs to signed Firebase
+// Storage URLs before feeding it to srcdoc. Audio HEAD probes and
+// new Audio('audio/x.mp3') calls are intercepted inside the iframe via
+// an injected early script.
 
 type Status =
   | { kind: 'loading' }
@@ -35,16 +32,7 @@ const WeeklyViewerPage: React.FC = () => {
   const { weekNum } = useParams<{ weekNum: string }>();
   const { user, isAdmin, loading, adminLoading } = useAuth();
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
-  const didReplaceDocRef = useRef(false);
-
-  // Hide the outer Google Translate widget while the viewer is mounted, so it
-  // doesn't flash before document.write takes over.
-  useEffect(() => {
-    document.body.classList.add('weekly-viewer-active');
-    return () => {
-      document.body.classList.remove('weekly-viewer-active');
-    };
-  }, []);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (loading || adminLoading) return;
@@ -77,13 +65,11 @@ const WeeklyViewerPage: React.FC = () => {
           return;
         }
 
-        // Fetch HTML + script.js as text (script inlined so document.write
-        // doesn't treat it as a parser-blocking cross-site script, which
-        // Chrome silently blocks). styles.css stays as a <link>.
-        const [rawHtml, scriptJsText, cssUrl, ...audioUrls] = await Promise.all([
-          fetchWeeklyFileText(content.htmlStoragePath),
-          fetchWeeklyFileText(`${STORAGE_ASSETS_PREFIX}/script.js`),
+        const rawHtml = await fetchWeeklyFileText(content.htmlStoragePath);
+
+        const [cssUrl, scriptUrl, ...audioUrls] = await Promise.all([
           getWeeklyFileUrl(`${STORAGE_ASSETS_PREFIX}/styles.css`),
+          getWeeklyFileUrl(`${STORAGE_ASSETS_PREFIX}/script.js`),
           ...content.audioStoragePaths.map((p) => getWeeklyFileUrl(p)),
         ]);
 
@@ -95,7 +81,7 @@ const WeeklyViewerPage: React.FC = () => {
 
         const rewritten = rewriteWeeklyHtml(rawHtml, {
           cssUrl,
-          scriptJsText,
+          scriptUrl,
           audioMap,
         });
 
@@ -116,29 +102,37 @@ const WeeklyViewerPage: React.FC = () => {
     };
   }, [weekNum, user, isAdmin, loading, adminLoading]);
 
-  // Once the HTML is ready, replace the current document entirely. After this
-  // runs the React app is effectively unmounted and the bundle owns the page.
+  // Receive the "back to all weeks" signal from the bundle and route via
+  // React Router — keeps the SPA state intact instead of a full page load.
   useEffect(() => {
-    if (status.kind !== 'ready') return;
-    if (didReplaceDocRef.current) return;
-    didReplaceDocRef.current = true;
-    // document.open/write/close blanks the current document and installs the
-    // new HTML. The URL bar keeps /weekly/:n.
-    document.open();
-    document.write(status.html);
-    document.close();
-  }, [status]);
+    function onMessage(e: MessageEvent) {
+      if (e.source !== iframeRef.current?.contentWindow) return;
+      if (e.data && e.data.__weeklyNav === 'all-weeks') {
+        window.location.href = '/weekly';
+      }
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   if (loading || adminLoading) {
-    return <div className="weekly-viewer-loading">Loading…</div>;
+    return (
+      <Layout>
+        <div style={{ padding: '6rem 1rem', textAlign: 'center' }}>Loading…</div>
+      </Layout>
+    );
   }
   if (!user) return <Navigate to="/admin/login-4f73b2c" replace />;
   if (!isAdmin) return <Navigate to="/unauthorized" replace />;
 
-  if (status.kind === 'loading' || status.kind === 'ready') {
-    // For 'ready', the useEffect above will replace the document on the next
-    // tick. Render a neutral loader in the meantime so there's no flash.
-    return <div className="weekly-viewer-loading">Loading week {weekNum}…</div>;
+  if (status.kind === 'loading') {
+    return (
+      <Layout>
+        <div style={{ padding: '6rem 1rem', textAlign: 'center' }}>
+          Loading week {weekNum}…
+        </div>
+      </Layout>
+    );
   }
   if (status.kind === 'not-found') {
     return (
@@ -150,13 +144,27 @@ const WeeklyViewerPage: React.FC = () => {
       </Layout>
     );
   }
+  if (status.kind === 'forbidden') {
+    return (
+      <Layout>
+        <div style={{ padding: '6rem 1rem', textAlign: 'center' }}>
+          <h2>Access blocked</h2>
+          <p>{status.reason}</p>
+          <p><Link to="/weekly">Back to weekly list</Link></p>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      <div style={{ padding: '6rem 1rem', textAlign: 'center' }}>
-        <h2>Access blocked</h2>
-        <p>{status.reason}</p>
-        <p><Link to="/weekly">Back to weekly list</Link></p>
-      </div>
+      <iframe
+        ref={iframeRef}
+        srcDoc={status.html}
+        title={`Week ${status.content.weekNumber}`}
+        className="weekly-viewer-iframe"
+        allow="autoplay"
+      />
     </Layout>
   );
 };
@@ -164,86 +172,55 @@ const WeeklyViewerPage: React.FC = () => {
 export default WeeklyViewerPage;
 
 // ──────────────────────────────────────────────────────────────────────────────
-// HTML rewrite helper (pure, exported for testing).
+// HTML rewrite helper.
 // ──────────────────────────────────────────────────────────────────────────────
 
 interface RewriteOptions {
   cssUrl: string;
-  /** Full text of the bundle's script.js — inlined into the HTML. */
-  scriptJsText: string;
+  scriptUrl: string;
   /** Map of relative audio paths ("audio/xxx.mp3") → signed Storage URL. */
   audioMap: Record<string, string>;
 }
 
 export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
-  const { cssUrl, scriptJsText, audioMap } = opts;
+  const { cssUrl, scriptUrl, audioMap } = opts;
 
-  // 1. Swap the stylesheet reference (a <link> is fine; only scripts are
-  //    affected by Chrome's document.write cross-site blocking).
+  // 1. Stylesheet → signed Storage URL.
   let out = html.replace(
     /<link\s+rel=["']stylesheet["']\s+href=["']styles\.css["']\s*\/?>/gi,
     `<link rel="stylesheet" href="${cssUrl}">`,
   );
 
-  // 2. Inline the bundle's script.js. Using <script src=...> to Firebase
-  //    Storage gets silently blocked by Chrome when it's reached via
-  //    document.write (parser-blocking cross-site script heuristic).
-  //    Escape any "</script>" inside the JS so it doesn't close our tag.
-  const safeScriptJs = scriptJsText.replace(/<\/script>/gi, '<\\/script>');
+  // 2. script.js → signed Storage URL.
   out = out.replace(
     /<script\s+src=["']script\.js["']\s*>\s*<\/script>/gi,
-    `<script>${safeScriptJs}</script>`,
+    `<script src="${scriptUrl}"></script>`,
   );
 
-  // 3. Neuter auth-config.js — the client-side password system is gone.
+  // 3. auth-config.js → inert stub (the client-side password gate is gone).
   out = out.replace(
     /<script\s+src=["']auth-config\.js["']\s*>\s*<\/script>/gi,
     `<script>window.__AUTH_CONFIG__={adminHash:"",courseHash:"",weeks:{}};<\/script>`,
   );
 
-  // 3b. The bundle's "← All Weeks" and brand links point at index.html. At
-  //     /weekly/:n those would resolve to /weekly/index.html (404). Rewrite
-  //     them to /weekly — a normal browser navigation that loads the React
-  //     list page.
+  // 4. Flag the bundle's "← All Weeks" / brand links so the early script can
+  //    postMessage the parent to navigate via React Router.
   out = out.replace(
     /<a(\s[^>]*?)href=["']index\.html["']([^>]*)>/gi,
-    '<a$1href="/weekly"$2>',
+    '<a$1href="#" data-weekly-nav="all-weeks"$2>',
   );
 
-  // 3c. The seeded HTML already ships <script src="https://translate.google
-  //     .com/translate_a/element.js?cb=googleTranslateElementInit"> in <head>
-  //     AND a <div id="google_translate_element"> in .nav-controls. Strip
-  //     the parser-blocking <script> tag — document.write makes Chrome
-  //     silently block it, so we append it dynamically instead (DOM-inserted
-  //     scripts bypass the block). Leave the <div> alone.
-  out = out.replace(
-    /<script\s+src=["']https?:\/\/translate\.google\.com\/translate_a\/element\.js[^"']*["'][^>]*>\s*<\/script>/gi,
-    '',
-  );
-  out = out.replace(
-    /<\/body>/i,
-    `<script>(function(){
-  function load(){
-    var s=document.createElement('script');
-    s.src='https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    s.async=true;
-    document.head.appendChild(s);
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', load);
-  } else {
-    load();
-  }
-})();<\/script></body>`,
-  );
+  // 5. Hide the bundle's own top-nav since the outer React Nav is already
+  //    visible above the iframe. One nav is enough.
+  const hideBundleNavCss = `
+<style>
+  .top-nav, #progress-bar { display: none !important; }
+  body { padding-top: 0 !important; }
+</style>`;
 
-  // 4. Early-head script that:
-  //    (a) overrides `fetch` to satisfy the bundle's HEAD probes for
-  //        audio/*.mp3 — those files only exist in Storage via signed URLs.
-  //    (b) overrides `window.Audio` to redirect new Audio('audio/x.mp3')
-  //        calls to their signed URL.
-  //    (c) reveals the page immediately since the old client-side gate is
-  //        inert.
+  // 6. Early script: intercept audio HEAD probes, redirect new Audio() calls,
+  //    intercept "#hash" TOC clicks (scrollIntoView instead of srcdoc reload),
+  //    intercept "all-weeks" link clicks (postMessage parent).
   const audioMapJson = JSON.stringify(audioMap);
   const earlyScript = `
 <script>
@@ -259,8 +236,7 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
         if (method.toUpperCase() === 'HEAD' && typeof url === 'string' && url.indexOf('audio/') === 0) {
           if (AUDIO_MAP[url]) {
             return Promise.resolve(new Response(null, {
-              status: 200,
-              headers: { 'Content-Type': 'audio/mpeg' }
+              status: 200, headers: { 'Content-Type': 'audio/mpeg' }
             }));
           }
           return Promise.resolve(new Response(null, { status: 404 }));
@@ -278,109 +254,31 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   window.Audio.prototype = OrigAudio.prototype;
 
   document.documentElement.style.visibility = 'visible';
+
+  document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (!a) return;
+
+    if (a.getAttribute('data-weekly-nav') === 'all-weeks') {
+      e.preventDefault();
+      try { window.parent.postMessage({ __weeklyNav: 'all-weeks' }, '*'); } catch (err) {}
+      return;
+    }
+
+    var href = a.getAttribute('href');
+    if (href && href.charAt(0) === '#' && href.length > 1) {
+      var id = href.slice(1);
+      var target = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, true);
 })();
 <\/script>`;
 
-  // Prominence overrides for the narrate buttons + the language picker.
-  const styleOverrides = `
-<style>
-  .section-narrate-btn {
-    opacity: 1 !important;
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    border-width: 2px !important;
-    border-color: var(--clr-primary, #2a7a6e) !important;
-    background: var(--clr-bg-card, #fff) !important;
-    color: var(--clr-primary, #2a7a6e) !important;
-    box-shadow: 0 1px 3px rgba(42,122,110,0.20);
-    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
-  }
-  .section-narrate-btn:hover {
-    background: var(--clr-primary, #2a7a6e) !important;
-    color: #fff !important;
-    transform: scale(1.12);
-  }
-  .section-narrate-btn[data-state="playing"],
-  .section-narrate-btn[data-state="paused"] {
-    background: var(--clr-primary, #2a7a6e) !important;
-    color: #fff !important;
-    border-color: var(--clr-primary-dark, #1e5c53) !important;
-  }
-
-  #narrate-btn {
-    border-width: 2px !important;
-    border-color: var(--clr-primary, #2a7a6e) !important;
-    color: var(--clr-primary, #2a7a6e) !important;
-    background: var(--clr-bg-card, #fff) !important;
-    box-shadow: 0 1px 3px rgba(42,122,110,0.20) !important;
-    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease !important;
-  }
-  #narrate-btn:hover {
-    background: var(--clr-primary, #2a7a6e) !important;
-    color: #fff !important;
-    transform: scale(1.08);
-  }
-  #narrate-btn.narrating {
-    border-color: var(--clr-accent, #e8a838) !important;
-    color: var(--clr-accent, #e8a838) !important;
-    background: rgba(232,168,56,0.12) !important;
-  }
-
-  /* Language picker — compact pill matching the narrate buttons. */
-  #google_translate_element { display: inline-flex; align-items: center; }
-  #google_translate_element .goog-te-gadget {
-    font-size: 0 !important;
-    line-height: 0 !important;
-    color: transparent !important;
-    margin: 0 !important;
-  }
-  #google_translate_element .goog-te-gadget > span,
-  #google_translate_element .goog-logo-link,
-  #google_translate_element .goog-te-gadget-icon {
-    display: none !important;
-  }
-  #google_translate_element .goog-te-gadget-simple {
-    background: var(--clr-bg-card, #fff) !important;
-    border: 2px solid var(--clr-primary, #2a7a6e) !important;
-    border-radius: 999px !important;
-    padding: 4px 10px !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-    color: var(--clr-primary, #2a7a6e) !important;
-    cursor: pointer;
-    display: inline-flex !important;
-    align-items: center !important;
-    box-shadow: 0 1px 3px rgba(42,122,110,0.20);
-  }
-  #google_translate_element .goog-te-gadget-simple:hover {
-    background: var(--clr-primary, #2a7a6e) !important;
-    color: #fff !important;
-  }
-  #google_translate_element .goog-te-gadget-simple:hover .goog-te-menu-value span {
-    color: #fff !important;
-  }
-  #google_translate_element .goog-te-menu-value {
-    color: inherit !important;
-    margin: 0 !important;
-  }
-  #google_translate_element .goog-te-menu-value span {
-    color: inherit !important;
-    border: 0 !important;
-    font-weight: 500 !important;
-  }
-  #google_translate_element .goog-te-menu-value span:nth-child(2),
-  #google_translate_element .goog-te-menu-value span:nth-child(3),
-  #google_translate_element .goog-te-menu-value span:nth-child(4) {
-    display: none !important;
-  }
-  .goog-te-banner-frame.skiptranslate,
-  body > .skiptranslate { display: none !important; }
-  body { top: 0 !important; }
-</style>`;
-
-  // Insert after <head>.
-  out = out.replace(/<head(\s[^>]*)?>/i, (m) => m + earlyScript + styleOverrides);
+  out = out.replace(/<head(\s[^>]*)?>/i, (m) => m + earlyScript + hideBundleNavCss);
 
   return out;
 }

@@ -978,12 +978,6 @@ video {
     transition: left 0.15s ease;
 }
 
-/* Hide the outer widget on weekly viewer pages — the iframe has its own
-   Select Language control and the outer portal has no .nav-logo to anchor
-   against here, so it appears floating at top-left and misbehaves. */
-body.weekly-viewer-active #google-translate-portal {
-    display: none !important;
-}
 
 .nav-translate .goog-te-gadget {
     font-size: 0 !important;
@@ -12224,8 +12218,12 @@ section {
 .weekly-viewer-iframe {
     flex: 1;
     width: 100%;
+    /* Fill the space below the React Nav. --nav-height comes from the site's
+       design tokens. Footer sits below the iframe. */
+    min-height: calc(100vh - var(--nav-height, 80px) - var(--gt-bar-height, 0px));
     border: none;
     display: block;
+    background: #faf7f2;
 }
 
 /* Full-viewport loading screen — same warm background as the iframe content

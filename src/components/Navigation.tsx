@@ -248,7 +248,13 @@ const Navigation: React.FC = () => {
           <li className="nav-item">
             <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
               <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
-              Member Portal
+              2026 Member Portal
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/portal/community" className={`nav-link ${isActive('/portal/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+              <i className="fas fa-globe-americas nav-gcn-icon" aria-hidden="true"></i>
+              Global Compassion Network
             </Link>
           </li>
           {user && showLeadership && (
@@ -258,11 +264,6 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           )}
-          <li className="nav-item">
-            <Link to="/portal/community" className={`nav-link nav-link--login ${isActive('/portal/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-              Log in
-            </Link>
-          </li>
           <li className="nav-item">
             <a href="https://compassioncf.com/donate" target="_blank" rel="noopener noreferrer" className="nav-link nav-link--donate" onClick={() => setIsMenuOpen(false)}>
               <i className="fas fa-heart nav-donate-icon"></i> Donate

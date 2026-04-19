@@ -14,13 +14,28 @@ import {
 // member. Lesson schedule: Welcome Aboard on June 23, 2026 at 12:00 PM
 // New York time; Week 1 on June 24; one lesson every Wednesday at noon
 // for the 51 weeks after that.
+//
+// Before June 23, 2026 12:00 PM New York time, non-admins see a simple
+// "Opening June 23, 2026" placeholder instead of the library. Admins
+// always see the library so they can preview.
+
+// 2026-06-23 at 12:00 EDT = 16:00 UTC (June is DST in NY).
+const PORTAL_OPEN_AT = new Date('2026-06-23T16:00:00.000Z');
 
 const WeeklyListPage: React.FC = () => {
   const { isAdmin } = useAuth();
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
   const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('loading');
 
+  const portalOpen = isAdmin || Date.now() >= PORTAL_OPEN_AT.getTime();
+
   useEffect(() => {
+    // Don't hit Firestore before the portal opens for non-admins — nothing
+    // they could do with it.
+    if (!portalOpen) {
+      setFetchState('idle');
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -35,7 +50,37 @@ const WeeklyListPage: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [portalOpen]);
+
+  if (!portalOpen) {
+    return (
+      <Layout>
+        <section className="member-portal-placeholder">
+          <div className="container">
+            <div className="member-portal-placeholder-inner">
+              <span className="member-portal-eyebrow">2026 Member Portal</span>
+              <h1>Opening June 23, 2026</h1>
+              <p className="member-portal-lede">
+                The 2026 Compassion Course Lesson Library unlocks at 12:00 PM
+                New York time on Monday, June 23, 2026. Welcome Aboard goes
+                live first, followed by Week 1 on June 24, then one new
+                lesson every Wednesday at noon for the 51 Wednesdays after.
+              </p>
+              <p className="member-portal-lede">
+                Already a Global Compassion Network member?
+              </p>
+              <div className="member-portal-actions">
+                <Link to="/portal/community" className="btn-primary">
+                  <i className="fas fa-globe-americas" aria-hidden="true" />
+                  &nbsp;Enter the GCN
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

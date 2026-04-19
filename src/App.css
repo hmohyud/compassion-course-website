@@ -12354,11 +12354,40 @@ section {
     height: 400px;
 }
 
-/* Icon next to the admin-only "Weekly" nav link. */
+/* Icon next to the "2026 Member Portal" nav link. */
 .nav-weekly-icon {
     margin-right: 6px;
     font-size: 0.85em;
     opacity: 0.85;
+}
+
+/* Icon next to the "Global Compassion Network" nav link. */
+.nav-gcn-icon {
+    margin-right: 6px;
+    font-size: 0.85em;
+    opacity: 0.85;
+}
+
+/* Placeholder variant of the Member Portal page — shown to non-admins
+   before PORTAL_OPEN_AT (June 23, 2026 12:00 NY). Centered hero-style
+   layout, no lesson grid. */
+.member-portal-placeholder {
+    padding: 6rem 0;
+    min-height: 70vh;
+    background: var(--color-gray-50, #fafafa);
+    display: flex;
+    align-items: center;
+}
+.member-portal-placeholder-inner {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto;
+}
+.member-portal-placeholder-inner h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    color: var(--color-primary, #0d9488);
+    margin: 0.5rem 0 1.25rem;
 }
 
 /* Compass Companions permanent icon pill — just the robot, with a custom

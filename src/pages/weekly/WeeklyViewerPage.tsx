@@ -25,7 +25,7 @@ type Status =
   | { kind: 'loading' }
   | { kind: 'not-found' }
   | { kind: 'forbidden'; reason: string }
-  | { kind: 'ready'; blobUrl: string; content: WeeklyContent };
+  | { kind: 'ready'; html: string; content: WeeklyContent };
 
 const WeeklyViewerPage: React.FC = () => {
   const { weekNum } = useParams<{ weekNum: string }>();
@@ -101,16 +101,10 @@ const WeeklyViewerPage: React.FC = () => {
           cssUrl,
           scriptUrl,
           audioMap,
+          parentOrigin: window.location.origin,
         });
 
-        // Serve the rewritten HTML via a blob URL instead of srcdoc. A real
-        // URL lets the iframe treat in-page anchors (#concept, #practices)
-        // and back/forward like a normal document — srcdoc has no base URL
-        // and Chrome inconsistently reloads the frame on hash clicks.
-        const blob = new Blob([rewritten], { type: 'text/html' });
-        const blobUrl = URL.createObjectURL(blob);
-
-        if (!cancelled) setStatus({ kind: 'ready', blobUrl, content });
+        if (!cancelled) setStatus({ kind: 'ready', html: rewritten, content });
       } catch (err: any) {
         console.error('Failed to load week', err);
         if (!cancelled)
@@ -127,14 +121,19 @@ const WeeklyViewerPage: React.FC = () => {
     };
   }, [weekNum, user, isAdmin, loading, adminLoading]);
 
-  // Revoke the blob URL when the ready status is replaced, to avoid leaks.
+  // Handle in-iframe navigation requests forwarded via postMessage. The
+  // iframe can't reliably navigate the parent directly (srcdoc has no real
+  // URL, target="_parent" is flaky across browsers), so we listen here.
   useEffect(() => {
-    if (status.kind !== 'ready') return;
-    const url = status.blobUrl;
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [status]);
+    function onMessage(e: MessageEvent) {
+      if (e.source !== iframeRef.current?.contentWindow) return;
+      if (e.data && e.data.__weeklyNav === 'all-weeks') {
+        window.location.href = '/weekly';
+      }
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   if (loading || adminLoading) {
     return <div className="weekly-viewer-loading">Loading…</div>;
@@ -171,7 +170,7 @@ const WeeklyViewerPage: React.FC = () => {
     <div className="weekly-viewer-page">
       <iframe
         ref={iframeRef}
-        src={status.blobUrl}
+        srcDoc={status.html}
         title={`Week ${status.content.weekNumber}`}
         className="weekly-viewer-iframe"
         allow="autoplay"
@@ -191,10 +190,12 @@ interface RewriteOptions {
   scriptUrl: string;
   /** Map of iframe-relative audio paths ("audio/xxx.mp3") → signed Storage URL. */
   audioMap: Record<string, string>;
+  /** Parent window's origin, used for postMessage-based "back to weekly" nav. */
+  parentOrigin: string;
 }
 
 export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
-  const { cssUrl, scriptUrl, audioMap } = opts;
+  const { cssUrl, scriptUrl, audioMap, parentOrigin } = opts;
 
   // 1. Swap the stylesheet reference.
   let out = html.replace(
@@ -215,12 +216,13 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     `<script>window.__AUTH_CONFIG__={adminHash:"",courseHash:"",weeks:{}};<\/script>`,
   );
 
-  // 3b. Rewrite in-iframe nav links that point to index.html so they navigate
-  //     the OUTER React app to /weekly instead of the broken /weekly/index.html.
-  //     target="_parent" makes the click navigate the parent window.
+  // 3b. Flag in-iframe nav links that point to index.html with a data attr
+  //     so the early script can postMessage the parent to navigate. We avoid
+  //     target="_parent" + /weekly since srcdoc has no base URL and Chrome
+  //     sometimes resolves those to about:blank#blocked.
   out = out.replace(
     /<a(\s[^>]*?)href=["']index\.html["']([^>]*)>/gi,
-    '<a$1href="/weekly" target="_parent"$2>',
+    '<a$1href="#" data-weekly-nav="all-weeks"$2>',
   );
 
   // 3c. Inject the Google Translate mount point into the iframe's .nav-controls
@@ -246,11 +248,17 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   //    (b) overrides the `Audio` constructor so any `new Audio('audio/x.mp3')`
   //        call is transparently redirected to the signed Firebase Storage URL.
   //    (c) pre-reveals page visibility since the client-side auth gate is inert.
+  //    (d) intercepts all anchor clicks: "#hash" does smooth scroll (srcdoc
+  //        reloads on hash nav, which was the "in this week button refreshes
+  //        the page" bug); links flagged with data-weekly-nav postMessage to
+  //        the parent so React Router can navigate cleanly.
   const audioMapJson = JSON.stringify(audioMap);
+  const parentOriginJson = JSON.stringify(parentOrigin);
   const earlyScript = `
 <script>
 (function(){
   var AUDIO_MAP = ${audioMapJson};
+  var PARENT_ORIGIN = ${parentOriginJson};
 
   // (a) fetch override — intercept HEAD probes that the bundle uses to check
   //     whether an audio file exists. Relative paths in srcdoc iframes don't
@@ -286,6 +294,33 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
 
   // (c) Make the page visible immediately; no client-side gate delaying us.
   document.documentElement.style.visibility = 'visible';
+
+  // (d) Click interceptor for in-iframe anchors.
+  document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (!a) return;
+
+    // "Back to all weeks" — postMessage the parent.
+    if (a.getAttribute('data-weekly-nav') === 'all-weeks') {
+      e.preventDefault();
+      try {
+        window.parent.postMessage({ __weeklyNav: 'all-weeks' }, PARENT_ORIGIN);
+      } catch (err) { /* ignore */ }
+      return;
+    }
+
+    // In-page hash links — smooth scroll instead of hash navigation (srcdoc
+    // reloads the whole frame when the hash changes).
+    var href = a.getAttribute('href');
+    if (href && href.charAt(0) === '#' && href.length > 1) {
+      var id = href.slice(1);
+      var target = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, true);
 })();
 <\/script>`;
   // Prominence overrides for the per-section narrate buttons and the

@@ -994,10 +994,10 @@ video {
 
 
 /* Compact translate widget — the SIMPLE layout (set in GoogleTranslate.tsx)
-   renders a pill with the current language label + dropdown arrow. We hide
-   all of Google's default text and render a globe icon via ::before so the
-   widget occupies ~40px instead of ~180px. The widget still opens Google's
-   language picker on click. */
+   renders a pill with the current language label + dropdown arrow. We
+   keep the label visible (e.g. "English") for clarity, add a globe icon
+   in front via ::before, and a clean chevron via ::after. Google's own
+   icon + divider image are hidden. */
 .nav-translate .goog-te-gadget {
     font-size: 0 !important;
     line-height: 0 !important;
@@ -1009,21 +1009,36 @@ video {
     background: var(--color-white, #fff) !important;
     border: 1px solid var(--color-gray-200, #e5e7eb) !important;
     border-radius: 999px !important;
-    padding: 6px 10px !important;
+    padding: 5px 11px 5px 11px !important;
     cursor: pointer;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0 !important;
+    gap: 6px !important;
     text-decoration: none !important;
+    line-height: 1 !important;
     transition: border-color var(--transition-fast), background var(--transition-fast) !important;
 }
 
+/* Globe icon before the label. */
 .nav-translate .goog-te-gadget-simple::before {
     content: "\f0ac"; /* Font Awesome globe */
     font-family: "Font Awesome 6 Free", "Font Awesome 5 Free";
     font-weight: 900;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--color-gray-500, #777);
+    line-height: 1;
+}
+
+/* Chevron after the label (our own — Google's aria-hidden arrow is
+   unreliable across the hashed markup variants). */
+.nav-translate .goog-te-gadget-simple::after {
+    content: "\f078"; /* Font Awesome chevron-down */
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 0.55rem;
+    color: var(--color-gray-400, #999);
+    margin-left: 2px;
+    line-height: 1;
 }
 
 .nav-translate .goog-te-gadget-simple:hover {
@@ -1031,17 +1046,37 @@ video {
     background: var(--color-gray-50, #fafafa) !important;
 }
 
-.nav-translate .goog-te-gadget-simple:hover::before {
+.nav-translate .goog-te-gadget-simple:hover::before,
+.nav-translate .goog-te-gadget-simple:hover::after {
     color: var(--color-primary, #5fa9e3);
 }
 
-/* Hide Google's default icon, text label, and divider — the globe above
-   is our only visible affordance. */
-.nav-translate .goog-te-gadget-icon,
-.nav-translate .goog-te-gadget-simple > span,
+/* Language name — the first span inside the (hashed) menu-value element.
+   Google uses varying hashed class names, so we target by structure. */
 .nav-translate .goog-te-gadget-simple .goog-te-menu-value,
+.nav-translate .goog-te-gadget-simple > span {
+    font-size: 0.8rem !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: var(--color-gray-700, #3f3f46) !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+}
+
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:first-child {
+    font-size: inherit !important;
+    color: inherit !important;
+}
+
+/* Hide Google's icon and the default divider image. Also hide their
+   built-in aria-hidden arrow since we render our own via ::after. */
+.nav-translate .goog-te-gadget-icon,
 .nav-translate .goog-te-gadget-simple img,
-.nav-translate .goog-te-gadget-simple span[style*="border-left"] {
+.nav-translate .goog-te-gadget-simple span[style*="border-left"],
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span[aria-hidden="true"],
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(2),
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(3),
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:nth-child(4) {
     display: none !important;
 }
 

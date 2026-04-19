@@ -9,8 +9,10 @@ import GoogleTranslate from './GoogleTranslate';
 
 // Fallback breakpoint used until JS measures the actual required width.
 const DEFAULT_DESKTOP_BREAKPOINT = 1260;
-// Safety padding so items never "touch" — keep breathing room at the edge.
-const NAV_SAFETY_PADDING = 32;
+// Safety padding so items never "touch" — keep generous breathing room. The
+// nav has three islands (logo, menu, right) plus the fixed-position Google
+// Translate widget that sits after the logo, so gaps between them matter.
+const NAV_SAFETY_PADDING = 96;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,8 +38,10 @@ const Navigation: React.FC = () => {
 
   // Measure the nav's natural desktop width once the menu is rendered.
   // scrollWidth on the menu UL gives the unwrapped row width the flex would
-  // need if the viewport weren't constraining it. Add the logo + nav-right
-  // widths and a safety padding to get the real threshold.
+  // need if the viewport weren't constraining it. Sum the logo, the Google
+  // Translate widget (position:fixed, overlays between logo and menu), the
+  // menu, and the nav-right cluster, plus a safety padding so items never
+  // touch.
   useLayoutEffect(() => {
     const nav = navRef.current;
     const menu = menuRef.current;
@@ -47,18 +51,28 @@ const Navigation: React.FC = () => {
       if (!nav || !menu) return;
       const logo = nav.querySelector<HTMLElement>('.nav-logo');
       const right = nav.querySelector<HTMLElement>('.nav-right');
+      // Translate widget lives outside the nav (position:fixed), but it
+      // visually occupies space between logo and menu on desktop.
+      const translate = document.getElementById('google-translate-portal');
       // Only trust the measurement when the menu is rendered in desktop
       // layout; in hamburger mode its scrollWidth is 0.
       if (menu.scrollWidth < 50) return;
-      const needed = (logo?.scrollWidth ?? 0) + menu.scrollWidth + (right?.scrollWidth ?? 0);
+      const needed =
+        (logo?.scrollWidth ?? 0) +
+        (translate?.offsetWidth ?? 0) +
+        menu.scrollWidth +
+        (right?.scrollWidth ?? 0);
       setBreakpoint(needed + NAV_SAFETY_PADDING);
     }
 
     remeasure();
 
-    // Re-measure if fonts load or items change (e.g. sign-in adds account UI).
+    // Re-measure if fonts load, items change (sign-in adds account UI), or
+    // the translate widget resizes (it grows after Google's script hydrates).
     const ro = new ResizeObserver(remeasure);
     ro.observe(menu);
+    const translate = document.getElementById('google-translate-portal');
+    if (translate) ro.observe(translate);
     return () => ro.disconnect();
   }, [user, isAdmin, showLeadership]);
 

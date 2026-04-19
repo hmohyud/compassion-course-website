@@ -278,6 +278,10 @@ const Navigation: React.FC = () => {
               <i className="fas fa-heart nav-donate-icon"></i> Donate
             </a>
           </li>
+          {/*
+            Community nav button temporarily hidden — pending the
+            real community experience. The /portal/community route
+            still works if linked to directly.
           {user && (
             <>
               <li className="nav-item nav-item--community">
@@ -288,6 +292,7 @@ const Navigation: React.FC = () => {
               </li>
             </>
           )}
+          */}
           {/* Mobile-only: Compass Companions + account items */}
           {!isDesktop && (
             <>

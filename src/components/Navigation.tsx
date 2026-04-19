@@ -9,10 +9,10 @@ import GoogleTranslate from './GoogleTranslate';
 
 // Fallback breakpoint used until JS measures the actual required width.
 const DEFAULT_DESKTOP_BREAKPOINT = 1260;
-// Safety padding so items never "touch" — keep generous breathing room. The
-// nav has three islands (logo, menu, right) plus the fixed-position Google
-// Translate widget that sits after the logo, so gaps between them matter.
-const NAV_SAFETY_PADDING = 96;
+// Safety padding so islands never "touch" — extra breathing room because
+// .nav-menu is absolutely-positioned and centered, so the left and right
+// islands approach it symmetrically from both sides.
+const NAV_ISLAND_PADDING = 48;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,12 +36,16 @@ const Navigation: React.FC = () => {
   // When translated, force hamburger regardless of screen size
   const isDesktop = isScreenDesktop && !isTranslated;
 
-  // Measure the nav's natural desktop width once the menu is rendered.
-  // scrollWidth on the menu UL gives the unwrapped row width the flex would
-  // need if the viewport weren't constraining it. Sum the logo, the Google
-  // Translate widget (position:fixed, overlays between logo and menu), the
-  // menu, and the nav-right cluster, plus a safety padding so items never
-  // touch.
+  // Dynamic breakpoint. .nav-menu is absolutely-positioned (left:50%, centered)
+  // — NOT a flex child — so the min viewport width isn't a simple sum of
+  // island widths. Layout:
+  //   LEFT  = logo + Google-Translate portal (portal is position:fixed right
+  //           after the logo on desktop)
+  //   RIGHT = .nav-right (Compass Companions + avatar, margin-left:auto)
+  //   MID   = .nav-menu, centered on the container
+  //
+  // For MID not to collide with either side, the container must fit MID plus
+  // twice the bigger of the two side islands (plus padding on both sides).
   useLayoutEffect(() => {
     const nav = navRef.current;
     const menu = menuRef.current;
@@ -51,30 +55,35 @@ const Navigation: React.FC = () => {
       if (!nav || !menu) return;
       const logo = nav.querySelector<HTMLElement>('.nav-logo');
       const right = nav.querySelector<HTMLElement>('.nav-right');
-      // Translate widget lives outside the nav (position:fixed), but it
-      // visually occupies space between logo and menu on desktop.
       const translate = document.getElementById('google-translate-portal');
-      // Only trust the measurement when the menu is rendered in desktop
-      // layout; in hamburger mode its scrollWidth is 0.
       if (menu.scrollWidth < 50) return;
-      const needed =
-        (logo?.scrollWidth ?? 0) +
-        (translate?.offsetWidth ?? 0) +
-        menu.scrollWidth +
-        (right?.scrollWidth ?? 0);
-      setBreakpoint(needed + NAV_SAFETY_PADDING);
+      const leftIsland = (logo?.scrollWidth ?? 0) + (translate?.offsetWidth ?? 0);
+      const rightIsland = right?.scrollWidth ?? 0;
+      const sideReserve = Math.max(leftIsland, rightIsland) + NAV_ISLAND_PADDING;
+      const needed = menu.scrollWidth + 2 * sideReserve;
+      setBreakpoint(needed);
     }
 
     remeasure();
-
-    // Re-measure if fonts load, items change (sign-in adds account UI), or
-    // the translate widget resizes (it grows after Google's script hydrates).
     const ro = new ResizeObserver(remeasure);
     ro.observe(menu);
     const translate = document.getElementById('google-translate-portal');
     if (translate) ro.observe(translate);
     return () => ro.disconnect();
   }, [user, isAdmin, showLeadership]);
+
+  // Intermediate squeeze state: before we fully collapse to a hamburger, hide
+  // the "Compass Companions" label and leave just the robot icon. Kicks in
+  // when we're within ~140px of the collapse threshold.
+  const [isTight, setIsTight] = useState(false);
+  useEffect(() => {
+    function check() {
+      setIsTight(window.innerWidth < breakpoint + 140 && window.innerWidth >= breakpoint);
+    }
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [breakpoint]);
 
   // Apply the (now-dynamic) breakpoint against the current window width.
   useEffect(() => {
@@ -284,12 +293,15 @@ const Navigation: React.FC = () => {
             href="https://www.compass-companions.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="nav-companion-link"
+            className={`nav-companion-link ${isTight ? 'nav-companion-link--icon-only' : ''}`}
             title="Compass Companions"
+            aria-label="Compass Companions"
           >
-            <i className="fas fa-compass nav-companion-icon"></i>
+            <i className="fas fa-robot nav-companion-icon"></i>
             <span className="nav-companion-text">Compass Companions</span>
-            <i className="fas fa-external-link-alt nav-companion-ext"></i>
+            {!isTight && (
+              <i className="fas fa-external-link-alt nav-companion-ext"></i>
+            )}
           </a>
 
           {/* Admin Portal button — opens auth modal popup (hidden when signed in) */}

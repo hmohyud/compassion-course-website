@@ -207,7 +207,7 @@ const Navigation: React.FC = () => {
             <li className="nav-item">
               <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                 <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
-                Weekly
+                Member Portal
               </Link>
             </li>
           )}

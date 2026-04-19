@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '../components/Layout';
 
 const CirclePage: React.FC = () => {
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   return (
-    <Layout>
-      <section className="community-coming-soon">
-        <div className="community-coming-soon-inner">
-          <div className="community-coming-soon-icon">
-            <i className="fas fa-users" />
-          </div>
-          <h1>Community</h1>
-          <p className="community-coming-soon-date">Coming June 24th</p>
-          <p className="community-coming-soon-text">
-            We're switching to a new platform to better serve our community.
-            Stay tuned — something wonderful is on the way.
-          </p>
+    <Layout hideFooter>
+      <div className="iframe-page">
+        <div className="iframe-page-content">
+          {!iframeLoaded && (
+            <div className="app-loading-overlay" style={{ position: 'absolute', borderRadius: '12px' }}>
+              <div className="app-loading-center">
+                <div className="app-loading-swirl" />
+                <div className="app-loading-swirl-inner" />
+                <img
+                  src="/Logo-with-HSW-transparent.png"
+                  alt=""
+                  className="app-loading-logo"
+                />
+              </div>
+            </div>
+          )}
+          <iframe
+            src="https://login.circle.so/sign_in?request_host=www.theglobalcompassionnetwork.com#email"
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              display: 'block'
+            }}
+            title="Compassion Course Community"
+            allow="clipboard-read; clipboard-write"
+            onLoad={() => setIframeLoaded(true)}
+          />
         </div>
-      </section>
+      </div>
     </Layout>
   );
 };

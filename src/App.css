@@ -12116,25 +12116,48 @@ section {
 /* ==========================================
    WEEKLY CONTENT (admin-only, Firebase-gated)
    ========================================== */
-.weekly-list-page {
+.weekly-list-page,
+.member-portal-page {
     padding: 4rem 0 6rem;
     background: var(--color-gray-50, #fafafa);
     min-height: 70vh;
 }
-.weekly-list-header {
+.weekly-list-header,
+.member-portal-header {
     text-align: center;
     margin-bottom: 2.5rem;
 }
-.weekly-list-header h1 {
+.weekly-list-header h1,
+.member-portal-header h1 {
     font-size: clamp(1.9rem, 3.2vw, 2.5rem);
     color: var(--color-primary, #0d9488);
     margin-bottom: 0.5rem;
 }
-.weekly-list-header p {
+.weekly-list-header p,
+.member-portal-lede {
     color: var(--color-gray-600, #52525b);
     max-width: 640px;
     margin: 0 auto;
     line-height: 1.55;
+}
+.member-portal-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary, #0d9488);
+    background: var(--color-primary-50, #ecfdf5);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    margin-bottom: 0.9rem;
+}
+.member-portal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
 }
 .weekly-list-error,
 .weekly-list-empty {

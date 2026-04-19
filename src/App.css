@@ -7340,6 +7340,27 @@ section {
     overflow: hidden;
 }
 
+/* Fallback shown when the Circle iframe fails to finish loading — gives
+   the user a direct "open in new tab" escape hatch instead of a stuck
+   spinner. */
+.iframe-fallback {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    text-align: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    max-width: 360px;
+}
+.iframe-fallback p {
+    margin: 0 0 0.75rem;
+    color: var(--color-gray-700, #3f3f46);
+    font-size: 0.95rem;
+}
+
 /* ==========================================
    ELEVENLABS CHATBOT
    ========================================== */
@@ -7415,10 +7436,15 @@ section {
 .nav-link--donate {
     color: var(--color-accent) !important;
     font-weight: 600 !important;
+    border: 1.5px solid var(--color-accent) !important;
+    border-radius: 999px !important;
+    padding: 0.4rem 0.875rem !important;
+    transition: background var(--transition-fast), color var(--transition-fast) !important;
 }
 
 .nav-link--donate:hover {
-    color: #e03555 !important;
+    background: var(--color-accent) !important;
+    color: #fff !important;
 }
 
 .nav-donate-icon {

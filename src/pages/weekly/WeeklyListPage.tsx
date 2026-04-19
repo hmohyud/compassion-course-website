@@ -1,33 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Layout from '../../components/Layout';
 import {
   listAllWeeklyContent,
-  canViewWeek,
   type WeeklyContent,
 } from '../../services/weeklyContentService';
 
-// 2026 Member Portal — Lesson Library. Per the UX spec, members enter via
-// the "2026 Member Portal" top-nav link, authenticate with email only
-// (one-time), and can move between the Lesson Library here and the Global
-// Compassion Network (Circle) community. Lessons release on a fixed
-// schedule: Welcome Aboard on June 23, 2026 at 12:00 PM New York time,
-// then Week 1 on June 24 and one more lesson every Wednesday at noon for
-// the following 51 weeks.
-//
-// The email-only member auth (backed by the Jotform → Constant Contact
-// member list uploaded on 6/24) is not wired up yet; until it lands, the
-// library is admin-gated so content can be previewed and managed.
+// 2026 Member Portal — Lesson Library. Open to everyone: anyone can see
+// the list of lessons and their release dates. The actual lesson content
+// (HTML + audio) is gated at the viewer (WeeklyViewerPage) so members
+// only unlock a lesson once it has released and they're signed in as a
+// member. Lesson schedule: Welcome Aboard on June 23, 2026 at 12:00 PM
+// New York time; Week 1 on June 24; one lesson every Wednesday at noon
+// for the 51 weeks after that.
 
 const WeeklyListPage: React.FC = () => {
-  const { user, isAdmin, loading, adminLoading } = useAuth();
+  const { isAdmin } = useAuth();
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
   const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('loading');
 
   useEffect(() => {
-    if (loading || adminLoading) return;
-    if (!user || !isAdmin) return;
     let cancelled = false;
     (async () => {
       try {
@@ -42,13 +35,7 @@ const WeeklyListPage: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [user, isAdmin, loading, adminLoading]);
-
-  if (loading || adminLoading) {
-    return <Layout><div style={{ padding: '6rem 1rem', textAlign: 'center' }}>Loading…</div></Layout>;
-  }
-  if (!user) return <Navigate to="/admin/login-4f73b2c" replace />;
-  if (!isAdmin) return <Navigate to="/unauthorized" replace />;
+  }, []);
 
   return (
     <Layout>
@@ -62,34 +49,36 @@ const WeeklyListPage: React.FC = () => {
               Week 1 follows on June 24, with one new lesson every Wednesday
               at noon for the 51 Wednesdays after that.
             </p>
-            <div className="member-portal-actions">
-              <Link to="/community" className="btn-primary">
-                <i className="fas fa-users" aria-hidden="true" />
-                &nbsp;Visit the Community (GCN)
-              </Link>
-              <Link to="/admin-portal/weekly" className="btn-secondary">
-                Admin dashboard
-              </Link>
-            </div>
+            {isAdmin && (
+              <div className="member-portal-actions">
+                <Link to="/admin-portal/weekly" className="btn-secondary">
+                  Admin dashboard
+                </Link>
+              </div>
+            )}
           </header>
+
+          {fetchState === 'loading' && (
+            <div className="weekly-list-empty">
+              <p>Loading lesson library…</p>
+            </div>
+          )}
 
           {fetchState === 'error' && (
             <div className="weekly-list-error">
-              Failed to load weeks. Make sure you're signed in as an admin.
+              Failed to load lessons. Please refresh to try again.
             </div>
           )}
 
           {fetchState === 'idle' && weeks.length === 0 && (
             <div className="weekly-list-empty">
-              <p>No weekly content has been uploaded yet.</p>
-              <Link to="/admin-portal/weekly" className="btn-primary">Go to admin dashboard</Link>
+              <p>No lessons have been published yet. Check back after June 23, 2026.</p>
             </div>
           )}
 
           {weeks.length > 0 && (
             <div className="weekly-list-grid">
               {weeks.map((w) => {
-                const access = canViewWeek({ content: w, isAdmin });
                 const released = new Date(w.releaseDate) <= new Date();
                 return (
                   <Link
@@ -101,11 +90,7 @@ const WeeklyListPage: React.FC = () => {
                     <h3 className="weekly-list-card-title">{w.title || '(untitled)'}</h3>
                     <div className="weekly-list-card-meta">
                       <span>Releases: {w.releaseDate}</span>
-                      {!w.published && <span className="weekly-list-card-badge">Unpublished</span>}
-                      {!released && <span className="weekly-list-card-badge">Future</span>}
-                      {!access.allowed && (
-                        <span className="weekly-list-card-badge weekly-list-card-badge--lock">🔒 Admin only</span>
-                      )}
+                      {!released && <span className="weekly-list-card-badge">Coming soon</span>}
                     </div>
                   </Link>
                 );

@@ -203,14 +203,12 @@ const Navigation: React.FC = () => {
           <li className="nav-item">
             <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
           </li>
-          {isAdmin && (
-            <li className="nav-item">
-              <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-                <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
-                Member Portal
-              </Link>
-            </li>
-          )}
+          <li className="nav-item">
+            <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+              <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
+              Member Portal
+            </Link>
+          </li>
           {user && showLeadership && (
             <li className="nav-item">
               <Link to="/portal/leadership" className={`nav-link ${isActivePrefix('/portal/leadership') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>

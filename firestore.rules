@@ -60,9 +60,12 @@ service cloud.firestore {
 
     // Weekly lesson metadata. Each doc is keyed by the week number as string
     // (e.g., "1", "10", "22"). Contains release date, storage paths, and
-    // required role for future student-tier access. Admin-only for now.
+    // required role for future student-tier access. Metadata is readable
+    // by everyone so the public Member Portal can list lessons + release
+    // dates; the actual HTML + audio in Cloud Storage remains admin-gated
+    // via storage.rules until email-based member auth lands.
     match /weeklyContent/{weekId} {
-      allow read: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin();
     }
 

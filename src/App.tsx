@@ -76,7 +76,7 @@ function App() {
                   <ChangePasswordPage />
                 </UserProtectedRoute>
               } />
-              <Route path="/community" element={<CommunityComingSoonPage />} />
+              <Route path="/community" element={<CirclePage />} />
               <Route path="/portal/community" element={<CommunityPage />} />
               <Route path="/portal" element={<Navigate to="/portal/leadership" replace />} />
               <Route path="/portal/circle" element={

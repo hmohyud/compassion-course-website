@@ -1051,32 +1051,33 @@ video {
     color: var(--color-primary, #5fa9e3);
 }
 
-/* Hide everything inside the trigger by default (images + any of Google's
-   built-in arrow / divider / icon spans), then selectively re-enable the
-   first text span — which holds the current language label. This catches
-   Google's default ▼ triangle even when it lives in hashed-class wrappers
-   we can't predict. */
+/* Label styling — "Select Language" (or the current language once picked)
+   sits between our ::before globe and ::after chevron. */
 .nav-translate .goog-te-gadget-simple,
-.nav-translate .goog-te-gadget-simple * {
-    font-size: 0 !important;
-    color: transparent !important;
-    line-height: 1 !important;
-}
-
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value,
 .nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:first-child {
     font-size: 0.8rem !important;
     font-family: 'DM Sans', sans-serif !important;
     color: var(--color-gray-700, #3f3f46) !important;
     font-weight: 500 !important;
     text-decoration: none !important;
+    line-height: 1 !important;
 }
 
+.nav-translate .goog-te-gadget-simple:hover,
+.nav-translate .goog-te-gadget-simple:hover .goog-te-menu-value,
 .nav-translate .goog-te-gadget-simple:hover .goog-te-menu-value > span:first-child {
     color: var(--color-primary, #5fa9e3) !important;
 }
 
-/* Hide image children (Google's logo + divider). */
-.nav-translate .goog-te-gadget-simple img {
+/* Hide everything else inside the trigger — Google's icon img, divider
+   image, built-in arrow (aria-hidden span), and any extra menu-value
+   children past the label. Using aria-hidden as the arrow key so it's
+   robust to hashed-class wrappers. */
+.nav-translate .goog-te-gadget-icon,
+.nav-translate .goog-te-gadget-simple img,
+.nav-translate .goog-te-gadget-simple [aria-hidden="true"],
+.nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:not(:first-child) {
     display: none !important;
 }
 

@@ -1009,15 +1009,21 @@ video {
 .nav-translate .goog-te-gadget-simple {
     background: transparent !important;
     border: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
+    border-radius: 6px !important;
+    /* Generous vertical padding so the hover highlight reads as a real
+       button, not a razor-thin strip clipped to the label's ink line. */
+    padding: 10px 8px !important;
     cursor: pointer;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
     text-decoration: none !important;
     line-height: 1.25 !important;
-    transition: color var(--transition-fast) !important;
+    transition: background var(--transition-fast), color var(--transition-fast) !important;
+}
+
+.nav-translate .goog-te-gadget-simple:hover {
+    background: var(--color-gray-50, #fafafa) !important;
 }
 
 /* Globe icon before the label. */

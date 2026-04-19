@@ -210,18 +210,16 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     '<a$1href="/weekly"$2>',
   );
 
-  // 3c. Inject the Google Translate mount point into .nav-controls (before
-  //     the dark-mode toggle) so the language picker sits between the moon
-  //     toggle and the narrate button — the spot the user liked. The bundle
-  //     already defines window.googleTranslateElementInit; we just need the
-  //     <div> and the loader script.
+  // 3c. The seeded HTML already ships <script src="https://translate.google
+  //     .com/translate_a/element.js?cb=googleTranslateElementInit"> in <head>
+  //     AND a <div id="google_translate_element"> in .nav-controls. Strip
+  //     the parser-blocking <script> tag — document.write makes Chrome
+  //     silently block it, so we append it dynamically instead (DOM-inserted
+  //     scripts bypass the block). Leave the <div> alone.
   out = out.replace(
-    /(<div\s+class=["']nav-controls["'][^>]*>)/i,
-    `$1<div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>`,
+    /<script\s+src=["']https?:\/\/translate\.google\.com\/translate_a\/element\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    '',
   );
-  // Load the Google Translate element.js dynamically via appendChild — this
-  // is NOT subject to Chrome's document.write cross-site blocking, so the
-  // widget actually initializes.
   out = out.replace(
     /<\/body>/i,
     `<script>(function(){

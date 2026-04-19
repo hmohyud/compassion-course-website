@@ -30,11 +30,6 @@ const Navigation: React.FC = () => {
   const navRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
-  // Peak-observed width of .nav-right. Cached so that when tight mode
-  // compacts Compass Companions, the shrunken scrollWidth doesn't feed
-  // back into the breakpoint and cause oscillation.
-  const peakRightRef = useRef(0);
-  const peakMenuRef = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, loading: authLoading } = useAuth();
@@ -60,25 +55,20 @@ const Navigation: React.FC = () => {
     const menu = menuRef.current;
     if (!nav || !menu) return;
 
-    // Reset peak trackers when the nav membership actually changes
-    // (sign-in/out, role change). Within a single config we only grow, so
-    // compaction of a child (isTight → icon-only) can't lower the breakpoint.
-    peakRightRef.current = 0;
-    peakMenuRef.current = 0;
-
     function remeasure() {
       if (!nav || !menu) return;
       const logo = nav.querySelector<HTMLElement>('.nav-logo');
       const right = nav.querySelector<HTMLElement>('.nav-right');
       const translate = document.getElementById('google-translate-portal');
       if (menu.scrollWidth < 50) return;
-      peakMenuRef.current = Math.max(peakMenuRef.current, menu.scrollWidth);
-      peakRightRef.current = Math.max(peakRightRef.current, right?.scrollWidth ?? 0);
-      // Compute the translate widget's effective span from the logo's right
-      // edge — captures both the 8px gap Google Translate's JS leaves
-      // between the logo and the widget, and any internal overflow (e.g.
-      // the "Google Translate" branding that can extend past the dropdown
-      // box's offsetWidth).
+      // Use live widths directly. Peak-tracking is gone so the breakpoint
+      // drops if items are removed from the menu (e.g. feature-flagged
+      // buttons) and the nav doesn't stay stuck in hamburger needlessly.
+      const menuWidth = menu.scrollWidth;
+      const rightWidth = right?.scrollWidth ?? 0;
+      // Translate widget is position:fixed; measure from the logo's right
+      // edge so we capture both the 8px gap GoogleTranslate.tsx leaves
+      // and any internal overflow past its offsetWidth.
       let tw = 0;
       if (translate && logo) {
         const tRect = translate.getBoundingClientRect();
@@ -87,9 +77,9 @@ const Navigation: React.FC = () => {
       }
       setTranslateWidth(tw);
       const leftIsland = (logo?.scrollWidth ?? 0) + tw;
-      const rightIsland = peakRightRef.current;
+      const rightIsland = rightWidth;
       const sideReserve = Math.max(leftIsland, rightIsland) + NAV_ISLAND_PADDING;
-      const needed = peakMenuRef.current + 2 * sideReserve;
+      const needed = menuWidth + 2 * sideReserve;
       setBreakpoint(needed);
     }
 

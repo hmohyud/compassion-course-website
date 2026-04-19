@@ -1072,12 +1072,15 @@ video {
 }
 
 /* Hide everything else inside the trigger — Google's icon img, divider
-   image, built-in arrow (aria-hidden span), and any extra menu-value
-   children past the label. Using aria-hidden as the arrow key so it's
-   robust to hashed-class wrappers. */
+   image, the vertical divider span Google inlines with
+   `style="border-left: 1px solid rgb(187,187,187);"`, the built-in
+   arrow (aria-hidden span), and any extra menu-value children past the
+   label. */
 .nav-translate .goog-te-gadget-icon,
 .nav-translate .goog-te-gadget-simple img,
 .nav-translate .goog-te-gadget-simple [aria-hidden="true"],
+.nav-translate .goog-te-gadget-simple [style*="border-left"],
+.nav-translate .goog-te-gadget-simple [style*="border"],
 .nav-translate .goog-te-gadget-simple .goog-te-menu-value > span:not(:first-child) {
     display: none !important;
 }

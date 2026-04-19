@@ -43,6 +43,13 @@ export interface WeeklyContent {
   audioStoragePaths: string[];
   /** ISO date (YYYY-MM-DD). Non-admin viewers are blocked until this date. */
   releaseDate: string;
+  /**
+   * Exact ISO UTC timestamp the lesson unlocks — 12:00 America/New_York on
+   * `releaseDate`. DST-correct (EDT/EST). Preferred over `releaseDate`
+   * alone for gating because it pins the unlock to a specific moment
+   * rather than a calendar day. Auto-derived from `releaseDate` on save.
+   */
+  releaseAt?: string;
   /** Who can view this week once released. Admin always bypasses. */
   requiredRole: RequiredRole;
   /** If false, hide from all non-admins regardless of release date. */
@@ -72,12 +79,37 @@ const toWeeklyContent = (id: string, data: any): WeeklyContent => ({
   htmlStoragePath: data.htmlStoragePath ?? '',
   audioStoragePaths: Array.isArray(data.audioStoragePaths) ? data.audioStoragePaths : [],
   releaseDate: data.releaseDate ?? '',
+  releaseAt: data.releaseAt ?? undefined,
   requiredRole: data.requiredRole ?? 'admin',
   published: data.published !== false,
   createdAt: data.createdAt?.toDate?.(),
   updatedAt: data.updatedAt?.toDate?.(),
   updatedBy: data.updatedBy,
 });
+
+/**
+ * Compute the exact UTC ISO timestamp for 12:00 America/New_York on the
+ * given YYYY-MM-DD. DST-correct: works out EDT vs EST by round-tripping
+ * through Intl.DateTimeFormat. Returns undefined for a malformed date.
+ */
+export function nyNoonUtcIso(isoDate: string): string | undefined {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate || '');
+  if (!m) return undefined;
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  // Probe: if 16:00 UTC on that day renders as 12:00 NY, we're in EDT.
+  // Otherwise (EST) noon NY maps to 17:00 UTC.
+  const probe = new Date(Date.UTC(y, mo - 1, d, 16, 0, 0));
+  const hour = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit',
+    hour12: false,
+  }).format(probe);
+  const isEdt = Number(hour) === 12;
+  const utcHour = isEdt ? 16 : 17;
+  return new Date(Date.UTC(y, mo - 1, d, utcHour, 0, 0)).toISOString();
+}
 
 export async function listAllWeeklyContent(): Promise<WeeklyContent[]> {
   if (!db) return [];
@@ -99,12 +131,17 @@ export async function saveWeeklyContent(
   if (!db) throw new Error('Firestore is not configured');
   const id = String(content.weekNumber);
   const ref = doc(db, COL, id);
+  // Always derive releaseAt from releaseDate on save so the two stay in
+  // sync — admin UI only edits the date, but the gate needs the exact
+  // 12:00 America/New_York moment.
+  const releaseAt = nyNoonUtcIso(content.releaseDate);
   const payload: any = {
     weekNumber: content.weekNumber,
     title: content.title,
     htmlStoragePath: content.htmlStoragePath,
     audioStoragePaths: content.audioStoragePaths,
     releaseDate: content.releaseDate,
+    releaseAt: releaseAt ?? null,
     requiredRole: content.requiredRole,
     published: content.published !== false,
     updatedAt: Timestamp.now(),
@@ -123,8 +160,14 @@ export async function updateWeeklyContent(
 ): Promise<void> {
   if (!db) throw new Error('Firestore is not configured');
   const ref = doc(db, COL, String(weekNumber));
+  // If the patch touches releaseDate, also recompute releaseAt so the
+  // gate moment stays in sync.
+  const withReleaseAt: Partial<WeeklyContent> = { ...patch };
+  if (patch.releaseDate !== undefined) {
+    withReleaseAt.releaseAt = nyNoonUtcIso(patch.releaseDate) ?? undefined;
+  }
   await updateDoc(ref, {
-    ...patch,
+    ...withReleaseAt,
     updatedAt: Timestamp.now(),
     updatedBy,
   });
@@ -186,7 +229,11 @@ export function canViewWeek(opts: {
   const { content, isAdmin, userRole, now } = opts;
   if (isAdmin) return { allowed: true };
   if (!content.published) return { allowed: false, reason: 'unpublished' };
-  const release = new Date(content.releaseDate);
+  // Prefer the exact unlock timestamp if present; fall back to deriving
+  // it from the YYYY-MM-DD date. Legacy docs without either field keep
+  // the old midnight-UTC parse as a last resort.
+  const releaseAtIso = content.releaseAt || nyNoonUtcIso(content.releaseDate);
+  const release = releaseAtIso ? new Date(releaseAtIso) : new Date(content.releaseDate);
   const today = now ?? new Date();
   if (release > today) return { allowed: false, reason: 'not-released' };
   if (content.requiredRole === 'public') return { allowed: true };

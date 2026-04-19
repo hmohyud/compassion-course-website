@@ -978,6 +978,13 @@ video {
     transition: left 0.15s ease;
 }
 
+/* Hide the outer widget on weekly viewer pages — the iframe has its own
+   Select Language control and the outer portal has no .nav-logo to anchor
+   against here, so it appears floating at top-left and misbehaves. */
+body.weekly-viewer-active #google-translate-portal {
+    display: none !important;
+}
+
 .nav-translate .goog-te-gadget {
     font-size: 0 !important;
     line-height: 0 !important;
@@ -12219,6 +12226,21 @@ section {
     width: 100%;
     border: none;
     display: block;
+}
+
+/* Full-viewport loading screen — same warm background as the iframe content
+   so the transition into the loaded week feels seamless, no layout flash. */
+.weekly-viewer-loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #faf7f2;
+    color: #2a7a6e;
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
 }
 
 /* Admin page table spacing */

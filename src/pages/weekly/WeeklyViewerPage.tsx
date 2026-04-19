@@ -25,13 +25,24 @@ type Status =
   | { kind: 'loading' }
   | { kind: 'not-found' }
   | { kind: 'forbidden'; reason: string }
-  | { kind: 'ready'; html: string; content: WeeklyContent };
+  | { kind: 'ready'; blobUrl: string; content: WeeklyContent };
 
 const WeeklyViewerPage: React.FC = () => {
   const { weekNum } = useParams<{ weekNum: string }>();
   const { user, isAdmin, loading, adminLoading } = useAuth();
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Hide the outer Google Translate widget while the weekly viewer is mounted.
+  // The iframe has its own Select Language control, and the outer portal has
+  // no .nav-logo to anchor against on this page, so it appears floating at
+  // top-left and misbehaves on click.
+  useEffect(() => {
+    document.body.classList.add('weekly-viewer-active');
+    return () => {
+      document.body.classList.remove('weekly-viewer-active');
+    };
+  }, []);
 
   useEffect(() => {
     if (loading || adminLoading) return;
@@ -92,7 +103,14 @@ const WeeklyViewerPage: React.FC = () => {
           audioMap,
         });
 
-        if (!cancelled) setStatus({ kind: 'ready', html: rewritten, content });
+        // Serve the rewritten HTML via a blob URL instead of srcdoc. A real
+        // URL lets the iframe treat in-page anchors (#concept, #practices)
+        // and back/forward like a normal document — srcdoc has no base URL
+        // and Chrome inconsistently reloads the frame on hash clicks.
+        const blob = new Blob([rewritten], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (!cancelled) setStatus({ kind: 'ready', blobUrl, content });
       } catch (err: any) {
         console.error('Failed to load week', err);
         if (!cancelled)
@@ -109,14 +127,23 @@ const WeeklyViewerPage: React.FC = () => {
     };
   }, [weekNum, user, isAdmin, loading, adminLoading]);
 
+  // Revoke the blob URL when the ready status is replaced, to avoid leaks.
+  useEffect(() => {
+    if (status.kind !== 'ready') return;
+    const url = status.blobUrl;
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [status]);
+
   if (loading || adminLoading) {
-    return <Layout><div style={{ padding: '6rem 1rem', textAlign: 'center' }}>Loading…</div></Layout>;
+    return <div className="weekly-viewer-loading">Loading…</div>;
   }
   if (!user) return <Navigate to="/admin/login-4f73b2c" replace />;
   if (!isAdmin) return <Navigate to="/unauthorized" replace />;
 
   if (status.kind === 'loading') {
-    return <Layout><div style={{ padding: '6rem 1rem', textAlign: 'center' }}>Loading week {weekNum}…</div></Layout>;
+    return <div className="weekly-viewer-loading">Loading week {weekNum}…</div>;
   }
   if (status.kind === 'not-found') {
     return (
@@ -144,7 +171,7 @@ const WeeklyViewerPage: React.FC = () => {
     <div className="weekly-viewer-page">
       <iframe
         ref={iframeRef}
-        srcDoc={status.html}
+        src={status.blobUrl}
         title={`Week ${status.content.weekNumber}`}
         className="weekly-viewer-iframe"
         allow="autoplay"
@@ -194,6 +221,21 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   out = out.replace(
     /<a(\s[^>]*?)href=["']index\.html["']([^>]*)>/gi,
     '<a$1href="/weekly" target="_parent"$2>',
+  );
+
+  // 3c. Inject the Google Translate mount point into the iframe's .nav-controls
+  //     (before the dark-mode toggle), so the language picker sits cleanly next
+  //     to the night-mode + narrate buttons. The bundle already defines
+  //     window.googleTranslateElementInit; we just need the <div> + the Google
+  //     loader script (both missing from the bundle HTML).
+  out = out.replace(
+    /(<div\s+class=["']nav-controls["'][^>]*>)/i,
+    `$1<div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>`,
+  );
+  // Append the Google Translate loader before </body>.
+  out = out.replace(
+    /<\/body>/i,
+    `<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script></body>`,
   );
 
   // 4. Inject an early script in <head> that:
@@ -299,6 +341,66 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     color: var(--clr-accent, #e8a838) !important;
     background: rgba(232,168,56,0.12) !important;
   }
+
+  /* Language picker (Google Translate) — sits in .nav-controls, styled to
+     match the other nav buttons. Hide the "Powered by Google" branding and
+     shrink the default Google widget to a compact pill. */
+  #google_translate_element {
+    display: inline-flex;
+    align-items: center;
+  }
+  #google_translate_element .goog-te-gadget {
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    margin: 0 !important;
+  }
+  #google_translate_element .goog-te-gadget > span,
+  #google_translate_element .goog-logo-link,
+  #google_translate_element .goog-te-gadget-icon {
+    display: none !important;
+  }
+  #google_translate_element .goog-te-gadget-simple {
+    background: var(--clr-bg-card, #fff) !important;
+    border: 2px solid var(--clr-primary, #2a7a6e) !important;
+    border-radius: 999px !important;
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    color: var(--clr-primary, #2a7a6e) !important;
+    cursor: pointer;
+    display: inline-flex !important;
+    align-items: center !important;
+    box-shadow: 0 1px 3px rgba(42,122,110,0.20);
+  }
+  #google_translate_element .goog-te-gadget-simple:hover {
+    background: var(--clr-primary, #2a7a6e) !important;
+    color: #fff !important;
+  }
+  #google_translate_element .goog-te-gadget-simple:hover .goog-te-menu-value span {
+    color: #fff !important;
+  }
+  #google_translate_element .goog-te-menu-value {
+    color: inherit !important;
+    margin: 0 !important;
+  }
+  #google_translate_element .goog-te-menu-value span {
+    color: inherit !important;
+    border: 0 !important;
+    font-weight: 500 !important;
+  }
+  /* Hide the tiny dropdown-arrow span Google inserts so only the label shows. */
+  #google_translate_element .goog-te-menu-value span:nth-child(2),
+  #google_translate_element .goog-te-menu-value span:nth-child(3),
+  #google_translate_element .goog-te-menu-value span:nth-child(4) {
+    display: none !important;
+  }
+  /* Hide Google's top banner/frame so it never pushes the iframe content. */
+  .goog-te-banner-frame.skiptranslate,
+  body > .skiptranslate {
+    display: none !important;
+  }
+  body { top: 0 !important; }
 </style>`;
 
   // Insert right after <head>

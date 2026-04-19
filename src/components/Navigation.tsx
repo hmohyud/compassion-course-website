@@ -74,9 +74,17 @@ const Navigation: React.FC = () => {
       if (menu.scrollWidth < 50) return;
       peakMenuRef.current = Math.max(peakMenuRef.current, menu.scrollWidth);
       peakRightRef.current = Math.max(peakRightRef.current, right?.scrollWidth ?? 0);
-      const tw = translate?.offsetWidth ?? 0;
-      // Reserve translate's width via a spacer; once set, flex layout keeps
-      // the menu from ever overlapping the fixed-position widget.
+      // Compute the translate widget's effective span from the logo's right
+      // edge — captures both the 8px gap Google Translate's JS leaves
+      // between the logo and the widget, and any internal overflow (e.g.
+      // the "Google Translate" branding that can extend past the dropdown
+      // box's offsetWidth).
+      let tw = 0;
+      if (translate && logo) {
+        const tRect = translate.getBoundingClientRect();
+        const lRect = logo.getBoundingClientRect();
+        tw = Math.max(0, Math.round(tRect.right - lRect.right));
+      }
       setTranslateWidth(tw);
       const leftIsland = (logo?.scrollWidth ?? 0) + tw;
       const rightIsland = peakRightRef.current;

@@ -12,7 +12,11 @@ const DEFAULT_DESKTOP_BREAKPOINT = 1260;
 // Safety padding so islands never "touch" — extra breathing room because
 // .nav-menu is absolutely-positioned and centered, so the left and right
 // islands approach it symmetrically from both sides.
-const NAV_ISLAND_PADDING = 48;
+const NAV_ISLAND_PADDING = 80;
+// Width at which we switch Compass Companions from full text → icon pill,
+// measured from the collapse threshold. Gives a visible "getting tight"
+// middle state before hamburger.
+const NAV_TIGHT_BAND = 220;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,6 +30,11 @@ const Navigation: React.FC = () => {
   const navRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  // Peak-observed width of .nav-right. Cached so that when tight mode
+  // compacts Compass Companions, the shrunken scrollWidth doesn't feed
+  // back into the breakpoint and cause oscillation.
+  const peakRightRef = useRef(0);
+  const peakMenuRef = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, loading: authLoading } = useAuth();
@@ -51,16 +60,24 @@ const Navigation: React.FC = () => {
     const menu = menuRef.current;
     if (!nav || !menu) return;
 
+    // Reset peak trackers when the nav membership actually changes
+    // (sign-in/out, role change). Within a single config we only grow, so
+    // compaction of a child (isTight → icon-only) can't lower the breakpoint.
+    peakRightRef.current = 0;
+    peakMenuRef.current = 0;
+
     function remeasure() {
       if (!nav || !menu) return;
       const logo = nav.querySelector<HTMLElement>('.nav-logo');
       const right = nav.querySelector<HTMLElement>('.nav-right');
       const translate = document.getElementById('google-translate-portal');
       if (menu.scrollWidth < 50) return;
+      peakMenuRef.current = Math.max(peakMenuRef.current, menu.scrollWidth);
+      peakRightRef.current = Math.max(peakRightRef.current, right?.scrollWidth ?? 0);
       const leftIsland = (logo?.scrollWidth ?? 0) + (translate?.offsetWidth ?? 0);
-      const rightIsland = right?.scrollWidth ?? 0;
+      const rightIsland = peakRightRef.current;
       const sideReserve = Math.max(leftIsland, rightIsland) + NAV_ISLAND_PADDING;
-      const needed = menu.scrollWidth + 2 * sideReserve;
+      const needed = peakMenuRef.current + 2 * sideReserve;
       setBreakpoint(needed);
     }
 
@@ -69,16 +86,22 @@ const Navigation: React.FC = () => {
     ro.observe(menu);
     const translate = document.getElementById('google-translate-portal');
     if (translate) ro.observe(translate);
+    const right = nav.querySelector<HTMLElement>('.nav-right');
+    if (right) ro.observe(right);
+    const logo = nav.querySelector<HTMLElement>('.nav-logo');
+    if (logo) ro.observe(logo);
     return () => ro.disconnect();
   }, [user, isAdmin, showLeadership]);
 
   // Intermediate squeeze state: before we fully collapse to a hamburger, hide
-  // the "Compass Companions" label and leave just the robot icon. Kicks in
-  // when we're within ~140px of the collapse threshold.
+  // the "Compass Companions" label and leave just the robot icon.
   const [isTight, setIsTight] = useState(false);
   useEffect(() => {
     function check() {
-      setIsTight(window.innerWidth < breakpoint + 140 && window.innerWidth >= breakpoint);
+      setIsTight(
+        window.innerWidth < breakpoint + NAV_TIGHT_BAND &&
+        window.innerWidth >= breakpoint,
+      );
     }
     check();
     window.addEventListener('resize', check);

@@ -49,13 +49,17 @@ const WeeklyListPage: React.FC = () => {
               Week 1 follows on June 24, with one new lesson every Wednesday
               at noon for the 51 Wednesdays after that.
             </p>
-            {isAdmin && (
-              <div className="member-portal-actions">
+            <div className="member-portal-actions">
+              <Link to="/portal/community" className="btn-primary">
+                <i className="fas fa-globe-americas" aria-hidden="true" />
+                &nbsp;Enter the GCN Circle Portal
+              </Link>
+              {isAdmin && (
                 <Link to="/admin-portal/weekly" className="btn-secondary">
                   Admin dashboard
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </header>
 
           {fetchState === 'loading' && (

@@ -772,8 +772,8 @@ video {
 }
 
 .nav-companion-icon {
-    font-size: 0.85rem;
-    display: none;  /* hidden when text is visible */
+    font-size: 1rem;
+    display: inline;
 }
 
 .nav-companion-ext {
@@ -12236,12 +12236,45 @@ section {
     opacity: 0.85;
 }
 
-/* Intermediate squeeze state — hide the "Compass Companions" text and the
-   external-link indicator, keep the robot icon only as a compact circle. */
-.nav-companion-link--icon-only .nav-companion-text { display: none; }
-.nav-companion-link--icon-only {
-    padding: 0.4rem 0.55rem;
+/* Compass Companions permanent icon pill — just the robot, with a custom
+   tooltip on hover (see [data-tooltip] rule below). */
+.nav-companion-link--icon {
+    padding: 0.4rem 0.6rem;
     gap: 0;
+    min-width: auto;
+    position: relative;
+}
+
+/* Custom tooltip: sharp-cornered black bubble that drops down-and-left from
+   the icon on hover. Uses data-tooltip attribute so the content lives in
+   markup, not CSS. */
+[data-tooltip] {
+    position: relative;
+}
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    padding: 7px 11px;
+    border-radius: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 1000;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Full-viewport loading screen — same warm background as the iframe content

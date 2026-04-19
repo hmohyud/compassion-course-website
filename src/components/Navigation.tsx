@@ -12,11 +12,7 @@ const DEFAULT_DESKTOP_BREAKPOINT = 1260;
 // Safety padding so islands never "touch" — extra breathing room because
 // .nav-menu is absolutely-positioned and centered, so the left and right
 // islands approach it symmetrically from both sides.
-const NAV_ISLAND_PADDING = 80;
-// Width at which we switch Compass Companions from full text → icon pill,
-// measured from the collapse threshold. Gives a visible "getting tight"
-// middle state before hamburger.
-const NAV_TIGHT_BAND = 220;
+const NAV_ISLAND_PADDING = 140;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,21 +88,6 @@ const Navigation: React.FC = () => {
     if (logo) ro.observe(logo);
     return () => ro.disconnect();
   }, [user, isAdmin, showLeadership]);
-
-  // Intermediate squeeze state: before we fully collapse to a hamburger, hide
-  // the "Compass Companions" label and leave just the robot icon.
-  const [isTight, setIsTight] = useState(false);
-  useEffect(() => {
-    function check() {
-      setIsTight(
-        window.innerWidth < breakpoint + NAV_TIGHT_BAND &&
-        window.innerWidth >= breakpoint,
-      );
-    }
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, [breakpoint]);
 
   // Apply the (now-dynamic) breakpoint against the current window width.
   useEffect(() => {
@@ -316,15 +297,11 @@ const Navigation: React.FC = () => {
             href="https://www.compass-companions.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className={`nav-companion-link ${isTight ? 'nav-companion-link--icon-only' : ''}`}
-            title="Compass Companions"
+            className="nav-companion-link nav-companion-link--icon"
             aria-label="Compass Companions"
+            data-tooltip="Compass Companions — AI-guided practice for Nonviolent Communication"
           >
-            <i className="fas fa-robot nav-companion-icon"></i>
-            <span className="nav-companion-text">Compass Companions</span>
-            {!isTight && (
-              <i className="fas fa-external-link-alt nav-companion-ext"></i>
-            )}
+            <i className="fas fa-robot nav-companion-icon" aria-hidden="true"></i>
           </a>
 
           {/* Admin Portal button — opens auth modal popup (hidden when signed in) */}

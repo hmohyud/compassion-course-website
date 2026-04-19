@@ -679,17 +679,26 @@ video {
     list-style: none;
     gap: var(--space-1);
     margin: 0;
-    /* Inner padding so the first/last menu items always have breathing room
-       at the edges of the (centered) menu box — prevents "Home" from
-       touching the Google Translate widget on its left, or the rightmost
-       item from touching the nav-right cluster. */
-    padding: 0 28px;
+    padding: 0;
     align-items: center;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    /* Flex child: fill the space between the logo + translate spacer and
+       the nav-right cluster, and center content within. Previously this
+       was position:absolute; left:50%, which ignored the fixed-position
+       translate widget on its left and could overlap "Home". */
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
     white-space: nowrap;
     flex-wrap: nowrap;
+}
+
+/* Invisible spacer that reserves the Google Translate widget's horizontal
+   space inside the navbar flex flow. */
+.nav-translate-spacer {
+    flex: 0 0 auto;
+    height: 1px;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .nav-item {

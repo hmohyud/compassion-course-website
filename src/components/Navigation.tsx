@@ -23,6 +23,10 @@ const Navigation: React.FC = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   // Dynamic breakpoint: measured from actual nav content, not hardcoded.
   const [breakpoint, setBreakpoint] = useState(DEFAULT_DESKTOP_BREAKPOINT);
+  // Width of the position:fixed Google Translate widget. We mirror it with
+  // an invisible spacer inside the navbar so flex layout reserves space for
+  // the widget even though the actual DOM node lives in <body>.
+  const [translateWidth, setTranslateWidth] = useState(0);
   const navRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -70,7 +74,11 @@ const Navigation: React.FC = () => {
       if (menu.scrollWidth < 50) return;
       peakMenuRef.current = Math.max(peakMenuRef.current, menu.scrollWidth);
       peakRightRef.current = Math.max(peakRightRef.current, right?.scrollWidth ?? 0);
-      const leftIsland = (logo?.scrollWidth ?? 0) + (translate?.offsetWidth ?? 0);
+      const tw = translate?.offsetWidth ?? 0;
+      // Reserve translate's width via a spacer; once set, flex layout keeps
+      // the menu from ever overlapping the fixed-position widget.
+      setTranslateWidth(tw);
+      const leftIsland = (logo?.scrollWidth ?? 0) + tw;
       const rightIsland = peakRightRef.current;
       const sideReserve = Math.max(leftIsland, rightIsland) + NAV_ISLAND_PADDING;
       const needed = peakMenuRef.current + 2 * sideReserve;
@@ -192,6 +200,21 @@ const Navigation: React.FC = () => {
             />
           </Link>
         </div>
+
+        {/*
+          Invisible flex spacer that mirrors the Google Translate widget's
+          width. The actual widget is position:fixed (so React never unmounts
+          it across routes), but by reserving its width here, flex layout
+          treats it as if it were a normal sibling — the nav-menu sees it
+          and can't overlap.
+        */}
+        {isDesktop && translateWidth > 0 && (
+          <div
+            className="nav-translate-spacer"
+            style={{ width: `${translateWidth}px` }}
+            aria-hidden="true"
+          />
+        )}
 
         <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} ref={menuRef}>
           <li className="nav-item">

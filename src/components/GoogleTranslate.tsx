@@ -167,6 +167,8 @@ const GoogleTranslate: React.FC = () => {
             margin: 0 !important;
             overflow: auto !important;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y !important;
+            overscroll-behavior: contain !important;
             font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important;
             background: #fff !important;
           }

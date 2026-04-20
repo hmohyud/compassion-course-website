@@ -1091,6 +1091,22 @@ video {
     display: none !important;
 }
 
+/* Clamp Google's language-picker popup so it can't spill off the right
+   edge of the viewport. The popup is an iframe Google injects into
+   <body> with inline `left: XXXpx` positioning — override to anchor
+   the right edge instead and cap width/height against the viewport. */
+.goog-te-menu-frame,
+.goog-te-menu-frame.skiptranslate {
+    left: auto !important;
+    right: 12px !important;
+    max-width: min(92vw, 480px) !important;
+    max-height: 80vh !important;
+    width: min(92vw, 480px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
 /* Google Translate top bar offset — set dynamically by GoogleTranslate.tsx */
 :root {
     --gt-bar-height: 0px;

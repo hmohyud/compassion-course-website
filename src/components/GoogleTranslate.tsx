@@ -165,20 +165,28 @@ const GoogleTranslate: React.FC = () => {
         style.textContent = `
           html, body {
             margin: 0 !important;
-            overflow-x: auto !important;
-            overflow-y: visible !important;
+            overflow: auto !important;
             -webkit-overflow-scrolling: touch;
             font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important;
             background: #fff !important;
           }
-          /* Language links inside the grid — subtle hover to match site. */
+          body { padding: 6px 4px !important; }
+
+          /* Leave Google's table layout alone — don't try to rebuild it
+             as CSS columns/grid. Their structure packs many languages
+             per row (naturally a wide grid) and any attempt to flatten
+             it here collapses the layout into one column OR requires
+             complex breakpoints. Best to let Google own the layout
+             and only restyle colors/spacing/hover. */
+
+          /* Language link — light hover to match the site accent. */
           a {
             text-decoration: none !important;
             color: #3f3f46 !important;
             font-size: 13px !important;
-            padding: 4px 8px !important;
+            padding: 3px 6px !important;
             display: inline-block;
-            border-radius: 4px !important;
+            border-radius: 3px !important;
             transition: background 0.12s ease, color 0.12s ease;
           }
           a:hover {
@@ -190,20 +198,25 @@ const GoogleTranslate: React.FC = () => {
       } catch { /* cross-origin — ignore */ }
     }
 
-    function sizeFrameHeight(frame: HTMLIFrameElement) {
-      // Size the iframe element to match its content's intrinsic height
-      // so there's no vertical scrollbar — user gets horizontal scroll
-      // only. Bail silently on cross-origin.
+    function sizeFrameHeight(frame: HTMLIFrameElement, triggerRect: DOMRect) {
+      // Size the iframe to its content's natural height, but cap so the
+      // popup never runs off the bottom of the viewport. Google's picker
+      // content can be ~2000+ px when laid out in a single column; we
+      // don't want the popup to go off-page.
       try {
         const d = frame.contentDocument;
         if (!d) return;
-        const h = Math.max(
+        const contentH = Math.max(
           d.body?.scrollHeight || 0,
           d.documentElement?.scrollHeight || 0,
         );
-        if (h > 0) {
-          frame.style.setProperty('height', `${h}px`, 'important');
-        }
+        if (contentH <= 0) return;
+        const availableBelow = Math.max(
+          200,
+          window.innerHeight - triggerRect.bottom - MARGIN * 2,
+        );
+        const h = Math.min(contentH, availableBelow);
+        frame.style.setProperty('height', `${h}px`, 'important');
       } catch { /* cross-origin — ignore */ }
     }
 
@@ -227,7 +240,7 @@ const GoogleTranslate: React.FC = () => {
       frame.style.setProperty('max-width', `${maxFrameWidth}px`, 'important');
       frame.style.setProperty('right', 'auto', 'important');
       injectScrollCss(frame);
-      sizeFrameHeight(frame);
+      sizeFrameHeight(frame, triggerRect);
     }
 
     const tracked = new WeakSet<HTMLIFrameElement>();

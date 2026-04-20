@@ -150,27 +150,84 @@ const GoogleTranslate: React.FC = () => {
     const MARGIN = 8;
     const MAX_POPUP_WIDTH = 480;
 
+    function injectScrollCss(frame: HTMLIFrameElement) {
+      // Google's picker content is a wide single-row table (~2600px)
+      // that gets hard-clipped when we clamp the iframe's width. Inject
+      // CSS that allows HORIZONTAL scroll inside the iframe while
+      // letting the iframe grow to the content's natural height (we
+      // resize the iframe element itself in sizeFrameHeight below).
+      try {
+        const d = frame.contentDocument;
+        if (!d || !d.head) return;
+        if (d.head.querySelector('style[data-cc-scroll]')) return;
+        const style = d.createElement('style');
+        style.setAttribute('data-cc-scroll', '1');
+        style.textContent = `
+          html, body {
+            margin: 0 !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch;
+            font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important;
+            background: #fff !important;
+          }
+          /* Language links inside the grid — subtle hover to match site. */
+          a {
+            text-decoration: none !important;
+            color: #3f3f46 !important;
+            font-size: 13px !important;
+            padding: 4px 8px !important;
+            display: inline-block;
+            border-radius: 4px !important;
+            transition: background 0.12s ease, color 0.12s ease;
+          }
+          a:hover {
+            background: #ecfdf5 !important;
+            color: #0d9488 !important;
+          }
+        `;
+        d.head.appendChild(style);
+      } catch { /* cross-origin — ignore */ }
+    }
+
+    function sizeFrameHeight(frame: HTMLIFrameElement) {
+      // Size the iframe element to match its content's intrinsic height
+      // so there's no vertical scrollbar — user gets horizontal scroll
+      // only. Bail silently on cross-origin.
+      try {
+        const d = frame.contentDocument;
+        if (!d) return;
+        const h = Math.max(
+          d.body?.scrollHeight || 0,
+          d.documentElement?.scrollHeight || 0,
+        );
+        if (h > 0) {
+          frame.style.setProperty('height', `${h}px`, 'important');
+        }
+      } catch { /* cross-origin — ignore */ }
+    }
+
     function anchorFrame(frame: HTMLIFrameElement) {
       if (!portal) return;
       const triggerRect = portal.getBoundingClientRect();
       const maxFrameWidth = Math.min(MAX_POPUP_WIDTH, window.innerWidth - MARGIN * 2);
-      // offsetWidth is 0 before first paint — fall back to the cap so
-      // we don't accidentally position assuming a tiny width, then
-      // let the size clamp down on the next style-attribute mutation.
       const naturalWidth = frame.offsetWidth || maxFrameWidth;
       const frameWidth = Math.max(160, Math.min(naturalWidth, maxFrameWidth));
-      // Prefer the trigger's left edge; shift left if that would run
-      // the iframe past the viewport's right side.
       const idealLeft = triggerRect.left;
       const maxLeft = window.innerWidth - frameWidth - MARGIN;
       const left = Math.max(MARGIN, Math.min(idealLeft, maxLeft));
-      const top = triggerRect.bottom + window.scrollY + 4;
-      frame.style.setProperty('position', 'absolute', 'important');
+      // position:fixed so the popup stays anchored to the navbar
+      // (which is itself position:fixed) as the user scrolls. No
+      // scrollY offset needed — viewport-relative coordinates.
+      const top = triggerRect.bottom + 4;
+      frame.style.setProperty('position', 'fixed', 'important');
       frame.style.setProperty('left', `${left}px`, 'important');
       frame.style.setProperty('top', `${top}px`, 'important');
       frame.style.setProperty('width', `${frameWidth}px`, 'important');
       frame.style.setProperty('max-width', `${maxFrameWidth}px`, 'important');
       frame.style.setProperty('right', 'auto', 'important');
+      injectScrollCss(frame);
+      sizeFrameHeight(frame);
     }
 
     const tracked = new WeakSet<HTMLIFrameElement>();

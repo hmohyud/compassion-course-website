@@ -1091,30 +1091,19 @@ video {
     display: none !important;
 }
 
-/* Clamp every flavour of Google's language-picker popup so it can't
-   spill off the right edge of the viewport. Google has several class
-   names depending on UI version; target them all plus any iframe
-   pointing at translate.google.com. Position is forced to fixed with
-   a right-edge anchor so inline `left: XXXpx` can't push the popup
-   off-screen. */
-.goog-te-menu-frame,
-.goog-te-menu-frame.skiptranslate,
-iframe.goog-te-menu-frame,
-iframe[src*="translate.google.com"],
-iframe[src*="translate.googleapis.com"],
-.goog-te-menu2,
-.VIpgJd-yAWNEb-L7lbkb,
-.VIpgJd-ZVi9od-ORHb {
-    position: fixed !important;
-    top: var(--nav-height, 80px) !important;
-    left: auto !important;
-    right: 12px !important;
-    max-width: min(92vw, 480px) !important;
+/* CSS safety net for Google's language-picker iframe. This alone can't
+   win against Google's inline style attribute (they rewrite left/top
+   on every click), so the real positioning is done by JS in
+   GoogleTranslate.tsx via a MutationObserver that re-anchors the
+   iframe after Google writes its styles. This rule just clamps the
+   visual shell. Stable selectors only — avoid VIpgJd-* (Closure-
+   compiled hashes that churn across Google UI builds). */
+body > .skiptranslate > iframe.goog-te-menu-frame,
+iframe.goog-te-menu-frame {
+    max-width: calc(100vw - 16px) !important;
     max-height: 80vh !important;
-    width: min(92vw, 480px) !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
     border-radius: 8px !important;
-    overflow: auto !important;
     box-sizing: border-box !important;
 }
 

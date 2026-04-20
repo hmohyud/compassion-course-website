@@ -139,6 +139,44 @@ const GoogleTranslate: React.FC = () => {
       document.body.appendChild(script);
     }
     tryLoad(0);
+
+    // Re-anchor Google's language-picker iframe to the viewport. Google
+    // writes absolute `left`/`top` inline on the iframe every time it
+    // opens, which can push it off-screen on narrow viewports. CSS
+    // `!important` loses because inline styles of the same priority
+    // beat class selectors. The only robust fix is to observe the
+    // iframe's `style` attribute and overwrite its position once Google
+    // has placed it. See docs/research in this PR.
+    function anchorFrame(frame: HTMLIFrameElement) {
+      if (!portal) return;
+      const triggerRect = portal.getBoundingClientRect();
+      const frameWidth = frame.offsetWidth || 200;
+      const margin = 8;
+      // Prefer the trigger's left edge; shift left if that would run
+      // the iframe past the viewport's right side.
+      const idealLeft = triggerRect.left;
+      const maxLeft = window.innerWidth - frameWidth - margin;
+      const left = Math.max(margin, Math.min(idealLeft, maxLeft));
+      const top = triggerRect.bottom + window.scrollY + 4;
+      frame.style.setProperty('left', `${left}px`, 'important');
+      frame.style.setProperty('top', `${top}px`, 'important');
+      frame.style.setProperty('max-width', `calc(100vw - ${margin * 2}px)`, 'important');
+    }
+
+    const bodyObserver = new MutationObserver(() => {
+      document
+        .querySelectorAll<HTMLIFrameElement>('iframe.goog-te-menu-frame')
+        .forEach((frame) => {
+          if (frame.dataset.ccAnchored) return;
+          frame.dataset.ccAnchored = '1';
+          // Re-anchor whenever Google rewrites this iframe's style.
+          const styleObs = new MutationObserver(() => anchorFrame(frame));
+          styleObs.observe(frame, { attributes: true, attributeFilter: ['style'] });
+          // Anchor immediately on first sighting too.
+          anchorFrame(frame);
+        });
+    });
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
   }, []);
 
   return null;

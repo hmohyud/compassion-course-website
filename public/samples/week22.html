@@ -3121,45 +3121,42 @@ blockquote.typewriter-complete .typewriter-cursor {
   'use strict';
 
   // ---- Needs & Feelings Data ----
+  // Source: Thom Bond / NYCNVC "Feelings and Needs List" v5.18.15, 2015
   var NEEDS_DATA = {
-    'Connection': ['Acceptance','Appreciation','Belonging','Cooperation','Communication','Closeness','Community','Companionship','Compassion','Consideration','Consistency','Empathy','Inclusion','Intimacy','Love','Mutuality','Nurturing','Respect/Self-Respect','Safety','Security','Stability','Support','To Know and Be Known','To See and Be Seen','To Understand and Be Understood','Trust','Warmth'],
-    'Honesty': ['Authenticity','Integrity','Presence'],
-    'Play': ['Joy','Humor'],
-    'Peace': ['Beauty','Communion','Ease','Equality','Harmony','Inspiration','Order'],
-    'Physical Well-Being': ['Air','Food','Movement/Exercise','Rest/Sleep','Sexual Expression','Safety','Shelter','Touch','Water'],
-    'Meaning': ['Awareness','Celebration of Life','Challenge','Clarity','Competence','Consciousness','Contribution','Creativity','Discovery','Efficacy','Effectiveness','Growth','Hope','Learning','Mourning','Participation','Purpose','Self-Expression','Stimulation','To Matter','Understanding'],
-    'Autonomy': ['Choice','Freedom','Independence','Space','Spontaneity']
+    'Autonomy': ['Choice','Dignity','Freedom','Independence','Self-Expression','Space','Spontaneity'],
+    'Connection': ['Acceptance','Affection','Appreciation','Authenticity','Belonging','Care','Closeness','Communication','Communion','Community','Companionship','Compassion','Consideration','Empathy','Friendship','Inclusion','Inspiration','Integrity','Intimacy','Love','Mutuality','Nurturing','Partnership','Presence','Respect/Self-Respect','Security','Self-Acceptance','Self-Care','Self-Connection','Self-Expression','Shared Reality','Stability','Support','To Know and Be Known','To See and Be Seen','Trust','Understanding','Warmth'],
+    'Meaning': ['Awareness','Celebration','Challenge','Clarity','Competence','Consciousness','Contribution','Creativity','Discovery','Efficiency','Effectiveness','Growth','Integration','Integrity','Learning','Mourning','Movement','Participation','Perspective','Presence','Progress','Purpose','Self-Expression','Stimulation','Understanding'],
+    'Peace': ['Acceptance','Balance','Beauty','Communion','Ease','Equanimity','Faith','Harmony','Hope','Order','Peace-of-Mind','Space'],
+    'Physical Well-Being': ['Air','Care','Comfort','Food','Movement/Exercise','Rest/Sleep','Safety (physical)','Self-Care','Sexual Expression','Shelter','Touch','Water'],
+    'Play': ['Adventure','Excitement','Fun','Humor','Joy','Relaxation','Stimulation']
   };
 
   var FEELINGS_DATA = {
     'Feelings When Needs ARE Met': {
-      'Affectionate': ['compassionate','friendly','loving','openhearted','sympathetic','tender','warm'],
-      'Confident': ['empowered','open','proud','safe','secure'],
-      'Engaged': ['absorbed','alert','curious','engrossed','enchanted','entranced','fascinated','interested','intrigued','involved','spellbound','stimulated'],
-      'Excited': ['amazed','animated','ardent','aroused','astonished','dazzled','eager','energetic','enthusiastic','giddy','invigorated','lively','passionate','surprised','vibrant'],
-      'Exhilarated': ['blissful','ecstatic','elated','enthralled','exuberant','radiant','rapturous','thrilled'],
+      'Affectionate': ['compassionate','fond','loving','openhearted','tender','warm'],
+      'Engaged': ['absorbed','curious','engrossed','enchanted','enthralled','entranced','fascinated','interested','intrigued','involved','open','spellbound','stimulated'],
+      'Excited': ['amazed','ardent','aroused','dazzled','energetic','enlivened','enthusiastic','exuberant','invigorated','lively','passionate','surprised','vibrant'],
+      'Exhilarated': ['enthralled','radiant','electrified','euphoric','overjoyed','thrilled'],
       'Grateful': ['appreciative','moved','thankful','touched'],
-      'Hopeful': ['expectant','encouraged','optimistic'],
-      'Inspired': ['amazed','awed','wonder'],
-      'Joyful': ['amused','delighted','glad','happy','jubilant','pleased','tickled'],
-      'Peaceful': ['calm','clearheaded','comfortable','centered','content','equanimous','fulfilled','mellow','quiet','relaxed','relieved','satisfied','serene','still','tranquil','trusting'],
-      'Refreshed': ['enlivened','rejuvenated','renewed','rested','restored','revived']
+      'Happy': ['amused','blissful','cheerful','delighted','ecstatic','elated','giddy','glad','jolly','joyful','jubilant','merry','overjoyed','pleased','rapturous','tickled'],
+      'Hopeful': ['confident','expectant','jazzed','lighthearted','sanguine','up','upbeat'],
+      'Inspired': ['amazed','eager','enthused','motivated','moved','psyched','stimulated','stirred','wonder'],
+      'Peaceful': ['calm','comfortable','centered','content','equanimity','fulfilled','mellow','open','quiet','relaxed','relieved','satisfied','serene','tranquil'],
+      'Refreshed': ['recharged','rejuvenated','renewed','rested','restored','revived']
     },
     'Feelings When Needs Are NOT Met': {
-      'Afraid': ['apprehensive','dread','foreboding','frightened','mistrustful','panicked','petrified','scared','suspicious','terrified','wary','worried'],
-      'Annoyed': ['aggravated','dismayed','disgruntled','displeased','exasperated','frustrated','impatient','irritated','irked'],
-      'Angry': ['enraged','furious','incensed','indignant','irate','livid','outraged','resentful'],
-      'Aversion': ['animosity','appalled','contempt','disgusted','dislike','hate','horrified','hostile','repulsed'],
-      'Confused': ['ambivalent','baffled','bewildered','dazed','hesitant','lost','mystified','perplexed','puzzled','torn'],
-      'Disconnected': ['alienated','aloof','apathetic','bored','cold','detached','distant','distracted','indifferent','numb','removed','uninterested','withdrawn'],
-      'Disquiet': ['agitated','alarmed','discombobulated','disconcerted','disturbed','perturbed','rattled','restless','shocked','startled','surprised','troubled','turbulent','uneasy','unnerved','unsettled','upset'],
-      'Embarrassed': ['ashamed','chagrined','flustered','guilty','mortified','self-conscious'],
-      'Fatigue': ['beat','burnt out','depleted','exhausted','lethargic','listless','sleepy','tired','weary','worn out'],
-      'Pain': ['agony','anguished','bereaved','devastated','grief','heartbroken','hurt','lonely','miserable','regretful','remorseful'],
-      'Sad': ['dejected','depressed','despair','despondent','disappointed','discouraged','disheartened','forlorn','gloomy','heavy hearted','hopeless','melancholy','unhappy','wretched'],
-      'Tense': ['anxious','cranky','distressed','distraught','edgy','fidgety','frazzled','irritable','jittery','nervous','overwhelmed','restless','stressed out'],
-      'Vulnerable': ['fragile','guarded','helpless','insecure','leery','reserved','sensitive','shaky'],
-      'Yearning': ['envious','jealous','longing','nostalgic','pining','wistful']
+      'Anger': ['aggravated','angry','animosity','annoyed','contempt','disgruntled','enraged','exasperated','furious','hate','hostile','incensed','irate','irritated','irked','livid','miffed','nettled','outraged','peeved','resentful'],
+      'Aversion': ['abhorrence','appalled','bothered','displeased','disgust','dislike','enmity','horrified','loathing','repulsion','revulsion'],
+      'Confusion': ['ambivalent','baffled','bewildered','conflicted','dazed','discombobulated','disoriented','mixed','mystified','perplexed','puzzled','torn'],
+      'Disconnection': ['apathetic','bored','closed','detached','distant','indifferent','listless','numb','withdrawn'],
+      'Disquiet': ['agitated','alarmed','concerned','distraught','disconcerted','dismayed','disturbed','frustrated','perturbed','rattled','restless','shocked','startled','surprised','troubled','turbulent','turmoil','uncomfortable','uneasy','unnerved','unsettled','upset'],
+      'Embarrassment': ['ashamed','chagrined','discomfited','flustered','mortified','self-conscious'],
+      'Fatigue': ['beat','burnt out','depleted','exhausted','listless','pooped','sleepy','tired','weary','wiped out','worn out'],
+      'Fear': ['afraid','anxious','apprehensive','dread','fearful','foreboding','frightened','guarded','insecure','leery','mistrustful','panicked','petrified','scared','shaky','terrified','trepidation','wary','worried'],
+      'Pain': ['aching','agony','anguished','devastated','grief','heartbroken','hungry','hurting','lonely','miserable','regretful','remorseful'],
+      'Sadness': ['depressed','dejected','despairing','despondent','disappointed','discouraged','disheartened','forlorn','gloomy','heavy hearted','hopeless','melancholy','miserable','unhappy','wistful'],
+      'Tension': ['anxious','closed','distressed','edgy','fidgety','frazzled','frustrated','jittery','nervous','overwhelmed','restless','stressed out'],
+      'Yearning': ['longing','nostalgic','pining']
     }
   };
 

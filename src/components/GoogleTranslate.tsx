@@ -146,37 +146,82 @@ const GoogleTranslate: React.FC = () => {
     // `!important` loses because inline styles of the same priority
     // beat class selectors. The only robust fix is to observe the
     // iframe's `style` attribute and overwrite its position once Google
-    // has placed it. See docs/research in this PR.
+    // has placed it.
+    const MARGIN = 8;
+    const MAX_POPUP_WIDTH = 480;
+
     function anchorFrame(frame: HTMLIFrameElement) {
       if (!portal) return;
       const triggerRect = portal.getBoundingClientRect();
-      const frameWidth = frame.offsetWidth || 200;
-      const margin = 8;
+      const maxFrameWidth = Math.min(MAX_POPUP_WIDTH, window.innerWidth - MARGIN * 2);
+      // offsetWidth is 0 before first paint — fall back to the cap so
+      // we don't accidentally position assuming a tiny width, then
+      // let the size clamp down on the next style-attribute mutation.
+      const naturalWidth = frame.offsetWidth || maxFrameWidth;
+      const frameWidth = Math.max(160, Math.min(naturalWidth, maxFrameWidth));
       // Prefer the trigger's left edge; shift left if that would run
       // the iframe past the viewport's right side.
       const idealLeft = triggerRect.left;
-      const maxLeft = window.innerWidth - frameWidth - margin;
-      const left = Math.max(margin, Math.min(idealLeft, maxLeft));
+      const maxLeft = window.innerWidth - frameWidth - MARGIN;
+      const left = Math.max(MARGIN, Math.min(idealLeft, maxLeft));
       const top = triggerRect.bottom + window.scrollY + 4;
+      frame.style.setProperty('position', 'absolute', 'important');
       frame.style.setProperty('left', `${left}px`, 'important');
       frame.style.setProperty('top', `${top}px`, 'important');
-      frame.style.setProperty('max-width', `calc(100vw - ${margin * 2}px)`, 'important');
+      frame.style.setProperty('width', `${frameWidth}px`, 'important');
+      frame.style.setProperty('max-width', `${maxFrameWidth}px`, 'important');
+      frame.style.setProperty('right', 'auto', 'important');
+    }
+
+    const tracked = new WeakSet<HTMLIFrameElement>();
+
+    function isPickerCandidate(frame: HTMLIFrameElement): boolean {
+      // Match the legacy class AND any iframe Google inserts with
+      // `.skiptranslate`. Google's newer SIMPLE-layout picker uses
+      // hashed classnames (e.g. `VIpgJd-ZVi9od-xl07Ob-OEVmcd`)
+      // instead of the documented `.goog-te-menu-frame` — but those
+      // hashes churn, so we key off `.skiptranslate`, which has been
+      // stable across Google UI revisions.
+      if (frame.classList.contains('goog-te-menu-frame')) return true;
+      if (frame.classList.contains('skiptranslate')) return true;
+      return false;
+    }
+
+    function shouldAnchor(frame: HTMLIFrameElement): boolean {
+      // The translate banner bar ALSO carries `.skiptranslate` and sits
+      // pinned to the top with near-full-width. Don't move it.
+      const rect = frame.getBoundingClientRect();
+      const isTopBanner = rect.top < 20 && rect.width > window.innerWidth * 0.8;
+      return !isTopBanner;
+    }
+
+    function trackFrame(frame: HTMLIFrameElement) {
+      if (tracked.has(frame)) return;
+      tracked.add(frame);
+      if (shouldAnchor(frame)) anchorFrame(frame);
+      const styleObs = new MutationObserver(() => {
+        if (shouldAnchor(frame)) anchorFrame(frame);
+      });
+      styleObs.observe(frame, { attributes: true, attributeFilter: ['style'] });
+    }
+
+    function pickerFrames(): HTMLIFrameElement[] {
+      return [...document.querySelectorAll<HTMLIFrameElement>('iframe')]
+        .filter(isPickerCandidate);
     }
 
     const bodyObserver = new MutationObserver(() => {
-      document
-        .querySelectorAll<HTMLIFrameElement>('iframe.goog-te-menu-frame')
-        .forEach((frame) => {
-          if (frame.dataset.ccAnchored) return;
-          frame.dataset.ccAnchored = '1';
-          // Re-anchor whenever Google rewrites this iframe's style.
-          const styleObs = new MutationObserver(() => anchorFrame(frame));
-          styleObs.observe(frame, { attributes: true, attributeFilter: ['style'] });
-          // Anchor immediately on first sighting too.
-          anchorFrame(frame);
-        });
+      pickerFrames().forEach(trackFrame);
     });
     bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Also re-anchor every known frame on viewport resize so the popup
+    // doesn't get stranded off-screen when the user resizes while it's
+    // open.
+    function onResize() {
+      pickerFrames().forEach((f) => { if (shouldAnchor(f)) anchorFrame(f); });
+    }
+    window.addEventListener('resize', onResize);
   }, []);
 
   return null;

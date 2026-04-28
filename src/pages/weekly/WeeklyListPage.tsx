@@ -139,6 +139,22 @@ const WeeklyListPage: React.FC = () => {
     setEmailInput('');
   }
 
+  // Greeting variant locked once per member so the page doesn't show
+  // one variant during the loading flash and a different one once the
+  // member doc resolves. Computed at the top level (before any early
+  // returns) so the hook order stays stable across renders — moving
+  // useMemo below an `if (...) return` triggers React error #310
+  // ("Rendered more hooks than during the previous render").
+  const greeting = useMemo(() => {
+    if (isAdmin || !member) return null;
+    return buildGreeting({
+      name: member.name,
+      city: member.city,
+      state: member.state,
+      country: member.country,
+    });
+  }, [isAdmin, member?.email]);
+
   // ── Renders ──────────────────────────────────────────────────────────────
 
   // 1. Email gate — non-admin and no verified session yet
@@ -194,19 +210,8 @@ const WeeklyListPage: React.FC = () => {
   }
 
   // 2. Verified (admin or member) — show greeting + library.
-  // useMemo so the random variant is picked ONCE per member (not on
-  // every re-render) — otherwise React StrictMode + state updates
-  // produce two different greetings flashing past as the page loads.
-  const greeting = useMemo(() => {
-    if (isAdmin || !member) return null;
-    return buildGreeting({
-      name: member.name,
-      city: member.city,
-      state: member.state,
-      country: member.country,
-    });
-  }, [isAdmin, member?.email]);
-
+  // (greeting computed at the top of the component so the hook count
+  // is stable across the email-gate vs verified renders.)
   return (
     <Layout>
       <section className="member-portal-page">

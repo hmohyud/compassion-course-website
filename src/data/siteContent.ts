@@ -128,21 +128,20 @@ export const siteContent = {
       testimonials: [
         {
           quote:
-            'The Compassion Course completely transformed how I approach relationships and challenges. I discovered tools I never knew I had within me.',
-          name: 'Sarah Johnson',
-          role: 'Marketing Executive',
+            "If I gave appreciation for everything Thom Bond has contributed to me, I wouldn't have time for anything else.",
+          name: 'Marshall Rosenberg',
+          role: 'Founder of Nonviolent Communication',
         },
         {
           quote:
-            'In just three days, I gained clarity on what was holding me back in my career and personal life. The results have been extraordinary.',
-          name: 'Michael Chen',
-          role: 'Software Engineer',
+            'I wholly endorse and will recommend The Compassion Course to anyone who is new to compassionate living and to people who want to deepen and integrate the skills and the consciousness.',
+          name: 'Robert Gonzales',
+          role: 'CNVC Certified Trainer',
         },
         {
-          quote:
-            "The community aspect is incredible. I've made lifelong connections with people who are committed to growth and making a difference.",
-          name: 'Emily Rodriguez',
-          role: 'Nonprofit Director',
+          quote: 'Thom normalizes NVC. He shows how it\u2019s possible to do in everyday life.',
+          name: 'Mike M.',
+          role: 'Course Participant',
         },
       ],
     },

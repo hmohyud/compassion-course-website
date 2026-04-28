@@ -6,37 +6,84 @@ import {
   listAllWeeklyContent,
   type WeeklyContent,
 } from '../../services/weeklyContentService';
+import { getMember, type MemberRecord, normalizeEmail, isValidEmail } from '../../services/memberService';
+import {
+  getMemberSessionEmail,
+  setMemberSessionEmail,
+  clearMemberSession,
+} from '../../services/memberSession';
+import { buildGreeting } from '../../utils/greetings';
 
-// 2026 Member Portal — Lesson Library. Open to everyone: anyone can see
-// the list of lessons and their release dates. The actual lesson content
-// (HTML + audio) is gated at the viewer (WeeklyViewerPage) so members
-// only unlock a lesson once it has released and they're signed in as a
-// member. Lesson schedule: Welcome Aboard on June 23, 2026 at 12:00 PM
-// New York time; Week 1 on June 24; one lesson every Wednesday at noon
-// for the 51 weeks after that.
+// 2026 Member Portal — Lesson Library.
 //
-// Before June 23, 2026 12:00 PM New York time, non-admins see a simple
-// "Opening June 23, 2026" placeholder instead of the library. Admins
-// always see the library so they can preview.
-
-// 2026-06-23 at 12:00 EDT = 16:00 UTC (June is DST in NY).
-const PORTAL_OPEN_AT = new Date('2026-06-23T16:00:00.000Z');
+// Three audiences:
+//   - Admins: see everything immediately, no email gate.
+//   - Members on the roster (Firestore `members` collection): enter their
+//     email once → it's saved to localStorage → personalized greeting +
+//     the lesson library on every subsequent visit.
+//   - Everyone else: a friendly "Opening June 23, 2026" placeholder.
+//
+// Lesson schedule: Welcome Aboard on June 23, 2026 at 12:00 PM New York
+// time; Week 1 on June 24; one lesson every Wednesday at noon for the 51
+// weeks after that. Lesson content (HTML/audio) is still admin-gated at
+// the viewer until the email-based content access lands; this page only
+// handles the listing + greeting today.
 
 const WeeklyListPage: React.FC = () => {
   const { isAdmin } = useAuth();
+
+  // ── Member email session ─────────────────────────────────────────────────
+  const [member, setMember] = useState<MemberRecord | null>(null);
+  const [memberCheckState, setMemberCheckState] = useState<'idle' | 'checking' | 'verified' | 'unknown'>('idle');
+
+  // Email entry form state
+  const [emailInput, setEmailInput] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [signInError, setSignInError] = useState<string | null>(null);
+
+  // ── Lesson library state ─────────────────────────────────────────────────
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
-  const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('loading');
+  const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('idle');
 
-  const portalOpen = isAdmin || Date.now() >= PORTAL_OPEN_AT.getTime();
-
+  // On mount: if we already have a remembered email, look up the member
+  // record and unlock the portal.
   useEffect(() => {
-    // Don't hit Firestore before the portal opens for non-admins — nothing
-    // they could do with it.
-    if (!portalOpen) {
-      setFetchState('idle');
+    if (isAdmin) {
+      setMemberCheckState('verified');
       return;
     }
+    const remembered = getMemberSessionEmail();
+    if (!remembered) {
+      setMemberCheckState('idle');
+      return;
+    }
+    setMemberCheckState('checking');
+    (async () => {
+      try {
+        const rec = await getMember(remembered);
+        if (rec) {
+          setMember(rec);
+          setMemberCheckState('verified');
+        } else {
+          // Email no longer on roster (admin removed?); clear stale session.
+          clearMemberSession();
+          setMemberCheckState('idle');
+        }
+      } catch (err) {
+        console.error('Member lookup failed', err);
+        // Fail open-ish: keep the session and show the email form again.
+        clearMemberSession();
+        setMemberCheckState('idle');
+      }
+    })();
+  }, [isAdmin]);
+
+  // Fetch lesson list whenever access is verified.
+  const portalUnlocked = memberCheckState === 'verified';
+  useEffect(() => {
+    if (!portalUnlocked) return;
     let cancelled = false;
+    setFetchState('loading');
     (async () => {
       try {
         const all = await listAllWeeklyContent();
@@ -50,27 +97,91 @@ const WeeklyListPage: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [portalOpen]);
+  }, [portalUnlocked]);
 
-  if (!portalOpen) {
+  // ── Sign-in / sign-out handlers ──────────────────────────────────────────
+
+  async function onEmailSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const email = normalizeEmail(emailInput);
+    if (!isValidEmail(email)) {
+      setSignInError("That doesn't look like a valid email — please double-check.");
+      return;
+    }
+    setSubmitting(true);
+    setSignInError(null);
+    try {
+      const rec = await getMember(email);
+      if (!rec) {
+        setSignInError(
+          "We couldn't find that email on the 2026 cohort roster. " +
+          'If you think this is a mistake, please contact us — sometimes ' +
+          'a different email was used at registration.'
+        );
+        setMemberCheckState('unknown');
+        return;
+      }
+      setMemberSessionEmail(email);
+      setMember(rec);
+      setMemberCheckState('verified');
+    } catch (err: any) {
+      console.error('Sign-in lookup failed', err);
+      setSignInError('Something went wrong checking that email. Try again in a moment.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function signOut() {
+    clearMemberSession();
+    setMember(null);
+    setMemberCheckState('idle');
+    setEmailInput('');
+  }
+
+  // ── Renders ──────────────────────────────────────────────────────────────
+
+  // 1. Email gate — non-admin and no verified session yet
+  if (!isAdmin && memberCheckState !== 'verified') {
     return (
       <Layout>
         <section className="member-portal-placeholder">
           <div className="container">
             <div className="member-portal-placeholder-inner">
               <span className="member-portal-eyebrow">2026 Member Portal</span>
-              <h1>Opening June 23, 2026</h1>
+              <h1>Welcome</h1>
               <p className="member-portal-lede">
-                The 2026 Compassion Course Lesson Library unlocks at 12:00 PM
-                New York time on Monday, June 23, 2026. Welcome Aboard goes
-                live first, followed by Week 1 on June 24, then one new
-                lesson every Wednesday at noon for the 51 Wednesdays after.
+                Enter the email you registered with to access your Lesson Library.
+                If you're a current Global Compassion Network member, you can also
+                head straight to the GCN.
               </p>
-              <p className="member-portal-lede">
-                Already a Global Compassion Network member?
-              </p>
-              <div className="member-portal-actions">
-                <Link to="/portal/community" className="btn-primary">
+
+              <form onSubmit={onEmailSubmit} className="member-portal-emailform">
+                <input
+                  type="email"
+                  required
+                  value={emailInput}
+                  onChange={(e) => { setEmailInput(e.target.value); setSignInError(null); }}
+                  placeholder="you@example.com"
+                  disabled={submitting || memberCheckState === 'checking'}
+                  autoFocus
+                  className="member-portal-emailinput"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting || !emailInput.trim() || memberCheckState === 'checking'}
+                  className="btn-primary"
+                >
+                  {submitting ? 'Checking…' : memberCheckState === 'checking' ? 'Checking…' : 'Enter'}
+                </button>
+              </form>
+
+              {signInError && (
+                <p className="member-portal-error">{signInError}</p>
+              )}
+
+              <div className="member-portal-actions" style={{ marginTop: '2rem' }}>
+                <Link to="/portal/community" className="btn-secondary">
                   <i className="fas fa-globe-americas" aria-hidden="true" />
                   &nbsp;Enter the GCN
                 </Link>
@@ -82,6 +193,14 @@ const WeeklyListPage: React.FC = () => {
     );
   }
 
+  // 2. Verified (admin or member) — show greeting + library
+  const greeting = !isAdmin && member ? buildGreeting({
+    name: member.name,
+    city: member.city,
+    state: member.state,
+    country: member.country,
+  }) : null;
+
   return (
     <Layout>
       <section className="member-portal-page">
@@ -89,6 +208,9 @@ const WeeklyListPage: React.FC = () => {
           <header className="member-portal-header">
             <span className="member-portal-eyebrow">2026 Member Portal</span>
             <h1>Lesson Library</h1>
+            {greeting && (
+              <p className="member-portal-greeting">{greeting}</p>
+            )}
             <p className="member-portal-lede">
               Welcome Aboard unlocks June 23, 2026 at 12:00 PM New York time.
               Week 1 follows on June 24, with one new lesson every Wednesday
@@ -101,13 +223,23 @@ const WeeklyListPage: React.FC = () => {
               </Link>
               {isAdmin && (
                 <>
-                  <Link to="/admin-portal/weekly" className="btn-secondary">
-                    Admin dashboard
+                  <Link to="/portal/leadership?tab=adminPortal&adminTab=weekly" className="btn-secondary">
+                    Manage lessons
                   </Link>
                   <Link to="/portal/leadership?tab=adminPortal&adminTab=members" className="btn-secondary">
                     Manage members
                   </Link>
                 </>
+              )}
+              {!isAdmin && member && (
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="btn-secondary"
+                  title={`Signed in as ${member.email}`}
+                >
+                  Sign out
+                </button>
               )}
             </div>
           </header>

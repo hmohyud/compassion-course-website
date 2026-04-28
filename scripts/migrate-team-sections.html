@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Migrate Team Sections</title>
+<style>
+  body { font-family: system-ui; max-width: 700px; margin: 40px auto; padding: 0 20px; }
+  h1 { color: #0d9488; }
+  button { background: #0d9488; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin: 8px 4px; }
+  button:hover { background: #0f766e; }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+  button.danger { background: #ef4444; }
+  button.danger:hover { background: #dc2626; }
+  #log { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; max-height: 500px; overflow-y: auto; margin-top: 16px; }
+  .step { background: #f0fdfa; border-left: 4px solid #0d9488; padding: 12px 16px; margin: 12px 0; border-radius: 0 8px 8px 0; }
+  #status { font-weight: bold; margin: 12px 0; }
+</style>
+</head>
+<body>
+<h1>Team Section Migration</h1>
+<p>This migrates team members from name-based section references to ID-based references, and reassigns the 8 orphaned "India Team" / "Indian Team" members to "Hindi Team".</p>
+
+<div class="step">
+  <strong>Step 1:</strong> Sign in as admin<br>
+  <button id="loginBtn" onclick="doLogin()">Sign In with Google</button>
+  <span id="status">Not signed in</span>
+</div>
+
+<div class="step">
+  <strong>Step 2:</strong> Preview changes (dry run)<br>
+  <button id="dryRunBtn" onclick="doMigration(true)" disabled>Dry Run (Preview Only)</button>
+</div>
+
+<div class="step">
+  <strong>Step 3:</strong> Apply changes<br>
+  <button id="migrateBtn" onclick="doMigration(false)" disabled class="danger">Migrate Now</button>
+</div>
+
+<div id="log"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, orderBy, doc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const app = initializeApp({
+  apiKey: "AIzaSyAAMFrWpsv1BIAkPIjNjGnV61IkZ8EIeRY",
+  authDomain: "compassioncourse.org",
+  projectId: "compassion-course-websit-937d6",
+  storageBucket: "compassion-course-websit-937d6.firebasestorage.app",
+  messagingSenderId: "1087479449158",
+  appId: "1:1087479449158:web:882a39db02a25172322c47"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function ensureTeamSuffix(name) {
+  const trimmed = name.trim();
+  return trimmed.endsWith('Team') ? trimmed : trimmed + ' Team';
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('status').textContent = 'Signed in as: ' + user.email;
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('dryRunBtn').disabled = false;
+    document.getElementById('migrateBtn').disabled = false;
+    log('Signed in as ' + user.email);
+  }
+});
+
+window.doLogin = async function() {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (err) {
+    log('Login failed: ' + err.message);
+  }
+};
+
+window.doMigration = async function(dryRun) {
+  log('\n' + (dryRun ? '=== DRY RUN ===' : '=== MIGRATING ==='));
+
+  // 1. Load all sections
+  const sectionsSnap = await getDocs(query(collection(db, 'teamLanguageSections'), where('isActive', '==', true)));
+  const sections = [];
+  sectionsSnap.forEach(d => sections.push({ id: d.id, ...d.data() }));
+  log('Found ' + sections.length + ' sections:');
+  sections.forEach(s => log('  ' + s.id + ' => ' + s.name));
+
+  // Build lookup maps
+  const nameToId = new Map();
+  const validIds = new Set();
+  sections.forEach(s => {
+    validIds.add(s.id);
+    nameToId.set(s.name, s.id);
+    nameToId.set(ensureTeamSuffix(s.name), s.id);
+  });
+
+  // Add manual mappings for known renames
+  const hindiSection = sections.find(s => s.name === 'Hindi Team');
+  if (hindiSection) {
+    nameToId.set('India Team', hindiSection.id);
+    nameToId.set('Indian Team', hindiSection.id);
+    log('\nAdded manual mapping: India Team / Indian Team => Hindi Team (' + hindiSection.id + ')');
+  }
+
+  // 2. Load all members
+  const membersSnap = await getDocs(collection(db, 'teamMembers'));
+  const members = [];
+  membersSnap.forEach(d => members.push({ id: d.id, ...d.data() }));
+  log('\nFound ' + members.length + ' total team members');
+
+  // 3. Find members that need updating
+  const updates = [];
+  members.forEach(m => {
+    if (validIds.has(m.teamSection)) return; // Already using ID
+    // Try exact match
+    let resolvedId = nameToId.get(m.teamSection);
+    // Try with Team suffix added (e.g. "Guest Trainers" => "Guest Trainers Team")
+    if (!resolvedId) resolvedId = nameToId.get(ensureTeamSuffix(m.teamSection));
+    // Try fuzzy match (ItalianTeam => Italian Team)
+    if (!resolvedId) {
+      for (const [name, id] of nameToId.entries()) {
+        if (name.toLowerCase().replace(/\s+/g, '') === m.teamSection.toLowerCase().replace(/\s+/g, '')) {
+          resolvedId = id;
+          break;
+        }
+      }
+    }
+    if (!resolvedId) {
+      log('  ⚠️ UNRESOLVABLE: "' + m.name + '" has teamSection="' + m.teamSection + '"');
+      return;
+    }
+    const toName = sections.find(s => s.id === resolvedId)?.name || resolvedId;
+    updates.push({ id: m.id, name: m.name, from: m.teamSection, to: resolvedId, toName });
+  });
+
+  log('\n' + updates.length + ' members need updating:');
+  updates.forEach(u => log('  ' + u.name + ': "' + u.from + '" => "' + u.toName + '" (' + u.to + ')'));
+
+  if (updates.length === 0) {
+    log('\nNothing to migrate!');
+    return;
+  }
+
+  if (dryRun) {
+    log('\n=== DRY RUN COMPLETE === No changes made. Click "Migrate Now" to apply.');
+    return;
+  }
+
+  // 4. Apply updates in batch
+  const batch = writeBatch(db);
+  updates.forEach(u => {
+    batch.update(doc(db, 'teamMembers', u.id), { teamSection: u.to });
+  });
+
+  await batch.commit();
+  log('\n✅ Successfully migrated ' + updates.length + ' members!');
+  log('Refresh the About page to verify.');
+};
+</script>
+</body>
+</html>

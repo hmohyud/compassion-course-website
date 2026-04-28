@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Edit Website Content - Compassion Course</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.7; color: #1a1a2e; background: #f8f9fa; }
+  .container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; color: #0d9488; }
+  h1 + p { font-size: 1.1rem; color: #666; margin-bottom: 2rem; }
+  h2 { font-size: 1.5rem; color: #1a1a2e; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 3px solid #0d9488; }
+  h3 { font-size: 1.15rem; color: #0d9488; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  a { color: #0d9488; }
+
+  .big-picture { background: #e0f2f1; border-radius: 12px; padding: 1.5rem 2rem; margin: 1.5rem 0; text-align: center; }
+  .big-picture .flow { font-size: 1.1rem; font-weight: 600; color: #0d9488; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+  .big-picture .flow .arrow { font-size: 1.4rem; }
+
+  .step { background: #fff; border-radius: 12px; padding: 1.75rem 2rem; margin: 1.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #0d9488; }
+  .step-number { display: inline-block; background: #0d9488; color: #fff; width: 32px; height: 32px; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 700; font-size: 0.95rem; margin-right: 0.5rem; }
+  .step h3 { display: inline; font-size: 1.2rem; color: #1a1a2e; }
+  .step p { margin-top: 0.75rem; }
+
+  .tip { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .tip::before { content: "Tip: "; font-weight: 700; color: #f59e0b; }
+
+  .warning { background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .warning::before { content: "Important: "; font-weight: 700; color: #ef4444; }
+
+  .link-btn { display: inline-block; background: #0d9488; color: #fff; padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 0.5rem 0.5rem 0.5rem 0; transition: background 0.2s; }
+  .link-btn:hover { background: #0f766e; color: #fff; }
+
+  code { background: #e8e8e8; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.9rem; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-size: 0.9rem; line-height: 1.6; }
+  pre .highlight { background: #365314; color: #a3e635; padding: 0 4px; border-radius: 3px; }
+  pre .dim { color: #64748b; }
+  pre .change { color: #4ade80; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+  th { background: #0d9488; color: #fff; padding: 0.65rem 1rem; text-align: left; }
+  td { padding: 0.6rem 1rem; border-bottom: 1px solid #e5e7eb; }
+  tr:nth-child(even) td { background: #f8fafb; }
+
+  .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .do-card, .dont-card { border-radius: 10px; padding: 1.25rem; }
+  .do-card { background: #ecfdf5; border: 2px solid #10b981; }
+  .do-card h4 { color: #10b981; margin-bottom: 0.5rem; }
+  .dont-card { background: #fef2f2; border: 2px solid #ef4444; }
+  .dont-card h4 { color: #ef4444; margin-bottom: 0.5rem; }
+  .do-card li, .dont-card li { margin: 0.35rem 0 0.35rem 1.25rem; }
+
+  .special-chars { margin: 1rem 0; }
+  .special-chars td:first-child { font-size: 1.3rem; text-align: center; width: 60px; }
+  .special-chars code { font-size: 0.85rem; }
+
+  .quick-links { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+  .quick-link { background: #fff; border: 2px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem; text-decoration: none; color: #1a1a2e; transition: all 0.2s; }
+  .quick-link:hover { border-color: #0d9488; box-shadow: 0 4px 12px rgba(13,148,136,0.15); }
+  .quick-link strong { display: block; color: #0d9488; margin-bottom: 0.25rem; }
+
+  @media (max-width: 600px) {
+    .do-dont, .quick-links { grid-template-columns: 1fr; }
+    .container { padding: 1rem; }
+    .step { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>How to Edit Website Content</h1>
+<p>No coding experience needed! Follow these steps to update text on the Compassion Course website.</p>
+
+<div class="big-picture">
+  <div class="flow">
+    <span>You edit text on GitHub</span>
+    <span class="arrow">&rarr;</span>
+    <span>Site auto-builds</span>
+    <span class="arrow">&rarr;</span>
+    <span>Live in ~2 minutes</span>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step">
+  <span class="step-number">1</span>
+  <h3>Open the Content File</h3>
+  <p>Click the link below. You need to be logged into GitHub.</p>
+  <a class="link-btn" href="https://github.com/hmohyud/compassion-course-website/blob/main/src/data/siteContent.ts" target="_blank">Open siteContent.ts on GitHub</a>
+</div>
+
+<!-- STEP 2 -->
+<div class="step">
+  <span class="step-number">2</span>
+  <h3>Click the Pencil Icon to Edit</h3>
+  <p>Look at the <strong>top-right area</strong> of the file, in the toolbar row that has "Raw", copy, and download icons. The <strong>pencil icon</strong> is near the right end of that row.</p>
+  <p>After clicking the pencil, the page changes to an editor where you can type directly in the file.</p>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+  <span class="step-number">3</span>
+  <h3>Find the Text You Want to Change</h3>
+  <p>Press <strong>Ctrl + F</strong> (or <strong>Cmd + F</strong> on Mac) and search for the <strong>exact text</strong> you want to change.</p>
+  <div class="tip">Search for a unique phrase from the website. For example, if the site says "Changing Lives for 15 years", search for exactly that.</div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step">
+  <span class="step-number">4</span>
+  <h3>Edit the Text (Between the Quotes Only!)</h3>
+  <p>Only change the text <strong>between the quote marks</strong>. Don't touch anything else on the line.</p>
+  <pre><span class="dim">    keyword     </span><span class="highlight"> change this part </span><span class="dim">     leave</span>
+<span class="dim">    leave alone  (text inside quotes)   alone</span>
+<span class="dim">       |                |                 |</span>
+<span class="dim">       v                v                 v</span>
+    heading: <span class="change">'The Compassion Course'</span>,
+    <span class="dim">^^^^^^^</span>   <span class="dim">^                    ^^</span>
+    <span class="dim">DON'T      opening quote    closing quote + comma</span>
+    <span class="dim">TOUCH      DON'T REMOVE     DON'T REMOVE</span></pre>
+
+  <p><strong>Before:</strong></p>
+  <pre>heading: 'The Compassion Course',</pre>
+  <p><strong>After:</strong></p>
+  <pre>heading: <span class="change">'The Compassion Course - Transform Your Life'</span>,</pre>
+</div>
+
+<!-- STEP 5 -->
+<div class="step">
+  <span class="step-number">5</span>
+  <h3>Save Your Changes</h3>
+  <p>Click the green <strong>"Commit changes..."</strong> button in the top-right corner. A dialog box will appear:</p>
+  <ol style="margin: 0.75rem 0 0 1.5rem;">
+    <li><strong>Commit message</strong> &mdash; Write a short note about what you changed (e.g., "Updated hero heading")</li>
+    <li>Make sure <strong>"Commit directly to the main branch"</strong> is selected</li>
+    <li>Click the green <strong>"Commit changes"</strong> button</li>
+  </ol>
+</div>
+
+<!-- STEP 6 -->
+<div class="step">
+  <span class="step-number">6</span>
+  <h3>Verify the Site Updated</h3>
+  <p>After saving, the site automatically rebuilds in about <strong>2 minutes</strong>. Check the progress here:</p>
+  <a class="link-btn" href="https://github.com/hmohyud/compassion-course-website/actions" target="_blank">Check Deployment Status</a>
+  <p style="margin-top: 0.75rem;">
+    <strong style="color: #10b981;">Green circle</strong> = Success! Your change is live.<br>
+    <strong style="color: #f59e0b;">Yellow circle</strong> = Still building... wait and refresh.<br>
+    <strong style="color: #ef4444;">Red circle</strong> = Something broke (see troubleshooting below).
+  </p>
+</div>
+
+<!-- WHAT CAN I EDIT -->
+<h2>What Can I Edit?</h2>
+<p>Use <strong>Ctrl+F</strong> to search for these keywords to jump to each section:</p>
+
+<h3>Home Page</h3>
+<table>
+  <tr><th>What you want to change</th><th>Search for this</th></tr>
+  <tr><td>Big title at the top</td><td><code>heading: 'The Compassion Course'</code></td></tr>
+  <tr><td>Description below the title</td><td><code>descriptionDefault:</code></td></tr>
+  <tr><td>"Learn More" / "Register Now" buttons</td><td><code>ctaPrimaryDefault:</code> and <code>ctaSecondaryDefault:</code></td></tr>
+  <tr><td>Statistics (14 Years, 50,000+ etc.)</td><td><code>stats:</code></td></tr>
+  <tr><td>"What You'll Learn" outcomes</td><td><code>whatYoullLearn:</code></td></tr>
+  <tr><td>The 3 value prop cards</td><td><code>valueProps:</code></td></tr>
+  <tr><td>"Sample the Course" section</td><td><code>sampleTheCourse:</code></td></tr>
+  <tr><td>Testimonial quotes</td><td><code>testimonials:</code></td></tr>
+  <tr><td>"What the Course Includes"</td><td><code>courseIncludes:</code></td></tr>
+  <tr><td>Bottom call-to-action</td><td><code>cta:</code> (under <code>home</code>)</td></tr>
+</table>
+
+<h3>Learn More Page</h3>
+<table>
+  <tr><th>What you want to change</th><th>Search for this</th></tr>
+  <tr><td>Page title / banner</td><td><code>learnMore:</code> then <code>hero:</code></td></tr>
+  <tr><td>Origin story timeline</td><td><code>origin:</code></td></tr>
+  <tr><td>How It Works steps</td><td><code>howItWorks:</code></td></tr>
+  <tr><td>Weekly topics list (10 weeks)</td><td><code>weeklyTopics:</code></td></tr>
+  <tr><td>Sample Week 1 (Empathy)</td><td><code>sampleEmpathy:</code></td></tr>
+  <tr><td>Sample Week 2 (Appreciation)</td><td><code>sampleAppreciation:</code></td></tr>
+  <tr><td>"What Makes This Different" cards</td><td><code>whatMakesDifferent:</code></td></tr>
+  <tr><td>Options and extras</td><td><code>optionsExtras:</code></td></tr>
+  <tr><td>Leadership Track details</td><td><code>leadershipTrack:</code></td></tr>
+  <tr><td>Thom Bond's bio</td><td><code>founder:</code></td></tr>
+  <tr><td>FAQ questions and answers</td><td><code>faq:</code> then <code>items:</code></td></tr>
+</table>
+
+<h3>About Page</h3>
+<table>
+  <tr><th>What you want to change</th><th>Search for this</th></tr>
+  <tr><td>Page title / banner</td><td><code>aboutUs:</code> then <code>hero:</code></td></tr>
+  <tr><td>Mission statement</td><td><code>mission:</code></td></tr>
+  <tr><td>Organization story</td><td><code>story:</code></td></tr>
+  <tr><td>Team members</td><td><code>team:</code> then <code>members:</code></td></tr>
+</table>
+
+<!-- INDENTATION NOTE -->
+<h2>Don't Worry About Spacing</h2>
+<div class="tip" style="background: #ecfdf5; border-left-color: #10b981;">
+  <span style="color: #10b981; font-weight: 700;">Good news:</span> Indentation and spacing <strong>don't matter</strong> in this file. The site will work fine even if your lines aren't perfectly aligned. Unlike some programming languages, JavaScript ignores extra spaces. So if your edit looks a little messy compared to the rest of the file, that's totally okay &mdash; the site won't break because of spacing.
+</div>
+
+<!-- DO / DON'T -->
+<h2>The Rules</h2>
+<div class="do-dont">
+  <div class="do-card">
+    <h4>&#10003; Safe to Change</h4>
+    <ul>
+      <li>Text inside quotes: <code>'Hello'</code></li>
+      <li>Numbers/stats: <code>'14'</code></li>
+      <li>Descriptions and paragraphs</li>
+    </ul>
+  </div>
+  <div class="dont-card">
+    <h4>&#10007; Don't Touch</h4>
+    <ul>
+      <li>Keywords before colons: <code>title:</code></li>
+      <li>Curly braces: <code>{ }</code></li>
+      <li>Square brackets: <code>[ ]</code></li>
+      <li>Commas at end of lines</li>
+      <li>Icon codes: <code>fas fa-heart</code></li>
+      <li>File paths: <code>/images/...</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SPECIAL CHARACTERS -->
+<h3>Special Characters Cheat Sheet</h3>
+<p>If your text has these characters inside <strong>single quotes</strong> <code>'...'</code>, use these codes:</p>
+<table class="special-chars">
+  <tr><th>Character</th><th>Type this instead</th><th>Example</th></tr>
+  <tr><td>&rsquo;</td><td><code>\u2019</code></td><td><code>'it\u2019s great'</code></td></tr>
+  <tr><td>&ldquo;</td><td><code>\u201C</code></td><td><code>'\u201CHello\u201D'</code></td></tr>
+  <tr><td>&rdquo;</td><td><code>\u201D</code></td><td><code>'\u201CHello\u201D'</code></td></tr>
+  <tr><td>&hellip;</td><td><code>\u2026</code></td><td><code>'Wait\u2026'</code></td></tr>
+  <tr><td>&mdash;</td><td><code>\u2014</code></td><td><code>'life\u2014and love'</code></td></tr>
+</table>
+<div class="tip">Easier option: wrap text in <strong>double quotes</strong> instead of single quotes if it has an apostrophe: <code>"it's a wonderful course"</code></div>
+
+<!-- EXAMPLE -->
+<h2>Worked Example: Updating a Statistic</h2>
+<p>The site says <strong>"14 Years Running"</strong> and you want to change it to <strong>"15"</strong>:</p>
+<ol style="margin-left: 1.5rem;">
+  <li>Open the file and press Ctrl+F, search for <code>14</code></li>
+  <li>Find the line:<br><pre>{ number: '14', label: 'Years Running' },</pre></li>
+  <li>Change it to:<br><pre>{ number: <span class="change">'15'</span>, label: 'Years Running' },</pre></li>
+  <li>Click "Commit changes...", write "Updated years to 15", and commit</li>
+  <li>Wait ~2 minutes, then check the website!</li>
+</ol>
+
+<!-- TROUBLESHOOTING -->
+<h2>Troubleshooting</h2>
+
+<h3>Build failed? (Red X on Actions page)</h3>
+<table>
+  <tr><th>Mistake</th><th>What happened</th><th>How to fix</th></tr>
+  <tr><td>Missing quote</td><td><code>'The Course</code></td><td>Add closing: <code>'The Course'</code></td></tr>
+  <tr><td>Missing comma</td><td><code>'text'</code> (no comma)</td><td>Add comma: <code>'text',</code></td></tr>
+  <tr><td>Deleted a bracket</td><td>Missing <code>}</code> or <code>]</code></td><td>Find and add it back</td></tr>
+  <tr><td>Apostrophe in single quotes</td><td><code>'it's great'</code></td><td>Use <code>"it's great"</code></td></tr>
+</table>
+
+<h3>How to undo a bad change</h3>
+<ol style="margin-left: 1.5rem;">
+  <li>Go to the <a href="https://github.com/hmohyud/compassion-course-website/commits/main" target="_blank">commit history</a></li>
+  <li>Find the commit <strong>before</strong> yours</li>
+  <li>Click on <code>siteContent.ts</code> in that commit</li>
+  <li>Copy all the text, go back to the current file, paste it in, and commit</li>
+</ol>
+
+<!-- QUICK LINKS -->
+<h2>Quick Links</h2>
+<div class="quick-links">
+  <a class="quick-link" href="https://github.com/hmohyud/compassion-course-website/edit/main/src/data/siteContent.ts" target="_blank">
+    <strong>&#9998; Edit Content</strong>
+    Opens the editor directly
+  </a>
+  <a class="quick-link" href="https://github.com/hmohyud/compassion-course-website/blob/main/src/data/siteContent.ts" target="_blank">
+    <strong>&#128196; View Content</strong>
+    Read the file (no editing)
+  </a>
+  <a class="quick-link" href="https://github.com/hmohyud/compassion-course-website/actions" target="_blank">
+    <strong>&#9989; Check Deploy Status</strong>
+    See if your change is live
+  </a>
+  <a class="quick-link" href="https://github.com/hmohyud/compassion-course-website/commits/main" target="_blank">
+    <strong>&#128340; Change History</strong>
+    See all past edits
+  </a>
+</div>
+
+<p style="margin-top: 3rem; text-align: center; color: #999; font-size: 0.85rem;">Compassion Course Website &mdash; Content Editing Guide</p>
+
+</div>
+</body>
+</html>

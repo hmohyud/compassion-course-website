@@ -41,7 +41,6 @@ import MemberHubPage from './pages/platform/MemberHubPage'
 
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
-import WeeklyAdminPage from './pages/admin/WeeklyAdminPage'
 
 // Weekly content (admin-only, Firebase-gated)
 import WeeklyListPage from './pages/weekly/WeeklyListPage'
@@ -166,10 +165,11 @@ function App() {
                   <WeeklyViewerPage />
                 </ProtectedRoute>
               } />
+              {/* /admin-portal/weekly was a standalone copy of the same view
+                  that lives at /portal/leadership?tab=adminPortal&adminTab=weekly.
+                  Redirect so we have one source of truth for content management. */}
               <Route path="/admin-portal/weekly" element={
-                <ProtectedRoute>
-                  <WeeklyAdminPage />
-                </ProtectedRoute>
+                <Navigate to="/portal/leadership?tab=adminPortal&adminTab=weekly" replace />
               } />
               {/* Old standalone route — keep as redirect for any saved bookmarks. */}
               <Route path="/admin-portal/members" element={

@@ -19,16 +19,6 @@ import {
 // be rendered inside the LeadershipDashboardPage's Admin tab. The parent
 // gates on isAdmin already, and Firestore + Storage rules are the real wall.
 
-const emptyWeek: WeeklyContent = {
-  weekNumber: 1,
-  title: '',
-  htmlStoragePath: '',
-  audioStoragePaths: [],
-  releaseDate: new Date().toISOString().slice(0, 10),
-  requiredRole: 'admin',
-  published: true,
-};
-
 const WeeklyAdminView: React.FC = () => {
   const { user } = useAuth();
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
@@ -141,21 +131,11 @@ const WeeklyAdminView: React.FC = () => {
 
   return (
     <div className="weekly-admin-view" style={{ maxWidth: 1100 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#0d9488', margin: 0 }}>Weekly Content</h2>
-          <p style={{ color: '#52525b', fontSize: '0.9rem', margin: '0.25rem 0 0' }}>
-            Manage the 52 weekly lessons. All files served from Firebase Storage under admin-only rules.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Link to="/weekly" className="btn-secondary">View as admin</Link>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => setEditing({ ...emptyWeek, weekNumber: nextWeekNumber(weeks) })}
-          >+ New week</button>
-        </div>
+      <header style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#0d9488', margin: 0 }}>Weekly Content</h2>
+        <p style={{ color: '#52525b', fontSize: '0.9rem', margin: '0.25rem 0 0' }}>
+          Manage the 52 weekly lessons. All files served from Firebase Storage under admin-only rules.
+        </p>
       </header>
 
       {success && <div style={{ padding: '0.7rem 1rem', background: '#ecfdf5', color: '#065f46', borderRadius: 6, marginBottom: '1rem', fontSize: '0.9rem' }}>{success}</div>}
@@ -231,12 +211,6 @@ const WeeklyAdminView: React.FC = () => {
     </div>
   );
 };
-
-function nextWeekNumber(weeks: WeeklyContent[]): number {
-  const used = new Set(weeks.map((w) => w.weekNumber));
-  for (let i = 1; i <= 52; i++) if (!used.has(i)) return i;
-  return 1;
-}
 
 interface EditorProps {
   value: WeeklyContent;

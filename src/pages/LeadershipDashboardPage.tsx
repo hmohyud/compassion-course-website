@@ -94,11 +94,16 @@ const LeadershipDashboardPage: React.FC = () => {
     if (urlTab && TABS.some((t) => t.id === urlTab)) setActiveTab(urlTab);
   }, []); // Run once on mount
 
-  // URL sync: update URL when state changes
+  // URL sync: update URL when state changes. Preserve any other params
+  // (e.g. `adminTab` owned by AdminTabView) instead of clobbering them —
+  // otherwise navigating into the dashboard with ?tab=adminPortal&adminTab=
+  // members would drop adminTab on the next render and lose the deep link.
   useEffect(() => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams);
     if (selectedTeamId) params.set('team', selectedTeamId);
+    else params.delete('team');
     if (activeTab !== 'dashboard') params.set('tab', activeTab);
+    else params.delete('tab');
     const newSearch = params.toString();
     const currentSearch = searchParams.toString();
     if (newSearch !== currentSearch) {

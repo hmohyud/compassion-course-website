@@ -7,12 +7,15 @@ import { usePermissions } from '../../context/PermissionsContext';
 import UserManagement from '../../pages/admin/UserManagement';
 import ContentManagement from '../../pages/admin/ContentManagement';
 import MembersAdminView from './MembersAdminView';
-type AdminSubTab = 'users' | 'content' | 'members';
+import WeeklyAdminView from './WeeklyAdminView';
+type AdminSubTab = 'users' | 'content' | 'members' | 'weekly';
+const VALID_SUBTABS: AdminSubTab[] = ['users', 'content', 'members', 'weekly'];
 
 const ADMIN_SUBTABS: { id: AdminSubTab; label: string; icon: string }[] = [
   { id: 'users', label: 'Users & Teams', icon: 'fas fa-users-cog' },
   { id: 'content', label: 'Content', icon: 'fas fa-edit' },
   { id: 'members', label: '2026 Members', icon: 'fas fa-id-card' },
+  { id: 'weekly', label: 'Weekly Lessons', icon: 'fas fa-calendar-week' },
 ];
 
 const AdminTabView: React.FC = () => {
@@ -24,7 +27,7 @@ const AdminTabView: React.FC = () => {
   const adminTabParam = searchParams.get('adminTab') as AdminSubTab | null;
 
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTab>(
-    adminTabParam && ['users', 'content', 'members'].includes(adminTabParam)
+    adminTabParam && (VALID_SUBTABS as string[]).includes(adminTabParam)
       ? adminTabParam
       : 'users'
   );
@@ -42,7 +45,7 @@ const AdminTabView: React.FC = () => {
 
   // Sync from URL changes (e.g. browser back/forward)
   useEffect(() => {
-    if (adminTabParam && ['users', 'content', 'members'].includes(adminTabParam)) {
+    if (adminTabParam && (VALID_SUBTABS as string[]).includes(adminTabParam)) {
       setActiveSubTab(adminTabParam);
     }
   }, [adminTabParam]);
@@ -77,6 +80,7 @@ const AdminTabView: React.FC = () => {
         {activeSubTab === 'users' && <UserManagement />}
         {activeSubTab === 'content' && <ContentManagement />}
         {activeSubTab === 'members' && <MembersAdminView />}
+        {activeSubTab === 'weekly' && <WeeklyAdminView />}
       </div>
     </div>
   );

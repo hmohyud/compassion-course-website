@@ -42,7 +42,6 @@ import MemberHubPage from './pages/platform/MemberHubPage'
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
 import WeeklyAdminPage from './pages/admin/WeeklyAdminPage'
-import MembersAdminPage from './pages/admin/MembersAdminPage'
 
 // Weekly content (admin-only, Firebase-gated)
 import WeeklyListPage from './pages/weekly/WeeklyListPage'
@@ -172,10 +171,9 @@ function App() {
                   <WeeklyAdminPage />
                 </ProtectedRoute>
               } />
+              {/* Old standalone route — keep as redirect for any saved bookmarks. */}
               <Route path="/admin-portal/members" element={
-                <ProtectedRoute>
-                  <MembersAdminPage />
-                </ProtectedRoute>
+                <Navigate to="/portal/leadership?tab=adminPortal&adminTab=members" replace />
               } />
 
               {/* Admin Routes — login pages still needed, everything else redirects to dashboard */}

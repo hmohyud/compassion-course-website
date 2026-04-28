@@ -104,7 +104,7 @@ const WeeklyListPage: React.FC = () => {
                   <Link to="/admin-portal/weekly" className="btn-secondary">
                     Admin dashboard
                   </Link>
-                  <Link to="/admin-portal/members" className="btn-secondary">
+                  <Link to="/portal/leadership?tab=adminPortal&adminTab=members" className="btn-secondary">
                     Manage members
                   </Link>
                 </>

@@ -1,12 +1,14 @@
 // Personalized greeting generator for the Member Portal landing.
 //
 // Combines the four signals we MAY have on a member — name, city,
-// state/country, and the visitor's local time-of-day — into a single
-// sentence. The rule the user asked for is:
+// state/country, and the visitor's local time-of-day — into one
+// short, casual sentence. Rules:
 //   - only fill in fields we actually have
 //   - time-of-day phrasing kicks in only when we have a location
-//     (since the visitor's clock represents the location they're in)
 //   - several variants for variety; one is picked at random
+//   - keep the tone light, not effusive (no "may your evening be gentle")
+//   - Title-case the first name so registrations like "tho bon" or
+//     "JOHN TUCKER" come out as "Tho" / "John"
 
 export interface GreetingInput {
   name?: string;
@@ -28,13 +30,25 @@ function timeOfDay(d: Date): TimeOfDay {
   return 'night';
 }
 
+function titleCase(s: string): string {
+  return s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function firstName(full?: string): string {
-  return (full || '').trim().split(/\s+/)[0] || '';
+  const raw = (full || '').trim().split(/\s+/)[0] || '';
+  return titleCase(raw);
 }
 
 /** Best location label we have — prefer city, fall back to state, then country. */
 function bestPlace(g: GreetingInput): string {
-  return (g.city || g.state || g.country || '').trim();
+  const raw = (g.city || g.state || g.country || '').trim();
+  // Title-case "new york" → "New York", but leave already-uppercase
+  // entries like "U.K." or "USA" alone (>50% uppercase). Heuristic:
+  // if the string looks like an acronym/initialism, keep it.
+  if (raw && raw.length > 1 && raw === raw.toUpperCase() && raw.length <= 4) {
+    return raw;
+  }
+  return raw.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 /**
@@ -45,8 +59,7 @@ export function buildGreeting(input: GreetingInput): string {
   const name = firstName(input.name);
   const place = bestPlace(input);
   const tod = timeOfDay(input.now || new Date());
-  // "night" sounds odd when paired with "Good _" — Anglo convention prefers
-  // "Good evening" past sundown. Reserve a separate "late-night" voice.
+  // "night" → "evening" since "Good night" reads as a farewell.
   const goodWord = tod === 'night' ? 'evening' : tod;
 
   const hasName = !!name;
@@ -56,37 +69,30 @@ export function buildGreeting(input: GreetingInput): string {
 
   if (hasName && hasPlace) {
     variants = [
-      `Good ${goodWord}, ${name}! Hope your ${tod} in ${place} is treating you well.`,
-      `Hi ${name} — sending warm thoughts from us to ${place}.`,
+      `Good ${goodWord}, ${name}.`,
+      `Hi ${name} — good ${goodWord} from ${place}.`,
+      `Welcome back, ${name}.`,
+      `Hi ${name}.`,
       `Good ${goodWord} from ${place}, ${name}.`,
-      `Welcome back, ${name}. Hope your ${tod} in ${place} is off to a kind start.`,
-      `Hello ${name}! Hope all's well over in ${place}.`,
-      `Glad you're here, ${name}. May your ${tod} in ${place} be gentle.`,
     ];
   } else if (hasName) {
     variants = [
-      `Hope you're having a good day, ${name}.`,
       `Welcome, ${name}.`,
-      `Glad to see you, ${name}.`,
-      `Hello again, ${name}.`,
-      `Hi ${name} — thanks for being here.`,
+      `Hi ${name}.`,
       `Welcome back, ${name}.`,
+      `Hello, ${name}.`,
     ];
   } else if (hasPlace) {
     variants = [
-      `Good ${goodWord} from ${place}!`,
-      `Hope your ${tod} in ${place} is going well.`,
+      `Good ${goodWord} from ${place}.`,
       `Welcome from ${place}.`,
-      `Sending warmth toward ${place} — hope your ${tod} is gentle.`,
-      `Hi there in ${place} — glad you're here.`,
+      `Hi there in ${place}.`,
     ];
   } else {
     variants = [
-      `Welcome to the 2026 Member Portal.`,
-      `Glad you're here.`,
+      `Welcome.`,
       `Welcome back.`,
-      `Welcome — thanks for being part of this.`,
-      `Hello, and welcome.`,
+      `Hi there.`,
     ];
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Layout from '../../components/Layout';
@@ -193,13 +193,19 @@ const WeeklyListPage: React.FC = () => {
     );
   }
 
-  // 2. Verified (admin or member) — show greeting + library
-  const greeting = !isAdmin && member ? buildGreeting({
-    name: member.name,
-    city: member.city,
-    state: member.state,
-    country: member.country,
-  }) : null;
+  // 2. Verified (admin or member) — show greeting + library.
+  // useMemo so the random variant is picked ONCE per member (not on
+  // every re-render) — otherwise React StrictMode + state updates
+  // produce two different greetings flashing past as the page loads.
+  const greeting = useMemo(() => {
+    if (isAdmin || !member) return null;
+    return buildGreeting({
+      name: member.name,
+      city: member.city,
+      state: member.state,
+      country: member.country,
+    });
+  }, [isAdmin, member?.email]);
 
   return (
     <Layout>
@@ -266,19 +272,28 @@ const WeeklyListPage: React.FC = () => {
             <div className="weekly-list-grid">
               {weeks.map((w) => {
                 const released = new Date(w.releaseDate) <= new Date();
-                return (
-                  <Link
-                    key={w.weekNumber}
-                    to={`/weekly/${w.weekNumber}`}
-                    className={`weekly-list-card ${!released ? 'weekly-list-card--unreleased' : ''}`}
-                  >
+                // Admins can preview unreleased weeks; non-admins should
+                // not be able to click into a "Coming soon" card.
+                const clickable = isAdmin || released;
+                const cls = `weekly-list-card ${!released ? 'weekly-list-card--unreleased' : ''}`;
+                const inner = (
+                  <>
                     <div className="weekly-list-card-num">Week {w.weekNumber}</div>
                     <h3 className="weekly-list-card-title">{w.title || '(untitled)'}</h3>
                     <div className="weekly-list-card-meta">
                       <span>Releases: {w.releaseDate}</span>
                       {!released && <span className="weekly-list-card-badge">Coming soon</span>}
                     </div>
+                  </>
+                );
+                return clickable ? (
+                  <Link key={w.weekNumber} to={`/weekly/${w.weekNumber}`} className={cls}>
+                    {inner}
                   </Link>
+                ) : (
+                  <div key={w.weekNumber} className={cls} aria-disabled="true">
+                    {inner}
+                  </div>
                 );
               })}
             </div>

@@ -12316,6 +12316,13 @@ section {
 .weekly-list-card--unreleased {
     opacity: 0.75;
 }
+/* Non-admin members can't open unreleased weeks — render the card as
+   a visibly disabled tile (no hover lift, default cursor). */
+div.weekly-list-card[aria-disabled="true"] {
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
+}
 .weekly-list-card-num {
     font-size: 0.7rem;
     font-weight: 700;

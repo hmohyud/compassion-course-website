@@ -100,9 +100,14 @@ const WeeklyListPage: React.FC = () => {
                 &nbsp;Enter the GCN Circle Portal
               </Link>
               {isAdmin && (
-                <Link to="/admin-portal/weekly" className="btn-secondary">
-                  Admin dashboard
-                </Link>
+                <>
+                  <Link to="/admin-portal/weekly" className="btn-secondary">
+                    Admin dashboard
+                  </Link>
+                  <Link to="/admin-portal/members" className="btn-secondary">
+                    Manage members
+                  </Link>
+                </>
               )}
             </div>
           </header>

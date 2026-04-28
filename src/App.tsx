@@ -42,6 +42,7 @@ import MemberHubPage from './pages/platform/MemberHubPage'
 // Admin Pages
 import LoginPage from './pages/admin/LoginPage'
 import WeeklyAdminPage from './pages/admin/WeeklyAdminPage'
+import MembersAdminPage from './pages/admin/MembersAdminPage'
 
 // Weekly content (admin-only, Firebase-gated)
 import WeeklyListPage from './pages/weekly/WeeklyListPage'
@@ -169,6 +170,11 @@ function App() {
               <Route path="/admin-portal/weekly" element={
                 <ProtectedRoute>
                   <WeeklyAdminPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin-portal/members" element={
+                <ProtectedRoute>
+                  <MembersAdminPage />
                 </ProtectedRoute>
               } />
 

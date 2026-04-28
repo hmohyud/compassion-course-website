@@ -74,3 +74,10 @@ jobs:
             echo "⚠️ Storage deployment failed (likely due to missing permissions)"
             echo "✅ Continuing - hosting changes are live"
           fi
+          echo "📦 Deploying Firestore rules..."
+          if firebase deploy --only firestore:rules --project compassion-course-websit-937d6 --non-interactive --token "$FIREBASE_TOKEN"; then
+            echo "✅ Firestore rules deployed successfully"
+          else
+            echo "⚠️ Firestore rules deployment failed (likely due to missing permissions)"
+            echo "✅ Continuing - hosting changes are live"
+          fi

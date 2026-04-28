@@ -4042,6 +4042,11 @@ section {
 
 .social-proof-content {
     margin-bottom: var(--space-8);
+    /* Reserve enough vertical space for the longest testimonial so the
+       video next door doesn't bounce up/down as quotes rotate. Tested
+       at desktop widths; mobile (single column, narrower text) auto-
+       grows past this naturally. */
+    min-height: 340px;
 }
 
 .social-proof-quote {

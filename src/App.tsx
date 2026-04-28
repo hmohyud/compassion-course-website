@@ -155,16 +155,12 @@ function App() {
                   /weekly → list of all weeks
                   /weekly/:weekNum → single week viewer
                   /admin-portal/weekly → admin CRUD for weekly content */}
-              <Route path="/weekly" element={
-                <ProtectedRoute>
-                  <WeeklyListPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/weekly/:weekNum" element={
-                <ProtectedRoute>
-                  <WeeklyViewerPage />
-                </ProtectedRoute>
-              } />
+              {/* Member Portal — gates itself via email + roster lookup,
+                  not via ProtectedRoute (which would punt non-admin
+                  members to the admin login page instead of the email
+                  gate). */}
+              <Route path="/weekly" element={<WeeklyListPage />} />
+              <Route path="/weekly/:weekNum" element={<WeeklyViewerPage />} />
               {/* /admin-portal/weekly was a standalone copy of the same view
                   that lives at /portal/leadership?tab=adminPortal&adminTab=weekly.
                   Redirect so we have one source of truth for content management. */}

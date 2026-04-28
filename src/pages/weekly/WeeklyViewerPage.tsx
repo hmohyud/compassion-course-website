@@ -10,6 +10,8 @@ import {
   type WeeklyContent,
   STORAGE_ASSETS_PREFIX,
 } from '../../services/weeklyContentService';
+import { getMember } from '../../services/memberService';
+import { getMemberSessionEmail, clearMemberSession } from '../../services/memberSession';
 
 // Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
 // Layout-wrapped, with the bundle rendered inside a srcdoc iframe for CSS
@@ -34,12 +36,33 @@ const WeeklyViewerPage: React.FC = () => {
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Pull member-session email synchronously on mount; the async useEffect
+  // below verifies it against the roster before unlocking content.
+  const memberEmail = isAdmin ? null : getMemberSessionEmail();
+  const hasAccessClaim = isAdmin || !!memberEmail;
+
   useEffect(() => {
     if (loading || adminLoading) return;
-    if (!user || !isAdmin) return;
+    if (!hasAccessClaim) return;
     let cancelled = false;
     (async () => {
       try {
+        // For non-admin members: re-verify the email is still on the
+        // roster (admin may have removed them) before fetching content.
+        if (!isAdmin && memberEmail) {
+          const m = await getMember(memberEmail);
+          if (!m) {
+            clearMemberSession();
+            if (!cancelled) {
+              setStatus({
+                kind: 'forbidden',
+                reason: "Your email is no longer on the 2026 cohort roster. Please sign in again.",
+              });
+            }
+            return;
+          }
+        }
+
         const n = parseInt(weekNum || '', 10);
         if (!Number.isFinite(n) || n < 1 || n > 52) {
           if (!cancelled) setStatus({ kind: 'not-found' });
@@ -50,6 +73,9 @@ const WeeklyViewerPage: React.FC = () => {
           if (!cancelled) setStatus({ kind: 'not-found' });
           return;
         }
+        // canViewWeek lets admins through unconditionally; for non-admins
+        // it gates on `published && releaseAt <= now`. So a verified
+        // member can view a lesson once it's released, but not before.
         const access = canViewWeek({ content, isAdmin });
         if (!access.allowed) {
           if (!cancelled)
@@ -59,7 +85,7 @@ const WeeklyViewerPage: React.FC = () => {
                 access.reason === 'unpublished'
                   ? 'This week is not yet published.'
                   : access.reason === 'not-released'
-                    ? `This week releases on ${content.releaseDate}.`
+                    ? `This week unlocks on ${content.releaseDate} at 12:00 PM New York time.`
                     : 'You do not have permission to view this week.',
             });
           return;
@@ -100,7 +126,7 @@ const WeeklyViewerPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [weekNum, user, isAdmin, loading, adminLoading]);
+  }, [weekNum, user, isAdmin, loading, adminLoading, hasAccessClaim, memberEmail]);
 
   // Receive messages from the bundle: "back to all weeks" navigation + the
   // iframe's live content-height so we can auto-size the frame (no internal
@@ -129,8 +155,10 @@ const WeeklyViewerPage: React.FC = () => {
       </Layout>
     );
   }
-  if (!user) return <Navigate to="/admin/login-4f73b2c" replace />;
-  if (!isAdmin) return <Navigate to="/unauthorized" replace />;
+  // Access claim: admin OR a verified-email member session. If neither,
+  // send the visitor to /weekly to enter their email rather than to a
+  // dead-end "Unauthorized" page.
+  if (!hasAccessClaim) return <Navigate to="/weekly" replace />;
 
   if (status.kind === 'loading') {
     return (

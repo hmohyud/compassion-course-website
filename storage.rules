@@ -35,28 +35,32 @@ service firebase.storage {
             || request.resource.contentType == 'application/json');
     }
 
-    // Weekly lesson HTML files — admin-only read/write.
-    // These are the protected course content files.
+    // Weekly lesson HTML files — read is public, write admin-only.
+    // The actual access gate lives in the React layer (WeeklyViewerPage),
+    // which only fetches a week's HTML if the visitor is an admin OR
+    // they have a verified email session AND the week is past its
+    // release date. URLs include random Firebase download tokens, so
+    // they aren't trivially guessable.
     match /weekly-html/{fileName} {
-      allow read: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin()
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType == 'text/html';
     }
 
-    // Weekly audio narration MP3s — admin-only read/write.
-    // Max 20MB per file.
+    // Weekly audio narration MP3s — read is public (filenames are
+    // content-hashed so non-trivially enumerable), write admin-only.
     match /weekly-audio/{fileName} {
-      allow read: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin()
         && request.resource.size < 20 * 1024 * 1024
         && request.resource.contentType.matches('audio/(mpeg|mp4|mp3)');
     }
 
-    // Weekly shared assets (CSS + JS) — admin-only read/write.
+    // Weekly shared assets (CSS + JS) — public read, admin write.
     // Shared across all weekly lesson pages.
     match /weekly-assets/{fileName} {
-      allow read: if isAdmin();
+      allow read: if true;
       allow write: if isAdmin()
         && request.resource.size < 2 * 1024 * 1024
         && (request.resource.contentType == 'text/css'

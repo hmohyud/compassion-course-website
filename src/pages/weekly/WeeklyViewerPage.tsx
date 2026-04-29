@@ -199,6 +199,12 @@ const WeeklyViewerPage: React.FC = () => {
         title={`Week ${status.content.weekNumber}`}
         className="weekly-viewer-iframe"
         allow="autoplay"
+        // scrolling="no" suppresses the iframe's own scrollbar. The parent
+        // resizes the iframe to fit content, so the iframe should never
+        // need to scroll. Without this, accordion expand animations briefly
+        // race with the postMessage-driven height update and Chrome flashes
+        // the iframe scrollbar (visible just left of the page scrollbar).
+        scrolling="no"
       />
     </Layout>
   );

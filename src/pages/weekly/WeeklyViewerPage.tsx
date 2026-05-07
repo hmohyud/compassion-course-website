@@ -357,7 +357,15 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   // Report live content height to the parent so the iframe can auto-size
   // and the outer window does all the scrolling. ResizeObserver covers
   // accordions opening, images loading, etc.
-  function reportHeight() {
+  //
+  // Coalesce calls via requestAnimationFrame so a burst of mutations
+  // (e.g., a class flip on accordion-body, then style mutations during
+  // the ensuing CSS transition) results in ONE measurement per frame
+  // taken after the browser has settled the layout — not a half-stale
+  // measurement from the moment the class changed.
+  var measureScheduled = false;
+  function measureAndPost() {
+    measureScheduled = false;
     try {
       var h = Math.max(
         document.documentElement.scrollHeight,
@@ -368,16 +376,31 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
       window.parent.postMessage({ __weeklyIframeHeight: h }, '*');
     } catch (err) { /* noop */ }
   }
+  function reportHeight() {
+    if (measureScheduled) return;
+    measureScheduled = true;
+    requestAnimationFrame(measureAndPost);
+  }
   function startObserving() {
     if (window.ResizeObserver && document.body) {
       new ResizeObserver(reportHeight).observe(document.body);
     }
-    // Also catch dynamic content that doesn't trigger ResizeObserver.
+    // Also catch dynamic content (new nodes appearing). We intentionally
+    // do NOT watch attribute/characterData mutations — they fire on every
+    // class flip and text-node update (e.g., the audio bar's seek timer)
+    // and just spam reportHeight without telling us anything ResizeObserver
+    // doesn't already cover.
     if (window.MutationObserver && document.body) {
       new MutationObserver(reportHeight).observe(document.body, {
-        childList: true, subtree: true, attributes: true, characterData: true,
+        childList: true, subtree: true,
       });
     }
+    // CSS transitions on accordion-body (max-height: 0 ↔ 15000px over 0.5s)
+    // can leave the body at its open height for most of the close
+    // animation; only the final ~25ms actually shrinks the box. Belt-and-
+    // suspenders: when ANY transition ends, force one more measurement so
+    // the iframe never gets stuck at the open height.
+    document.addEventListener('transitionend', reportHeight, true);
     reportHeight();
   }
   if (document.readyState === 'loading') {

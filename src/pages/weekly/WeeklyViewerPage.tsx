@@ -311,24 +311,10 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     border-color: var(--clr-primary, #2a7a6e) !important;
     color: var(--clr-primary, #2a7a6e) !important;
   }
-  /* The audio control bar inside the lesson uses position:fixed inside the
-     iframe, but with iframe scrolling="no" the iframe's "viewport" is its
-     entire content — so bottom:1.5rem pins the bar to the bottom of the
-     lesson content (above the React footer) and it doesn't track parent
-     scroll. Switch it to position:absolute with a JS-computed top that
-     tracks the parent window's viewport bottom (see syncAudioBarPosition
-     in the early script). */
-  #audio-bar {
-    position: absolute !important;
-    bottom: auto !important;
-    transition: top 0.25s ease, opacity 0.25s ease, transform 0.25s ease !important;
-    opacity: 0;
-    pointer-events: none;
-  }
-  #audio-bar.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  /* (#audio-bar styles live on the parent document so the bar can be
+     position:fixed against the user's actual viewport — the iframe-side
+     CSS deliberately does NOT touch the bar to avoid inflating
+     scrollHeight via a positioning feedback loop.) */
 </style>`;
 
   // 6. Early script: intercept audio HEAD probes, redirect new Audio() calls,
@@ -401,75 +387,104 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   }
   window.addEventListener('load', reportHeight);
 
-  // ── Audio control bar: pin to parent viewport ──────────────────────────
-  // The bundle's #audio-bar is position:fixed inside the iframe, but since
-  // the iframe has scrolling="no" and is sized to its content, that "fixed"
-  // anchors to the iframe content rather than the user's viewport — so the
-  // bar appears stuck above the React footer. We compute the bar's top in
-  // iframe coordinates such that its bottom is 1.5rem above the parent
-  // window's visible bottom, and re-sync on parent scroll/resize.
-  function syncAudioBarPosition() {
-    var bar = document.getElementById('audio-bar');
-    if (!bar || !window.frameElement) return;
-    var iframeRect = window.frameElement.getBoundingClientRect();
-    var parentVH = (window.parent && window.parent.innerHeight) || 0;
-    var barH = bar.offsetHeight || 56;
-    var marginPx = 24; // ≈ 1.5rem
-    // Bottom of parent's viewport, expressed in iframe-document coordinates.
-    var parentBottomInIframe = parentVH - iframeRect.top;
-    var top = parentBottomInIframe - barH - marginPx;
-    bar.style.top = top + 'px';
-    bar.style.left = '50%';
-    bar.style.transform = 'translateX(-50%)';
+  // ── Audio control bar: graft into the parent document ──────────────────
+  // The bundle's #audio-bar is position:fixed, but inside an iframe with
+  // scrolling="no" + auto-sized height, "fixed" anchors to the iframe
+  // content (the iframe never scrolls), so the bar sits above the React
+  // footer instead of tracking the user's viewport. It also can't be
+  // repositioned with JS, because position:absolute inside the iframe
+  // would feed its top value back into document.scrollHeight and inflate
+  // the iframe height (creating a huge gap when accordions collapse).
+  //
+  // Solution: when script.js creates #audio-bar inside the iframe, move
+  // the element into window.parent.document.body. Same-origin srcdoc lets
+  // us do this directly, the existing event listeners survive the move,
+  // and position:fixed in the parent doc anchors to the real viewport.
+  // We also patch document.getElementById on the iframe so script.js's
+  // later re-queries (e.g., 'ab-play') still find the relocated element.
+  function injectParentAudioCss() {
+    if (!window.parent || window.parent === window) return;
+    var pDoc;
+    try { pDoc = window.parent.document; } catch (e) { return; }
+    if (pDoc.getElementById('weekly-bundle-audio-bar-css')) return;
+    var st = pDoc.createElement('style');
+    st.id = 'weekly-bundle-audio-bar-css';
+    st.textContent =
+      '#audio-bar{position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);' +
+      'z-index:9999;display:flex;align-items:center;gap:0.4rem;padding:0.5rem 0.8rem;' +
+      'background:rgba(255,255,255,0.85);-webkit-backdrop-filter:blur(12px) saturate(180%);' +
+      'backdrop-filter:blur(12px) saturate(180%);border:1px solid rgba(255,255,255,0.3);' +
+      'border-radius:30px;box-shadow:0 4px 24px rgba(0,0,0,0.12);transition:bottom 0.3s ease;' +
+      'max-width:400px;width:90%;color:#2d2d2d;font-family:Inter,sans-serif;font-size:0.85rem;}' +
+      '#audio-bar.visible{bottom:1.5rem;}' +
+      '#audio-bar .audio-bar-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;' +
+      'padding:0.2rem 0.3rem;color:#2d2d2d;border-radius:4px;transition:background 0.15s;' +
+      'line-height:1;flex-shrink:0;}' +
+      '#audio-bar .audio-bar-btn:hover{background:rgba(42,122,110,0.1);}' +
+      '#audio-bar #ab-play{width:2rem;text-align:center;}' +
+      '#audio-bar .ab-skip{display:inline-flex;align-items:center;gap:1px;}' +
+      '#audio-bar .ab-skip-arrow{font-size:0.65rem;}' +
+      '#audio-bar .ab-skip-label{font-size:0.6rem;font-weight:700;}' +
+      '#audio-bar .audio-bar-close{font-size:1.2rem;margin-left:auto;color:#8a8a8a;}' +
+      '#audio-bar #ab-seek{flex:1;height:4px;min-width:60px;accent-color:#2a7a6e;cursor:pointer;}' +
+      '#audio-bar #ab-time{font-size:0.7rem;color:#5a5a5a;min-width:45px;text-align:center;}';
+    pDoc.head.appendChild(st);
   }
-  function attachAudioBarSync() {
-    try {
-      window.parent.addEventListener('scroll', syncAudioBarPosition, { passive: true });
-      window.parent.addEventListener('resize', syncAudioBarPosition);
-    } catch (e) { /* cross-origin guard, shouldn't hit in srcdoc */ }
-    // Watch for the audio bar appearing and for visibility class flips.
-    var classMo = null;
-    function startWatching(bar) {
-      if (classMo) return;
-      classMo = new MutationObserver(syncAudioBarPosition);
-      classMo.observe(bar, { attributes: true, attributeFilter: ['class', 'style'] });
-      syncAudioBarPosition();
+  injectParentAudioCss();
+
+  // Patch getElementById so script.js's later re-queries (the bar lives in
+  // parent.document after grafting) still resolve.
+  var origGetById = document.getElementById.bind(document);
+  document.getElementById = function (id) {
+    var local = origGetById(id);
+    if (local) return local;
+    if (window.parent && window.parent !== window) {
+      try { return window.parent.document.getElementById(id); } catch (e) {}
     }
-    function tryAttach() {
-      var bar = document.getElementById('audio-bar');
-      if (bar) { startWatching(bar); return true; }
-      return false;
+    return null;
+  };
+
+  function tryGraftAudioBar() {
+    if (!window.parent || window.parent === window) return false;
+    // Use the un-patched lookup so we only catch a fresh bar in the iframe.
+    var bar = origGetById('audio-bar');
+    if (!bar) return false;
+    var pDoc;
+    try { pDoc = window.parent.document; } catch (e) { return false; }
+    // Sweep any stale bar from a previous lesson.
+    var leftover = pDoc.getElementById('audio-bar');
+    if (leftover && leftover !== bar) {
+      try { leftover.remove(); } catch (e) {}
     }
-    if (!tryAttach()) {
-      var rootMo = new MutationObserver(function() {
-        if (tryAttach()) rootMo.disconnect();
-      });
-      if (document.body) {
-        rootMo.observe(document.body, { childList: true, subtree: true });
-      } else {
-        document.addEventListener('DOMContentLoaded', function() {
-          if (!tryAttach()) {
-            rootMo.observe(document.body, { childList: true, subtree: true });
-          }
-        });
-      }
+    try { pDoc.body.appendChild(bar); } catch (e) { return false; }
+    return true;
+  }
+  if (!tryGraftAudioBar()) {
+    var graftMo = new MutationObserver(function () {
+      if (tryGraftAudioBar()) graftMo.disconnect();
+    });
+    function startGraftWatch() {
+      if (document.body) graftMo.observe(document.body, { childList: true, subtree: true });
     }
-    // Re-sync on iframe-internal layout shifts too (audio bar changes height
-    // when the play state toggles between icons of different sizes).
-    if (window.ResizeObserver) {
-      var ro = new ResizeObserver(syncAudioBarPosition);
-      function observeBar() {
-        var bar = document.getElementById('audio-bar');
-        if (bar) ro.observe(bar);
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { setTimeout(observeBar, 100); });
-      } else {
-        setTimeout(observeBar, 100);
-      }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startGraftWatch);
+    } else {
+      startGraftWatch();
     }
   }
-  attachAudioBarSync();
+
+  // Cleanup: when the iframe is torn down (route change), remove our grafted
+  // bar from the parent so the next lesson doesn't see two.
+  window.addEventListener('pagehide', function () {
+    if (window.parent && window.parent !== window) {
+      try {
+        var bar = window.parent.document.getElementById('audio-bar');
+        if (bar) bar.remove();
+        var st = window.parent.document.getElementById('weekly-bundle-audio-bar-css');
+        if (st) st.remove();
+      } catch (e) {}
+    }
+  });
 
   // Relocate the bundle's "play full lesson" narrate button out of the
   // hidden .top-nav and into the visible .toc-actions block. script.js

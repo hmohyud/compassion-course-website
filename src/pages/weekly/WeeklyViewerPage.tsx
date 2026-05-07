@@ -141,11 +141,7 @@ const WeeklyViewerPage: React.FC = () => {
       }
       if (typeof e.data.__weeklyIframeHeight === 'number') {
         const el = iframeRef.current;
-        if (el) {
-          // eslint-disable-next-line no-console
-          console.log('[weekly-viewer] applying iframe height', e.data.__weeklyIframeHeight, 'prev=', el.style.height);
-          el.style.height = `${e.data.__weeklyIframeHeight}px`;
-        }
+        if (el) el.style.height = `${e.data.__weeklyIframeHeight}px`;
       }
     }
     window.addEventListener('message', onMessage);
@@ -367,48 +363,39 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   // the ensuing CSS transition) results in ONE measurement per frame
   // taken after the browser has settled the layout — not a half-stale
   // measurement from the moment the class changed.
-  // Temporary instrumentation: console.log the breakdown so we can see why
-  // the iframe gets stuck at the open height after an accordion close. The
-  // logs are tagged so they're easy to grep in DevTools.
-  var WEEKLY_DEBUG_HEIGHT = true;
+  // Coalesce reportHeight calls through requestAnimationFrame so a burst
+  // of mutations only produces one measurement per frame, taken after the
+  // browser has settled layout.
+  //
+  // We deliberately exclude documentElement.scrollHeight from the
+  // measurement: in srcdoc iframes (and any page with `html { overflow-y:
+  // scroll }`, which this bundle sets) <html>.scrollHeight latches at the
+  // maximum scrollable area it has ever reported and refuses to shrink.
+  // Including it caused the iframe to grow on accordion-open but never
+  // shrink on accordion-close, leaving a huge gap above the React footer.
+  // body.scrollHeight, body.offsetHeight, and documentElement.offsetHeight
+  // all track the live layout correctly.
   var measureScheduled = false;
-  var lastReason = 'init';
   function measureAndPost() {
     measureScheduled = false;
     try {
-      var de = document.documentElement;
       var b = document.body;
-      var deScroll = de.scrollHeight;
-      var bScroll = b ? b.scrollHeight : 0;
-      var deOffset = de.offsetHeight;
-      var bOffset = b ? b.offsetHeight : 0;
-      var h = Math.max(deScroll, bScroll, deOffset, bOffset);
-      if (WEEKLY_DEBUG_HEIGHT) {
-        try {
-          // eslint-disable-next-line no-console
-          console.log(
-            '[weekly-viewer] post height',
-            h,
-            'reason=' + lastReason,
-            'de.scroll=' + deScroll,
-            'b.scroll=' + bScroll,
-            'de.offset=' + deOffset,
-            'b.offset=' + bOffset,
-          );
-        } catch (e) {}
-      }
+      var h = Math.max(
+        b ? b.scrollHeight : 0,
+        b ? b.offsetHeight : 0,
+        document.documentElement.offsetHeight
+      );
       window.parent.postMessage({ __weeklyIframeHeight: h }, '*');
     } catch (err) { /* noop */ }
   }
-  function reportHeight(reason) {
-    lastReason = reason || 'unspecified';
+  function reportHeight() {
     if (measureScheduled) return;
     measureScheduled = true;
     requestAnimationFrame(measureAndPost);
   }
   function startObserving() {
     if (window.ResizeObserver && document.body) {
-      new ResizeObserver(function () { reportHeight('resize-observer'); }).observe(document.body);
+      new ResizeObserver(reportHeight).observe(document.body);
     }
     // Also catch dynamic content (new nodes appearing). We intentionally
     // do NOT watch attribute/characterData mutations — they fire on every
@@ -416,28 +403,22 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     // and just spam reportHeight without telling us anything ResizeObserver
     // doesn't already cover.
     if (window.MutationObserver && document.body) {
-      new MutationObserver(function () { reportHeight('mutation-observer'); }).observe(document.body, {
+      new MutationObserver(reportHeight).observe(document.body, {
         childList: true, subtree: true,
       });
     }
-    // CSS transitions on accordion-body (max-height: 0 ↔ 15000px over 0.5s)
-    // can leave the body at its open height for most of the close
-    // animation; only the final ~25ms actually shrinks the box. Belt-and-
-    // suspenders: when ANY transition ends, force one more measurement so
-    // the iframe never gets stuck at the open height.
-    document.addEventListener('transitionend', function (e) {
-      var t = e && e.target;
-      var name = (t && t.className && typeof t.className === 'string') ? t.className.split(' ')[0] : 'unknown';
-      reportHeight('transitionend(' + (e && e.propertyName) + ',' + name + ')');
-    }, true);
-    reportHeight('start-observing');
+    // Final safety net: when any CSS transition ends (notably the
+    // accordion-body's max-height transition), force a measurement so we
+    // catch the post-transition stable size.
+    document.addEventListener('transitionend', reportHeight, true);
+    reportHeight();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startObserving);
   } else {
     startObserving();
   }
-  window.addEventListener('load', function () { reportHeight('window-load'); });
+  window.addEventListener('load', reportHeight);
 
   // ── Audio control bar: graft into the parent document ──────────────────
   // The bundle's #audio-bar is position:fixed, but inside an iframe with

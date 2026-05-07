@@ -659,8 +659,11 @@ const UserManagement: React.FC = () => {
                     <div>
                       <span style={{ textTransform: 'capitalize', fontSize: '0.875rem' }}>{role}</span>
                       {isAdmin(profile) && (
-                        <span style={{ marginLeft: '8px', padding: '2px 8px', background: '#002B4D', color: '#fff', borderRadius: '6px', fontSize: '0.75rem' }}>
-                          Admin
+                        <span
+                          title="This user has an entry in the admins collection (admins/{uid}) — they have full admin access."
+                          style={{ marginLeft: '8px', padding: '2px 8px', background: '#002B4D', color: '#fff', borderRadius: '6px', fontSize: '0.75rem' }}
+                        >
+                          Verified
                         </span>
                       )}
                     </div>
@@ -958,7 +961,7 @@ const UserManagement: React.FC = () => {
             </button>
           </form>
           <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '16px', marginBottom: 0 }}>
-            Admins are shown with an Admin badge in the directory above; you can revoke admin there.
+            Admins are shown with a Verified badge in the directory above; you can revoke admin there.
           </p>
         </div>
         )}
@@ -999,8 +1002,11 @@ const UserManagement: React.FC = () => {
             <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '14px' }}>
               {editingProfile.name || '—'} · {(editingProfile.role ?? 'viewer')}
               {isAdmin(editingProfile) && (
-                <span style={{ marginLeft: '8px', padding: '2px 8px', background: '#002B4D', color: '#fff', borderRadius: '6px', fontSize: '0.75rem' }}>
-                  Admin
+                <span
+                  title="This user has an entry in the admins collection (admins/{uid}) — they have full admin access."
+                  style={{ marginLeft: '8px', padding: '2px 8px', background: '#002B4D', color: '#fff', borderRadius: '6px', fontSize: '0.75rem' }}
+                >
+                  Verified
                 </span>
               )}
             </p>

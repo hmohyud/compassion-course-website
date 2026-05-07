@@ -150,7 +150,33 @@ const UserManagement: React.FC = () => {
     setError('');
     setSuccess('');
     try {
+      // First flip status from pending → active with the requested role.
       await approveUserService(uid, role);
+
+      // If approving directly as admin, also create the admins/{uid} doc so
+      // the user gets full admin access without a second step.
+      // grantAdminService re-syncs the role too — safe to call after
+      // approveUserService.
+      if (role === 'admin') {
+        const pending = pendingUsers.find((p) => p.uid === uid);
+        const email = pending?.email?.toLowerCase().trim() || '';
+        if (!email) {
+          setError(
+            'User approved, but no email on file to create admin record. Use the role buttons after refreshing.',
+          );
+        } else {
+          try {
+            await grantAdminService(uid, email);
+            setAdminIds((prev) => new Set([...prev, uid, email]));
+          } catch (e) {
+            console.error('Approve-as-admin: grant step failed', e);
+            setError(
+              'User approved, but admin record creation failed. Re-click "admin" in the directory to retry.',
+            );
+          }
+        }
+      }
+
       setSuccess(`User approved with role ${role}.`);
       await loadPendingUsers();
       await loadData();
@@ -247,7 +273,65 @@ const UserManagement: React.FC = () => {
     setSuccess('');
     setUpdatingId(userId);
     try {
-      // Sync role to both collections so Firestore rules and client UI agree
+      // Admin access is gated by the admins/{uid} doc (AuthContext only
+      // trusts that doc). Keep the role field and the admins doc in lock-
+      // step so a single click does the right thing in both places.
+      // Look up email from `profiles`, then fall back to `editingProfile`
+      // (which can be a freshly-created profile for a pending user that
+      // hasn't been reloaded into the cached list yet).
+      const profile = profiles.find((p) => p.id === userId);
+      const editingMatch =
+        editingProfile && editingProfile.id === userId ? editingProfile : null;
+      const profileEmail =
+        (profile?.email || editingMatch?.email || '').toLowerCase().trim();
+      const wasAdmin =
+        adminIds.has(userId) ||
+        (!!profileEmail && adminIds.has(profileEmail));
+
+      // CASE 1 — promoting to admin.
+      // grantAdminService writes the admins doc AND syncs role to both
+      // users + userProfiles, so we don't need a separate role update.
+      if (role === 'admin' && !wasAdmin) {
+        if (!profileEmail) {
+          throw new Error('User has no email on file; cannot create admin record.');
+        }
+        await grantAdminService(userId, profileEmail);
+        setAdminIds((prev) => new Set([...prev, userId, profileEmail]));
+        setSuccess(`Admin rights granted to ${profileEmail}.`);
+        await loadData();
+        loadPendingUsers();
+        return;
+      }
+
+      // CASE 2 — demoting an admin to a non-admin role.
+      // Run the admins-doc removal FIRST. If it throws (e.g., self-demotion
+      // is blocked at the service layer), we bail before touching the role
+      // field, leaving state consistent.
+      if (role !== 'admin' && wasAdmin) {
+        await revokeAdminService(userId);
+        // revokeAdminService demotes role to 'viewer' if the user's current
+        // users-doc role is admin/superAdmin. If the caller wants a
+        // different non-admin role, set it explicitly afterwards.
+        if (role !== 'viewer') {
+          await Promise.all([
+            updateUserProfile(userId, { role }),
+            updateUserRole(userId, role as UserRole),
+          ]);
+        }
+        setAdminIds((prev) => {
+          const next = new Set(prev);
+          next.delete(userId);
+          if (profileEmail) next.delete(profileEmail);
+          return next;
+        });
+        setSuccess(`Admin rights revoked. Role set to ${role}.`);
+        await loadData();
+        loadPendingUsers();
+        return;
+      }
+
+      // CASE 3 — no admin transition (admin → admin no-op, or any change
+      // among non-admin roles). Just sync the role field.
       await Promise.all([
         updateUserProfile(userId, { role }),
         updateUserRole(userId, role as UserRole),

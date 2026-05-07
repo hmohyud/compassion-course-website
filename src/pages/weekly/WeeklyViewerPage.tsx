@@ -255,6 +255,10 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   //    visible above the iframe. Also disable the iframe's internal
   //    scrollbar — the parent resizes the frame to content height so the
   //    outer window does all scrolling.
+  //    The bundle's script.js injects the "play full lesson" narrate button
+  //    into .top-nav .nav-controls, which would be invisible under
+  //    display:none. The early script below relocates it into .toc-actions
+  //    so it remains accessible.
   const hideBundleNavCss = `
 <style>
   .top-nav, #progress-bar { display: none !important; }
@@ -262,6 +266,42 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     padding-top: 0 !important;
     overflow: visible !important;
     height: auto !important;
+  }
+  /* Style the relocated narrate button to match the .toc-btn pill so it sits
+     naturally between Expand All / Play All / Print. */
+  .toc-actions #narrate-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.35rem 0.7rem;
+    border: 1.5px solid var(--clr-border, #d4d0c8);
+    border-radius: 50px;
+    background: var(--clr-bg, #fff);
+    color: var(--clr-text-light, #555);
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    line-height: 1;
+  }
+  .toc-actions #narrate-btn:hover {
+    border-color: var(--clr-primary, #2a7a6e);
+    color: var(--clr-primary, #2a7a6e);
+    background: rgba(42,122,110,0.04);
+  }
+  .toc-actions #narrate-btn svg {
+    width: 0.9em;
+    height: 0.9em;
+  }
+  /* Active states from script.js (data-state) — keep the playing/paused tint
+     on the icon but don't break the pill background. */
+  .toc-actions #narrate-btn[data-state="playing"],
+  .toc-actions #narrate-btn[data-state="paused"] {
+    border-color: var(--clr-primary, #2a7a6e);
+    color: var(--clr-primary, #2a7a6e);
   }
 </style>`;
 
@@ -334,6 +374,60 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     startObserving();
   }
   window.addEventListener('load', reportHeight);
+
+  // Relocate the bundle's "play full lesson" narrate button out of the
+  // hidden .top-nav and into the visible .toc-actions block. script.js
+  // creates the button after DOMContentLoaded with just an SVG icon, so we
+  // watch for it, append a "Play All" label, and slot it next to Expand All
+  // / Print so it reads naturally in the TOC header.
+  function ensurePlayAllLabel(btn) {
+    if (btn.querySelector('.play-all-label')) return;
+    var span = document.createElement('span');
+    span.className = 'play-all-label';
+    span.textContent = 'Play All';
+    btn.appendChild(span);
+  }
+  function relocateNarrateBtn() {
+    var btn = document.getElementById('narrate-btn');
+    if (!btn) return false;
+    var actions = document.querySelector('.toc-actions');
+    if (!actions) return false;
+    ensurePlayAllLabel(btn);
+    if (btn.parentElement === actions) return true;
+    btn.title = btn.title || 'Play full lesson';
+    // Sit between Expand All (first) and Print (last) — order requested by
+    // the user: Expand All / Play All / Print.
+    var printBtn = actions.querySelector('.print-btn, [onclick*="print"]');
+    if (printBtn) {
+      actions.insertBefore(btn, printBtn);
+    } else {
+      actions.appendChild(btn);
+    }
+    return true;
+  }
+  // script.js mutates the button's innerHTML on play/pause (replacing the
+  // icon), which would clobber our label. Re-append the label whenever
+  // the button's contents change.
+  function watchNarrateBtn(btn) {
+    var lo = new MutationObserver(function(){ ensurePlayAllLabel(btn); });
+    lo.observe(btn, { childList: true });
+  }
+  function tryRelocate() {
+    if (relocateNarrateBtn()) {
+      var btn = document.getElementById('narrate-btn');
+      if (btn) watchNarrateBtn(btn);
+      return true;
+    }
+    return false;
+  }
+  if (!tryRelocate()) {
+    var mo = new MutationObserver(function(){
+      if (tryRelocate()) mo.disconnect();
+    });
+    if (document.documentElement) {
+      mo.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  }
 
   document.addEventListener('click', function(e) {
     var a = e.target && e.target.closest ? e.target.closest('a') : null;

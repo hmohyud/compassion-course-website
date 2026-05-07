@@ -268,29 +268,37 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     height: auto !important;
   }
   /* Style the relocated narrate button to match the .toc-btn pill so it sits
-     naturally between Expand All / Play All / Print. */
+     naturally between Expand All / Play All / Print. The base #narrate-btn
+     rule in styles.css forces a 36×36 circle with overflow:hidden — we have
+     to explicitly reset width/height/min-width/border-radius/overflow or
+     the pill collapses into a clipped circle. */
   .toc-actions #narrate-btn {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0.35rem 0.7rem;
-    border: 1.5px solid var(--clr-border, #d4d0c8);
-    border-radius: 50px;
-    background: var(--clr-bg, #fff);
-    color: var(--clr-text-light, #555);
-    cursor: pointer;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35em;
-    line-height: 1;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 0.35rem 0.7rem !important;
+    border: 1.5px solid var(--clr-border, #d4d0c8) !important;
+    border-radius: 50px !important;
+    background: var(--clr-bg, #fff) !important;
+    color: var(--clr-text-light, #555) !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35em !important;
+    line-height: 1 !important;
   }
   .toc-actions #narrate-btn:hover {
-    border-color: var(--clr-primary, #2a7a6e);
-    color: var(--clr-primary, #2a7a6e);
-    background: rgba(42,122,110,0.04);
+    border-color: var(--clr-primary, #2a7a6e) !important;
+    color: var(--clr-primary, #2a7a6e) !important;
+    background: rgba(42,122,110,0.04) !important;
   }
   .toc-actions #narrate-btn svg {
     width: 0.9em;
@@ -300,8 +308,26 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
      on the icon but don't break the pill background. */
   .toc-actions #narrate-btn[data-state="playing"],
   .toc-actions #narrate-btn[data-state="paused"] {
-    border-color: var(--clr-primary, #2a7a6e);
-    color: var(--clr-primary, #2a7a6e);
+    border-color: var(--clr-primary, #2a7a6e) !important;
+    color: var(--clr-primary, #2a7a6e) !important;
+  }
+  /* The audio control bar inside the lesson uses position:fixed inside the
+     iframe, but with iframe scrolling="no" the iframe's "viewport" is its
+     entire content — so bottom:1.5rem pins the bar to the bottom of the
+     lesson content (above the React footer) and it doesn't track parent
+     scroll. Switch it to position:absolute with a JS-computed top that
+     tracks the parent window's viewport bottom (see syncAudioBarPosition
+     in the early script). */
+  #audio-bar {
+    position: absolute !important;
+    bottom: auto !important;
+    transition: top 0.25s ease, opacity 0.25s ease, transform 0.25s ease !important;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #audio-bar.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 </style>`;
 
@@ -374,6 +400,76 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     startObserving();
   }
   window.addEventListener('load', reportHeight);
+
+  // ── Audio control bar: pin to parent viewport ──────────────────────────
+  // The bundle's #audio-bar is position:fixed inside the iframe, but since
+  // the iframe has scrolling="no" and is sized to its content, that "fixed"
+  // anchors to the iframe content rather than the user's viewport — so the
+  // bar appears stuck above the React footer. We compute the bar's top in
+  // iframe coordinates such that its bottom is 1.5rem above the parent
+  // window's visible bottom, and re-sync on parent scroll/resize.
+  function syncAudioBarPosition() {
+    var bar = document.getElementById('audio-bar');
+    if (!bar || !window.frameElement) return;
+    var iframeRect = window.frameElement.getBoundingClientRect();
+    var parentVH = (window.parent && window.parent.innerHeight) || 0;
+    var barH = bar.offsetHeight || 56;
+    var marginPx = 24; // ≈ 1.5rem
+    // Bottom of parent's viewport, expressed in iframe-document coordinates.
+    var parentBottomInIframe = parentVH - iframeRect.top;
+    var top = parentBottomInIframe - barH - marginPx;
+    bar.style.top = top + 'px';
+    bar.style.left = '50%';
+    bar.style.transform = 'translateX(-50%)';
+  }
+  function attachAudioBarSync() {
+    try {
+      window.parent.addEventListener('scroll', syncAudioBarPosition, { passive: true });
+      window.parent.addEventListener('resize', syncAudioBarPosition);
+    } catch (e) { /* cross-origin guard, shouldn't hit in srcdoc */ }
+    // Watch for the audio bar appearing and for visibility class flips.
+    var classMo = null;
+    function startWatching(bar) {
+      if (classMo) return;
+      classMo = new MutationObserver(syncAudioBarPosition);
+      classMo.observe(bar, { attributes: true, attributeFilter: ['class', 'style'] });
+      syncAudioBarPosition();
+    }
+    function tryAttach() {
+      var bar = document.getElementById('audio-bar');
+      if (bar) { startWatching(bar); return true; }
+      return false;
+    }
+    if (!tryAttach()) {
+      var rootMo = new MutationObserver(function() {
+        if (tryAttach()) rootMo.disconnect();
+      });
+      if (document.body) {
+        rootMo.observe(document.body, { childList: true, subtree: true });
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (!tryAttach()) {
+            rootMo.observe(document.body, { childList: true, subtree: true });
+          }
+        });
+      }
+    }
+    // Re-sync on iframe-internal layout shifts too (audio bar changes height
+    // when the play state toggles between icons of different sizes).
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(syncAudioBarPosition);
+      function observeBar() {
+        var bar = document.getElementById('audio-bar');
+        if (bar) ro.observe(bar);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(observeBar, 100); });
+      } else {
+        setTimeout(observeBar, 100);
+      }
+    }
+  }
+  attachAudioBarSync();
 
   // Relocate the bundle's "play full lesson" narrate button out of the
   // hidden .top-nav and into the visible .toc-actions block. script.js

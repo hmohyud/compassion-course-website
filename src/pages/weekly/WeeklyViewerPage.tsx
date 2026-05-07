@@ -368,13 +368,14 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   // browser has settled layout.
   //
   // We deliberately exclude documentElement.scrollHeight from the
-  // measurement: in srcdoc iframes (and any page with `html { overflow-y:
-  // scroll }`, which this bundle sets) <html>.scrollHeight latches at the
-  // maximum scrollable area it has ever reported and refuses to shrink.
-  // Including it caused the iframe to grow on accordion-open but never
-  // shrink on accordion-close, leaving a huge gap above the React footer.
-  // body.scrollHeight, body.offsetHeight, and documentElement.offsetHeight
-  // all track the live layout correctly.
+  // measurement: in srcdoc iframes (and any page that sets
+  // html { overflow-y: scroll }, which this bundle does)
+  // <html>.scrollHeight latches at the maximum scrollable area it has
+  // ever reported and refuses to shrink. Including it caused the iframe
+  // to grow on accordion-open but never shrink on accordion-close,
+  // leaving a huge gap above the React footer. body.scrollHeight,
+  // body.offsetHeight, and documentElement.offsetHeight all track the
+  // live layout correctly.
   var measureScheduled = false;
   function measureAndPost() {
     measureScheduled = false;

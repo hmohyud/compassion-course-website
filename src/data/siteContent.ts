@@ -161,9 +161,9 @@ export const siteContent = {
         },
         {
           icon: 'fas fa-video',
-          heading: '12 Monthly Conferences',
+          heading: '12 Monthly Live Conferences with Thom Bond',
           description:
-            'Live 90-minute Zoom sessions with Thom Bond, joined by guest trainers from around the globe, every second Monday of the month. Review and deeper exploration, interactive Q&A, plus an additional,optional 30 minute group practice and harvest, . All sessions are recorded and accessible anytime.',
+            'Thom, along with guest trainers from around the globe, hosts 12 monthly 90-minute conferences followed by an optional 30-minute practice session via Zoom on the second Monday of each month (120 minutes total). Each session includes review, deeper exploration of the material, and interactive Q&A. Conferences are also hosted in other languages by affiliated course leaders. All sessions are recorded and may be accessed through the Global Compassion Network (our private course community platform).',
           linkText: 'Meet Thom Bond',
           linkHref: '/learn-more#about-thom',
         },

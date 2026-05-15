@@ -42,7 +42,7 @@ export const siteContent = {
     hero: {
       eyebrowDefault: 'A Guided Global Journey Into Living Compassion',
       logoAlt: 'The Compassion Course',
-      heading: 'The Compassion Course',
+      heading: 'The Compassion Course Online',
       subtitlePrefix: 'with',
       subtitleName: 'Thom Bond',
       subtitleUrl: 'https://thombond.com/',

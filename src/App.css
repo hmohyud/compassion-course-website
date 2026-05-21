@@ -1427,6 +1427,17 @@ body {
     margin-bottom: 0;
 }
 
+/* Trademark mark next to "Course" in the hero heading — tiny, raised. */
+.hero-heading .hero-tm {
+    font-size: 0.28em;
+    font-weight: 600;
+    vertical-align: super;
+    line-height: 0;
+    margin-left: 0.08em;
+    letter-spacing: 0.02em;
+    opacity: 0.85;
+}
+
 #hero-subtitle {
     display: inline-block;
     font-family: var(--font-display);

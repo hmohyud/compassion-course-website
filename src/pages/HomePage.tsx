@@ -172,7 +172,13 @@ const HomePage: React.FC = () => {
                 className="hero-logo"
               />
               <div className="hero-brand-text">
-                <h1 className="hero-heading">{home.hero.heading.split(' ').map((word, i) => <React.Fragment key={i}>{i > 0 && <br />}{word}</React.Fragment>)}</h1>
+                <h1 className="hero-heading">{home.hero.heading.split(' ').map((word, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <br />}
+                    {word}
+                    {word === 'Online' && <sup className="hero-tm" aria-hidden="true">TM</sup>}
+                  </React.Fragment>
+                ))}</h1>
                 <span id="hero-subtitle">{home.hero.subtitlePrefix} <a href={home.hero.subtitleUrl}>{home.hero.subtitleName}</a></span>
               </div>
             </div>

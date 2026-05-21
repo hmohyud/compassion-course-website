@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import JotformPopup from '../components/JotformPopup';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useTeamData } from '../hooks/useTeamData';
 import { siteContent } from '../data/siteContent';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -658,6 +659,14 @@ const LearnMorePage: React.FC = () => {
   useScrollReveal();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // Live count of "Guest Trainers Team" members (excluding any with the
+  // placeholder name "TBA"). Used by the FAQ entry to render the actual
+  // number of guest trainers without hard-coding it.
+  const { guestTrainers } = useTeamData();
+  const guestTrainerCount = guestTrainers.filter(
+    (m) => m.name?.trim().toUpperCase() !== 'TBA',
+  ).length;
+
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
@@ -1060,7 +1069,10 @@ const LearnMorePage: React.FC = () => {
                   }}
                 >
                   <p>
-                    {faq.answer}
+                    {/* Substitute {guestTrainerCount} with the live count.
+                       Currently only used by the "Who teaches the course?"
+                       FAQ entry. */}
+                    {faq.answer.replace('{guestTrainerCount}', String(guestTrainerCount))}
                     {(faq as any).linkText && (faq as any).linkUrl && (
                       <>{' '}<a href={(faq as any).linkUrl} target="_blank" rel="noopener noreferrer" className="learn-faq-link">{(faq as any).linkText}</a></>
                     )}

@@ -709,8 +709,13 @@ export const siteContent = {
         },
         {
           question: 'Who teaches the course?',
+          // {guestTrainerCount} is substituted at render time with the live
+          // count of "Guest Trainers Team" members (excluding TBA entries).
+          // See LearnMorePage's faq render.
           answer:
-            'Thom Bond wrote the Compassion Course and leads the monthly conferences. He brings over 24 years of experience studying and teaching compassionate communication, and co-founded the New York Center for Nonviolent Communication (NYCNVC).',
+            'Thom Bond wrote the Compassion Course and leads the monthly conferences, supported by {guestTrainerCount} guest trainers around the world. He brings over 24 years of experience studying and teaching compassionate communication, and co-founded the New York Center for Nonviolent Communication (NYCNVC).',
+          linkText: 'Learn more about Thom and the team',
+          linkUrl: 'https://compassioncourse.org/about',
         },
         {
           question: 'Do I need any prior experience with NVC?',

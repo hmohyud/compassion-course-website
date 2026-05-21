@@ -750,9 +750,9 @@ export const siteContent = {
         {
           question: 'What is the cost? Is financial help available?',
           answer:
-            'Standard tuition for Participants is US$240. If you can afford it, we ask that you pay this amount. Participants can also pay a reduced tuition of US$190. Tuition for the Leadership Track is the same, however it has prerequisites. Accessibility is a founding value of the course \u2014 the course is available to any inspired human, regardless of ability to pay. Alternative payment options are available, too.',
-          // linkText: 'Click here for financial aid information',
-          // linkUrl: 'https://nycnvc.org/financial-aid',
+            'Standard tuition for Participants is US$240. If you can afford it, we ask that you pay this amount. Participants can also pay a reduced tuition of US$190. Tuition for the Leadership Track is the same, however it has prerequisites. Accessibility is a founding value of the course \u2014 the course is available to any inspired human, regardless of ability to pay. Alternative payment options are available, too; reach out to us at ',
+          linkText: 'coursecoordinator@nycnvc.org',
+          linkUrl: 'coursecoordinator@nycnvc.org',
         },
         {
           question: 'How are refunds and cancellations handled?',

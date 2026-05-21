@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import JotformPopup from '../components/JotformPopup';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { useTeamData } from '../hooks/useTeamData';
+import { getGuestTrainerNames } from '../services/contentService';
 import { siteContent } from '../data/siteContent';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -659,13 +659,18 @@ const LearnMorePage: React.FC = () => {
   useScrollReveal();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Live count of "Guest Trainers Team" members (excluding any with the
-  // placeholder name "TBA"). Used by the FAQ entry to render the actual
-  // number of guest trainers without hard-coding it.
-  const { guestTrainers } = useTeamData();
-  const guestTrainerCount = guestTrainers.filter(
-    (m) => m.name?.trim().toUpperCase() !== 'TBA',
-  ).length;
+  // Live count of "Guest Trainers Team" members (TBA placeholder rows are
+  // excluded by the service). Uses a focused query that pulls only the
+  // ~10-12 guest-trainer documents — not the full team-member + language-
+  // section payload that the About-page hook would fetch.
+  const [guestTrainerCount, setGuestTrainerCount] = useState<number>(0);
+  useEffect(() => {
+    let cancelled = false;
+    getGuestTrainerNames()
+      .then((names) => { if (!cancelled) setGuestTrainerCount(names.length); })
+      .catch(() => { if (!cancelled) setGuestTrainerCount(0); });
+    return () => { cancelled = true; };
+  }, []);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);

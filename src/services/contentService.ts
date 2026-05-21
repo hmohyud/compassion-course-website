@@ -439,6 +439,70 @@ export const getTeamMembersBySection = async (teamSection: string): Promise<Team
 };
 
 /**
+ * Lightweight: fetch only the `name` field for every Guest Trainer.
+ *
+ * Used by pages that just need a count or a small label (e.g., the FAQ
+ * "supported by N guest trainers around the world"). Compared to
+ * `useTeamData()` which fetches every team member across every section
+ * plus the full language-section collection, this:
+ *   - skips the language-section fetch entirely (uses the static
+ *     "Guest Trainers Team" name plus the resolved section ID via one
+ *     small lookup)
+ *   - reads only the documents whose teamSection points at Guest
+ *     Trainers (typically ~10-12 docs vs. all 100+ team members)
+ *   - returns just an array of name strings (still a full-document read
+ *     per Firestore billing — Firestore has no field projection — but
+ *     transfers far less data than the full hook)
+ *
+ * Filters out the special placeholder "TBA" so callers can use the
+ * length as the live trainer count.
+ */
+export const getGuestTrainerNames = async (): Promise<string[]> => {
+  const GUEST_TRAINER_SECTION = 'Guest Trainers Team';
+  const isReal = (n?: string) =>
+    !!n && n.trim().toUpperCase() !== 'TBA';
+
+  if (!db) {
+    // Static fallback: pull from siteContent if Firebase isn't wired up.
+    // siteContent doesn't currently include a "Guest Trainers" section,
+    // so we return an empty list rather than a misleading hard-coded
+    // number.
+    return [];
+  }
+
+  try {
+    // Look up the section ID (one tiny query, single doc).
+    const sectionsRef = collection(db, 'teamLanguageSections');
+    const sectionSnap = await getDocs(
+      query(sectionsRef, where('name', '==', GUEST_TRAINER_SECTION), limit(1))
+    );
+    const sectionId = sectionSnap.docs[0]?.id;
+
+    // Fetch members whose teamSection points at the Guest Trainers section.
+    // Members may store either the resolved section ID (current scheme) or
+    // the legacy name string, so include both in an `in` clause.
+    const teamSectionValues = sectionId
+      ? [sectionId, GUEST_TRAINER_SECTION]
+      : [GUEST_TRAINER_SECTION];
+    const teamRef = collection(db, 'teamMembers');
+    const memberSnap = await getDocs(
+      query(
+        teamRef,
+        where('teamSection', 'in', teamSectionValues),
+        where('isActive', '==', true)
+      )
+    );
+
+    return memberSnap.docs
+      .map((d) => (d.data().name as string | undefined))
+      .filter(isReal) as string[];
+  } catch (error) {
+    console.error('Error fetching guest trainer names:', error);
+    return [];
+  }
+};
+
+/**
  * Save a team member (create or update)
  */
 export const saveTeamMember = async (

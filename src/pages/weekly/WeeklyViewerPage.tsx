@@ -315,6 +315,58 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
      position:fixed against the user's actual viewport — the iframe-side
      CSS deliberately does NOT touch the bar to avoid inflating
      scrollHeight via a positioning feedback loop.) */
+
+  /* "Back to Lesson Library" — injected into .hero-content after load.
+     Position:absolute so it sits at the top-left of the hero's centered
+     max-width box, inline with where the "Week N" label renders. This
+     keeps the link visible without pushing the rest of the hero down. */
+  .hero-back-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(-6px);
+    animation: heroBackPopIn 0.45s ease forwards 0.1s;
+  }
+  @keyframes heroBackPopIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.15rem 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+  }
+  .hero-back-link:hover {
+    border-bottom-color: rgba(255, 255, 255, 0.85);
+  }
+  .hero-back-link .hero-back-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 1.05em;
+    line-height: 1;
+  }
+  .hero-back-link:hover .hero-back-arrow {
+    transform: translateX(-3px);
+  }
+  /* On narrow hero widths the label would crowd the centered "Week N"
+     badge — collapse to arrow-only below ~620px. Screen readers still
+     get the full text via aria-label on the anchor. */
+  @media (max-width: 620px) {
+    .hero-back-link .hero-back-label { display: none; }
+    .hero-back-link .hero-back-arrow { font-size: 1.3em; }
+  }
 </style>`;
 
   // 6. Early script: intercept audio HEAD probes, redirect new Audio() calls,
@@ -571,6 +623,40 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
     });
     if (document.documentElement) {
       mo.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  }
+
+  // ── "Back to Lesson Library" link in the hero ──────────────────────────
+  // Inject as the FIRST child of .hero-content so it appears at the top of
+  // the hero, left-aligned inside the centered max-width box. The click
+  // bubbles to the global handler below which posts {__weeklyNav:
+  // 'all-weeks'} to the parent, and WeeklyViewerPage navigates to /weekly.
+  // CSS includes a fade/slide-in keyframe so the JS-driven insertion
+  // doesn't feel jarring.
+  function insertHeroBackBtn() {
+    var hero = document.querySelector('.hero-content');
+    if (!hero) return false;
+    if (hero.querySelector('.hero-back-wrapper')) return true; // idempotent
+    var wrap = document.createElement('div');
+    wrap.className = 'hero-back-wrapper';
+    var a = document.createElement('a');
+    a.className = 'hero-back-link';
+    a.href = '#';
+    a.setAttribute('data-weekly-nav', 'all-weeks');
+    a.setAttribute('aria-label', 'Back to Lesson Library');
+    a.title = 'Back to Lesson Library';
+    a.innerHTML = '<span class="hero-back-arrow" aria-hidden="true">←</span>' +
+                  '<span class="hero-back-label">Back to Lesson Library</span>';
+    wrap.appendChild(a);
+    hero.insertBefore(wrap, hero.firstChild);
+    return true;
+  }
+  if (!insertHeroBackBtn()) {
+    var heroMo = new MutationObserver(function(){
+      if (insertHeroBackBtn()) heroMo.disconnect();
+    });
+    if (document.documentElement) {
+      heroMo.observe(document.documentElement, { childList: true, subtree: true });
     }
   }
 

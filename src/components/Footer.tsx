@@ -27,6 +27,15 @@ const Footer: React.FC = () => {
               <li><Link to="/about">Our Team</Link></li>
             </ul>
           </div>
+          <div className="footer-section">
+            <h4>Follow Us</h4>
+            <ul>
+              <li><a href="https://www.instagram.com/compassioncourse/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+              <li><a href="https://www.facebook.com/compassioncourseonline/" target="_blank" rel="noopener noreferrer">Facebook (Compassion Course)</a></li>
+              <li><a href="https://www.facebook.com/NYCNVC/" target="_blank" rel="noopener noreferrer">Facebook (NYCNVC)</a></li>
+              <li><a href="https://www.youtube.com/@NYCNVC" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            </ul>
+          </div>
         </div>
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} The Compassion Course. All Rights Reserved.</p>

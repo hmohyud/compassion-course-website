@@ -223,9 +223,8 @@ const WeeklyListPage: React.FC = () => {
               <p className="member-portal-greeting">{greeting}</p>
             )}
             <p className="member-portal-lede">
-              Welcome Aboard unlocks June 23, 2026 at 12:00 PM New York time.
-              Week 1 follows on June 24, with one new lesson every Wednesday
-              at noon for the 51 Wednesdays after that.
+              Each weekly lesson is released at 12:00 PM New York time. 
+              Week one will be published at 12 noon on June 24 with one new lesson published every Wednesday at noon for the 51 Wednesdays after that.
             </p>
             <div className="member-portal-actions">
               <Link to="/portal/community" className="btn-primary">

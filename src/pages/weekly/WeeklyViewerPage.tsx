@@ -35,6 +35,13 @@ const WeeklyViewerPage: React.FC = () => {
   const { user, isAdmin, loading, adminLoading } = useAuth();
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // The injected early script inside the iframe posts a height message on
+  // first paint. If that never arrives — extension blocked the iframe,
+  // CSP / sandbox stripped the script, the bundle script.js failed to
+  // load, etc. — we surface a helpful fallback instead of leaving the
+  // user staring at a blank 400px iframe.
+  const [iframeBooted, setIframeBooted] = useState(false);
+  const [iframeStuck, setIframeStuck] = useState(false);
 
   // Pull member-session email synchronously on mount; the async useEffect
   // below verifies it against the roster before unlocking content.
@@ -140,6 +147,7 @@ const WeeklyViewerPage: React.FC = () => {
         return;
       }
       if (typeof e.data.__weeklyIframeHeight === 'number') {
+        setIframeBooted(true);
         const el = iframeRef.current;
         if (el) el.style.height = `${e.data.__weeklyIframeHeight}px`;
       }
@@ -147,6 +155,19 @@ const WeeklyViewerPage: React.FC = () => {
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
   }, []);
+
+  // Watchdog: if the iframe content never reports its height within 8s of
+  // status becoming `ready`, flip to the "stuck" state and show the help
+  // panel. The most common cause is a privacy extension blocking the
+  // bundle's script.js, which means the user is staring at a blank frame.
+  useEffect(() => {
+    if (status.kind !== 'ready') return;
+    if (iframeBooted) return;
+    const timer = window.setTimeout(() => {
+      if (!iframeBooted) setIframeStuck(true);
+    }, 8000);
+    return () => window.clearTimeout(timer);
+  }, [status.kind, iframeBooted]);
 
   if (loading || adminLoading) {
     return (
@@ -193,6 +214,32 @@ const WeeklyViewerPage: React.FC = () => {
 
   return (
     <Layout>
+      {iframeStuck && !iframeBooted && (
+        <div className="iframe-fallback weekly-viewer-fallback">
+          <h2 className="iframe-fallback-title">This lesson isn't loading</h2>
+          <p className="iframe-fallback-lede">
+            A browser extension or privacy setting is probably blocking the
+            lesson content. Try one of these:
+          </p>
+          <ul className="iframe-fallback-quick-fixes">
+            <li>Refresh the page (Cmd/Ctrl + R)</li>
+            <li>Pause ad blockers / privacy extensions (uBlock Origin, Brave Shields, AdGuard, Ghostery) for <em>compassioncourse.org</em></li>
+            <li>Try a different browser (Chrome, Firefox, or Safari)</li>
+            <li>On Safari: Settings → Privacy → temporarily uncheck "Prevent cross-site tracking"</li>
+          </ul>
+          <p>
+            Still not loading? Email{' '}
+            <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>{' '}
+            with the week number ({status.content.weekNumber}) and which browser
+            you're using, and we'll help.
+          </p>
+          <p>
+            <Link to="/weekly" className="btn-secondary">
+              ← Back to Lesson Library
+            </Link>
+          </p>
+        </div>
+      )}
       <iframe
         ref={iframeRef}
         srcDoc={status.html}

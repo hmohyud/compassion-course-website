@@ -7,7 +7,18 @@ const GCN_LOGIN_URL =
 const CommunityPage: React.FC = () => {
   const navigate = useNavigate();
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  // After 6s with no load event, surface a helpful "blocked" message
+  // explaining the likely cause (extension / privacy settings) and giving
+  // a "Open in new tab" escape hatch.
+  const [iframeStuck, setIframeStuck] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (!iframeLoaded) setIframeStuck(true);
+    }, 6000);
+    return () => window.clearTimeout(timer);
+  }, [iframeLoaded]);
 
   // On mount, move the Google Translate portal into the community header
   // so it's accessible on this page (which doesn't use Layout/Navigation).
@@ -63,10 +74,57 @@ const CommunityPage: React.FC = () => {
 
       {/* Embedded GCN login / community */}
       <div className="community-iframe-wrap">
-        {!iframeLoaded && (
+        {!iframeLoaded && !iframeStuck && (
           <div className="community-loading">
             <div className="community-loading-spinner" />
             <p>Loading community portal…</p>
+          </div>
+        )}
+        {!iframeLoaded && iframeStuck && (
+          <div className="community-loading iframe-fallback">
+            <h2 className="iframe-fallback-title">The community isn't loading here</h2>
+            <p className="iframe-fallback-lede">
+              A browser extension or privacy setting is probably blocking the
+              embed. It works fine in its own tab:
+            </p>
+            <a
+              href={GCN_LOGIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary iframe-fallback-cta"
+            >
+              Open the GCN in a new tab
+            </a>
+            <details className="iframe-fallback-details">
+              <summary>If you'd rather fix the embed</summary>
+              <ul>
+                <li>
+                  <strong>Ad blockers / privacy extensions</strong> (uBlock
+                  Origin, AdGuard, Ghostery, Privacy Badger, Brave Shields)
+                  — pause them for <em>compassioncourse.org</em>.
+                </li>
+                <li>
+                  <strong>Safari</strong> — Settings → Privacy → uncheck
+                  "Prevent cross-site tracking", or enable third-party
+                  cookies for <em>circle.so</em>.
+                </li>
+                <li>
+                  <strong>Firefox</strong> — lower Enhanced Tracking
+                  Protection from "Strict" to "Standard" for this site.
+                </li>
+                <li>
+                  <strong>Work or school network</strong> — the network may
+                  block Circle. Try a phone hotspot or home network.
+                </li>
+              </ul>
+              <p>
+                Still stuck? Email{' '}
+                <a href="mailto:coursecoordinator@nycnvc.org">
+                  coursecoordinator@nycnvc.org
+                </a>{' '}
+                and we'll help.
+              </p>
+            </details>
           </div>
         )}
         <iframe

@@ -38,15 +38,49 @@ const CirclePage: React.FC = () => {
               </div>
               {iframeStuck && (
                 <div className="iframe-fallback">
-                  <p>The Community isn't loading here?</p>
+                  <h2 className="iframe-fallback-title">The community isn't loading here</h2>
+                  <p className="iframe-fallback-lede">
+                    This usually means a browser extension or privacy setting is
+                    blocking the embed. The community works fine in its own tab:
+                  </p>
                   <a
                     href={CIRCLE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary"
+                    className="btn-primary iframe-fallback-cta"
                   >
                     Open the GCN in a new tab
                   </a>
+                  <details className="iframe-fallback-details">
+                    <summary>If you'd rather fix the embed</summary>
+                    <ul>
+                      <li>
+                        <strong>Ad blockers / privacy extensions</strong> (uBlock
+                        Origin, AdGuard, Ghostery, Privacy Badger, Brave Shields)
+                        — pause them for <em>compassioncourse.org</em>.
+                      </li>
+                      <li>
+                        <strong>Safari</strong> — Settings → Privacy → uncheck
+                        "Prevent cross-site tracking", or enable third-party
+                        cookies for <em>circle.so</em>.
+                      </li>
+                      <li>
+                        <strong>Firefox</strong> — lower Enhanced Tracking
+                        Protection from "Strict" to "Standard" for this site.
+                      </li>
+                      <li>
+                        <strong>Work or school network</strong> — the network
+                        may block Circle. Try a phone hotspot or home network.
+                      </li>
+                    </ul>
+                    <p>
+                      Still stuck? Email{' '}
+                      <a href="mailto:coursecoordinator@nycnvc.org">
+                        coursecoordinator@nycnvc.org
+                      </a>{' '}
+                      and we'll help.
+                    </p>
+                  </details>
                 </div>
               )}
             </div>

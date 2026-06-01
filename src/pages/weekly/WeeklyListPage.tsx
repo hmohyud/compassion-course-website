@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Layout from '../../components/Layout';
@@ -12,7 +12,6 @@ import {
   setMemberSessionEmail,
   clearMemberSession,
 } from '../../services/memberSession';
-import { buildGreeting } from '../../utils/greetings';
 
 // 2026 Member Portal — Lesson Library.
 //
@@ -139,21 +138,8 @@ const WeeklyListPage: React.FC = () => {
     setEmailInput('');
   }
 
-  // Greeting variant locked once per member so the page doesn't show
-  // one variant during the loading flash and a different one once the
-  // member doc resolves. Computed at the top level (before any early
-  // returns) so the hook order stays stable across renders — moving
-  // useMemo below an `if (...) return` triggers React error #310
-  // ("Rendered more hooks than during the previous render").
-  const greeting = useMemo(() => {
-    if (isAdmin || !member) return null;
-    return buildGreeting({
-      name: member.name,
-      city: member.city,
-      state: member.state,
-      country: member.country,
-    });
-  }, [isAdmin, member?.email]);
+  // (Per-user greeting removed — once we move to shared/generic sign-in
+  // links there isn't a single user identity to greet by name.)
 
   // ── Renders ──────────────────────────────────────────────────────────────
 
@@ -219,9 +205,6 @@ const WeeklyListPage: React.FC = () => {
           <header className="member-portal-header">
             <span className="member-portal-eyebrow">2026 Member Portal</span>
             <h1>Lesson Library</h1>
-            {greeting && (
-              <p className="member-portal-greeting">{greeting}</p>
-            )}
             <p className="member-portal-lede">
               Each weekly lesson is released at 12:00 PM New York time. 
               Week one will be published at 12 noon on June 24 with one new lesson published every Wednesday at noon for the 51 Wednesdays after that.

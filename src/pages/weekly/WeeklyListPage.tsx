@@ -12,6 +12,7 @@ import {
   setMemberSessionEmail,
   clearMemberSession,
 } from '../../services/memberSession';
+import { useEmailLinkSignIn, consumeEmailLinkAttempt } from '../../hooks/useEmailLinkSignIn';
 
 // 2026 Member Portal — Lesson Library.
 //
@@ -31,9 +32,24 @@ import {
 const WeeklyListPage: React.FC = () => {
   const { isAdmin } = useAuth();
 
+  // Synchronously process ?email=... sign-in links BEFORE the rest of the
+  // component reads any session state. If a valid email was in the URL,
+  // the session is already in localStorage by the time anything else runs.
+  useEmailLinkSignIn();
+
   // ── Member email session ─────────────────────────────────────────────────
   const [member, setMember] = useState<MemberRecord | null>(null);
-  const [memberCheckState, setMemberCheckState] = useState<'idle' | 'checking' | 'verified' | 'unknown'>('idle');
+  // Initial state reflects whether a session is already present (set by
+  // useEmailLinkSignIn above, or remembered from a previous visit). Starting
+  // in 'checking' when a session exists avoids a flash of the email form
+  // before the verify-useEffect resolves.
+  const [memberCheckState, setMemberCheckState] = useState<'idle' | 'checking' | 'verified' | 'unknown'>(
+    () => (typeof window !== 'undefined' && getMemberSessionEmail()) ? 'checking' : 'idle',
+  );
+  // If the URL-link's email gets rejected by the roster check, we capture
+  // the attempted email here so the email-gate can show "we couldn't find
+  // X, please re-enter" instead of the generic form.
+  const [linkRejectedEmail, setLinkRejectedEmail] = useState<string | null>(null);
 
   // Email entry form state
   const [emailInput, setEmailInput] = useState('');
@@ -67,6 +83,10 @@ const WeeklyListPage: React.FC = () => {
           // Email no longer on roster (admin removed?); clear stale session.
           clearMemberSession();
           setMemberCheckState('idle');
+          // If this email came from a URL link, surface a tailored error so
+          // the user understands the link itself is what failed.
+          const attemptedFromLink = consumeEmailLinkAttempt();
+          if (attemptedFromLink) setLinkRejectedEmail(attemptedFromLink);
         }
       } catch (err) {
         console.error('Member lookup failed', err);
@@ -143,7 +163,28 @@ const WeeklyListPage: React.FC = () => {
 
   // ── Renders ──────────────────────────────────────────────────────────────
 
-  // 1. Email gate — non-admin and no verified session yet
+  // 1a. Verifying an existing session (URL link or remembered email) —
+  // show a quiet loading state instead of the email form so users coming
+  // in via a sign-in link don't see a flash of the form before unlock.
+  if (!isAdmin && memberCheckState === 'checking') {
+    return (
+      <Layout>
+        <section className="member-portal-placeholder">
+          <div className="container">
+            <div className="member-portal-placeholder-inner" style={{ textAlign: 'center' }}>
+              <span className="member-portal-eyebrow">2026 Member Portal</span>
+              <h1>Signing you in…</h1>
+              <p className="member-portal-lede">
+                One moment while we check your access.
+              </p>
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
+  // 1b. Email gate — non-admin and no verified session yet
   if (!isAdmin && memberCheckState !== 'verified') {
     return (
       <Layout>
@@ -158,6 +199,18 @@ const WeeklyListPage: React.FC = () => {
                 head straight to the GCN.
               </p>
 
+              {linkRejectedEmail && (
+                <p className="member-portal-error">
+                  The link you used was for <strong>{linkRejectedEmail}</strong>,
+                  but that email isn't on the 2026 cohort roster. If you
+                  registered with a different email, please enter it below —
+                  otherwise contact us at{' '}
+                  <a href="mailto:coursecoordinator@nycnvc.org">
+                    coursecoordinator@nycnvc.org
+                  </a>.
+                </p>
+              )}
+
               <form onSubmit={onEmailSubmit} className="member-portal-emailform">
                 <input
                   type="email"
@@ -165,16 +218,16 @@ const WeeklyListPage: React.FC = () => {
                   value={emailInput}
                   onChange={(e) => { setEmailInput(e.target.value); setSignInError(null); }}
                   placeholder="you@example.com"
-                  disabled={submitting || memberCheckState === 'checking'}
+                  disabled={submitting}
                   autoFocus
                   className="member-portal-emailinput"
                 />
                 <button
                   type="submit"
-                  disabled={submitting || !emailInput.trim() || memberCheckState === 'checking'}
+                  disabled={submitting || !emailInput.trim()}
                   className="btn-primary"
                 >
-                  {submitting ? 'Checking…' : memberCheckState === 'checking' ? 'Checking…' : 'Enter'}
+                  {submitting ? 'Checking…' : 'Enter'}
                 </button>
               </form>
 

@@ -12,6 +12,7 @@ import {
 } from '../../services/weeklyContentService';
 import { getMember } from '../../services/memberService';
 import { getMemberSessionEmail, clearMemberSession } from '../../services/memberSession';
+import { useEmailLinkSignIn } from '../../hooks/useEmailLinkSignIn';
 
 // Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
 // Layout-wrapped, with the bundle rendered inside a srcdoc iframe for CSS
@@ -31,6 +32,11 @@ type Status =
   | { kind: 'ready'; html: string; content: WeeklyContent };
 
 const WeeklyViewerPage: React.FC = () => {
+  // Process ?email=... sign-in links BEFORE getMemberSessionEmail() reads
+  // localStorage below, so a fresh URL link unlocks access on first render
+  // without bouncing the user to /weekly to type their email.
+  useEmailLinkSignIn();
+
   const { weekNum } = useParams<{ weekNum: string }>();
   const { user, isAdmin, loading, adminLoading } = useAuth();
   const [status, setStatus] = useState<Status>({ kind: 'loading' });

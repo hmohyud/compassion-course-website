@@ -4175,6 +4175,7 @@ blockquote.typewriter-complete .typewriter-cursor {
   function initSectionNarration() {
     var cards = document.querySelectorAll('.section-card');
     cards.forEach(function (card) {
+      if (card.id === 'info' || card.id === 'resources') return;
       var header = card.querySelector('.accordion-header');
       var body = card.querySelector('.accordion-body');
       if (!header || !body) return;
@@ -4410,6 +4411,7 @@ blockquote.typewriter-complete .typewriter-cursor {
     var cards = document.querySelectorAll('.section-card');
     _narrationQueue = [];
     cards.forEach(function (card) {
+      if (card.id === 'info' || card.id === 'resources') return;
       var header = card.querySelector('.accordion-header');
       var body = card.querySelector('.accordion-body');
       if (!header || !body) return;

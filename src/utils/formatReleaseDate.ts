@@ -1,5 +1,5 @@
 /**
- * Format a YYYY-MM-DD calendar date as a verbal string like "June 24".
+ * Format a YYYY-MM-DD calendar date as a verbal string like "June 24, 2026".
  *
  * The course's release dates are stored as ISO calendar dates (no time
  * component) and refer to a moment in Eastern time. Displaying the raw
@@ -10,9 +10,10 @@
  *
  * The weekday is intentionally omitted — every weekly lesson releases on
  * a Wednesday, so a "Wed," prefix is redundant noise on the Lesson
- * Library. The year is omitted too — all 52 releases land in the same
- * cohort year and the page context already makes the year obvious. If we
- * ever publish across calendar years we can pass `{ year: 'numeric' }`.
+ * Library. The year IS shown: the 52-week course spans June 2026 into
+ * June 2027, so later weeks legitimately fall in 2027. The year comes
+ * straight from each date string, so it's always correct per-week — never
+ * a blanket value.
  */
 export function formatReleaseDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '';
@@ -28,6 +29,7 @@ export function formatReleaseDate(dateStr: string | null | undefined): string {
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
+    year: 'numeric',
     timeZone: 'UTC',
   });
 }

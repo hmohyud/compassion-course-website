@@ -13,6 +13,7 @@ import {
   clearMemberSession,
 } from '../../services/memberSession';
 import { useEmailLinkSignIn, consumeEmailLinkAttempt } from '../../hooks/useEmailLinkSignIn';
+import { formatReleaseDate } from '../../utils/formatReleaseDate';
 
 // 2026 Member Portal — Lesson Library.
 //
@@ -259,7 +260,7 @@ const WeeklyListPage: React.FC = () => {
             <span className="member-portal-eyebrow">2026 Member Portal</span>
             <h1>Lesson Library</h1>
             <p className="member-portal-lede">
-              Each weekly lesson is released at 12:00 PM New York time. 
+              Each weekly lesson is released at 12:00 PM ET.
               Week one will be published at 12 noon on June 24 with one new lesson published every Wednesday at noon for the 51 Wednesdays after that.
             </p>
             <div className="member-portal-actions">
@@ -321,7 +322,7 @@ const WeeklyListPage: React.FC = () => {
                     <div className="weekly-list-card-num">Week {w.weekNumber}</div>
                     <h3 className="weekly-list-card-title">{w.title || '(untitled)'}</h3>
                     <div className="weekly-list-card-meta">
-                      <span>Releases: {w.releaseDate}</span>
+                      <span>Releases: {formatReleaseDate(w.releaseDate)}</span>
                       {!released && <span className="weekly-list-card-badge">Coming soon</span>}
                     </div>
                   </>

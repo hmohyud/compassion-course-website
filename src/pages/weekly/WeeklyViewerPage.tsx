@@ -13,6 +13,7 @@ import {
 import { getMember } from '../../services/memberService';
 import { getMemberSessionEmail, clearMemberSession } from '../../services/memberSession';
 import { useEmailLinkSignIn } from '../../hooks/useEmailLinkSignIn';
+import { formatReleaseDate } from '../../utils/formatReleaseDate';
 
 // Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
 // Layout-wrapped, with the bundle rendered inside a srcdoc iframe for CSS
@@ -98,7 +99,7 @@ const WeeklyViewerPage: React.FC = () => {
                 access.reason === 'unpublished'
                   ? 'This week is not yet published.'
                   : access.reason === 'not-released'
-                    ? `This week unlocks on ${content.releaseDate} at 12:00 PM New York time.`
+                    ? `This week unlocks on ${formatReleaseDate(content.releaseDate)} at 12:00 PM ET.`
                     : 'You do not have permission to view this week.',
             });
           return;

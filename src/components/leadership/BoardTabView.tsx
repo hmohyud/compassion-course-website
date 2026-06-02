@@ -712,7 +712,9 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   const [dropTargetLane, setDropTargetLane] = useState<WorkItemLane | null>(null);
   const [dropTargetColumn, setDropTargetColumn] = useState<WorkItemStatus | null>(null);
   const [dropInsertIndex, setDropInsertIndex] = useState<number | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  // Which swim lane's "Add task" form is open (null = none). Each lane has
+  // its own add button so a new task is pre-set to that priority.
+  const [createLane, setCreateLane] = useState<WorkItemLane | null>(null);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showDoneHistory, setShowDoneHistory] = useState(false);
@@ -993,7 +995,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
           }
         }
       }
-      setShowCreateForm(false);
+      setCreateLane(null);
       onRefresh();
     } catch (err) {
       console.error(err);
@@ -1078,35 +1080,6 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
   return (
     <>
-      {/* Add-task toolbar — visible to admins and members of this team. */}
-      {canAddTask && !showCreateForm && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
-          <button
-            type="button"
-            className="ld-create-team-btn"
-            onClick={() => setShowCreateForm(true)}
-          >
-            <i className="fas fa-plus" aria-hidden />
-            &nbsp;Add task
-          </button>
-        </div>
-      )}
-      {showCreateForm && (
-        <div style={{ marginBottom: '18px' }}>
-          {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
-          <TaskForm
-            mode="create"
-            defaultStatus="todo"
-            teamId={teamId}
-            teamMemberIds={memberIds}
-            memberLabels={memberLabels}
-            memberAvatars={memberAvatars}
-            onSave={handleCreateSave}
-            onCancel={() => { setShowCreateForm(false); setSaveError(null); }}
-          />
-        </div>
-      )}
-
       {backlogCount > 0 && !showBacklogOnBoard && (
         <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '12px' }}>
           {backlogCount} task{backlogCount !== 1 ? 's' : ''} in backlog — use the Team tab to move them onto the board.
@@ -1127,18 +1100,45 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
               <div
                 className="ld-board-lane-label"
                 style={{
-                  color: LANE_META[lane].color,
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
                   marginBottom: 8,
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'space-between',
                   gap: 6,
                 }}
               >
-                <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
-                {LANE_META[lane].label}
+                <span style={{ color: LANE_META[lane].color, fontWeight: 600, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
+                  {LANE_META[lane].label}
+                </span>
+                {canAddTask && createLane !== lane && (
+                  <button
+                    type="button"
+                    className="ld-board-lane-add-btn"
+                    onClick={() => { setCreateLane(lane); setSaveError(null); }}
+                    title={`Add a ${LANE_META[lane].label.toLowerCase()} task`}
+                  >
+                    <i className="fas fa-plus" aria-hidden />
+                    &nbsp;Add task
+                  </button>
+                )}
               </div>
+              {createLane === lane && (
+                <div style={{ marginBottom: '14px' }}>
+                  {saveError && <p style={{ color: '#dc2626', marginBottom: '12px' }}>{saveError}</p>}
+                  <TaskForm
+                    mode="create"
+                    defaultStatus="todo"
+                    defaultLane={lane}
+                    teamId={teamId}
+                    teamMemberIds={memberIds}
+                    memberLabels={memberLabels}
+                    memberAvatars={memberAvatars}
+                    onSave={handleCreateSave}
+                    onCancel={() => { setCreateLane(null); setSaveError(null); }}
+                  />
+                </div>
+              )}
               <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
                 {effectiveColumns.map((col) => (
                   <BoardColumn
@@ -1149,7 +1149,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
                     memberLabels={memberLabels}
                     memberAvatars={memberAvatars}
                     onEditItem={setEditingItem}
-                    onAddItem={() => setShowCreateForm(true)}
+                    onAddItem={() => setCreateLane(lane)}
                     onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
                     dropPreviewIndex={dropTargetLane === lane && dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
                     dropPreviewItem={dropTargetLane === lane && dropTargetColumn === col.id ? dropPreviewItem : null}

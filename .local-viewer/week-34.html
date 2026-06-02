@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 34: Being Responsive versus Being Responsible — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="34"] {
+      --wk-primary: #a16a2c;
+      --wk-primary-dark: #7a4f1d;
+      --wk-accent: #5a8a7a;
+      --wk-tint: rgba(161,106,44,0.08);
+      --wk-hero-a: #7a4f1d;
+      --wk-hero-b: #a16a2c;
+    }
+    body[data-week="34"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="34"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="34"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="34"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="34"] .story-title::before,
+    body[data-week="34"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="34"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="34"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="34"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="34"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="34"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="34"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="34"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="34"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="34"] .lesson-subhead { color: #f3e9d2; }
+    body[data-week="34"] .epigraph { margin: 1.6rem auto 1.2rem; max-width: 32em; text-align: center; }
+    body[data-week="34"] .epigraph blockquote {
+      font-family: 'Playfair Display', Georgia, serif; font-style: italic;
+      font-size: 1.1rem; line-height: 1.55; color: var(--wk-primary-dark);
+      margin: 0; padding: 0.6rem 0; position: relative;
+    }
+    body[data-week="34"] .epigraph blockquote::before {
+      content: '\201C'; position: absolute; left: -0.4em; top: -0.15em;
+      color: var(--wk-accent); font-size: 2.5em; opacity: 0.4; line-height: 1;
+    }
+    body[data-week="34"] .epigraph figcaption {
+      font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;
+      opacity: 0.75; margin-top: 0.3rem;
+    }
+    body.dark-mode[data-week="34"] .epigraph blockquote { color: #f3e9d2; }
+    /* Responsible vs Responsive comparison row */
+    body[data-week="34"] .responsive-table {
+      margin: 1.4rem 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    body[data-week="34"] .rt-row { display: grid; grid-template-columns: 1fr 1fr; }
+    body[data-week="34"] .rt-row > div { padding: 0.9rem 1rem; }
+    body[data-week="34"] .rt-row > div:first-child { background: rgba(176,107,90,0.08); border-right: 1px solid rgba(0,0,0,0.06); }
+    body[data-week="34"] .rt-row > div:last-child { background: var(--wk-tint); }
+    body[data-week="34"] .rt-row.rt-hdr > div {
+      font-family: 'Playfair Display', Georgia, serif; font-weight: 600;
+      font-size: 0.95rem; letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    body[data-week="34"] .rt-row.rt-hdr > div:first-child { color: #8a4f42; }
+    body[data-week="34"] .rt-row.rt-hdr > div:last-child { color: var(--wk-primary-dark); }
+    @media (max-width: 600px) {
+      body[data-week="34"] .rt-row { grid-template-columns: 1fr; }
+      body[data-week="34"] .rt-row > div:first-child { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    }
+  </style>
+</head>
+<body data-week="34" data-theme="amber">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 34</span>
+      <h1>Being Responsive versus Being Responsible</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Being Responsive versus Being Responsible</h3>
+            <figure class="epigraph">
+              <blockquote>"If you want to be miserable, listen to another person's anger. If you want to be depressed, believe it."</blockquote>
+              <figcaption>&mdash; Marshall B. Rosenberg</figcaption>
+            </figure>
+            <p>As we discussed last week, we can see anger in a different light. Instead of seeing it simply as the result of actions or words, we can add the understanding that both <span class="nvc-word" data-nvc="needs">needs</span> and <span class="nvc-word" data-nvc="judgment">judgment</span> play a role in its conception. This allows us a new way to relate to and process our own anger and anger in others.</p>
+            <h4 class="lesson-subhead">Unhooking from Responsible</h4>
+            <p>Again, as we discussed last week, we can see anger as a combination of unmet <span class="nvc-word" data-nvc="needs">needs</span> and "<span class="nvc-word" data-nvc="judgment">judgment</span> thinking" that generates our experience.</p>
+            <p>This allows us to "unhook" our anger from someone else's actions or words and allows us to "unhook" ourselves from another's anger. In this process of unhooking, we stop seeing others as being responsible for "making" us angry and stop seeing ourselves as "responsible" for "making" others angry.</p>
+            <p>So does that mean if someone "gets angry at us" that we simply say, "That's not my problem. It's your <span class="nvc-word" data-nvc="needs">needs</span> and <span class="nvc-word" data-nvc="judgments">judgments</span> that are your problem so get over it"? As you can imagine, that wouldn't do much in the way of creating a <span class="nvc-word" data-nvc="connection">connection</span>.</p>
+            <h4 class="lesson-subhead">Being Responsive</h4>
+            <p><span class="key-concept" data-concept="week-thesis">Although I am not "responsible" for someone's anger, I can be "responsive" to them. In the process of "unhooking" from responsibility, I am less likely to disconnect, shut down or defend and more likely to care and connect.</span></p>
+            <p>When I can take "blame", "fault" and "should have/shouldn't have" thinking out of the equation, I drastically increase the chances of having a more connected, <span class="nvc-word" data-nvc="compassionate">compassionate</span> interaction.</p>
+            <div class="responsive-table">
+              <div class="rt-row rt-hdr"><div>In the realm of "Responsible"</div><div>In the realm of "Responsive"</div></div>
+              <div class="rt-row"><div>I am acting from an awareness of "the other person's reaction or <span class="nvc-word" data-nvc="judgment">judgment</span>"</div><div>I'm acting out of an awareness of my <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> in relation to the other person's feelings and needs</div></div>
+            </div>
+            <h4 class="lesson-subhead">The Challenge</h4>
+            <p>For me, this is an ongoing challenge. When I am facing someone's anger, particularly when my actions are involved, my "habitual mind" can easily slip into "responsible" mode. In this place, I can start thinking in terms of blame or right/wrong, and if defensiveness takes over, my <span class="nvc-word" data-nvc="connection">connection</span> to life diminishes. Especially in charged or intense situations, it is a considerable challenge to slow down (see Week 12) and shift my thoughts from <span class="nvc-word" data-nvc="judgments">judgments</span> to the life energy that is present beneath them.</p>
+            <h4 class="lesson-subhead">The Opportunity</h4>
+            <p>With practice, we can learn to move from "responsible" to "responsive". We can transform disconnecting moments into connecting moments. This practice of shifting our awareness from <span class="nvc-word" data-nvc="judgment">judgment</span> thoughts to an awareness of <span class="nvc-word" data-nvc="needs">needs</span> offers all of us a more connected, <span class="nvc-word" data-nvc="compassionate">compassionate</span> experience in life, often when we <span class="nvc-word" data-nvc="need">need</span> it the most.</p>
+            <p>More to come, as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">A Lesson from Harpo</h3>
+            <p class="story-lede">Some years ago, when I was moving into my then new home, I got a lesson in <span class="nvc-word" data-nvc="compassion">compassion</span> from my dog Harpo. Completing the move while keeping up with my training and speaking schedule was an exhausting experience for me.</p>
+            <p>During that time, at the end of a particularly tough drive, at the end of a particularly tough day, at the end of a particularly tough week, I finally arrived home. I could not wait to take a shower and settle into bed for some greatly needed rest. "Ah, home, sweet home", I thought to myself as I walked toward the front door. As I opened the door, a foul yet recognizable stench engulfed my senses.</p>
+            <p>I carefully stepped into the house to find that Harpo had made a "mistake" on the living room rug. A big mistake - one that continued into the dining room as well - and into the kitchen and the rear hallway.</p>
+            <p>I was exhausted, at the end of my energy supply and the last thing I wanted to do was clean every rug on the first floor of my house. At that point, you could say I lost my composure - Alright, I went bonkers.</p>
+            <p>I started screaming, in a rant of anger at Harpo. "What were you thinking?! How could you do this?! You know better than this!" I went on, yelling and swearing at him.</p>
+            <p>As I was in the middle of my rant, Harpo trotted over and sat himself directly in front of me looking up. His eyes contained what I can only describe as a look of pure concern and love, as if to say, "Are you OK, Thom?"</p>
+            <p>Suddenly (I mean suddenly), I could feel the anger melting inside me, as Harpo's concern engendered an unexpected, instant <span class="nvc-word" data-nvc="connection">connection</span>. I leaned down and rubbed his little head as I spoke. "Someone's not <span class="nvc-word" data-nvc="feeling">feeling</span> well".</p>
+            <p>Harpo was not hearing my blame. He was not being "responsible" for my anger. He was simply being "responsive" to my pain and his desire for my well-being. I was in awe of his ability to show such <span class="nvc-word" data-nvc="compassion">compassion</span> in the midst of my anger.</p>
+            <p>Although Harpo died that summer, the gift of that moment will stay with me for the rest of my life.</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w34-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w34-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Moving from Responsible to Responsive</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of a situation where you have been thinking that you are responsible for someone's anger. Write it down.</p>
+              <p>Next, give yourself (or better yet receive) empathy for what is alive in you about this situation. After some time and empathy, you may become curious about the other person's experience and want more understanding and connection with them. If so, proceed. If not so, continue receiving empathy (all things in their own time).</p>
+              <p>Next, see if you can connect with that person's pain. Write down your best understanding of what it might be like for them. Not their thoughts - their feelings, their pain. The needs of theirs that are unmet and how important those needs must be to them.</p>
+              <p>Note: You may be thinking "I don't really know what they're experiencing". I suggest that doesn't stop us from wondering, or even imagining, what it might be like for them. In my experience, it's the process of wondering that brings the compassion and the connection, not a precise depiction.</p>
+              <p>This can be a very powerful exercise if we use our skills of slowing down, translating judgments, seeing and connecting to feelings and needs (embodiment, mourning).</p>
+              <p>Finally, see if you can imagine any connection requests you might make. (Hint for this: See Week 15. Ask yourself, "What would Harpo do?").</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-slider">
+                <h5>Intensity check</h5>
+                <p class="cc-widget-hint">Notice the moment you felt activated. Pull the slider to mark how charged it felt — then again after pausing for one slow breath.</p>
+                <label>Before pause: <input type="range" min="0" max="10" data-key="practice-1-before"></label>
+                <label>After pause: <input type="range" min="0" max="10" data-key="practice-1-after"></label>
+              </div>
+              <textarea class="journal-area" id="journal-p1" placeholder="What I noticed in the gap..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

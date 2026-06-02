@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 23: Apologies Versus Restoration — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="23"] {
+      --wk-primary: #a8843e;
+      --wk-primary-dark: #7a5f2c;
+      --wk-accent: #456a85;
+      --wk-tint: rgba(168,132,62,0.08);
+      --wk-hero-a: #7a5f2c;
+      --wk-hero-b: #a8843e;
+    }
+    body[data-week="23"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="23"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="23"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="23"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="23"] .story-title::before,
+    body[data-week="23"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="23"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="23"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="23"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="23"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="23"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="23"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="23"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="23"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="23"] .lesson-subhead { color: #f3e9d2; }
+    body[data-week="23"] .dialogue-line {
+      margin: 0.5rem 0; padding: 0.6rem 0.9rem; border-radius: 10px; max-width: 44em;
+    }
+    body[data-week="23"] .dialogue-line.speaker-self { background: var(--wk-tint); border-left: 3px solid var(--wk-primary); }
+    body[data-week="23"] .dialogue-line.speaker-other { background: rgba(0,0,0,0.04); border-left: 3px solid var(--wk-accent); }
+    body[data-week="23"] .dialogue-line .speaker-name { font-weight: 600; color: var(--wk-primary-dark); margin-right: 0.35em; }
+    body[data-week="23"] .dialogue-line.speaker-other .speaker-name { color: var(--wk-accent); }
+    body[data-week="23"] .dialogue-line .speaker-stage {
+      font-style: italic; font-size: 0.88rem; color: var(--wk-accent); opacity: 0.75;
+      margin-right: 0.4em;
+    }
+    body.dark-mode[data-week="23"] .dialogue-line.speaker-other { background: rgba(255,255,255,0.05); }
+    body.dark-mode[data-week="23"] .dialogue-line .speaker-name { color: #f3e9d2; }
+  </style>
+</head>
+<body data-week="23" data-theme="gold">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 23</span>
+      <h1>Apologies Versus Restoration</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3>"Apologies Versus Restoration"</h3>
+            <aside class="pull-quote">There's a difference between doing something 'wrong' and doing something we regret.</aside>
+            <p><span class="key-concept" data-concept="week-thesis">During my workshops, people often ask what role forgiveness plays in <span class="nvc-word" data-nvc="compassionate">compassionate</span> living. The answer is always the same. We don't have to forgive someone who hasn't done anything wrong. Without "wrongness" or blame or <span class="nvc-word" data-nvc="judgment">judgment</span> in the picture, we are more able to focus on understanding and seeing if there is a way to restore our <span class="nvc-word" data-nvc="connection">connection</span>.</span></p>
+            <h4 class="lesson-subhead">Wrong vs. Regret</h4>
+            <p>Throughout this course, we have learned that we can see all actions as an attempt to meet <span class="nvc-word" data-nvc="needs">needs</span>, even actions we find objectionable (see Week 1, link can be found on the GCN). We have also learned that needs can be seen as a driving force behind all <span class="nvc-word" data-nvc="judgments">judgments</span>, and that we can focus on those needs as opposed to the judgments they spawn (see Week 8). In this needs awareness we are more likely to stay connected, or get back to a connected state, even when people (including ourselves) do things we don't like.</p>
+            <p>We can use this way of thinking to bring focus to what we are wanting to experience, as opposed to what someone has done wrong. This, in turn, increases the chances of making <span class="nvc-word" data-nvc="compassionate">compassionate</span> <span class="nvc-word" data-nvc="requests">requests</span> and creating a more connected life in the future.</p>
+            <p>We can think this way about our own actions as well (see Week 14). When I see myself as "wrong", my focus and awareness is disconnected from my life energy (<span class="nvc-word" data-nvc="needs">needs</span>) and way more connected to my habitual thoughts and <span class="nvc-word" data-nvc="judgments">judgments</span>.</p>
+            <p>Over time, with practice, I have learned to see that when I do things that I judge as wrong, it's almost always because I didn't meet my own <span class="nvc-word" data-nvc="needs">needs</span>. By relating to myself on this needs level, I can more readily understand that I would have liked to have done something differently, as opposed to thinking I had done something "wrong". In other words, I can regret my actions without <span class="nvc-word" data-nvc="judging">judging</span> myself.</p>
+            <h4 class="lesson-subhead"><span class="nvc-word" data-nvc="compassion">Compassion</span> Turned Inward</h4>
+            <p>In <span class="nvc-word" data-nvc="judgment">judgment</span>, I become disconnected from myself and often experience shame and guilt. When I become aware of my <span class="nvc-word" data-nvc="needs">needs</span>, I can more readily focus on restoring <span class="nvc-word" data-nvc="connection">connection</span> as opposed to "beating myself up".</p>
+            <p>In <span class="nvc-word" data-nvc="needs">needs</span> consciousness, I can more clearly see and understand that I was simply being human, trying to meet my needs. I can start to see my own actions in terms of "needs met, needs not met" - "worked, didn't work".</p>
+            <p>From this place of <span class="nvc-word" data-nvc="compassion">compassion</span> for me, I can move toward others. I can express my regrets to them in a heartfelt, connecting way, as opposed to a self-critical and shameful way. I have also noticed again and again that, when I'm in <span class="nvc-word" data-nvc="needs">needs</span> consciousness, I can more readily create a picture in my mind of what I would prefer to do in the future.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Kitchen Disconnect</h3>
+            <p class="story-lede">One day I noticed my partner had put my fine Japanese steel knife in our metal dish rack. When I saw it there I became very upset - OK, I freaked out. In my semi-panicked state I yelled out, "Knives don't go in the dish rack; you're going to ruin it!" In that moment I watched her go to surprise then to fear, then anger. She stepped away.</p>
+            <p>In that moment, it was clear to me things were not going well. I was angry, she was resentful - we were disconnected. I could have easily considered my actions to be "wrong". Earlier in my life, this would have brought on shame and guilt - I could have easily retreated to protect myself or worse, justified my actions by making her "wrong", thinking she should have known better. Instead, I noticed the disconnection and looked for a way to bring us back to our normal, more connected state.</p>
+            <p>With some inner exploration, it occurred to me that my actions reflected little to none of my value for care, harmony and for that matter, communication itself. I was acting in a way that was not in congruence with what I value.</p>
+            <p>It also occurred to me that I was in pain. I was thinking she knew about fine cutlery (shared understanding and care) and I was surprised and panicked about protecting my very expensive tool (financial security). Also, this particular knife was a gift from my sons, so it had a special meaning for me (care, love). In this "light", I could understand why I did what I did; I could have some <span class="nvc-word" data-nvc="compassion">compassion</span> for myself. And without blame occupying my mind, I could also still understand that my response didn't meet my <span class="nvc-word" data-nvc="needs">needs</span> for harmony and partnership. So things changed a bit.</p>
+            <p>I spoke.</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me:</span> "You know, when I just said that, it soooo didn't show my care for you or, for that matter how much I value our relationship. I wish I had said something else &mdash; certainly in a different way."</p>
+            <p>I waited... no defending, no explaining &mdash; simply a focus on my regret.</p>
+            <p class="dialogue-line speaker-other"><span class="speaker-stage">Silence... A reply.</span> "Like what?"</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me:</span> "Like 'when I see metal knives go in metal dish racks, I worry that they'll get chipped.' Could we put them someplace else &mdash; like on a towel or in the knife rack?"</p>
+            <p class="dialogue-line speaker-other"><span class="speaker-stage">More silence.</span> "OK."</p>
+            <p>I can easily imagine this interaction could have been much longer and much more painful. This time, because I was able to focus on <span class="nvc-word" data-nvc="needs">needs</span> (not blame), and my partner was able to see them too, things got back to their normal caring and loving state. Nobody wrong, everyone understood. Nice.</p>
+            <p>Much more to come, as the <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues...</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w23-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w23-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> "Restoration Preparation"</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of a situation where you said or did something you regretted and were unable to express yourself in a more connecting way. Perhaps you were feeling too scared or angry with yourself or the other person. Write down how you might say it now, in terms of your own unmet needs. The following steps may help.</p>
+              <p>1. Observation: Recall an occasion when you did or said something you wish you hadn't, the exact action or quote.</p>
+              <p>2. Acknowledge your judgments about what you said or did by bringing them out into the light: What are you saying to yourself? Examples: "I'm such an idiot", "I'll never get it", "Why can't I just think fast enough!". "I should have done X".</p>
+              <p>Note: Many of us have learned to educate ourselves through guilt, shame and other less-than-fun tactics. We can notice this by our feelings of anger or guilt. Words we often use in the process of judging or shaming are almost always some form of "should" or "shouldn't". These words deny choice and disconnect us from ourselves.</p>
+              <p>3. Look beneath those judgments to see what need is at their root. What unmet need of yours is expressed by the judgment? [maybe care, consideration?]. Also, what need(s) of yours went unmet by the way you behaved? [Examples: respect, connection, etc.]</p>
+              <p>4. Compassionate Mourning: Meditate on the energy of each need, not the absence of it, what it means to you, why it's so important to you, how you yearn to experience that. If you feel a sweet pain, that is you connecting with your need - pain stimulated by past actions which you now regret. Regret can help us learn from what we have done without blaming or hating ourselves.</p>
+              <p>5. Write down your what you might say. It might be, "When I (did, said etc.), I would have loved to have shown more __________ (ex. care, consideration, etc.) - I know that had an impact on you and so it's really important to me. Now that I understand this, I would like to deal with that differently in the future, in a way that is more in alignment with my values and creates more__________.</p>
+              <p>Depending on the situation, we may think about asking for a reflection or say something like, I'm wondering what goes on for you hearing this?</p>
+              <div class="cc-widget cc-slider">
+                <h5>Intensity check</h5>
+                <p class="cc-widget-hint">Notice the moment you felt activated. Pull the slider to mark how charged it felt — then again after pausing for one slow breath.</p>
+                <label>Before pause: <input type="range" min="0" max="10" data-key="practice-1-before"></label>
+                <label>After pause: <input type="range" min="0" max="10" data-key="practice-1-after"></label>
+              </div>
+              <textarea class="journal-area" id="journal-p1" placeholder="What I noticed in the gap..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> "Restoration"</h4>
+              <div class="practice-tags"><span class="practice-tag">Solo reflection</span></div>
+              <p>After completing Practice #1, consider contacting the other person and share your words.</p>
+              <p>Note: Be prepared to empathize with the person's pain, if expressed. You may be tempted to defend or explain your actions. Chances are, your explanations won't be received (for now, that's between you and yourself).﻿</p>
+              <p>Just empathize.</p>
+              <p>You may want to share your experience on the GCN.</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-2-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

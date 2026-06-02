@@ -1,0 +1,51 @@
+  skip W 1 — protected (existing original)
+  skip W 2 — protected (existing original)
+  skip W 3 — protected (existing original)
+  skip W 4 — protected (existing original)
+  [ok] W 5 done -- Empathy, the Breath of Compassion
+  [ok] W 6 done -- Hidden Judgments
+  [ok] W 7 done -- More About Feelings
+  [ok] W 8 done -- The Wisdom Inside the Judgment
+  [ok] W 9 done -- My Being and My Robot
+  skip W10 — protected (existing original)
+  [ok] W11 done -- Creating Your Life of Compassion
+  [ok] W12 done -- Slowing Down
+  [ok] W13 done -- Requests
+  [ok] W14 done -- More about Self-Empathy
+  [ok] W15 done -- Connection Requests
+  [ok] W16 done -- Saying 'No' with Compassion - Boundaries
+  [ok] W17 done -- Compassionate Use of Force
+  [ok] W18 done -- Beliefs and Needs
+  [ok] W19 done -- The Art of Observation
+  [ok] W20 done -- Scary Honesty
+  [ok] W21 done -- Appreciation from the Heart
+  skip W22 — protected (existing original)
+  [ok] W23 done -- Apologies Versus Restoration
+  [ok] W24 done -- Hearing 'NO' with Compassion
+  [ok] W25 done -- Living a Life of Compassion
+  [ok] W26 done -- Clarity About Judgments
+  [ok] W27 done -- Connecting to Life Energy
+  [ok] W28 done -- The Layering of Needs
+  [ok] W29 done -- Self-Connection
+  [ok] W30 done -- Enjoying Pain
+  [ok] W31 done -- Shift versus Compromise
+  [ok] W32 done -- Stimulus versus Cause
+  [ok] W33 done -- Understanding Anger
+  [ok] W34 done -- Being Responsive versus Being Responsible
+  [ok] W35 done -- Acting Angry versus Being Angry versus Consciously Feeling Anger
+  [ok] W36 done -- Surfing Intensity
+  [ok] W37 done -- Compassionate Intensity
+  [ok] W38 done -- Words and Thoughts That Fuel Anger and Deny Choice
+  [ok] W39 done -- Agreements versus Rules
+  [ok] W40 done -- The Art of Mourning
+  [ok] W41 done -- Enemy Images
+  [ok] W42 done -- Power With versus Power Over
+  [ok] W43 done -- Compassionate Self-Discipline
+  [ok] W44 done -- Habitual Authority versus Life-Connected Authority
+  [ok] W45 done -- Compassion and Vulnerability
+  [ok] W46 done -- Demanding versus Persevering
+  [ok] W47 done -- A Compassionate View of Triggers
+  [ok] W49 done -- Campaigns
+  [ok] W50 done -- Speaking Your Compassion
+  [ok] W51 done -- Compassion As a Spiritual Practice
+  [ok] W52 done -- Living With Compassion

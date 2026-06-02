@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 40: The Art of Mourning — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="40"] {
+      --wk-primary: #6e4870;
+      --wk-primary-dark: #4f3252;
+      --wk-accent: #b08a4a;
+      --wk-tint: rgba(110,72,112,0.08);
+      --wk-hero-a: #4f3252;
+      --wk-hero-b: #6e4870;
+    }
+    body[data-week="40"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="40"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="40"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="40"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="40"] .story-title::before,
+    body[data-week="40"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="40"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="40"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="40"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="40"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="40"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="40"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="40"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="40"] .story-subtitle {
+      text-align: center; font-style: italic; font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-accent); margin: -0.6rem 0 1.4rem; letter-spacing: 0.04em; font-size: 1.05rem;
+    }
+    body[data-week="40"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="40"] .lesson-subhead { color: #f3e9d2; }
+    /* Devastated vs Depressed contrast */
+    body[data-week="40"] .state-pair {
+      display: grid; gap: 1rem; margin: 1.4rem 0; grid-template-columns: 1fr;
+    }
+    @media (min-width: 720px) {
+      body[data-week="40"] .state-pair { grid-template-columns: 1fr 1fr; }
+    }
+    body[data-week="40"] .state-card {
+      padding: 1rem 1.2rem; border-radius: 12px;
+    }
+    body[data-week="40"] .state-card.state-devastated { background: var(--wk-tint); border-left: 3px solid var(--wk-primary); }
+    body[data-week="40"] .state-card.state-depressed { background: rgba(0,0,0,0.04); border-left: 3px solid #6b6b6b; opacity: 0.95; }
+    body[data-week="40"] .state-tag {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 0.5rem;
+    }
+    body[data-week="40"] .state-card.state-devastated .state-tag { color: var(--wk-primary); }
+    body[data-week="40"] .state-card.state-depressed .state-tag { color: #555; }
+    body.dark-mode[data-week="40"] .state-card.state-depressed { background: rgba(255,255,255,0.05); }
+    body.dark-mode[data-week="40"] .state-card.state-depressed .state-tag { color: #aaa; }
+    /* Tale One / Tale Two */
+    body[data-week="40"] .lesson-subhead.tale-head {
+      display: flex; align-items: baseline; gap: 0.6em;
+      border-bottom: none; font-size: 1.4rem; margin-top: 2rem;
+    }
+    body[data-week="40"] .tale-num {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
+      padding: 0.3em 0.8em; border-radius: 999px;
+      background: var(--wk-accent); color: #fff;
+    }
+  </style>
+</head>
+<body data-week="40" data-theme="plum">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 40</span>
+      <h1>The Art of Mourning</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">The Art of Mourning</h3>
+            <p class="story-subtitle">Being Devastated, Not Depressed</p>
+            <p>As we discussed in Week 27, <span class="nvc-word" data-nvc="feeling">feeling</span> our <span class="nvc-word" data-nvc="feelings">feelings</span> can "activate" our awareness of <span class="nvc-word" data-nvc="needs">needs</span> in a deeper way. If we "shut down" during the times when our needs are not met, we disconnect from our life energy. This can leave us like a ship at sea, without a compass - no guidance, no way to find a direction - depressed.</p>
+            <h4 class="lesson-subhead">What Is Mourning?</h4>
+            <p><span class="key-concept" data-concept="week-thesis">We could say that mourning is a "conscious" way to experience the "unmetness" of our <span class="nvc-word" data-nvc="needs">needs</span>. We can see mourning as a process in which two things are happening. First, we are <span class="nvc-word" data-nvc="feeling">feeling</span> our pain, the guidance life offers us during "hard times" (see Week 30). Secondly, when we are consciously mourning, we are connecting to the <span class="nvc-word" data-nvc="need">need</span> or needs that are unmet. We are recognizing the importance and the value those needs have for us.</span></p>
+            <p>During this course, we have practiced <span class="nvc-word" data-nvc="feeling">feeling</span> our <span class="nvc-word" data-nvc="feelings">feelings</span> and connecting them to <span class="nvc-word" data-nvc="needs">needs</span>. With these skills, we can create a different experience in the face of unmet needs - one where we connect. This is very different than disconnecting or floundering or wallowing.</p>
+            <p>When I experience my <span class="nvc-word" data-nvc="needs">needs</span> in a more conscious way (even in their absence), I can keep my <span class="nvc-word" data-nvc="connection">connection</span> to life and live in that "aliveness". This allows me to live life "head on", without denying it, fighting it, or retreating from it.</p>
+            <div class="state-pair">
+              <div class="state-card state-devastated">
+                <div class="state-tag">Devastated</div>
+                <p>When I feel wistful, sad, or even devastated, I am connected to the guidance life is offering me. This is not to say that I can always just simply say, "Oh boy! I'm getting guidance. Whoopee!" Working with experiences as intense as devastation is a skill that I will continually develop over time.</p>
+                <p>Also, there may be times in my life when a certain "numbness" can protect me from the full extent to which my pain might express itself, like when I hit my thumb with a hammer or when someone I dearly love dies. In these times, my psyche presents bits and pieces of pain, as I become ready for it. This is why, often, mourning takes time, even when I'm open to it.</p>
+              </div>
+              <div class="state-card state-depressed">
+                <div class="state-tag">Depressed</div>
+                <p>When I think back on the most disconnected and depressed times of my life, I can see that they occurred when I was unable or unwilling to experience the life energy that was trying to express itself in me. I was experiencing loss without experiencing the <span class="nvc-word" data-nvc="feelings">feelings</span> that were trying to tell me about it - the feelings that might connect me to the <span class="nvc-word" data-nvc="needs">needs</span> that were so painfully unmet.</p>
+                <p>In these times I often turned to should and shouldn't thoughts (see Week 38). These thoughts contributed to anger (both toward myself and others) and confusion. This left me disconnected from my internal guidance and kept me off my path to a more wonderful life.</p>
+              </div>
+            </div>
+            <h4 class="lesson-subhead">Our Opportunity</h4>
+            <p>The practice of "consciously mourning" offers us a way to experience these moments differently. We can feel into the experiences we have when things don't go as we would like. We can feel our <span class="nvc-word" data-nvc="feelings">feelings</span> of loss and sadness - honor them and even welcome them. In this practice of mourning, we create a deeper <span class="nvc-word" data-nvc="connection">connection</span> to the <span class="nvc-word" data-nvc="need">need</span>(s) that our feelings are telling us about. And this creates a path to making life more wonderful.</p>
+            <p>More to come, as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">A Tale of Two Breakups</h3>
+            <p class="story-lede">To illustrate how we can become depressed versus what else can happen when we consciously mourn, I would like to offer you these accounts of two different times in my life when I left a relationship.</p>
+            <h4 class="lesson-subhead tale-head"><span class="tale-num">Tale One</span> A Depressing Experience</h4>
+            <p>As a young man of 20, well before I had begun to follow my path to <span class="nvc-word" data-nvc="compassionate">compassionate</span> living, I began a relationship with a woman I loved very deeply. We lived together for several years, working to build a life together. During that time, it became more and more difficult for us to get along on a day-to-day basis. After a point, although we loved each other, we really didn't like being together - the struggle to get along was painful and exhausting.</p>
+            <p>Neither of us had the tools or skills to understand or deal with our problems - Neither did the couples counselors, therapists or clergy we turned to. After four years of unprocessed pain, we split up.</p>
+            <p>The year that followed that breakup was perhaps one of the worst years of my life. I was empty and confused, trying to understand what happened and never getting an answer. I was lonely and hopeless, yearning to experience a sense of meaning, companionship and partnership, all while not even knowing it.</p>
+            <p>My life was a downward spiral of undistinguished <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>. I was depressed. I became estranged from my friends, my family and myself. It was a low point in my life that I almost didn't recover from.</p>
+            <h4 class="lesson-subhead tale-head"><span class="tale-num">Tale Two</span> A Devastating Experience</h4>
+            <p>The second experience took place some years later. In 1999, I had been married for 11 years. Although my wife and I could coexist, there was a lack of emotional <span class="nvc-word" data-nvc="connection">connection</span> and partnership. Our relationship had become that of two roommates, not life partners.</p>
+            <p>We had spent the last three years of our relationship in marriage counseling. During those years we occasionally experienced brief bits of <span class="nvc-word" data-nvc="connection">connection</span> that would leave us soon after they arrived. While she immersed herself in her career, I immersed myself in my business and my relationship with my children. Our relationship was in a coma.</p>
+            <p>In 2000, we separated and divorced. After all my hopes, dreams and effort, I found myself living as a single parent. I was heartbroken - devastated. It was about this time that I began to study with my friend and mentor, Marshall Rosenberg. I was learning to feel my <span class="nvc-word" data-nvc="feelings">feelings</span> and connect to my <span class="nvc-word" data-nvc="needs">needs</span>. Things began to change.</p>
+            <p>During the years that followed, I learned to mourn the aspects of life that I had been so deeply missing. It was only through this process that I became acutely aware of the specific <span class="nvc-word" data-nvc="needs">needs</span> that I had previously been unconsciously yearning for.</p>
+            <p>Through the conscious processing of my <span class="nvc-word" data-nvc="feelings">feelings</span> of devastation and sadness, I discovered how starved I had become for a deeper sense of <span class="nvc-word" data-nvc="connection">connection</span>, meaning and purpose in my life. Over time, as I continued to deepen my relationship with my <span class="nvc-word" data-nvc="needs">needs</span>, I came to understand that it was my relationship to myself and the divine experience of life that would give me the experience of connection, purpose and meaning, not a relationship with someone else.</p>
+            <p>Eventually, I saw that if I was going to be in a relationship that was sustainable and rewarding, I would be much better off choosing it, not depending on it. It occurred to me that from a place of internal happiness and satisfaction, I could bring myself as a complete human to a relationship, not seeking my happiness from it. The relationship I wanted would be like icing on a cake, not the cake. This guided me through a wonderful period of personal growth - of learning to be happy on my own.</p>
+            <p>Through my awareness and actions, I grew to be in that place. My relationship to life became so deeply satisfying unto itself that, for the first time in my adult life, I was truly content without a partner.</p>
+            <p>It was through my process of mourning and my deepened relationship to <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>, that this clarity came to me.</p>
+            <aside class="pull-quote">My ability to consciously mourn changed everything.</aside>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w40-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w40-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Connecting with Feelings and Needs</h4>
+              <div class="practice-tags"><span class="practice-tag">Observation</span></div>
+              <p>Think of a situation in your life where you are experiencing some discomfort, or pain.</p>
+              <p>Next, check into your body and focus on what you're feeling. See if you can bring that feeling into clearer awareness. Invite it to the surface. Feel the feeling. Stay with this feeling for a few moments - simply noticing and feeling this feeling. Again, stay with it - at least for 60 seconds, longer if possible.</p>
+              <p>You may notice you are judging, avoiding or backing away from this feeling. Acknowledge when this happens. Then go back to the feeling. Repeat. Try this for 2 to 5 minutes.</p>
+              <p>If necessary, repeat this practice over the next week until you connect to the need(s) this feeling is telling you about.</p>
+              <p>Repeat separately for each feeling you identify.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-1-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p1" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Embodying Needs</h4>
+              <p>Need-embodiment meditation:</p>
+              <p><a href="https://thombond.buzzsprout.com/902635/2872351" target="_blank" rel="noopener">FULL LENGTH AUDIO VERSION CLICK HERE</a>.</p>
+              <p>Or Follow below:</p>
+              <p>﻿You may want to find some quiet space and time for this practice. Practice this separately with each need that you would like to experience more "metness" of (from Practice #1).</p>
+              <p>Sit back and make yourself comfortable. Close your eyes. Feel your breath - Relax.</p>
+              <p>Now, in your mind's eye, remember a time when that need was met. "Relive" this experience in your mind. Remember where you were, who was there, what was happening - Remember what it felt like. Slow it down. Replay this moment over and over in your mind. Let the feeling of the experience into your body.</p>
+              <p>Bask in the moment. Bask in the memory, especially in the feeling of it.</p>
+              <p>When you are feeling full or "complete" in this practice, open your eyes and come back into your space.</p>
+              <p>Repeat this exercise with all the needs you have identified from Practice #1 .</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-breath" data-key="practice-2-breath">
+                <h5>Breathing check-in</h5>
+                <p class="cc-widget-hint">Tap when you've completed one round of slow breaths today.</p>
+                <button type="button" class="cc-breath-btn">+1 round</button>
+                <span class="cc-breath-count">0 rounds</span>
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What shifted while you breathed..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

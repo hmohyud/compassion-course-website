@@ -715,12 +715,21 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   // Which swim lane's "Add task" form is open (null = none). Each lane has
   // its own add button so a new task is pre-set to that priority.
   const [createLane, setCreateLane] = useState<WorkItemLane | null>(null);
+  const createFormRef = useRef<HTMLDivElement>(null);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showDoneHistory, setShowDoneHistory] = useState(false);
 
   const [optimisticItems, setOptimisticItems] = useState<LeadershipWorkItem[] | null>(null);
   const displayItems = optimisticItems ?? workItems;
+
+  // The create form renders below the board (outside the DndContext), so when a
+  // lane's "Add task" button is clicked, bring the form into view.
+  useEffect(() => {
+    if (createLane && createFormRef.current) {
+      createFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [createLane]);
 
   React.useEffect(() => {
     setOptimisticItems(null);
@@ -1111,7 +1120,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
                   <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
                   {LANE_META[lane].label}
                 </span>
-                {canAddTask && createLane !== lane && (
+                {canAddTask && (
                   <button
                     type="button"
                     className="ld-board-lane-add-btn"
@@ -1123,22 +1132,6 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
                   </button>
                 )}
               </div>
-              {createLane === lane && (
-                <div style={{ marginBottom: '14px' }}>
-                  {saveError && <p style={{ color: '#dc2626', marginBottom: '12px' }}>{saveError}</p>}
-                  <TaskForm
-                    mode="create"
-                    defaultStatus="todo"
-                    defaultLane={lane}
-                    teamId={teamId}
-                    teamMemberIds={memberIds}
-                    memberLabels={memberLabels}
-                    memberAvatars={memberAvatars}
-                    onSave={handleCreateSave}
-                    onCancel={() => { setCreateLane(null); setSaveError(null); }}
-                  />
-                </div>
-              )}
               <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
                 {effectiveColumns.map((col) => (
                   <BoardColumn
@@ -1149,7 +1142,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
                     memberLabels={memberLabels}
                     memberAvatars={memberAvatars}
                     onEditItem={setEditingItem}
-                    onAddItem={() => setCreateLane(lane)}
+                    onAddItem={() => { setCreateLane(lane); setSaveError(null); }}
                     onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
                     dropPreviewIndex={dropTargetLane === lane && dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
                     dropPreviewItem={dropTargetLane === lane && dropTargetColumn === col.id ? dropPreviewItem : null}
@@ -1173,6 +1166,27 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Create form lives OUTSIDE the DndContext (like the edit form) so its
+          inputs and the layout shift on open can't interfere with the board's
+          drag-and-drop reordering. The lane that was clicked is pre-selected
+          via defaultLane, with status defaulting to "To Do". */}
+      {createLane && (
+        <div ref={createFormRef}>
+          {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+          <TaskForm
+            mode="create"
+            defaultStatus="todo"
+            defaultLane={createLane}
+            teamId={teamId}
+            teamMemberIds={memberIds}
+            memberLabels={memberLabels}
+            memberAvatars={memberAvatars}
+            onSave={handleCreateSave}
+            onCancel={() => { setCreateLane(null); setSaveError(null); }}
+          />
+        </div>
+      )}
 
       {editingItem && (
         <>

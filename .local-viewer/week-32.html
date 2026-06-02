@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 32: Stimulus versus Cause — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="32"] {
+      --wk-primary: #6e4870;
+      --wk-primary-dark: #4f3252;
+      --wk-accent: #b08a4a;
+      --wk-tint: rgba(110,72,112,0.08);
+      --wk-hero-a: #4f3252;
+      --wk-hero-b: #6e4870;
+    }
+    body[data-week="32"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="32"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="32"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="32"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="32"] .story-title::before,
+    body[data-week="32"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="32"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="32"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="32"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="32"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="32"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="32"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="32"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="32"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="32"] .lesson-subhead { color: #f3e9d2; }
+    body[data-week="32"] .scenario-card {
+      padding: 1rem 1.2rem 1rem 1.4rem; border-radius: 12px; margin: 1rem 0;
+      background: var(--wk-tint);
+    }
+    body[data-week="32"] .scenario-card.scenario-a { border-left: 3px solid #b06b5a; }
+    body[data-week="32"] .scenario-card.scenario-b { border-left: 3px solid var(--wk-primary); }
+    body[data-week="32"] .scenario-tag {
+      font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 0.5rem;
+    }
+    body[data-week="32"] .scenario-card.scenario-a .scenario-tag { color: #b06b5a; }
+    body[data-week="32"] .scenario-card.scenario-b .scenario-tag { color: var(--wk-primary); }
+    body[data-week="32"] .scenario-bridge {
+      font-style: italic; text-align: center; color: var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.1rem;
+      margin: 1.2rem 0;
+    }
+  </style>
+</head>
+<body data-week="32" data-theme="plum">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 32</span>
+      <h1>Stimulus versus Cause</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Stimulus versus Cause</h3>
+            <aside class="pull-quote">"People don't cause my pain. My needs cause my pain. People just stimulate it in me."</aside>
+            <p>By distinguishing the difference between "stimulus" and "cause", we provide ourselves a way to think about events and situations in a more <span class="nvc-word" data-nvc="compassionate">compassionate</span> and empowering way. It helps us to bring our awareness away from "what someone did to us" and toward our <span class="nvc-word" data-nvc="needs">needs</span> and how we can create a more wonderful life.</p>
+            <h4 class="lesson-subhead">Seriously?</h4>
+            <p>I remember the first time I heard this idea. It seemed as absurd as "enjoying pain". I could clearly see that, for example, if someone hit me on the head they caused me pain. If someone "stood me up" on a date, they caused me pain. And so, let me just say right now, yes, we can see things in this way. We can see that people do cause us pain. The thing is, where does seeing things in that way get us? Disconnection? Probably. Victimhood? Quite probably. Helplessness? Yeah, that too.</p>
+            <p>Then I realized the distinction between stimulus and cause is not about "what is true" or about "being right" - it's about seeing things in a way that gives me choice - choice to be <span class="nvc-word" data-nvc="compassionate">compassionate</span> when people do things that don't work for me, that I don't like - choice to see things in a way that empowers me and encourages me to find ways to make my life more wonderful. In short, when I think about <span class="nvc-word" data-nvc="needs">needs</span>, other things like being right, or blaming someone for what "they did to me" is less important.</p>
+            <h4 class="lesson-subhead">Changing Focus</h4>
+            <p><span class="key-concept" data-concept="week-thesis">When we think that someone is causing our pain, several things happen. First, we focus on them, on what they are doing. We become observers, focused on their behavior. When we focus our attention this way, its easy to become more aware of our <span class="nvc-word" data-nvc="judgments">judgments</span> (this person should be different) and less aware of our <span class="nvc-word" data-nvc="needs">needs</span> (that we'd like something different). By shifting our focus to our needs, we are more likely to take care of ourselves, and less likely to disconnect or feel anger toward others.</span></p>
+            <p>Here's a riddle for you.</p>
+            <div class="scenario-card scenario-a">
+              <div class="scenario-tag">Scenario A</div>
+              <p>Suppose you have a dinner date (a different one from last week). You leave work at exactly 5:00, rush to the market to pick up your fresh produce - then rush to the wine shop for the perfect bottle of wine and finally, rush to the train to get home to have everything ready at seven o'clock, as planned. You pull it off and you have the perfect meal waiting at seven sharp. Only one thing - no date.</p>
+              <p>Your date doesn't show up until eight o'clock. How might you feel? You would probably be frustrated, miffed and generally angry. Is your date the cause? Did their actions make you angry? You might think so.</p>
+            </div>
+            <p class="scenario-bridge">But wait! Let's try this again.</p>
+            <div class="scenario-card scenario-b">
+              <div class="scenario-tag">Scenario B</div>
+              <p>Suppose you have the same dinner date. This time, your boss calls you into their office at 4:55, so this time you don't leave work until 5:15. Again, you rush to the market to pick up your fresh produce, then rush to the wine shop for the perfect bottle of wine and finally, rush to the train to get home to have everything ready at seven o'clock as planned. Only one thing... your train stops in the middle of a tunnel and you're stuck for 40 minutes in the dark.</p>
+              <p>Finally, you get home, an hour later than you planned.</p>
+              <p>You rush to make your meal, listening intently for the buzzer the entire time, dreading the prospect of explaining yourself to your frustrated date. At eight o'clock, just as you finish your preparations, you hear the buzzer. How might you feel now? In this case, I suspect you would probably be grateful and relieved.</p>
+            </div>
+            <p>But wait. Your date did the same thing as in the first scenario. If their actions had caused you to be upset in the first scenario, why not in this one? Your date did the exact same thing! That's right, your <span class="nvc-word" data-nvc="needs">needs</span> were met in the second scenario, not in the first.</p>
+            <p>More to come, as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Lunch</h3>
+            <p class="story-lede">I have a friend who I like to see every now and then. We usually meet somewhere for lunch. I don't think I can remember a time when he arrived at our lunch date on time. This became a huge source of pain for me. I brought this to his attention on more than one occasion, hoping he would see my pain and start showing up on time. The more he showed up late, the more angry and disconnected I became. This repeating situation was escalating my frustration to the point that I was considering ending our meetings. I was really conflicted and frustrated, because the truth was, I really enjoyed his company and friendship.</p>
+            <p>So I shifted my focus from his actions to my <span class="nvc-word" data-nvc="needs">needs</span>. I purposefully changed my thought from "he is causing my pain" to "although his actions are stimulating my pain, my needs are actually causing it".</p>
+            <p>This new perspective encouraged me to examine my <span class="nvc-word" data-nvc="needs">needs</span>. It occurred to me that I was wanting more choice about how I spent my time. When I was sitting around "because he was late", it seemed I was losing my autonomy and effectiveness.</p>
+            <p>This new focus on my <span class="nvc-word" data-nvc="needs">needs</span> helped me solve my problem. I could stop trying to change his behavior, and simply act in a way that allowed me to meet my needs.</p>
+            <p>So now, I always bring a book or some work to do when we meet for lunch. I order a cup of tea or coffee, relax and do my thing - <span class="nvc-word" data-nvc="needs">needs</span> met. The tension that was caused by my previous belief that he was causing me pain vanished as I met my needs, regardless of his actions. By distinguishing "stimulus" from "cause", I made both of our lives more wonderful.</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w32-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w32-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Changing Focus</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of a situation where you think someone is causing you some pain or dissatisfaction. Write down the "stimulus" (their action or actions).</p>
+              <p>Next, write down your feelings and needs (the cause). Then, see if you can figure out how your need(s) might be met by changing your actions.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-1-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p1" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Changing Focus Again</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of situation where you think you are causing yourself some pain or dissatisfaction. Write down the "stimulus" (your action or actions).</p>
+              <p>Next, write down your feelings and needs (the cause). Then, see if you can figure out how your need(s) might be met by changing your actions or making a request of yourself or others (see Week 13 and Week 15).</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-2-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

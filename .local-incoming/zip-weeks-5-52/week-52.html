@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 52: Living With Compassion — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="52"] {
+      --wk-primary: #a06168;
+      --wk-primary-dark: #7a474d;
+      --wk-accent: #7a8a5a;
+      --wk-tint: rgba(160,97,104,0.08);
+      --wk-hero-a: #7a474d;
+      --wk-hero-b: #a06168;
+    }
+    body[data-week="52"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="52"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="52"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="52"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="52"] .story-title::before,
+    body[data-week="52"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="52"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="52"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="52"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="52"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="52"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="52"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="52"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    /* W52 — final lesson, three pillars (Dreams / Practice / Support)
+       framed as roman-numeral cards. Closing signature gets a script feel. */
+    body[data-week="52"] .epigraph-opening {
+      margin: 1.6rem auto 1.8rem; max-width: 32em; text-align: center;
+    }
+    body[data-week="52"] .epigraph-opening blockquote {
+      font-family: 'Playfair Display', Georgia, serif; font-style: italic;
+      font-size: 1.1rem; line-height: 1.6; color: var(--wk-primary-dark);
+      margin: 0; padding: 0.6rem 0;
+    }
+    body[data-week="52"] .epigraph-opening figcaption {
+      font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+      opacity: 0.75; margin-top: 0.3rem;
+    }
+    body.dark-mode[data-week="52"] .epigraph-opening blockquote { color: #f3e9d2; }
+    body[data-week="52"] .pillar {
+      position: relative; padding: 1.4rem 1.6rem 1.2rem 4.4rem; margin: 1.4rem 0;
+      background: var(--wk-tint);
+      border-radius: 12px;
+      border-left: 4px solid var(--wk-primary);
+    }
+    body[data-week="52"] .pillar-num {
+      position: absolute; left: 1rem; top: 1.4rem;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--wk-primary); opacity: 0.7;
+      line-height: 1;
+    }
+    body[data-week="52"] .pillar-name {
+      margin: 0 0 0.6rem; font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--wk-primary-dark);
+    }
+    body[data-week="52"] .pillar-epigraph {
+      margin: 0.4rem 0 1rem; padding-left: 1rem;
+      border-left: 2px dotted var(--wk-accent);
+    }
+    body[data-week="52"] .pillar-epigraph blockquote {
+      font-family: 'Playfair Display', Georgia, serif; font-style: italic;
+      font-size: 1rem; line-height: 1.55; color: var(--wk-accent);
+      margin: 0;
+    }
+    body[data-week="52"] .pillar-epigraph figcaption {
+      font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase;
+      opacity: 0.7; margin-top: 0.3rem;
+    }
+    body[data-week="52"] .pillar p { margin: 0.7rem 0; }
+    body.dark-mode[data-week="52"] .pillar-name { color: #f3e9d2; }
+    /* Closing signature */
+    body[data-week="52"] .closing-signature {
+      margin-top: 2.2rem; padding-top: 1.6rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    body[data-week="52"] .closing-line {
+      font-family: 'Playfair Display', Georgia, serif; font-style: italic;
+      color: var(--wk-primary-dark); margin: 0 0 0.5rem;
+    }
+    body[data-week="52"] .closing-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.2rem; font-style: italic; font-weight: 400;
+      color: var(--wk-primary); margin: 0; letter-spacing: 0.04em;
+    }
+    body.dark-mode[data-week="52"] .closing-signature { border-top-color: rgba(255,255,255,0.12); }
+    body.dark-mode[data-week="52"] .closing-line { color: #f3e9d2; }
+  </style>
+</head>
+<body data-week="52" data-theme="rose">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 52</span>
+      <h1>Living With Compassion</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Living With Compassion</h3>
+            <figure class="epigraph epigraph-opening">
+              <blockquote>"Apathy can be overcome by enthusiasm, and enthusiasm can only be aroused by two things: first, an ideal, to take the imagination by storm, and second, a definite intelligible plan for carrying that ideal into practice."</blockquote>
+              <figcaption>&mdash; Arnold J. Toynbee</figcaption>
+            </figure>
+            <p>As our course comes to a close, it becomes clear to me how important it is to have a plan to activate our learning together. The following ideas are offered as a way to support you in creating a more wonderful life.</p>
+            <div class="pillar dream">
+              <div class="pillar-num">I</div>
+              <h4 class="pillar-name">Harness the Power of Your Dreams</h4>
+              <figure class="pillar-epigraph">
+                <blockquote>"You are never too old to set another goal or to dream a new dream."</blockquote>
+                <figcaption>&mdash; C. S. Lewis</figcaption>
+              </figure>
+              <p>I have a collection of antique science fiction books. Recently, as I was looking through my collection, I noticed that without exception, everything that was imagined in these books has come to be. From the "Great Flying Machines" to the "Great War Machines", we humans have created everything we have ever imagined. It seems that every human creation starts as an idea, a dream.</p>
+              <p><span class="key-concept" data-concept="week-thesis">As I look at my own life so far, I see how this dynamic applies. Everything I have ever truly dreamed of has come to be. As I notice this rather astounding phenomenon, I realize how important and powerful my dreams have been and continue to be - and how important it is to have them.</span></p>
+            </div>
+            <div class="pillar practice">
+              <div class="pillar-num">II</div>
+              <h4 class="pillar-name">Practice</h4>
+              <figure class="pillar-epigraph">
+                <blockquote>"Anything worth doing is worth doing poorly."</blockquote>
+              </figure>
+              <p>As we have discussed in previous weeks, we already have plenty of practice in "habitual" ways of thinking, speaking and being (See Week 9). If we are to make <span class="nvc-word" data-nvc="compassionate">compassionate</span> thinking and living part of our lives, it calls on us to practice and to create new habits, new pathways in our consciousness.</p>
+              <p>Through practice we will inevitably see results. The reason I have shared the successes and failures that I have experienced in my pursuit of a <span class="nvc-word" data-nvc="compassionate">compassionate</span> life in this course is to remind you that we will always have failure on our path to success - It's part of the journey.</p>
+            </div>
+            <div class="pillar support">
+              <div class="pillar-num">III</div>
+              <h4 class="pillar-name">Support</h4>
+              <figure class="pillar-epigraph">
+                <blockquote>"If you want to travel fast, go alone. If you want to travel far, go together."</blockquote>
+              </figure>
+              <p>The concepts and practices in this course are not typically supported in our common cultures. Many of us are continually encouraged by our environment to think and behave in ways that do not engender the level of <span class="nvc-word" data-nvc="compassion">compassion</span> and <span class="nvc-word" data-nvc="connection">connection</span> we are capable of experiencing. That's a challenge.</p>
+              <p>We are pioneers. Because of this, finding others to share this with becomes vital. In my experience, those of us who find other "like-hearted" folks to practice with have a more fun-filled, effective and sustainable practice. Finding others to join us on our journey helps us grow and thrive as the interdependent creatures we love to be.</p>
+              <p>From the first day of my journey, I sought support. To this day, I attend practice groups, workshops and have regular calls with my <span class="nvc-word" data-nvc="empathy">Empathy</span> Buddies. I don't even want to imagine what my life would be like if I did not have this practice as part of it. As far as I can tell, we all <span class="nvc-word" data-nvc="need">need</span> support.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Finding an Answer</h3>
+            <p class="story-lede">When I was 12 years old, I picked up a "Life Magazine", a coffee table-sized publication known for its groundbreaking photography. Little did I know that what I was about to see in that magazine would change the course of my life.</p>
+            <p>As I leafed through the oversized pages, I came across what I can only describe as one of the most horrifying things I have ever seen.</p>
+            <p>I saw, for the first time in my young life, the reality of war. There was a photo essay on a military action that had taken place in Viet Nam. Up to that moment, for me, war was a game we played with make-believe guns. No real blood, no real pain, just a game to be won or lost before we headed home for dinner.</p>
+            <p>As my eyes scanned the pages, my brain was scurrying like a frightened animal, not knowing if it should keep going or turn and run. As I took in these images, two things happened. First, I understood that war was a real and horrible reality of my life as a human. And second, I had an overwhelming and instant knowledge that these actions were an unnecessary and must be avoidable.</p>
+            <p>That night, and for several days following, I shared my experience with the "grownups" in my life. They assured me that war was a necessary part of life.</p>
+            <p>My twelve-year-old mind secretly refused to believe them. And yet, I had no answer as to why that was. I looked and I waited for decades.</p>
+            <p>In 2001, I read the book Nonviolent Communication: A Language of Life by Marshall Rosenberg. By the time I had finished reading the first few chapters, my wait had ended. In the book, Marshall showed that there are concepts, skills and practices that we can develop and use to connect with each other. So much so that we can learn to transcend violence.</p>
+            <p>From then on, I knew exactly what I wanted to do. I began my study of Marshall's work with the most experienced and integrated trainers I could find. It wasn't long before I met Marshall and eventually worked with him as his support person here in New York. During that time I found a new friend and it became clear to me that my future held the potential for a very meaningful life, beyond my dreams.</p>
+            <p>After that, he worked with me to start <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>, we trained as a team at The United Nations, and I was one of the first people to stand in for him at CNVC IIT's. My dream was, in fact, becoming a reality.</p>
+            <p>By 2002, I had sold my engineering business, sold my home, and moved to New York City to put The New York Center for Nonviolent Communication (<a href="http://r20.rs6.net/tn.jsp?f=001ahKTNpSycgaZk1Sq1VkrZJSkhVqqhwwK5aC2XUd3X4eXxgmkdgsd-gnAdc3n9YTSAoaO87E-TJ06NcYY7kW6r0iRQu2Zm8qpptxLfeUOek-d9Q5Mvvao-fwhoqafaSkyX-jhAHo_zNMcXYiLyUHZgQ==&c=KMXBvqkdyyWoKn52vDY8zhXYcrJcKyDbQYMpoYqOBOyEzT5FyPhWaw==&ch=sHapb9c5CoHIZYXgDcabKjwoVTziBYxPRXyO7t71xNSdyiFtYx95Gg==" target="_blank" rel="noopener">www.nycnvc.org</a>) in "high gear".</p>
+            <p>By 2004, in the process of growing this organization and my practice, I had spent every dollar I had. Most everyone was convinced I had lost my mind, with the exception of my parents and my dear friend Nellie (to name the ones I hold the most appreciation for). And maybe I did lose my mind - and found my heart, my dream. I was clear. I was willing to live in a cardboard box if <span class="nvc-word" data-nvc="need">need</span> be, but I could not imagine doing anything besides sharing this work.</p>
+            <p>I remember one day in particular that year. It was the first Monday of the month and I was especially worried because I was dealing with the reality of my net worth going from six figures to negative six hundred dollars.</p>
+            <p>That night, I gave my "First Mondays" free introductory workshop, as I had on the first Monday of every month. Afterwards, a woman from a local community service organization asked if she could hire me to teach her and her colleagues. My first paid engagement. I said yes.</p>
+            <p>The next day (within 14 hours of the first invitation), I got a call from a member of the Communications Coordination Committee for the United Nations. They, too, wanted to hire me to teach. My dream was becoming a sustainable reality.</p>
+            <p>Twenty-four years later, on a cold sunny Wednesday morning, still in the comfort of my home, I sit down at my computer once again, to put the finishing touches on the last installment of a course I have wanted to teach since I was twelve. Thank you for sharing this moment with me.</p>
+            <div class="closing-signature">
+              <p class="closing-line">With gratitude, humility and love,</p>
+              <p class="closing-name">Thom</p>
+            </div>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w52-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w52-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Practice, Practice</h4>
+              <p>I invite you to share another year of learning and practicing compassion. As you are reading this, we are in the midst of thousands of folks from around the world signing up for the 2024 Compassion Course. I can only imagine they will benefit from your support and companionship. I can only imagine you will too. (To register, <a href="https://www.compassioncourse.org/" target="_blank" rel="noopener">CLICK HERE</a>).</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-1-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p1" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Practice, Practice, Practice</h4>
+              <div class="practice-tags"><span class="practice-tag">Group</span></div>
+              <p>Find or create a group of like-hearted folks to learn and practice with. Creating support in this way is invaluable. Find some friends to join you in this course to learn and practice together. You can also find trainings at www.<a href="http://nycnvc.org" target="_blank" rel="noopener">nycnvc</a>.org.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-2-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p2" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="2">
+            <h4><span class="practice-number">3</span> Dream...</h4>
+              <p>New to the GCN? <a href="https://www.compassioncourse.org/" target="_blank" rel="noopener">Click Here</a> to Join</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-3-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p3" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p3-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

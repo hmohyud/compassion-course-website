@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 15: Connection Requests — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="15"] {
+      --wk-primary: #a8843e;
+      --wk-primary-dark: #7a5f2c;
+      --wk-accent: #456a85;
+      --wk-tint: rgba(168,132,62,0.08);
+      --wk-hero-a: #7a5f2c;
+      --wk-hero-b: #a8843e;
+    }
+    body[data-week="15"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="15"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="15"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="15"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="15"] .story-title::before,
+    body[data-week="15"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="15"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="15"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="15"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="15"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="15"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="15"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="15"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="15"] .story-subtitle {
+      text-align: center; font-style: italic; font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-accent); margin: -0.6rem 0 1.4rem; letter-spacing: 0.04em; font-size: 1.05rem;
+    }
+    body[data-week="15"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="15"] .lesson-subhead { color: #f3e9d2; }
+    /* The four conditions of connection — styled as a tidy ordered list */
+    body[data-week="15"] .connection-conditions {
+      list-style: none;
+      counter-reset: cond;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      background: var(--wk-tint);
+      border-radius: 10px;
+      border-left: 3px solid var(--wk-primary);
+    }
+    body[data-week="15"] .connection-conditions li {
+      counter-increment: cond;
+      padding: 0.4rem 0 0.4rem 2.4rem;
+      position: relative;
+      line-height: 1.55;
+    }
+    body[data-week="15"] .connection-conditions li::before {
+      content: counter(cond);
+      position: absolute;
+      left: 0;
+      top: 0.45rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      background: var(--wk-primary);
+      color: #fff;
+      text-align: center;
+      line-height: 1.6rem;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    /* Level 0–4 ladder — each header gets a numbered chip on the left
+       so the progression feels like climbing a small staircase */
+    body[data-week="15"] .lesson-subhead.level-step {
+      display: flex; align-items: center; gap: 0.6em;
+      border-bottom: none; font-size: 1.25rem; padding-left: 0;
+    }
+    body[data-week="15"] .lesson-subhead.level-step .level-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      width: 1.9rem; height: 1.9rem;
+      line-height: 1.9rem;
+      text-align: center;
+      border-radius: 50%;
+      background: var(--wk-primary);
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px var(--wk-tint);
+    }
+    /* Dialogue */
+    body[data-week="15"] .dialogue-line {
+      margin: 0.5rem 0; padding: 0.6rem 0.9rem; border-radius: 10px; max-width: 44em;
+    }
+    body[data-week="15"] .dialogue-line.speaker-self { background: var(--wk-tint); border-left: 3px solid var(--wk-primary); }
+    body[data-week="15"] .dialogue-line.speaker-other { background: rgba(0,0,0,0.04); border-left: 3px solid var(--wk-accent); }
+    body[data-week="15"] .dialogue-line .speaker-name { font-weight: 600; color: var(--wk-primary-dark); margin-right: 0.35em; }
+    body[data-week="15"] .dialogue-line.speaker-other .speaker-name { color: var(--wk-accent); }
+    body[data-week="15"] .dialogue-line .speaker-name em { font-style: italic; font-weight: 400; opacity: 0.75; }
+    body.dark-mode[data-week="15"] .dialogue-line.speaker-other { background: rgba(255,255,255,0.05); }
+    body.dark-mode[data-week="15"] .dialogue-line .speaker-name { color: #f3e9d2; }
+  </style>
+</head>
+<body data-week="15" data-theme="gold">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 15</span>
+      <h1>Connection Requests</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Noticing and Increasing the Quality of Connection</h3>
+            <p class="story-subtitle">More About <span class="nvc-word" data-nvc="requests">Requests</span></p>
+            <p>Many of us think about requests in terms asking to "get things done" or "action requests". And indeed, this kind of request is a key to having a more wonderful and compassionate life. That said, there is another form of requests that enables us to make more life-serving and effective "action requests" - I call them "connection requests".</p>
+            <h4 class="lesson-subhead">What Is <span class="nvc-word" data-nvc="connection">Connection</span> Anyway?</h4>
+            <p><span class="key-concept" data-concept="week-thesis">We can think of "<span class="nvc-word" data-nvc="connection">connection</span>" between two or more people as the concurrent existence of four conditions.</span></p>
+            <ol class="connection-conditions">
+              <li>I understand and can articulate my <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>.</li>
+              <li>The other person(s) understand(s) and can articulate my <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>.</li>
+              <li>The other person(s) understand(s) and can articulate their own <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>.</li>
+              <li>I understand and can articulate the <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> of the other person(s).</li>
+            </ol>
+            <p>Time after time, I have witnessed that when these four conditions exist, <span class="nvc-word" data-nvc="compassion">compassion</span> flourishes. There is something beautiful, almost magical, that occurs when this breadth of understanding occurs.</p>
+            <p>So having the awareness and skill to bring about these four conditions is incredibly empowering when we want to move from a disconnected state to a connected state. That's where "<span class="nvc-word" data-nvc="connection">connection</span> <span class="nvc-word" data-nvc="requests">requests</span>" come in.</p>
+            <h4 class="lesson-subhead">What Is a <span class="nvc-word" data-nvc="connection">Connection</span> <span class="nvc-word" data-nvc="request">Request</span>?</h4>
+            <p>A <span class="nvc-word" data-nvc="connection">connection</span> <span class="nvc-word" data-nvc="request">request</span> is a request that is intended to increase the quality of our connection with others (and sometimes even ourselves). After all, how compassionate can we be when we are discussing things or asking for things from people when we don't know about their needs and they don't know about ours? In order to have a clearer understanding, we can use connection requests to increase our awareness.</p>
+            <p>We can look at the "quality of <span class="nvc-word" data-nvc="connection">connection</span>" as existing in levels. We can use connection <span class="nvc-word" data-nvc="requests">requests</span> to move us through each level, until we have reached a state that we can call "full connection".</p>
+            <h4 class="lesson-subhead level-step" data-level="0"><span class="level-num">0</span> Level Zero</h4>
+            <p>Level zero is when we find out if the person we want to connect with has any interest in speaking with us or hearing what we have to say. This may sound like, "I'm wondering, would you be up for talking about dinner?" After all, speaking to someone that doesn't want to listen is like pushing on a string. It's bound to go nowhere.</p>
+            <h4 class="lesson-subhead level-step" data-level="1"><span class="level-num">1</span> Level One</h4>
+            <p>Once we are in agreement to speak, level one starts with one person hearing what another person said. We can find out if someone has heard what we said by asking for a reflection. This might sound like, "I want to be sure I've been clear - would you be willing to tell me what you heard me say?" After all, if the person who is "listening" didn't hear what we actually said, how much <span class="nvc-word" data-nvc="connection">connection</span> can we have? My guess is little to none. The surprising thing about this for me, is how often we think someone heard what we said when, in fact, they absolutely didn't. If you start checking this out for yourself, I suspect you will be surprised.</p>
+            <p>I recall the day I found out about this idea of using <span class="nvc-word" data-nvc="connection">connection</span> <span class="nvc-word" data-nvc="requests">requests</span>. I immediately started asking my children if they would be willing to tell me what they heard me say. 80% of the time I got the same response... "Could you say that again Dad?" I remember coming to the the shocking realization that my kids probably didn't hear 80% of what I had said to them for the past 16 years! It kind of explained a lot (wry smile).</p>
+            <h4 class="lesson-subhead level-step" data-level="2"><span class="level-num">2</span> Level Two</h4>
+            <p>After we are comfortable that the other person has actually heard what we said, we can begin to understand what is alive in them, now that they really did hear us.</p>
+            <p>A level two <span class="nvc-word" data-nvc="connection">connection</span> <span class="nvc-word" data-nvc="request">request</span> might sound like "Thank you for hearing me. I'm curious, would you be willing to tell me what's going on for you, now that you've heard what I just said?" This is where it makes all the difference if we can find out about <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> - not just the words.</p>
+            <h4 class="lesson-subhead level-step" data-level="3"><span class="level-num">3</span> Level Three</h4>
+            <p>Level three is when we make sure we understand what was expressed during level two. That might sound like, "I'd like to be sure I understand you. May I reflect that to you to be sure?" Or "So I think I'm hearing _______." Is that accurate?" If you get a "no" at this point, go back to level two. If we get a "Yes" we are ready to continue..</p>
+            <p>I also find it helpful for me if I can reflect what someone has said, especially if I notice I'm <span class="nvc-word" data-nvc="feeling">feeling</span> stimulated or starting to lose my focus. Reflecting helps bring me back to <span class="nvc-word" data-nvc="presence">presence</span>.</p>
+            <h4 class="lesson-subhead level-step" data-level="4"><span class="level-num">4</span> Level Four</h4>
+            <p>Level four completes the initial cycle of a dialog. It is when we share what is going on for us, now that we have heard what the other person is <span class="nvc-word" data-nvc="feeling">feeling</span> and needing, after they heard us.</p>
+            <p>That might sound like, "I'm wondering if you have some room to hear what's going on for me, now that I understand what's going on for you." This cycle of understanding can continue through level five, six, seven and more, until we reach that place we call "<span class="nvc-word" data-nvc="connection">connection</span>" or "<span class="nvc-word" data-nvc="compassionate">compassionate</span> understanding" or "<span class="nvc-word" data-nvc="needs">needs</span> awareness".</p>
+            <p>Ultimately, when we become proficient in this skill of slowing down, reflecting, asking for reflection and increasing our <span class="nvc-word" data-nvc="connection">connection</span> with others, we will find ourselves in fewer fights and more dialogs. It is a way to engage in conflict while keeping our <span class="nvc-word" data-nvc="compassion">compassion</span> intact.</p>
+            <p>It's also the way we lay the ground work for action <span class="nvc-word" data-nvc="requests">requests</span>. I have experienced over and over again, in this state of "<span class="nvc-word" data-nvc="connection">connection</span>" and <span class="nvc-word" data-nvc="compassionate">compassionate</span> understanding, action requests seem to fall from the heavens.</p>
+            <p>And yes, this is very challenging and it calls on us to be able to self-empathize, empathize, slow down, self-empathize some more, empathize some more and so on - until we are done. The thing is - it works.</p>
+            <p>More to come, as the <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Could You Tell Me What You Heard Me Say?</h3>
+            <p class="story-lede">﻿There was a time when my son was out of school, out of work and low on money. He was living with me in my apartment in New York City. At one point I realized he was almost completely broke - so I decided to give him some money. I also noticed that I was <span class="nvc-word" data-nvc="feeling">feeling</span> somewhat conflicted because he was smoking cigarettes at the time and I was pretty sure he would use the money to buy some. I also knew that I was no longer interested in coercing him with money (or anything else for that matter). I wanted to support him no matter what he chose to do. That said, I also wanted to share my concern in order to be self-expressed and to keep our relationship authentic.</p>
+            <p>I was really conflicted. Our conversation went like this:</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me:</span> Pat, here's some money. I know you <span class="nvc-word" data-nvc="need">need</span> it, so I want you to have it. I also know you've been smoking cigarettes and you're probably going to buy some with this. I just want you to know I'm conflicted.</p>
+            <p>Pat responded by pushing my cash-filled hand back and saying, "Fine. I won't take it."</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me <em>(surprised)</em>:</span> Pat, I'm wondering what you heard me say just now?</p>
+            <p class="dialogue-line speaker-other"><span class="speaker-name">Pat:</span> Yeah. I can't have the money if I'm smoking cigarettes.</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me:</span> Whoa! No, I'm saying you can have the money. It's just that I'm conflicted because I'm pretty sure you're going to buy cigarettes with it. Could you reflect what you're hearing now?</p>
+            <p class="dialogue-line speaker-other"><span class="speaker-name">Pat:</span> Sure. I can have the money. I just can't buy cigarettes with it.</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me <em>(confused as to why my words aren't getting across)</em>:</span> Thanks, but that's not it. I said you can have it. Do whatever you want with it. I just want you to know I'm conflicted. Could you please tell me what you're hearing now?</p>
+            <p>After a pause he spoke.</p>
+            <p class="dialogue-line speaker-other"><span class="speaker-name">Pat:</span> Yeah... You're worried about me.</p>
+            <p class="dialogue-line speaker-self"><span class="speaker-name">Me <em>(very pleasantly surprised)</em>:</span> Yes! Thank you.</p>
+            <p>I realized that after so many years of coercion, it made perfect sense for Pat to hear my words as just that, even if that wasn't my intention this time. I was so glad we stuck with it and got to where we did - <span class="nvc-word" data-nvc="connection">connection</span>.</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w15-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w15-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Try for Some Connection</h4>
+              <div class="practice-tags"><span class="practice-tag">Solo reflection</span></div>
+              <p>The next time you think your message may not have been received, try asking for a reflection. Remember, if you say, "Could you tell me what you just heard me say?" this could easily be construed as a "test".</p>
+              <p>If you say something like, "This is really important to me and I want to be sure I've been clear and we're on the same page. Could you tell me what you heard me say?" that is likely to create a different, more connecting experience.</p>
+              <p>You can also try some of these other requests to build connection:</p>
+              <p>1) "Having heard what I just said, can you tell me what's going on for you?"</p>
+              <p>2) "Would you tell me your understanding of my feelings and needs?"</p>
+              <p>3) "Would you tell me how you're feeling after hearing what I just said?"</p>
+              <p>4) "Would you tell me what comes up for you about what I just said?"</p>
+              <p>5) "May I reflect what I think I'm hearing you say?"</p>
+              <p>6) "May I reflect what I think I heard you say?"</p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-1-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p1" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Review and Support Yourself</h4>
+              <p>Review Week 13 (go to the GCN to access previous weeks)</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-2-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p2" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="2">
+            <h4><span class="practice-number">3</span> Requesting Self-Connection</h4>
+              <p>﻿The next time you feel yourself getting upset, ask yourself, "What am I needing right now and not getting?", or, "What do I love that has me feeling this way?" Yes, as I mentioned earlier, you can make a connection request of yourself too.</p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-3-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p3" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p3-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

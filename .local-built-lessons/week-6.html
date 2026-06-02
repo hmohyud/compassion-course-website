@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 6: Hidden Judgments — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="6"] {
+      --wk-primary: #9a5638;
+      --wk-primary-dark: #724026;
+      --wk-accent: #5a8a7a;
+      --wk-tint: rgba(154,86,56,0.08);
+      --wk-hero-a: #724026;
+      --wk-hero-b: #9a5638;
+    }
+    body[data-week="6"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="6"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="6"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="6"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="6"] .story-title::before,
+    body[data-week="6"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="6"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="6"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="6"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="6"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="6"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="6"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="6"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    /* W6-specific: Marshall Rosenberg poem + subheads */
+    body[data-week="6"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--wk-primary-dark);
+      margin: 1.8rem 0 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px dotted var(--wk-accent);
+      max-width: 28em;
+    }
+    body[data-week="6"] .lesson-poem {
+      margin: 1.5rem auto;
+      max-width: 38em;
+      padding: 1.2rem 1.6rem;
+      background: var(--wk-tint);
+      border-radius: 10px;
+      border-left: 3px solid var(--wk-primary);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      line-height: 1.7;
+    }
+    body[data-week="6"] .lesson-poem p {
+      margin: 0.05rem 0;
+      font-size: 1.02rem;
+      color: var(--wk-primary-dark);
+    }
+    body[data-week="6"] .lesson-poem .poem-stanza-break {
+      margin-top: 0.9rem;
+    }
+    body[data-week="6"] .lesson-poem .poem-author {
+      margin-top: 1.1rem;
+      padding-top: 0.7rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      font-style: normal;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.88rem;
+      text-align: right;
+      opacity: 0.8;
+    }
+    body.dark-mode[data-week="6"] .lesson-poem p,
+    body.dark-mode[data-week="6"] .lesson-subhead {
+      color: #f3e9d2;
+    }
+  </style>
+</head>
+<body data-week="6" data-theme="terracotta">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 6</span>
+      <h1>Hidden Judgments</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3>"Hidden Judgments"</h3>
+            <p>So far during the course, many of us have developed the skill of translating our judgments into an awareness of needs (or at least we are beginning to - *warm smile*). This will be a recurring and vital practice in our journey to having more compassion in our lives.</p>
+            <p>So it follows that the more we have the skill of identifying <span class="nvc-word" data-nvc="judgments">judgments</span>, the more opportunity we have to increase our awareness of <span class="nvc-word" data-nvc="needs">needs</span> and therefore, our experience of <span class="nvc-word" data-nvc="compassion">compassion</span>.</p>
+            <p>This week I would like to share ways to increase our <span class="nvc-word" data-nvc="compassion">compassion</span> by noticing "hidden <span class="nvc-word" data-nvc="judgments">judgments</span>": The first way, distinguishing <span class="nvc-word" data-nvc="observations">observations</span> from judgments and the second, noticing "non-feeling words".</p>
+            <h4 class="lesson-subhead">Distinguishing "<span class="nvc-word" data-nvc="observations">Observations</span>" from "<span class="nvc-word" data-nvc="judgments">Judgments</span>"</h4>
+            <blockquote class="lesson-poem">
+              <p>I can handle your telling me</p>
+              <p>What I did or didn't do.</p>
+              <p>And I can handle your interpretations,</p>
+              <p>But please don't mix the two.</p>
+              <p class="poem-stanza-break">If you want to confuse any issue,</p>
+              <p>I can tell you how to do it:</p>
+              <p>Mix together what I do</p>
+              <p>With how you react to it.</p>
+              <p class="poem-stanza-break">Tell me you're disappointed</p>
+              <p>With the unfinished chores you see,</p>
+              <p>But calling me "irresponsible"</p>
+              <p>Is no way to motivate me.</p>
+              <p class="poem-stanza-break">And tell me you're <span class="nvc-word" data-nvc="feeling">feeling</span> hurt</p>
+              <p>When I say "no" to your advances,</p>
+              <p>But calling me frigid</p>
+              <p>Won't increase your future chances.</p>
+              <p class="poem-stanza-break">Yes, I can handle your telling me</p>
+              <p>What I did or didn't do,</p>
+              <p>And I can handle your interpretations,</p>
+              <p>But please don't mix the two.</p>
+              <footer class="poem-author">&mdash; Marshall Rosenberg, <em>Friend, Mentor, Teacher, Poet</em></footer>
+            </blockquote>
+            <p>As we have discussed in earlier weeks, it can be disconnecting to speak in terms of <span class="nvc-word" data-nvc="judgment">judgment</span>. That said, most of us still struggle to fully notice our <span class="nvc-word" data-nvc="judgments">judgments</span>. By learning to think and speak in ways that include more <span class="nvc-word" data-nvc="observation">observation</span> and less judgment, we can increase the amount of connection we are likely to experience when we are talking to others (and ourselves).</p>
+            <p>In the "Practice(s)" section this week, there is an exercise that helps us distinguish these two modes of communicating (<span class="nvc-word" data-nvc="judging">judging</span> vs. observing). This, in turn, gives us more choice about how we speak and what we experience as a result. FYI, this exercise can be a challenging endeavor.</p>
+            <h4 class="lesson-subhead">Distinguishing "Non-<span class="nvc-word" data-nvc="feeling">Feeling</span> Words"</h4>
+            <p><span class="key-concept" data-concept="week-thesis">Non-<span class="nvc-word" data-nvc="feeling">feeling</span> words are words that we use as if they are <span class="nvc-word" data-nvc="feelings">feelings</span>, although they are not really feelings. In fact, they can be seen as <span class="nvc-word" data-nvc="judgments">judgments</span> disguised in "feeling language". Although we have touched on this topic in earlier weeks, it can take some real intention to develop our ability to notice and translate "non-feeling words" and the thoughts that go with them.</span></p>
+            <p>For example, I may say, "I feel excluded." Although, if you think about it, "excluded" is something that happens (or happened). It is not actually a <span class="nvc-word" data-nvc="feeling">feeling</span>.</p>
+            <p>That said, it doesn't mean that if someone says they're "<span class="nvc-word" data-nvc="feeling">feeling</span> excluded", that they are not having <span class="nvc-word" data-nvc="feelings">feelings</span> (or <span class="nvc-word" data-nvc="needs">needs</span>). It just means, they are not included in the words (and likely consciousness).</p>
+            <p>By translating (or connecting) these words to the <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> beneath them, we can experience more <span class="nvc-word" data-nvc="connection">connection</span>, understanding and <span class="nvc-word" data-nvc="compassion">compassion</span>. For example, in the case of "excluded", I can imagine that a person who is saying that, might actually feel frustrated, lonely or scared and would like to experience more connection, consideration, belonging, or community. When I think about these feelings and needs (and not the word "excluded"), I am more likely to experience more self-connection and a more compassionate understanding of what I'm (or others are) going through.</p>
+            <p>PRACTICAL NOTE: Many of us, when we become aware of non-<span class="nvc-word" data-nvc="feeling">feeling</span> words, are tempted to "correct" people who use them. We may even say things like "You know, that's not actually a feeling". As it turns out, that rarely ends up being a connecting experience. I have learned (the hard way) to simply translate or unpack "non-feeling" words inside my own head to create my own sense of <span class="nvc-word" data-nvc="compassionate">compassionate</span> understanding.</p>
+            <p>I have found this practice of seeing the <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> inside "non-<span class="nvc-word" data-nvc="feeling">feeling</span>" words to be particularly powerful (even transformational), especially when I notice and translate my own use of these words.</p>
+            <p>In the "Practice(s)" section this week, there is an exercise that helps us learn the "unpacking process" when it comes to some of these words.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">The Pitfall of Non-Feeling Words</h3>
+            <p class="story-lede">When I first started my journey to <span class="nvc-word" data-nvc="needs">needs</span> awareness, I was attending a workshop in upstate New York. On Saturday morning, I made arrangements to join my (then) partner during the lunch break. Just after noon, as the participants were gathering in the dining area, I spotted her, seated at one of the far tables. I walked over to sit down and join her, as planned.</p>
+            <p>She and another participant, Beth, were engaged in a rather animated discussion. As I approached, they both looked up and immediately went back to their conversation.</p>
+            <p>As I waited for my partner to make room for me at the table, Beth said. “Oh hey Thom. Change of plans - were busy here, we’ve decided to have lunch, just the two of us." My partner smiled and nodded in agreement.</p>
+            <p>Stunned by this remark, I wandered away from the table, miffed by the sudden, undiscussed change of plans.</p>
+            <p>I found a new table on my own and attempted to self-empathize and get my center back. Without my <span class="nvc-word" data-nvc="feelings">feelings</span> list handy, I decided to wing it. I kept thinking, I was <span class="nvc-word" data-nvc="feeling">feeling</span> “excluded”.</p>
+            <p>Unlike other times, when I used my <span class="nvc-word" data-nvc="feelings">feelings</span> (and <span class="nvc-word" data-nvc="needs">needs</span>) list, this time I felt exactly no sense of <span class="nvc-word" data-nvc="self-connection">self-connection</span>. All I could focus on was that I wanted them to behave differently and not exclude me. I sat, confused and disconnected, not understanding why my “self-<span class="nvc-word" data-nvc="empathy">empathy</span>” was so unproductive. I was stuck with one thought - they shouldn’t have excluded me. And more than that, I was drawing a blank, when it came to what I needed, other than, “needing” them to behave differently.</p>
+            <p>I was becoming more and more upset with this “intruder”, Beth, and increasingly angry with my partner for agreeing to exclude me.</p>
+            <p>As I was staring down at my improvised notes on my napkin, out of the corner of my eye, I noticed my friend Lisa, standing nearby, looking my way with, what I took as a look of concern. She spoke quietly, “Can I join you?”</p>
+            <p>Noticing a friendly face I replied, “Of course.”</p>
+            <p>“Are you OK?”</p>
+            <p>“Not really.”</p>
+            <p>I explained what happened and shared my process. After a bit of silence, Lisa asked, “Are you <span class="nvc-word" data-nvc="feeling">feeling</span> confused, maybe frustrated?" I checked in with myself and indeed those <span class="nvc-word" data-nvc="feelings">feelings</span> were quite alive in me. After a rich silence, she spoke again. "Are you wanting to experience more understanding... or consideration?" Those words were so meaningful. In that moment, as I listened, I was noticing these <span class="nvc-word" data-nvc="needs">needs</span> actually being met as she spoke. In that new moment, I realized that it was not just the behavior that caused my experience - it was the needs that their behavior reminded about - how much I value consideration... then trust popped up too, then partnership.</p>
+            <p>This distinction between wanting someone to behave differently versus making contact with my <span class="nvc-word" data-nvc="feelings">feelings</span>, and then <span class="nvc-word" data-nvc="needs">needs</span> was a life-changer. I no longer "needed" them to change, I could yearn to experience consideration in my life, and pursue that - not in the form of someone's particular behavior, but as an energy (or experience) of life, one I might find in a thousand different ways. I have come to call this "needs liberation".</p>
+            <p>I laughed out loud, as I thought,</p>
+            <aside class="pull-quote">"the people who remind us of our <span class="nvc-word" data-nvc="needs">needs</span>, are rarely the people who are meeting them"</aside>
+            <p>In that moment I had discovered a powerful key to making my life more wonderful, even as the actions of those around me were stimulating pain in me. A lesson that, to this day, changes how I live every day of my life.</p>
+            <p>If it weren’t for this subtle, yet incredibly powerful distinction between <span class="nvc-word" data-nvc="feeling">feeling</span> and non-feeling words, I might have missed it.</p>
+            <p>Special Note: There are hundreds of <span class="nvc-word" data-nvc="feelings">Feelings</span> list and apps on the Internet. Many of them include "Non-<span class="nvc-word" data-nvc="feeling">feeling</span>" words. That is why we make such a big deal about using out carefully curated Feelings and <span class="nvc-word" data-nvc="needs">Needs</span> list, published here in The Compassion Course.</p>
+            <p>Click Here to see The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course <span class="nvc-word" data-nvc="feelings">Feelings</span> and <span class="nvc-word" data-nvc="needs">Needs</span> list.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> "Shifting towards Compassion"</h4>
+              <p>Continue working with this exercise (<a href="http://www.theexercise.org/" target="_blank" rel="noopener">www.theexercise.org</a>). This time, start using observations in addition to quotes, such as actions. You can also work with your own judgment thoughts by writing the words "I'm telling myself ____". For example "I'm telling myself Chris is selfish".</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-1-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p1" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Experiencing Judgments versus Needs</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Write down 4 judgments you have about your own needs (for example, "I don't deserve to have them", "they are a sign of weakness" - take your time). Next, view or print a copy of the needs list. Then, choose your top 5 favorite needs (for that moment) and write them down. Scan and ponder your lists. Notice how you feel as you "take in" these two different lists. You may want to share this on one of our Community Forums.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-2-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p2" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="2">
+            <h4><span class="practice-number">3</span> Non-Feeling Word Game</h4>
+              <p>This simple game or exercise was inspired by the many hours I spent in dentist's and doctor's waiting rooms reading children's magazines, "connecting the dots". It is a practice in finding "hidden judgments" and "unpacking" the feelings and needs inside them. <a href="https://files.constantcontact.com/09fd6f49001/9caaf5c4-e58f-4c24-bd32-15eb5690d5b1.pdf" target="_blank" rel="noopener noreferrer">Click here</a> to play.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-3-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p3" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p3-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="3">
+            <h4><span class="practice-number">4</span> Heavier Lifting</h4>
+              <p>Distinguishing Evaluations and Judgments - This exercise helps us find the "hidden judgments" inside our words. It is also practice in speaking in a "judgment free" manner. <a href="https://files.constantcontact.com/09fd6f49001/26a34c1d-2b97-4524-adae-5ab206719289.pdf" target="_blank" rel="noopener noreferrer">click here</a> to go to this exercise.</p>
+              <p>Final Day to Join the Certificate of Completion Track</p>
+              <p>We have received a number of inquiries from participants interested in the track so today is the last day that registrations will be accepted for the Certificate of Completion Track. <a href="https://nycnvc.wufoo.com/forms/x1l09us90wxdqh7/" target="_blank" rel="noopener">Sign up now.</a></p>
+              <p>For increased structure, accountability and recognition of your work, this year The Compassion Course offers an optional Certificate of Completion (for an additional fee of $70).</p>
+              <p>Document your coursework related to weekly readings, exercises and experiences using our secure online platform and database.</p>
+              <p>Get weekly reminders and helpful hints and advice to help you stay on track.</p>
+              <p>Have your work confidentially verified* by Compassion Course staff at the end of the course year for certificate qualification.</p>
+              <p>Pre-qualify to apply for the 2027 Mentor Program</p>
+              <p>*Verification does not include personal mentoring or feedback. It is specifically to verify that you have completed the work of the course.</p>
+              <p><a href="https://pci.jotform.com/form/260584732263156" target="_blank" rel="noopener">Sign up now</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">If you haven't already, Click Here to Join the GCN</a></p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-4-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p4" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p4-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

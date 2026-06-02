@@ -1,0 +1,325 @@
+/**
+ * Build "The Compassion Course 2026–2027 Workbook" as a .docx.
+ *
+ * One document covering all 52 weeks. Every answer goes in a clearly
+ * bordered table cell (Google-Docs friendly: DXA widths, dual widths,
+ * ShadingType.CLEAR). Distribution model: each participant opens their own
+ * private Google-Docs copy from a link we send — nothing to download or
+ * back up. Cells expand as they type.
+ *
+ * Layout goals:
+ *   - Cover + intro fit on page 1.
+ *   - Each week is kept compact so it fits on a single page where possible
+ *     (avoids a near-blank overflow page).
+ *   - Answer boxes are short by default (they grow in Google Docs as you
+ *     type) so the page isn't dominated by empty space.
+ *
+ * Run from .local-workbook/ (docx resolves from the project's node_modules):
+ *   node build-workbook.cjs
+ */
+const fs = require('fs');
+const path = require('path');
+const {
+  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+  AlignmentType, LevelFormat, BorderStyle, WidthType, ShadingType,
+  HeightRule, HeadingLevel, PageBreak, VerticalAlign,
+  Footer, PageNumber, TabStopType, TabStopPosition,
+} = require('docx');
+
+// ── palette ──────────────────────────────────────────────────────────────
+const TEAL = '2A7A6E';
+const TEAL_DARK = '1E5C53';
+const TEAL_TINT = 'E9F2F0';
+const GOLD = 'B8860B';
+const INK = '2D2D2D';
+const MUTE = '6B6B6B';
+const ANSWER_BG = 'FCFBF7';   // very light cream so the input area reads as fillable
+const RULE = 'CFE3DF';
+
+const CONTENT_W = 9360;       // US Letter, 1" margins
+
+// ── helpers ────────────────────────────────────────────────────────────────
+const cellBorder = { style: BorderStyle.SINGLE, size: 4, color: RULE };
+const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
+
+// One answer box: a shaded header row (the label / anchor) + a single empty
+// row the participant types into. `widths` sums to CONTENT_W.
+function answerTable(prompt, widths, height) {
+  const headers = Array.isArray(prompt) ? prompt : [prompt];
+  const single = !Array.isArray(prompt);
+  const headerCells = headers.map((p, i) =>
+    new TableCell({
+      borders: cellBorders,
+      width: { size: widths[i], type: WidthType.DXA },
+      shading: { fill: TEAL, type: ShadingType.CLEAR },
+      margins: { top: 40, bottom: 40, left: 110, right: 110 },
+      children: [new Paragraph({ spacing: { before: 0, after: 0 },
+        children: [new TextRun({ text: (single ? '✎  ' : '') + p, bold: true, color: 'FFFFFF', size: 18 })] })],
+    }));
+  const bodyCells = widths.map((w) =>
+    new TableCell({
+      borders: cellBorders,
+      width: { size: w, type: WidthType.DXA },
+      shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
+      verticalAlign: VerticalAlign.TOP,
+      margins: { top: 70, bottom: 70, left: 110, right: 110 },
+      children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 20 })] })],
+    }));
+  return new Table({
+    width: { size: CONTENT_W, type: WidthType.DXA },
+    columnWidths: widths,
+    rows: [
+      // cantSplit keeps the box from breaking across a page boundary.
+      new TableRow({ tableHeader: true, cantSplit: true, children: headerCells }),
+      new TableRow({ cantSplit: true, height: { value: height, rule: HeightRule.ATLEAST }, children: bodyCells }),
+    ],
+  });
+}
+
+function bodyPara(text, opts = {}) {
+  return new Paragraph({
+    spacing: { after: opts.after ?? 60, before: opts.before ?? 0, line: opts.line ?? 276, lineRule: 'auto' },
+    keepLines: true,
+    children: [new TextRun({ text, size: opts.size ?? 20, color: opts.color ?? INK, italics: !!opts.italics })],
+  });
+}
+
+// ── per-week page-fit planner ────────────────────────────────────────────────
+// One comfortable description size and ONE line spacing for every week — we
+// never shrink the type or squeeze the leading. Instead we size the answer
+// boxes to the space available:
+//   • If the week fits on one page with boxes at their minimum, it gets its
+//     own page and the boxes grow to fill it nicely (spacious for light
+//     weeks; snug-but-readable for borderline ones — e.g. when only the
+//     reflections box would otherwise spill).
+//   • If the week's text alone is too long to fit even with minimum boxes
+//     (it would overflow by more than ~one box), we DON'T fight it — it runs
+//     onto a second page with normal-size boxes, so that page has real
+//     content rather than looking blank.
+// All values in twips (1440 = 1 inch).
+// Estimate constants (twips) used to decide whether a week fits one page and
+// how tall its boxes can be. Deliberately a touch conservative so the box
+// FILL never overshoots and tips a fitting week onto a second page.
+const PAGE_USABLE = 13104;      // body height: 15840 − 1440 top − 1296 bottom
+const FIT_SAFETY = 560;         // bottom air buffer
+const DESC_CPL = 82;            // est. chars per line at the 10pt body size
+const DESC_LH = 252;            // est. line height at 10pt / 1.15 spacing
+const PARA_AFTER = 64;
+const H_WEEK = 640;             // Week heading (Georgia 16pt + rule + spacing)
+const H_TITLE = 470;            // italic lesson title
+const H_PRACTICE = 540;         // "Practice #N — …" heading (1 line + spacing)
+const H_PRACTICE_WRAP = 270;    // extra if that heading wraps to a 2nd line
+const H_REFL = 480;             // "Reflections & Notes" heading
+const BOX_HEADER = 400;         // a box's shaded label row
+const REFL_HEADER = 600;        // reflections 3-col header row (can be 2 lines)
+// Low floor: a borderline week (one that would otherwise spill only its
+// reflections box) shrinks its BOXES — never the text or spacing — to stay
+// on one page. Boxes grow further in Google Docs, so a small start is fine.
+const MIN_PRACTICE_BOX = 300;
+const MIN_REFL_BOX = 380;
+const MAX_PRACTICE_BOX = 2200;
+const MAX_REFL_BOX = 1380;
+// Box sizes for weeks we let overflow (kept generous so the 2nd page carries
+// real, usable writing space rather than looking blank).
+const COMF_PRACTICE_BOX = 820;
+const COMF_REFL_BOX = 1300;
+
+function descTwips(practices) {
+  let h = 0;
+  practices.forEach((pr) => pr.desc.forEach((p) => {
+    h += Math.max(1, Math.ceil(p.length / DESC_CPL)) * DESC_LH + PARA_AFTER;
+  }));
+  return h;
+}
+
+// Weeks whose practice text is simply too long to fit one page at the
+// constant body size + line spacing — determined empirically by rendering
+// with minimum boxes (see the probe in the build notes). These are allowed
+// to run onto a second page; every other week is squeezed (boxes only,
+// never the text) onto its single page. If the lesson content changes,
+// re-run the probe to refresh this set.
+const GENUINE_OVERFLOW = new Set([6, 14, 23, 24, 45, 50]);
+
+function planWeek(wk) {
+  const n = wk.practices.length;
+
+  if (GENUINE_OVERFLOW.has(wk.n)) {
+    // Let it overflow with generous boxes so the 2nd page carries real
+    // writing space rather than looking blank.
+    return { practiceBox: COMF_PRACTICE_BOX, reflBox: COMF_REFL_BOX, overflow: true };
+  }
+
+  // Fits on one page. Size boxes from a deliberately conservative estimate
+  // so the fill never overshoots and tips the week over; borderline weeks
+  // fall back to the small floor (and still fit, per the probe).
+  const headFixed = H_WEEK + (wk.title ? H_TITLE : 0) + H_REFL + REFL_HEADER
+    + wk.practices.reduce((a, pr) => {
+        const headLen = (`Practice #9 — ${pr.title || ''}`).length;
+        return a + H_PRACTICE + (headLen > 50 ? H_PRACTICE_WRAP : 0) + BOX_HEADER;
+      }, 0);
+  const available = PAGE_USABLE - FIT_SAFETY - headFixed - descTwips(wk.practices);
+  let reflBox = Math.min(MAX_REFL_BOX, Math.max(MIN_REFL_BOX, Math.round(available * 0.22)));
+  let practiceBox = n > 0 ? Math.round((available - reflBox) / n) : 0;
+  practiceBox = Math.min(MAX_PRACTICE_BOX, Math.max(MIN_PRACTICE_BOX, practiceBox));
+  if (n > 0 && practiceBox * n + reflBox > available) {
+    practiceBox = Math.max(MIN_PRACTICE_BOX, Math.floor((available - reflBox) / n));
+  }
+  return { practiceBox, reflBox, overflow: false };
+}
+
+// ── load content ─────────────────────────────────────────────────────────
+const content = JSON.parse(fs.readFileSync(path.join(__dirname, 'content.json'), 'utf8'));
+const weeks = content.weeks;
+
+const children = [];
+
+// ── page 1: styled cover + intro ─────────────────────────────────────────────
+children.push(
+  // thin teal rule above the title
+  new Paragraph({ spacing: { before: 200, after: 60 }, alignment: AlignmentType.CENTER,
+    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: TEAL, space: 1 } },
+    children: [new TextRun({ text: '', size: 2 })] }),
+  new Paragraph({ spacing: { before: 60, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'The Compassion Course', bold: true, color: TEAL, size: 48, font: 'Georgia' })] }),
+  new Paragraph({ spacing: { before: 70, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: '2026 – 2027  ·  Participant Workbook', color: GOLD, size: 24, font: 'Georgia' })] }),
+  new Paragraph({ spacing: { before: 60, after: 70 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'A year of practicing compassion, one week at a time.', italics: true, color: MUTE, size: 20, font: 'Georgia' })] }),
+  // thin gold divider rule
+  new Paragraph({ spacing: { before: 0, after: 200 }, alignment: AlignmentType.CENTER,
+    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: GOLD, space: 1 } },
+    children: [new TextRun({ text: '', size: 2 })] }),
+);
+// "This workbook belongs to" card
+children.push(new Paragraph({ spacing: { before: 0, after: 60 }, alignment: AlignmentType.CENTER,
+  children: [new TextRun({ text: 'THIS WORKBOOK BELONGS TO', bold: true, color: TEAL_DARK, size: 17, characterSpacing: 40 })] }));
+children.push(new Table({
+  width: { size: 6600, type: WidthType.DXA },
+  columnWidths: [1500, 5100],
+  alignment: AlignmentType.CENTER,
+  rows: [['Name', ''], ['Email', '']].map(([label]) =>
+    new TableRow({
+      height: { value: 460, rule: HeightRule.ATLEAST },
+      children: [
+        new TableCell({ borders: cellBorders, width: { size: 1500, type: WidthType.DXA },
+          shading: { fill: TEAL_TINT, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 40, bottom: 40, left: 130, right: 110 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: label, bold: true, color: TEAL_DARK, size: 21 })] })] }),
+        new TableCell({ borders: cellBorders, width: { size: 5100, type: WidthType.DXA },
+          shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 40, bottom: 40, left: 110, right: 110 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 21 })] })] }),
+      ],
+    })),
+}));
+
+// How to Use
+children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 320, after: 60 },
+  children: [new TextRun('How to Use This Workbook')] }));
+children.push(bodyPara(
+  'This is your personal copy of The Compassion Course workbook — one private copy for each participant, opened from the link we send you. There is nothing to download, install, or back up. Just open your link and type your responses in the shaded boxes; your writing saves automatically and the boxes grow as you type. Please write only inside the boxes so your entries stay easy to find and review.'
+));
+
+// Certificate of Completion
+children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 60 },
+  children: [new TextRun('Certificate of Completion (COC)')] }));
+[
+  'Use this workbook to record and track your weekly progress through the course.',
+  'We will email you weekly reminders and helpful hints to keep you on track.',
+  'If you registered for the Certificate of Completion, please fill out every prompt.',
+  'At the end of the course year, a Compassion Course faculty member will confidentially confirm that you completed your work. This is a completion check — it does not include mentoring or feedback.',
+  'Completing your workbook is part of qualifying to become a Mentor the following year.',
+].forEach((t) => children.push(bodyPara(t, { after: 60 })));
+
+// ── per-week sections (each week starts on its own page) ─────────────────────
+// Each week starts on a fresh page. Answer-box heights are computed per week
+// (see fitBoxes) so the content fills the page with comfortable, even
+// spacing and lands cleanly on one page — no cramped feel, no near-blank
+// overflow. Boxes still expand further in Google Docs as the participant
+// types.
+weeks.forEach((wk) => {
+  const { practiceBox, reflBox } = planWeek(wk);
+
+  children.push(new Paragraph({
+    pageBreakBefore: true,
+    heading: HeadingLevel.HEADING_1,
+    spacing: { before: 0, after: 40 },
+    children: [new TextRun(`Week ${wk.n}`)],
+  }));
+  if (wk.title) {
+    children.push(new Paragraph({ spacing: { after: 150 }, keepNext: true,
+      children: [new TextRun({ text: wk.title, italics: true, color: TEAL_DARK, size: 24, font: 'Georgia' })] }));
+  }
+
+  if (!wk.practices.length) {
+    children.push(bodyPara('Use the reflection space below to capture your practice this week.', { italics: true, color: MUTE }));
+  }
+  wk.practices.forEach((pr, pi) => {
+    const num = pi + 1;
+    children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
+      keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' + pr.title : ''}`)] }));
+    // Constant comfortable body size + line spacing (bodyPara defaults).
+    pr.desc.forEach((d) => children.push(bodyPara(d)));
+    // Answer box. Header text doubles as the automation anchor
+    // ("Week N · Practice #X"). Sized by planWeek; grows in Google Docs.
+    children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox));
+  });
+
+  // Reflections & Notes (3 columns)
+  children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
+    keepNext: true, children: [new TextRun('Reflections & Notes')] }));
+  children.push(answerTable(
+    ['Insights', 'A real-life situation I approached in a new way', 'My intentions for next week'],
+    [3120, 3120, 3120],
+    reflBox,
+  ));
+});
+
+// ── document ────────────────────────────────────────────────────────────────
+const doc = new Document({
+  creator: 'The Compassion Course',
+  title: 'The Compassion Course 2026–2027 Workbook',
+  styles: {
+    default: { document: { run: { font: 'Arial', size: 20, color: INK } } },
+    paragraphStyles: [
+      // Week heading rendered as a filled teal banner with white text.
+      { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+        run: { size: 30, bold: true, color: 'FFFFFF', font: 'Georgia' },
+        paragraph: { spacing: { before: 120, after: 130, line: 320, lineRule: 'auto' },
+          outlineLevel: 0, keepNext: true,
+          shading: { fill: TEAL, type: ShadingType.CLEAR },
+          indent: { left: 140 } } },
+      // Practice / section heading with a gold accent bar on the left.
+      { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+        run: { size: 23, bold: true, color: TEAL_DARK, font: 'Arial' },
+        paragraph: { spacing: { before: 160, after: 70 }, outlineLevel: 1, keepNext: true,
+          indent: { left: 180 },
+          border: { left: { style: BorderStyle.SINGLE, size: 24, color: GOLD, space: 10 } } } },
+    ],
+  },
+  sections: [{
+    properties: { page: {
+      size: { width: 12240, height: 15840 },
+      margin: { top: 1440, right: 1440, bottom: 1296, left: 1440 },
+    } },
+    footers: {
+      default: new Footer({ children: [new Paragraph({
+        tabStops: [{ type: TabStopType.RIGHT, position: 9360 }],
+        border: { top: { style: BorderStyle.SINGLE, size: 4, color: RULE, space: 6 } },
+        children: [
+          new TextRun({ text: 'The Compassion Course  ·  2026–2027 Workbook', color: MUTE, size: 16 }),
+          new TextRun({ text: '\t', size: 16 }),
+          new TextRun({ children: ['Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
+        ],
+      })] }),
+    },
+    children,
+  }],
+});
+
+const outPath = path.join(__dirname, 'The Compassion Course 2026-2027 Workbook.docx');
+Packer.toBuffer(doc).then((buf) => {
+  fs.writeFileSync(outPath, buf);
+  console.log('wrote', outPath, '(' + (buf.length / 1024).toFixed(0) + ' KB)');
+  console.log('weeks:', weeks.length, ' practices:', weeks.reduce((a, w) => a + w.practices.length, 0));
+});

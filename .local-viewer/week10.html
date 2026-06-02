@@ -1,0 +1,5275 @@
+<!DOCTYPE html>
+<!--
+  SAMPLE FILE — Week 10: "What Empathy Is... and What It's Not"
+  Extracted from the Compassion Course Online weekly message platform.
+
+  This is a fully interactive, styled sample with auth bypassed.
+  It references styles.css and script.js from the same directory.
+
+  TO EMBED ON ANOTHER PLATFORM:
+  - The HTML structure uses these interactive components:
+      .section-card + .accordion-header + .accordion-body  (expand/collapse sections)
+      .dialogue-container + .dialogue-line + .dialogue-btn  (progressive dialogue reveal)
+      .step-cards + .step-card                              (numbered lesson cards)
+      .practice-card + .journal-area                        (journaling with autosave)
+      .insight-box                                          (highlighted callout blocks)
+      .toc + .toc-list                                      (table of contents with jump links)
+      .hero                                                 (gradient header banner)
+      .resource-grid + .resource-link                       (resource link cards)
+  - styles.css contains all the CSS (variables, layout, dark mode, print, responsive)
+  - script.js contains all the JS (accordions, dialogue reveals, journals, dark mode,
+    narration/audio, print, expand/collapse all, scroll animations, etc.)
+  - The auth gate (password protection) lives in the first IIFE of script.js and
+    reads from auth-config.js — skip both for public embedding.
+
+  COLOR PALETTE:
+    Primary (deep teal)       #2a7a6e
+    Primary light             #3a9e8f
+    Primary dark              #1e5c53
+    Accent (warm gold)        #e8a838
+    Accent light              #f0c36a
+    Background (warm cream)   #faf7f2
+    Card background           #ffffff
+    Alt background            #f0ece4
+    Body text                 #2d2d2d
+    Secondary text            #5a5a5a
+    Muted text                #8a8a8a
+    Border                    #e0dbd2
+    Sage (supporting)         #8fad8b
+    Rose (supporting)         #c9827a
+    Highlight (soft gold)     #fff3cd
+    Dialogue "self" bubble    #e8f5e9
+    Dialogue "other" bubble   #f3f0ff
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 10: What Empathy Is... and What It's Not — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+/* ============================================
+   Compassion Course Online — Unified Stylesheet
+   ============================================
+
+   SHARED FILE — edits here apply to EVERY page automatically
+   (index, admin, and every week_N.html) because they all
+   <link rel="stylesheet" href="styles.css">.
+
+   Use this file for any site-wide visual fix so you don't have
+   to touch each week page individually. Per-page HTML changes
+   (titles, footer year, button text literals, etc.) do NOT
+   propagate — those need to be updated in each HTML file, or
+   better, in a shared week-template file that new weeks copy from.
+   ============================================ */
+
+/* --- Password Gate --- */
+#auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a5c53 0%, #2a7a6e 50%, #3a9a8e 100%);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.auth-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+.auth-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  color: #2a7a6e;
+  margin: 0 0 0.25rem;
+}
+.auth-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #b08d57;
+  margin: 0 0 1rem;
+}
+.auth-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+#auth-form {
+  display: flex;
+  gap: 0.5rem;
+}
+#auth-input {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#auth-input:focus {
+  border-color: #2a7a6e;
+}
+#auth-form button {
+  padding: 0.6rem 1.2rem;
+  background: #2a7a6e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#auth-form button:hover {
+  background: #1a5c53;
+}
+.auth-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+  min-height: 1.2em;
+}
+
+/* --- CSS Custom Properties --- */
+:root {
+  --clr-primary: #2a7a6e;
+  --clr-primary-light: #3a9e8f;
+  --clr-primary-dark: #1e5c53;
+  --clr-accent: #e8a838;
+  --clr-accent-light: #f0c36a;
+  --clr-bg: #faf7f2;
+  --clr-bg-card: #ffffff;
+  --clr-bg-alt: #f0ece4;
+  --clr-text: #2d2d2d;
+  --clr-text-light: #5a5a5a;
+  --clr-text-muted: #8a8a8a;
+  --clr-border: #e0dbd2;
+  --clr-sage: #8fad8b;
+  --clr-rose: #c9827a;
+  --clr-highlight: #fff3cd;
+  --clr-dialogue-self: #e8f5e9;
+  --clr-dialogue-other: #f3f0ff;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --transition: 0.3s ease;
+  --max-width: 820px;
+}
+
+/* --- Dark Mode --- */
+[data-theme="dark"] {
+  --clr-bg: #1a1a2e;
+  --clr-bg-card: #242442;
+  --clr-bg-alt: #1e1e36;
+  --clr-text: #e0e0e0;
+  --clr-text-light: #b0b0b0;
+  --clr-text-muted: #777;
+  --clr-border: #3a3a5c;
+  --clr-highlight: #3d3520;
+  --clr-dialogue-self: #1e3a2e;
+  --clr-dialogue-other: #2a2a4a;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.35);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 17px;
+  overflow-y: scroll;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.75;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* --- Reading Progress Bar --- */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--clr-primary), var(--clr-accent));
+  width: 0%;
+  z-index: 10000;
+  transition: width 0.1s linear;
+}
+
+/* --- Navigation --- */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--clr-bg-card);
+  border-bottom: 1px solid var(--clr-border);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nav-brand {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+  text-decoration: none;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+
+#dark-mode-toggle {
+  background: none;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  color: var(--clr-text);
+  line-height: 1;
+}
+
+#dark-mode-toggle:hover {
+  border-color: var(--clr-primary);
+  background: var(--clr-bg-alt);
+}
+
+.admin-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--clr-primary);
+  background: transparent;
+  border: 1.5px solid var(--clr-primary);
+  border-radius: 999px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+}
+.admin-nav-btn:hover {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+/* Google Translate — clean compact widget */
+.nav-translate {
+  display: flex;
+  align-items: center;
+}
+
+.goog-te-gadget-simple {
+  background: none !important;
+  border: 1.5px solid var(--clr-border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.8rem !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.goog-te-gadget-simple:hover {
+  border-color: var(--clr-primary) !important;
+}
+
+.goog-te-gadget-simple .goog-te-gadget-icon {
+  display: none !important;
+}
+
+.goog-te-gadget-simple span {
+  font-size: 0.78rem !important;
+  color: var(--clr-text-light) !important;
+}
+
+.goog-te-gadget-simple span a {
+  text-decoration: none !important;
+  color: var(--clr-text-light) !important;
+  font-size: 0.78rem !important;
+}
+
+.goog-te-gadget-simple span a span:first-child {
+  display: inline !important;
+}
+
+/* Hide separator bars and extra images */
+.goog-te-gadget-simple span[style*="border-left"] {
+  display: none !important;
+}
+
+.goog-te-gadget-simple img[src*="cleardot"] {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  font-size: 0 !important;
+  color: transparent !important;
+}
+
+.goog-te-gadget > span {
+  display: none !important;
+}
+
+/* Constrain the language-picker popup so it never spills off the viewport.
+   Google positions the iframe with inline `left:` — we anchor to the right
+   instead and cap width/height to the viewport. */
+.goog-te-menu-frame,
+.goog-te-menu-frame.skiptranslate {
+  max-width: 92vw !important;
+  max-height: 80vh !important;
+  left: auto !important;
+  right: 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+/* And make sure the trigger itself doesn't push the nav off on mobile */
+.nav-translate {
+  max-width: 160px;
+  overflow: hidden;
+}
+
+/* When no translation active, hide the banner and reset body offset */
+.goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+
+/* When Google Translate is active, show the banner and offset content */
+html.translated-ltr .goog-te-banner-frame,
+html.translated-rtl .goog-te-banner-frame {
+  display: block !important;
+  height: 40px;
+}
+html.translated-ltr body,
+html.translated-rtl body {
+  top: 40px !important;
+}
+html.translated-ltr .top-nav,
+html.translated-rtl .top-nav {
+  top: 40px;
+}
+html.translated-ltr #progress-bar,
+html.translated-rtl #progress-bar {
+  top: 40px;
+}
+
+/* --- Index / Week Listing Page --- */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
+}
+.index-main {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+.index-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.6rem;
+  color: var(--clr-primary);
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--clr-border);
+  letter-spacing: 0.01em;
+}
+.week-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.week-card {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.1rem 1.4rem;
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-left: 4px solid var(--clr-primary);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--clr-text);
+  transition: box-shadow var(--transition), border-color var(--transition),
+              transform 0.15s, background var(--transition);
+}
+.week-card:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--clr-accent);
+  transform: translateX(3px);
+  background: var(--clr-bg-card);
+}
+.week-card-number {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--clr-primary);
+  white-space: nowrap;
+  min-width: 4.2rem;
+}
+.week-card-title {
+  flex: 1;
+  font-size: 1.02rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.week-card-arrow {
+  font-size: 1.2rem;
+  color: var(--clr-text-muted);
+  transition: transform 0.15s;
+}
+.week-card:hover .week-card-arrow {
+  transform: translateX(4px);
+  color: var(--clr-accent);
+}
+
+/* Locked / unreleased week cards (course-tier user, week not yet released) */
+.week-card-locked {
+  opacity: 0.55;
+  cursor: default;
+  border-left-color: var(--clr-border);
+  background: transparent;
+}
+.week-card-locked:hover {
+  box-shadow: none;
+  border-left-color: var(--clr-border);
+  transform: none;
+}
+.week-card-locked .week-card-number,
+.week-card-locked .week-card-title {
+  color: var(--clr-text-muted);
+}
+.week-card-locked-label {
+  font-size: 0.78rem;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* --- Back to list link in week pages --- */
+.nav-back {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+  text-decoration: none;
+  margin-right: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: color var(--transition), background var(--transition);
+}
+.nav-back:hover {
+  color: var(--clr-primary);
+  background: rgba(42, 122, 110, 0.08);
+}
+
+/* --- Hero Header --- */
+.hero {
+  background: linear-gradient(135deg, var(--clr-primary-dark) 0%, var(--clr-primary) 50%, var(--clr-primary-light) 100%);
+  color: #fff;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  animation: heroShimmer 15s ease-in-out infinite;
+}
+
+@keyframes heroShimmer {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2%, -1%); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.hero-week-label {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: rgba(255,255,255,0.15);
+  padding: 0.4rem 1.2rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.hero-instructor {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.hero-instructor a {
+  color: var(--clr-accent-light);
+  text-decoration: none;
+}
+
+.hero-instructor a:hover {
+  text-decoration: underline;
+}
+
+/* --- Main Content --- */
+.main-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* --- Table of Contents --- */
+.toc {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.toc h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  color: var(--clr-primary);
+  margin-bottom: 0.8rem;
+}
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toc-list a {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--clr-text-light);
+  text-decoration: none;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--clr-border);
+  border-radius: 50px;
+  transition: all var(--transition);
+}
+
+.toc-list a:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+  background: rgba(42,122,110,0.06);
+}
+
+/* --- Section Cards --- */
+.section-card {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.section-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* --- Accordion Header --- */
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.3rem 1.8rem;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: var(--clr-text);
+  transition: background var(--transition);
+}
+
+.accordion-header:hover {
+  background: var(--clr-bg-alt);
+}
+
+.accordion-header h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.section-icon.concept {
+  background: rgba(42,122,110,0.1);
+  color: var(--clr-primary);
+}
+.section-icon.concept::before { content: '💡'; }
+
+.section-icon.practice-story {
+  background: rgba(232,168,56,0.12);
+  color: var(--clr-accent);
+}
+.section-icon.practice-story::before { content: '📖'; }
+
+.section-icon.exercises {
+  background: rgba(143,173,139,0.15);
+  color: var(--clr-sage);
+}
+.section-icon.exercises::before { content: '✏️'; }
+
+.section-icon.resources {
+  background: rgba(201,130,122,0.12);
+  color: var(--clr-rose);
+}
+.section-icon.resources::before { content: '📚'; }
+
+.accordion-chevron {
+  font-size: 1.2rem;
+  transition: transform var(--transition);
+  color: var(--clr-text-muted);
+}
+
+.accordion-header.active .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* --- Accordion Body --- */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.accordion-body.open {
+  max-height: 15000px;
+}
+
+@media print {
+  .accordion-body,
+  .accordion-body.open {
+    max-height: unset !important;
+    height: auto !important;
+    overflow: visible !important;
+    transition: none !important;
+    display: block !important;
+  }
+}
+
+.accordion-content {
+  padding: 0.5rem 1.8rem 2rem;
+}
+
+/* --- Typography in Content --- */
+.accordion-content h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--clr-primary);
+  margin: 1.8rem 0 0.8rem;
+}
+
+.accordion-content h3:first-child {
+  margin-top: 0.5rem;
+}
+
+.accordion-content p {
+  margin-bottom: 1rem;
+  color: var(--clr-text);
+}
+
+.accordion-content ul, .accordion-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.accordion-content li {
+  margin-bottom: 0.4rem;
+}
+
+.accordion-content a {
+  color: var(--clr-primary);
+  text-decoration: underline;
+  text-decoration-color: rgba(42,122,110,0.3);
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--transition);
+}
+
+.accordion-content a:hover {
+  text-decoration-color: var(--clr-primary);
+}
+
+/* --- Blockquotes --- */
+blockquote {
+  border-left: 4px solid var(--clr-accent);
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: var(--clr-bg-alt);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--clr-text-light);
+}
+
+blockquote p {
+  margin-bottom: 0;
+}
+
+/* --- Key Concepts (visual emphasis only) --- */
+.key-concept {
+  border-bottom: 2px dashed var(--clr-accent-light);
+  padding-bottom: 1px;
+}
+
+/* --- Dialogue Reveal --- */
+.dialogue-container {
+  margin: 1.5rem 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.dialogue-line {
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius-sm);
+  display: none;
+}
+
+.dialogue-line.visible {
+  display: block;
+  animation: dialogueFadeIn 0.4s ease forwards;
+}
+
+.dialogue-line.speaker-a {
+  background: var(--clr-dialogue-other);
+  margin-right: 2rem;
+}
+
+.dialogue-line.speaker-b {
+  background: var(--clr-dialogue-self);
+  margin-left: 2rem;
+}
+
+.dialogue-line .speaker-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--clr-primary);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.dialogue-line.speaker-a .speaker-name {
+  color: var(--clr-rose);
+}
+
+.dialogue-line .speaker-text {
+  font-size: 0.95rem;
+}
+
+.dialogue-narration {
+  padding: 0.7rem 1.2rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+  color: var(--clr-text-muted);
+  font-size: 0.9rem;
+  display: none;
+}
+
+.dialogue-narration.visible {
+  display: block;
+  animation: dialogueFadeIn 0.4s ease forwards;
+}
+
+.dialogue-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dialogue-btn {
+  background: var(--clr-primary);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.4rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.dialogue-btn:hover {
+  background: var(--clr-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.dialogue-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dialogue-btn.secondary {
+  background: var(--clr-bg-alt);
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border);
+}
+
+.dialogue-btn.secondary:hover {
+  background: var(--clr-border);
+}
+
+/* --- Practice Journal --- */
+.practice-card {
+  background: var(--clr-bg-alt);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--clr-border);
+}
+
+.practice-card h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--clr-primary);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.practice-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--clr-primary);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.practice-card p {
+  color: var(--clr-text-light);
+  font-size: 0.92rem;
+  margin-bottom: 0.8rem;
+}
+
+.journal-area {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background: var(--clr-bg-card);
+  color: var(--clr-text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.journal-area:focus {
+  outline: none;
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px rgba(42,122,110,0.12);
+}
+
+.journal-area::placeholder {
+  color: var(--clr-text-muted);
+}
+
+.journal-saved {
+  font-size: 0.75rem;
+  color: var(--clr-sage);
+  margin-top: 0.3rem;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.journal-saved.show {
+  opacity: 1;
+}
+
+/* --- Resource Links --- */
+.resource-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem 1rem;
+  background: var(--clr-bg-alt);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--clr-text);
+  transition: all var(--transition);
+}
+
+.resource-link:hover {
+  border-color: var(--clr-primary);
+  background: rgba(42,122,110,0.04);
+}
+
+.resource-link .resource-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+  line-height: 1;
+}
+
+.resource-link .resource-text {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--clr-primary);
+}
+
+/* --- Insight Box --- */
+.insight-box {
+  background: linear-gradient(135deg, rgba(42,122,110,0.06), rgba(232,168,56,0.06));
+  border: 1px solid rgba(42,122,110,0.15);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.insight-box::before {
+  content: 'Key Insight';
+  position: absolute;
+  top: -0.6rem;
+  left: 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--clr-primary);
+  background: var(--clr-bg-card);
+  padding: 0.15rem 0.6rem;
+  border: 1.5px solid rgba(42,122,110,0.3);
+  border-radius: 4px;
+}
+
+.insight-box p {
+  font-size: 0.95rem;
+}
+
+/* --- Step Cards (for multi-step breakdowns) --- */
+.step-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.step-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.2rem;
+  background: var(--clr-bg-alt);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--clr-primary);
+}
+
+.step-card .step-num {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+}
+
+.step-card .step-body h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.step-card .step-body p {
+  font-size: 0.9rem;
+  color: var(--clr-text-light);
+  margin-bottom: 0;
+}
+
+/* --- Judgment Translation Table --- */
+.translation-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 1px solid var(--clr-border);
+}
+
+.translation-table th {
+  background: var(--clr-primary);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.translation-table td {
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.translation-table tr:last-child td {
+  border-bottom: none;
+}
+
+.translation-table tr:nth-child(even) td {
+  background: var(--clr-bg-alt);
+}
+
+.translation-table .arrow-cell {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--clr-accent);
+}
+
+/* --- Interactive Rating Scale (Week 4) --- */
+.rating-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.rating-item:last-child {
+  border-bottom: none;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  min-width: 120px;
+  font-weight: 500;
+}
+
+.rating-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--clr-border);
+  outline: none;
+}
+
+.rating-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--clr-primary);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+
+.rating-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.rating-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+  min-width: 28px;
+  text-align: center;
+}
+
+/* --- Footer --- */
+.site-footer {
+  background: var(--clr-bg-card);
+  border-top: 1px solid var(--clr-border);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  color: var(--clr-primary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.footer-nav a:hover {
+  color: var(--clr-primary-dark);
+  text-decoration: underline;
+}
+
+.footer-meta {
+  color: var(--clr-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* --- Back to Top --- */
+#back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--clr-primary);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+#back-to-top:hover {
+  background: var(--clr-primary-dark);
+  transform: translateY(-2px);
+}
+
+
+/* --- Feeling Examples Grid (Week 3) --- */
+.feeling-examples {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.feeling-card {
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.feeling-card.positive {
+  background: var(--clr-dialogue-self);
+  border: 1px solid rgba(143,173,139,0.3);
+}
+
+.feeling-card.negative {
+  background: rgba(201,130,122,0.08);
+  border: 1px solid rgba(201,130,122,0.2);
+}
+
+.feeling-card .feeling-indicator {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.feeling-card.positive .feeling-indicator {
+  color: var(--clr-primary);
+}
+
+.feeling-card.negative .feeling-indicator {
+  color: var(--clr-rose);
+}
+
+.feeling-card .feeling-event {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.feeling-card .feeling-result {
+  font-size: 0.82rem;
+  color: var(--clr-text-light);
+  margin-top: 0.2rem;
+}
+
+/* --- Animations --- */
+@keyframes dialogueFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  .container {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+  .index-main {
+    padding-top: 1.75rem;
+    padding-bottom: 3rem;
+  }
+  .week-card {
+    padding: 0.95rem 1.1rem;
+    gap: 0.85rem;
+  }
+  .week-card-number {
+    min-width: 3.5rem;
+    font-size: 0.78rem;
+  }
+  .week-card-title {
+    font-size: 0.95rem;
+  }
+
+  .hero {
+    padding: 3rem 1.2rem 2rem;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .nav-inner {
+    padding: 0.5rem 1rem;
+  }
+
+  .nav-brand {
+    font-size: 0.85rem;
+  }
+
+  .accordion-header {
+    padding: 1rem 1.2rem;
+  }
+
+  .accordion-content {
+    padding: 0.5rem 1.2rem 1.5rem;
+  }
+
+  .toc-list {
+    flex-direction: column;
+  }
+
+  .feeling-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dialogue-line.speaker-a {
+    margin-right: 0.5rem;
+  }
+
+  .dialogue-line.speaker-b {
+    margin-left: 0.5rem;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .nav-controls {
+    gap: 0.4rem;
+  }
+}
+
+/* --- TOC Header with Actions --- */
+.toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.toc-header h2 {
+  margin-bottom: 0;
+}
+
+.toc-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.toc-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.35rem 0.7rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50px;
+  background: var(--clr-bg);
+  color: var(--clr-text-light);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.toc-btn:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+  background: rgba(42,122,110,0.04);
+}
+
+/* --- Print Menu Dropdown --- */
+.print-menu {
+  background: var(--clr-bg, #fff);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  padding: 0.4rem;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  animation: printMenuFade 0.15s ease-out;
+}
+@keyframes printMenuFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.print-menu button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font: inherit;
+  color: var(--clr-text, #222);
+  transition: background 0.15s, border-color 0.15s;
+}
+.print-menu button:hover {
+  background: rgba(42,122,110,0.08);
+  border-color: rgba(42,122,110,0.3);
+}
+.print-menu button strong {
+  font-size: 0.9rem;
+  color: var(--clr-primary, #2a7a6e);
+}
+.print-menu button span {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted, #666);
+}
+[data-theme="dark"] .print-menu {
+  background: #2a2a2a;
+  border-color: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] .print-menu button:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* --- Word Count --- */
+.journal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.3rem;
+  gap: 0.5rem;
+}
+
+.word-count {
+  font-size: 0.7rem;
+  color: var(--clr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Copy Button --- */
+.copy-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background: var(--clr-bg);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.copy-btn:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+.copy-btn.copied {
+  border-color: var(--clr-sage);
+  color: var(--clr-sage);
+}
+
+/* --- Section Read Indicator --- */
+.section-read-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  margin-top: 1.5rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50px;
+  background: var(--clr-bg);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.section-read-btn:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+.section-read-btn.read {
+  border-color: var(--clr-sage);
+  color: var(--clr-sage);
+  background: rgba(143,173,139,0.08);
+}
+
+.section-read-btn .read-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  transition: all var(--transition);
+}
+
+.section-read-btn.read .read-check {
+  background: var(--clr-sage);
+  border-color: var(--clr-sage);
+  color: #fff;
+}
+
+.accordion-header .read-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--clr-sage);
+  flex-shrink: 0;
+  display: none;
+}
+
+.accordion-header .read-badge.visible {
+  display: block;
+}
+
+/* --- Reflection Timer --- */
+.timer-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.timer-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50px;
+  background: var(--clr-bg);
+  color: var(--clr-text-light);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.timer-btn:hover {
+  border-color: var(--clr-accent);
+  color: var(--clr-accent);
+}
+
+.timer-btn.active {
+  border-color: var(--clr-accent);
+  background: var(--clr-accent);
+  color: #fff;
+}
+
+.timer-display {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--clr-accent);
+  min-width: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-display.done {
+  color: var(--clr-sage);
+}
+
+.timer-label {
+  font-size: 0.72rem;
+  color: var(--clr-text-muted);
+  font-style: italic;
+}
+
+/* --- Inline Reference Panel (Needs/Feelings Lists) --- */
+.inline-reference-panel {
+  margin: 1rem 0;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  background: var(--clr-bg-card);
+  overflow: hidden;
+}
+
+.reference-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(135deg, rgba(42,122,110,0.04), rgba(232,168,56,0.04));
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--clr-primary);
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.reference-toggle:hover {
+  background: linear-gradient(135deg, rgba(42,122,110,0.08), rgba(232,168,56,0.08));
+}
+
+.reference-toggle-icon {
+  font-size: 1rem;
+}
+
+.reference-toggle-chevron {
+  margin-left: auto;
+  transition: transform var(--transition);
+  font-size: 0.7rem;
+}
+
+.reference-toggle[aria-expanded="true"] .reference-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.reference-panel-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, padding 0.3s ease;
+  padding: 0 1.2rem;
+}
+
+.reference-panel-body.open {
+  max-height: 3000px;
+  padding: 1rem 1.2rem 1.2rem;
+}
+
+.reference-category {
+  margin-bottom: 0.8rem;
+}
+
+.reference-category-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.reference-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.reference-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--clr-bg-alt);
+  border: 1px solid var(--clr-border);
+  border-radius: 50px;
+  color: var(--clr-text-light);
+  transition: all var(--transition);
+  cursor: default;
+}
+
+.reference-tag:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+  background: rgba(42,122,110,0.06);
+}
+
+.reference-source {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--clr-border);
+}
+
+.reference-source a {
+  color: var(--clr-primary);
+}
+
+.reference-group {
+  margin-bottom: 1rem;
+}
+
+.reference-group-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.reference-group--positive .reference-group-title {
+  background: var(--clr-dialogue-self);
+  color: var(--clr-primary);
+}
+
+.reference-group--negative .reference-group-title {
+  background: rgba(201,130,122,0.08);
+  color: var(--clr-rose);
+}
+
+.reference-group--negative .reference-tag:hover {
+  border-color: var(--clr-rose);
+  color: var(--clr-rose);
+  background: rgba(201,130,122,0.06);
+}
+
+.inline-ref-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--clr-primary);
+  background: rgba(42,122,110,0.06);
+  border: 1px solid rgba(42,122,110,0.2);
+  border-radius: 50px;
+  padding: 0.15rem 0.6rem;
+  margin-left: 0.3rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  vertical-align: middle;
+}
+
+.inline-ref-trigger:hover {
+  background: rgba(42,122,110,0.12);
+  border-color: var(--clr-primary);
+}
+
+/* --- Breathing Widget --- */
+.breathing-widget {
+  text-align: center;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, rgba(42,122,110,0.04), rgba(232,168,56,0.04));
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+}
+
+.breathing-prompt {
+  font-size: 0.88rem;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.breathing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 160px;
+  margin-bottom: 1rem;
+}
+
+.breathing-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42,122,110,0.15), rgba(42,122,110,0.05));
+  border: 2px solid var(--clr-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.breathing-circle.active {
+  animation: breathCycle 8s ease-in-out infinite;
+}
+
+.breathing-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-primary);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes breathCycle {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  25% { transform: scale(1.6); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 1; }
+  75% { transform: scale(1); opacity: 0.7; }
+}
+
+.breathing-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.4rem 1.2rem;
+  border: 1.5px solid var(--clr-primary);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--clr-primary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.breathing-btn:hover {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+.breathing-btn.active {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+/* --- Progress Ring --- */
+.progress-ring-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.progress-ring-fill {
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.progress-ring-text {
+  position: absolute;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+}
+
+/* --- Typewriter Effect --- */
+blockquote.typewriter-ready p {
+  min-height: 1.5em;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--clr-accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: cursorBlink 0.8s ease-in-out infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+blockquote.typewriter-complete .typewriter-cursor {
+  animation: cursorFadeOut 0.5s ease forwards;
+}
+
+@keyframes cursorFadeOut {
+  to { opacity: 0; }
+}
+
+/* --- Celebration Animation --- */
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.celebration-message {
+  background: var(--clr-bg-card);
+  border: 2px solid var(--clr-sage);
+  border-radius: var(--radius-lg);
+  padding: 2rem 3rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: celebrationPop 0.6s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+  pointer-events: auto;
+}
+
+.celebration-message h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  color: var(--clr-primary);
+  margin-bottom: 0.5rem;
+}
+
+.celebration-message p {
+  font-size: 0.9rem;
+  color: var(--clr-text-light);
+  margin-bottom: 0;
+}
+
+@keyframes celebrationPop {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.celebration-particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  animation: particleFall 2s ease-out forwards;
+}
+
+@keyframes particleFall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+}
+
+.celebration-fade-out {
+  animation: celebrationFadeOut 0.4s ease forwards !important;
+}
+
+@keyframes celebrationFadeOut {
+  to { opacity: 0; transform: scale(0.9); }
+}
+
+/* --- Animated Step Reveals --- */
+.step-card.step-animate {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.step-card.step-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* --- Narration Button --- */
+#narrate-btn {
+  background: none;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  color: var(--clr-text);
+  line-height: 1;
+  overflow: hidden;
+}
+
+#narrate-btn:hover {
+  border-color: var(--clr-primary);
+  background: var(--clr-bg-alt);
+}
+
+#narrate-btn.narrating {
+  border-color: var(--clr-accent);
+  background: rgba(232,168,56,0.08);
+  animation: narratePulse 2s ease-in-out infinite;
+}
+
+@keyframes narratePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,168,56,0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(232,168,56,0.1); }
+}
+
+/* --- Floating Audio Control Bar --- */
+#audio-bar {
+  position: fixed;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  transition: bottom 0.3s ease;
+  max-width: 400px;
+  width: 90%;
+}
+[data-theme="dark"] #audio-bar {
+  background: rgba(30, 30, 30, 0.75);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+#audio-bar.visible {
+  bottom: 1.5rem;
+}
+.audio-bar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.3rem;
+  color: var(--clr-text);
+  border-radius: 4px;
+  transition: background 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+#ab-play {
+  width: 2rem;
+  text-align: center;
+}
+.audio-bar-btn:hover {
+  background: rgba(42, 122, 110, 0.1);
+}
+.ab-skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.ab-skip-arrow {
+  font-size: 0.65rem;
+}
+.ab-skip-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+.audio-bar-close {
+  font-size: 1.2rem;
+  margin-left: auto;
+  color: var(--clr-text-muted);
+}
+#ab-seek {
+  flex: 1;
+  height: 4px;
+  min-width: 60px;
+  accent-color: var(--clr-primary);
+  cursor: pointer;
+}
+#ab-time {
+  font-size: 0.7rem;
+  color: var(--clr-text-muted);
+  white-space: nowrap;
+  min-width: 5.5em;
+  text-align: center;
+}
+
+/* --- Per-Section Narrate Buttons --- */
+.section-card {
+  position: relative;
+}
+
+.section-narrate-btn {
+  position: absolute;
+  top: 0;
+  right: 4rem;
+  background: none;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  opacity: 0.4;
+  transition: opacity var(--transition), border-color var(--transition);
+  color: var(--clr-text-muted);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.section-narrate-btn:hover {
+  opacity: 1;
+  border-color: var(--clr-primary);
+}
+
+.section-narrate-btn[data-state="playing"],
+.section-narrate-btn[data-state="paused"] {
+  opacity: 1;
+  color: var(--clr-accent);
+}
+
+/* --- Calendar Buttons --- */
+.calendar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+.calendar-label {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+  font-weight: 600;
+}
+.calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid var(--clr-border);
+  color: var(--clr-text);
+  background: var(--clr-card);
+  transition: background 0.2s, border-color 0.2s;
+}
+.calendar-btn:hover {
+  border-color: var(--clr-primary);
+  background: rgba(42, 122, 110, 0.08);
+}
+.calendar-btn--google { border-color: #4285f4; color: #4285f4; }
+.calendar-btn--google:hover { background: rgba(66, 133, 244, 0.1); }
+.calendar-btn--outlook { border-color: #0078d4; color: #0078d4; }
+.calendar-btn--outlook:hover { background: rgba(0, 120, 212, 0.1); }
+.calendar-btn--apple { border-color: #333; color: #333; }
+[data-theme="dark"] .calendar-btn--apple { border-color: #ccc; color: #ccc; }
+.calendar-btn--apple:hover { background: rgba(0, 0, 0, 0.06); }
+
+/* --- Print Styles --- */
+@media print {
+
+  /* ===== 1. HIDE UI ELEMENTS ===== */
+  .top-nav, #back-to-top, #progress-bar, .dialogue-controls, .journal-area, .journal-saved,
+  #dark-mode-toggle, .nav-translate, .toc, .toc-actions, .journal-footer, .section-read-btn,
+  .timer-container, .copy-btn, .inline-reference-panel, .inline-ref-trigger,
+  .breathing-widget, .progress-ring-container, .celebration-overlay, .typewriter-cursor,
+  .calendar-buttons, #narrate-btn, .section-narrate-btn, .toc-card, footer,
+  .step-card-number, .accordion-chevron, .resource-icon, .section-icon,
+  .nav-back, .word-count, .rating-slider-container, #audio-bar,
+  .practice-card textarea, .practice-card .journal-prompt,
+  .nav-controls, .nav-brand {
+    display: none !important;
+  }
+
+  /* ===== 2. PAGE RESET ===== */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  html { overflow: visible !important; }
+  body {
+    background: white !important;
+    color: #222 !important;
+    font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.65 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .container, .page-wrapper, .content-wrapper, main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* ===== 3. HERO HEADER ===== */
+  .hero {
+    background: none !important;
+    color: #222 !important;
+    padding: 0.3in 0.5in 0.25in !important;
+    min-height: auto !important;
+    text-align: left !important;
+    border-bottom: 2.5pt solid #2a7a6e !important;
+    margin-bottom: 0 !important;
+    page-break-after: avoid;
+  }
+  .hero-week-label {
+    color: #2a7a6e !important;
+    background: none !important;
+    border: 1.5px solid #2a7a6e !important;
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    padding: 2px 10px !important;
+    text-transform: uppercase !important;
+  }
+  .hero h1 {
+    color: #222 !important;
+    font-size: 22pt !important;
+    margin: 0.25rem 0 0.15rem !important;
+    line-height: 1.2 !important;
+  }
+  .hero-instructor, .hero-instructor a {
+    color: #555 !important;
+    font-size: 10pt !important;
+    text-decoration: none !important;
+  }
+
+  /* ===== 4. ACCORDIONS — FORCE OPEN ===== */
+  .accordion-body,
+  .accordion-body.open {
+    max-height: unset !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    padding: 0 !important;
+    transition: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .accordion-content {
+    padding: 0.2rem 0.5in 0.8rem !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* ===== 5. SECTION CARDS ===== */
+  .section-card {
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: auto;
+    position: relative !important;
+  }
+  .section-card + .section-card {
+    page-break-before: always;
+  }
+  .accordion-header {
+    padding: 0.5rem 0.5in 0.2rem !important;
+    border: none !important;
+    background: none !important;
+    cursor: default !important;
+    pointer-events: none;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+  .accordion-header h2 {
+    font-size: 16pt !important;
+    color: #2a7a6e !important;
+    border-bottom: 1px solid #ddd !important;
+    padding-bottom: 0.15rem !important;
+    margin: 0 !important;
+    font-family: 'Playfair Display', Georgia, serif !important;
+  }
+
+  /* ===== 6. TYPOGRAPHY ===== */
+  h2, h3, h4 { page-break-after: avoid; }
+  h3 {
+    font-size: 12pt !important;
+    color: #333 !important;
+    margin-top: 1rem !important;
+    font-family: 'Playfair Display', Georgia, serif !important;
+  }
+  p { margin: 0.4rem 0 !important; }
+  p, li, blockquote { orphans: 3; widows: 3; }
+  strong { color: #111 !important; }
+
+  /* Force text colors */
+  .accordion-content p,
+  .accordion-content li,
+  .accordion-content h3,
+  .accordion-content h4 {
+    color: #222 !important;
+  }
+  .accordion-content a {
+    color: #2a7a6e !important;
+    text-decoration: underline !important;
+  }
+  /* Don't show URLs inline — too noisy */
+  .accordion-content a[href^="http"]::after {
+    content: none !important;
+  }
+
+  /* ===== 7. DIALOGUES ===== */
+  .dialogue-line, .dialogue-narration {
+    display: block !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    animation: none !important;
+  }
+  .dialogue-container {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0.6rem 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+  }
+  .dialogue-line {
+    padding: 0.5rem 0.8rem !important;
+    margin-bottom: 0.3rem !important;
+    border-radius: 4px !important;
+    page-break-inside: avoid;
+  }
+  .dialogue-line.speaker-a {
+    background: #f3f0eb !important;
+    margin-right: 1.5rem !important;
+    margin-left: 0 !important;
+    border-left: 3px solid #c4756e !important;
+  }
+  .dialogue-line.speaker-b {
+    background: #eef6f4 !important;
+    margin-left: 1.5rem !important;
+    margin-right: 0 !important;
+    border-left: 3px solid #2a7a6e !important;
+  }
+  .dialogue-line .speaker-name {
+    font-size: 7pt !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 0.1rem !important;
+  }
+  .dialogue-line.speaker-a .speaker-name { color: #c4756e !important; }
+  .dialogue-line.speaker-b .speaker-name { color: #2a7a6e !important; }
+  .dialogue-line .speaker-text {
+    font-size: 9.5pt !important;
+    color: #333 !important;
+  }
+  .dialogue-narration {
+    font-style: italic !important;
+    color: #666 !important;
+    font-size: 9pt !important;
+    padding: 0.3rem 0.8rem !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  /* ===== 8. INSIGHT BOX ===== */
+  .insight-box {
+    background: #f9f7f3 !important;
+    border: 1.5pt solid #2a7a6e !important;
+    border-radius: 0 !important;
+    padding: 0.7rem 1rem !important;
+    margin: 0.8rem 0 !important;
+    page-break-inside: avoid;
+  }
+  .insight-box::before {
+    background: #2a7a6e !important;
+    color: white !important;
+    border: none !important;
+    font-size: 7pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    padding: 2px 8px !important;
+    border-radius: 2px !important;
+  }
+
+  /* ===== 9. STEP CARDS ===== */
+  .step-cards {
+    flex-direction: column !important;
+    gap: 0.4rem !important;
+  }
+  .step-card {
+    border: none !important;
+    border-left: 3px solid #2a7a6e !important;
+    border-radius: 0 !important;
+    padding: 0.6rem 1rem !important;
+    page-break-inside: avoid;
+    opacity: 1 !important;
+    transform: none !important;
+    background: #f9f9f9 !important;
+    animation: none !important;
+  }
+  .step-card .step-num {
+    color: #2a7a6e !important;
+    font-size: 1.3rem !important;
+  }
+  .step-card .step-body h4 {
+    color: #222 !important;
+    font-size: 10.5pt !important;
+  }
+  .step-card .step-body p {
+    color: #444 !important;
+    font-size: 9.5pt !important;
+  }
+
+  /* ===== 10. PRACTICE CARDS ===== */
+  .practice-card {
+    border: 1px solid #ddd !important;
+    border-left: 3px solid #e8a838 !important;
+    background: #fffdf8 !important;
+    border-radius: 0 !important;
+    padding: 0.6rem 0.8rem 0.6rem !important;
+    margin: 0.6rem 0 !important;
+    page-break-inside: avoid;
+  }
+  .practice-card h4 {
+    color: #222 !important;
+    font-size: 10.5pt !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.2rem !important;
+  }
+  .practice-card p {
+    color: #333 !important;
+    font-size: 9.5pt !important;
+    margin: 0.2rem 0 !important;
+  }
+  .practice-number {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 1.3em !important;
+    height: 1.3em !important;
+    border-radius: 50% !important;
+    font-size: 0.8em !important;
+    background: #e8a838 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 700 !important;
+  }
+  .journal-saved { display: none !important; }
+
+  /* ===== 11. RESOURCES ===== */
+  .resource-grid {
+    display: block !important;
+  }
+  .resource-link {
+    display: block !important;
+    padding: 0.15rem 0 !important;
+    border: none !important;
+    background: none !important;
+    color: #2a7a6e !important;
+    font-size: 9.5pt !important;
+    text-decoration: none !important;
+  }
+  .resource-link .resource-text {
+    text-decoration: underline !important;
+  }
+
+  /* ===== 12. BLOCKQUOTES ===== */
+  blockquote {
+    border-left: 3px solid #2a7a6e !important;
+    margin: 0.6rem 0 0.6rem 0 !important;
+    padding: 0.3rem 0 0.3rem 0.8rem !important;
+    color: #444 !important;
+    font-style: italic !important;
+    page-break-inside: avoid;
+  }
+
+  /* ===== 13. TABLES ===== */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 9pt !important;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #ccc !important;
+    padding: 0.3rem 0.5rem !important;
+    text-align: left !important;
+  }
+  th {
+    background: #f5f5f5 !important;
+    font-weight: 700 !important;
+  }
+
+  /* ===== 14. KEY CONCEPTS ===== */
+  .key-concept {
+    border-bottom: 1px solid #666 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* ===== 15. NEEDS/FEELINGS PANELS ===== */
+  .needs-panel, .feelings-panel {
+    display: none !important;
+  }
+}
+
+</style>
+<style>
+/* Retired interactive features (2026 cohort) — hidden so the static
+   markup that still ships in this sample doesn't render. */
+.journal-area,.journal-saved,.journal-footer,.cc-widget,.cc-done-row,
+.section-read-btn,.accordion-header .read-badge,.progress-ring-container,
+.timer-container{display:none !important;}
+/* Dialogues show in full from the start (no Next/Reset reveal) — matches
+   the live lessons. The inline initDialogueReveal still runs but its
+   Next/Reset buttons are hidden and every line is forced visible here. */
+.dialogue-line,.dialogue-narration{display:block !important;}
+.dialogue-controls{display:none !important;}
+</style>
+</head>
+<body data-week="10">
+
+  <div id="progress-bar"></div>
+
+  <!-- Navigation -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 10</span>
+      <h1>What Empathy Is... and What It's Not</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Table of Contents -->
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice: The Car, the Clubs and the Cab Driver</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">&#9660;</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <h3>"What Empathy Is... and What It's Not"</h3>
+
+          <blockquote>
+            <p>"The hearing that is only in the ears is one thing. The hearing of understanding is another. But the hearing of the spirit is not limited to any one faculty, to the ear or the mind. Hence it demands emptiness of all of the faculties. And when the faculties are empty, the whole being listens. There is then a direct grasp of what is right there before you that can never be heard with the ear or understood with the mind."</p>
+            <p>&mdash; Chuang-Tzu</p>
+          </blockquote>
+
+          <p><span class="key-concept" data-concept="empathy-def">Empathy is the basic practice that brings me to compassion. It is ultimately quite simple, and quite challenging.</span></p>
+
+          <p>As a child growing up, and for much of my adult life, I learned to listen with my mind &mdash; often with a purpose <em>other</em> than understanding the person I was with. As I listened to people, I would focus on the future &mdash; "What can I say back?" or "What can I think of to fix this?" Other times I would go to the past &mdash; "What does that remind me of?"</p>
+
+          <p>When I thought these things I became distracted from the moment, more disconnected and less able to understand what the other person was experiencing. Then I discovered empathy.</p>
+
+          <div class="insight-box">
+            <p>Empathy is the exploration of our human experience &mdash; our feelings, our needs, our life energy emerging and guiding us. It is the mindful questioning, the wondering and the genuine curiosity about what we or someone else is going through.</p>
+            <p><strong>This search, or wondering, is the stuff of connection on a deeper plane &mdash; and often, an opening of spiritual space.</strong></p>
+          </div>
+
+          <p>The ability to be present in this way challenges many of us 21st century humans, highly trained in thought, as opposed to simply listening. Often when we are trying to be empathic (even in situations where we are feeling a sense of compassion), we may say things that do not connect us with the other person as well as empathy might.</p>
+
+          <p>We all use "non-empathic" forms of communication &mdash; and of course, many of them serve us wonderfully. They're just <em>NOT</em> empathy. They tend to fill the space; they do not tend to open it up. Becoming aware of these "non-empathic" forms of communication can help us make the choice to have a deeper connection when we want it.</p>
+
+          <h3>Non-Empathic Forms of Communication</h3>
+
+          <p>To illustrate, below is a quote &mdash; something we may hear from a friend, followed by some examples of habitual, "non-empathic" responses that can prevent us from moving to a deeper connection. This is not to say these forms of communication are "wrong". Again, <em>they're just not empathy</em>. Do any of these responses sound familiar?</p>
+
+          <div class="dialogue-container">
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Friend</span>
+              <span class="speaker-text">"Sometimes I just hate my job. My boss is such a control freak."</span>
+            </div>
+            <div class="dialogue-controls">
+              <button class="dialogue-btn dialogue-btn-next">Next &rarr;</button>
+              <button class="dialogue-btn secondary dialogue-btn-reset">Reset</button>
+            </div>
+          </div>
+
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h4>Comparing and One-upping</h4>
+                <p><em>"Yeah, mine too. MY boss is the worst. She makes going to work a living hell. I remember a time when..."</em></p>
+                <p>Often, when people share what's going on for them, it reminds us about our situation. We may, without thinking about it, share that experience. So think about it &mdash; did we just change the subject? Are they telling us this to elicit our experience? Probably not.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h4>Educating and Advising</h4>
+                <p><em>"Oh yeah, I know what you mean. You know there's this great book called How to Love a Boss that Stinks..."</em> or <em>"Yeah, when my boss does that, I've learned to..."</em> or <em>"Have you ever tried speaking to the HR department?"</em></p>
+                <p>When we hear of someone's pain, we may assume they want us to tell them how to deal with the situation. And of course, we don't like to see people we care about in pain, so we want to help them. Are we doing this to understand what is alive in them or are we working on a fix?</p>
+                <p>My friend Marshall Rosenberg told me he only gives advice when it is asked for in writing, notarized and in triplicate. It helps him stay more present. And of course, advice has a place in life &mdash; it's just not empathy.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h4>Discounting</h4>
+                <p><em>"That's nothing. In this economy, you should be thankful you even have a job."</em></p>
+                <p>We may have a "knee-jerk" reaction to try to draw someone's attention to something else in an attempt to "make them feel better". Can you recall a time when you received this kind of response and you thought to yourself, "Oh yeah, that's so true. Thanks for that. I feel better now"? I can't.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h4>Fixing and Counseling</h4>
+                <p><em>"OK. Calm down. Don't worry. We're gonna get through this. I know it feels bad now, but I'm sure it will get better. These things always have a way of working themselves out."</em></p>
+                <p>When we hear someone else's pain, we can feel uncomfortable <em>ourselves</em> and want to somehow fix things. If we check in with ourselves &mdash; whose need is that about?</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <h4>Sympathizing</h4>
+                <p><em>"Oh, you poor thing. I'm so upset when I hear about that. I just hate that boss of yours."</em></p>
+                <p>Sympathy (the sharing of a feeling through an imagined shared experience) is different than empathy. It's kind of like responding to a drowning person by jumping into the water and drowning with them. Yes, it may let them know that you care about what's going on for them. It's just not empathy.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">6</div>
+              <div class="step-body">
+                <h4>Data Gathering and Interrogating</h4>
+                <p><em>"So tell me, exactly what did she do? Has she done this before? Have you noticed a pattern here?"</em></p>
+                <p>Data gathering is often a precursor to advising, the warm up to fixing it all. It may come from a sense of <em>our</em> curiosity or our discomfort with their pain. We may have a genuine interest, to be sure. It's just not empathy.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">7</div>
+              <div class="step-body">
+                <h4>Explaining and Defending</h4>
+                <p><em>"Well, as a boss myself, I know sometimes we just need to crack down on people. He's probably under a lot of stress and doesn't really mean anything by it."</em></p>
+                <p>Sometimes <em>we</em> are triggered by someone else's pain. This can be especially true in situations when we think we are "to blame" or "responsible". In these moments, we can become more concerned with our side of the story &mdash; <em>our</em> need to be understood. This often results in what I call TTNRS: "Two transmitters, no receivers syndrome". Sometimes we call it "a fight". It's certainly not empathy.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">8</div>
+              <div class="step-body">
+                <h4>Analyzing</h4>
+                <p><em>"So where else in your life does this show up? Have you ever considered that this is a pattern for you? Perhaps it's because of your unfulfilled relationship with your father."</em></p>
+                <p>Sometimes we are so interested in "getting to the bottom of things" that we forget about the top. Our urge to understand in order to fix our discomfort with someone's pain can have us rushing to our brains for answers. No doubt, there are places in life where analyzing is important. It's just not empathy.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3>So What Then? Perhaps Empathy</h3>
+
+          <div class="insight-box">
+            <p><em>"Hmmm. I imagine that's really frustrating.</em></p>
+            <p><em>I'm guessing you'd love more freedom of choice &mdash; more respect maybe?"</em></p>
+          </div>
+
+          <h3>What Next?</h3>
+
+          <p>I'm sure none of us has ever said anything like the examples above (heheheh *wry smile*). OK, I know I have, and likely will again. The difference now is that when I have the awareness of what I'm doing, I have the choice to do something else &mdash; if I want to.</p>
+
+          <p>I can recall times, before I developed my empathic skills and my trust in the power of empathy, when the experience of wanting to connect and not knowing how left me frustrated, confused and disconnected against my will.</p>
+
+          <p>This is where empathy comes in. In the beginning it can be sooooo hard to refrain from these habitual ways of thinking and speaking. Our "robot" kicks in and away we go, like always.</p>
+
+          <p><em>Now</em> we have a chance to add a new way of being to our lives &mdash; a new skill to create a new level of connection &mdash; empathy. Shifting to this new focus on feelings and needs is rarely easy. I know for me, it is a life work &mdash; one that has given me some of the most beautiful moments of my life.</p>
+
+          <p>More to come as the Compassion Course continues...</p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- IN PRACTICE -->
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice: The Car, the Clubs and the Cab Driver</h2>
+        <span class="accordion-chevron">&#9660;</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <p>Some years back, when I was living in Manhattan, I loaned my car, a station wagon, to a friend who needed it to move into her new apartment. We had agreed that she would return it early that evening. So a few hours after she took the car I began waiting to hear from her. I waited... and waited, and waited some more. Despite my repeated attempts to contact her, no callback, no car. I drifted off to sleep waiting on my couch.</p>
+
+          <p>At about 2:30 in the morning, I was awakened by a phone call.</p>
+
+          <div class="dialogue-container">
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Friend</span>
+              <span class="speaker-text">"Thom, I just finished moving and I just don't have the energy to return the car tonight."</span>
+            </div>
+            <div class="dialogue-line speaker-b">
+              <span class="speaker-name">Me</span>
+              <span class="speaker-text">(Still a bit groggy) "Where did you leave it?"</span>
+            </div>
+            <div class="dialogue-narration">She informed me that it was parked on a street in the meat packing district &mdash; with my golf clubs in plain sight in the back. Ten minutes later, after some serious self-empathy work (that's a story for another time), I was headed to rescue my car and my precious toys.</div>
+            <div class="dialogue-controls">
+              <button class="dialogue-btn dialogue-btn-next">Next &rarr;</button>
+              <button class="dialogue-btn secondary dialogue-btn-reset">Reset</button>
+            </div>
+          </div>
+
+          <p>I staggered out into the warm rainy night. After almost an hour, watching an endless parade of headlights and hissing tires, finally, a cab stopped for me. I climbed in and told the driver my destination. We headed along the edge of Manhattan Island, down the West Side Highway. As we drove along side the Hudson River, we passed the USS Intrepid, a decommissioned battleship that functions as a floating museum.</p>
+
+          <h3>The Conversation</h3>
+
+          <div class="dialogue-container">
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Driver</span>
+              <span class="speaker-text">"The last time I saw that ship, I was stationed in Viet Nam."</span>
+            </div>
+            <div class="dialogue-narration">From my place in the back seat I could only see the cab driver's eyes reflected in the rear view mirror. We made eye contact in the pale gray light. After some contemplation I replied:</div>
+            <div class="dialogue-line speaker-b">
+              <span class="speaker-name">Me</span>
+              <span class="speaker-text">"That must bring up quite a bit for you."</span>
+            </div>
+            <div class="dialogue-narration">After a long pause he spoke.</div>
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Driver</span>
+              <span class="speaker-text">"It does."</span>
+            </div>
+            <div class="dialogue-narration">I listened into the silence that followed. More eye contact, more space. After some time, he spoke again.</div>
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Driver</span>
+              <span class="speaker-text">"When we came back, everybody hated us."</span>
+            </div>
+            <div class="dialogue-narration">I sat quietly making space as the tires thumped rhythmically on the seams of the road, sounding eerily like a beating heart. Space for his pain, his need for being seen, for appreciation, for love. I watched the pain slowly seep into his occasional glance.</div>
+            <div class="dialogue-line speaker-b">
+              <span class="speaker-name">Me</span>
+              <span class="speaker-text">"I imagine that was tough, risking your life like that. I bet it would have made a big difference to have gotten even <em>some</em> appreciation."</span>
+            </div>
+            <div class="dialogue-narration">More silence...</div>
+            <div class="dialogue-line speaker-a">
+              <span class="speaker-name">Driver</span>
+              <span class="speaker-text">"Yes... Yes, it would have."</span>
+            </div>
+            <div class="dialogue-controls">
+              <button class="dialogue-btn dialogue-btn-next">Next &rarr;</button>
+              <button class="dialogue-btn secondary dialogue-btn-reset">Reset</button>
+            </div>
+          </div>
+
+          <p>Still seeing only his eyes in the mirror, I watched as the tears slowly filled his eyes. We continued our ride, without speaking a word, as we rolled through the empty side streets to our destination.</p>
+
+          <p>A few minutes later we arrived. I reached through the little glass hatch and paid the fare... and with compassion and connection in my heart said a simple "thank you". In my mind I was thanking him for his service, not just the ride. As I swung the door open and started on my way, from behind me, I heard the sound of the cab door opening. As I turned, there was my new friend, with an outstretched hand and a look of pure relief in his eyes, walking toward me.</p>
+
+          <div class="insight-box">
+            <p><strong>"Thank you."</strong></p>
+            <p>We shook hands and parted. I will never forget that ride. Never.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICES -->
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">&#9660;</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <div class="practice-card">
+            <h4><span class="practice-number">1</span> Increase Your Awareness</h4>
+            <p>See if you can notice yourself using any of the mentioned "non-empathic", habitual forms of communication. Later, when you have some time and space, see if you can imagine what an "empathic" response would be. What was that person feeling? What was that person needing, wanting to have more of, or yearning to experience? Check the <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener">feelings list</a> and the <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener">needs list</a> for the answer. <em>Now</em> imagine what you might say.</p>
+            <textarea class="journal-area" id="journal-p1" placeholder="Today I caught myself using a non-empathic response when... An empathic response might have been..."></textarea>
+            <div class="journal-saved" id="journal-p1-saved"></div>
+          </div>
+
+          <div class="practice-card">
+            <h4><span class="practice-number">2</span> Play the Empathy/Non-Empathy Game</h4>
+            <p>To do this practice, work with a partner in person or on the phone.</p>
+            <p><strong>Step 1:</strong> Write down a quote, something you might say when you would want some empathy, like <em>"I'm feeling really stressed about my finances."</em> Hint &mdash; don't pick something too important. You'll understand why very soon.</p>
+            <p><strong>Step 2:</strong> Say your quote to your partner and have them respond with any of the "non-empathic" forms of communication mentioned in this week's message.</p>
+            <p><strong>Step 3:</strong> Try saying the <em>same</em> quote again with your partner giving an empathic response. This could be something like <em>"Are you feeling scared because you need more peace of mind?"</em></p>
+            <p><strong>Step 4:</strong> Switch roles so that you have both had a chance to receive non-empathic responses <em>and</em> an empathic response that "lands". You'll know it when you hear it.</p>
+            <p>For this practice, it may be easier to start out with the simplest form of empathy: <strong>"Are you feeling ______ (feeling from the feelings list) because you need more ______ (need from the needs list)."</strong></p>
+            <textarea class="journal-area" id="journal-p2" placeholder="My quote was... The non-empathic responses I noticed... The empathic response that landed..."></textarea>
+            <div class="journal-saved" id="journal-p2-saved"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- COURSE INFORMATION -->
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">&#9660;</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Weekly Message Schedule</h3>
+          <p>Starting Wednesday, June 24, 2026, every Wednesday for 52 weeks, a new message is published and the link to it is sent to course participants via email. The last message will be published on June 16, 2027.</p>
+          
+          <h3>Monthly Conferences</h3>
+          <p>Starting Monday, July 13, 2026 at 12:00 PM ET and on every second Monday of each month after that, Thom will host a 120-minute Zoom conference, with the last 30 minutes reserved for optional practice, to review the previous weeks' messages and answer questions. The last Monthly Conference will be on June 14, 2027.</p>
+          <p><a href="https://us06web.zoom.us/j/81096454378?pwd=5Y2XohPA0hvHnUlMKKAHj88BRzWZAk.1">Click Here</a> to join these conferences – it is the same zoom link for the entire year.</p>
+          <p>The conferences are recorded and recordings are posted on the GCN</p>
+
+          <h3>Monthly Deep Dives</h3>
+          <p>Starting Monday, July 26, 2026, at 12:00 PM ET and on every fourth Monday of each month after that, one of our Guest Trainers will host a 90-minute live Zoom conference to focus on deepening the practice of one of the concepts from the weekly messages that Thom covered at the previous Monthly Conference. The last Deep Dive will be on May 24, 2027.</p>
+          <p><a href="https://us06web.zoom.us/j/83424509747?pwd=PuR4LekILFa8GTaJIY5YSQSORCjIOR.1">Click Here</a> to join the Deep Dives – it is the same zoom link for the entire year</p>
+
+          <h3>The Global Compassion Network (GCN)</h3>
+          <p>The GCN is a platform for staying connected, creating community, and fostering mutual experience, support, and growth.</p>
+          <p><a href="https://login.circle.so/sign_up?request_host=www.theglobalcompassionnetwork.com&user%5Binvitation_token%5D=584f363c68a038a187f7c8f1e6e120dfdf873e7b-b86df0d6-0a4c-4485-8637-16962d336b72">Click Here</a> to join the GCN!</p>
+          <p>Once you join, you can:</p>
+          <ul>
+            <li>Create and customize your profile and set your preferences</li>
+            <li>See profiles of other course participants from around the globe</li>
+            <li>Post your discoveries and dilemmas in the Community Forum</li>
+            <li>See what others are saying about their progress and experiences</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Join a Practice Group</li>
+            <li>Find Empathy Buddies and Practice Partners</li>
+            <li>Find a CCO Mentor</li>
+            <li>Watch or listen to the Monthly Conference and Deep Dive recordings</li>
+            <li>Find empathy support, trainings and events</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Content-specific questions will be answered in the conference calls.</p>
+          <p>If you have technical or logistical questions or need assistance, please call +1 (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+          <p>We may get more emails than we can handle at times so please be patient.</p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">&#9660;</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">&#127760;</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">&#127760;</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="https://files.constantcontact.com/09fd6f49001/3daf3170-7425-469b-ab95-1ad18d068fba.pdf" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">&#128196;</span>
+              <span class="resource-text">Printable Needs List (PDF)</span>
+            </a>
+            <a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">&#129309;</span>
+              <span class="resource-text">Join the Global Compassion Network</span>
+            </a>
+            <a href="https://www.compassioncourse.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">&#128172;</span>
+              <span class="resource-text">Compassion Course &mdash; Share with Someone</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright Thom Bond 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <!-- Bypass auth for sample/demo: provide empty config + force page visible -->
+  <script>window.__AUTH_CONFIG__ = { adminHash: '', courseHash: '', weeks: {} };</script>
+  <script>
+/* ============================================
+   Compassion Course Online — Unified JavaScript
+   ============================================
+
+   SHARED FILE — edits here apply to EVERY page automatically
+   (index, admin, and every week_N.html) because they all
+   <script src="script.js"><\/script>.
+
+   Use this file for any site-wide behavior fix (auth gate,
+   dark mode, narrate buttons, accordions, etc.) so you don't
+   have to touch each week page individually. Per-page HTML
+   (titles, footer year, literal button text, etc.) does NOT
+   propagate — those need to be updated in each HTML file, or
+   better, in a shared week-template file that new weeks copy from.
+   ============================================ */
+
+// ---- Multi-Tier Password Gate ----
+// Three access tiers, all client-side (SHA-256 hash compare):
+//   1. Admin     — sees every week, including unreleased ones
+//   2. Course    — sees every week whose releaseDate has passed
+//   3. Per-week  — sees one specific week, regardless of release date
+//
+// Config sources (assembled by build.sh into auth-config.js):
+//   - adminHash, courseHash    : from Netlify env vars (SITE_PASSWORD_HASH, SITE_COURSE_HASH)
+//   - weeks[N].releaseDate     : from weeks-config.json (committed)
+//   - weeks[N].passwordHash    : from weeks-config.json (committed)
+//
+// Auth flows:
+//   - Type password into gate → SHA-256 → match against any tier → save to localStorage
+//   - Visit URL with ?key=<password> → same flow, then strip key from URL
+//   - Subsequent visits read stored hash from localStorage; if it no longer matches
+//     the configured hash (e.g. password rotated), it's auto-cleared.
+(function () {
+  'use strict';
+
+  var cfg = window.__AUTH_CONFIG__ || {};
+  var ADMIN_HASH  = (cfg.adminHash  || '').trim();
+  var COURSE_HASH = (cfg.courseHash || '').trim();
+  var WEEKS       = cfg.weeks || {};
+
+  // If nothing is configured anywhere, site is fully open.
+  var anyHashSet = ADMIN_HASH || COURSE_HASH ||
+    Object.keys(WEEKS).some(function (k) { return WEEKS[k] && WEEKS[k].passwordHash; });
+  if (!anyHashSet) return;
+
+  var LS_ADMIN  = 'cco-auth-admin';
+  var LS_COURSE = 'cco-auth-course';
+  var LS_WEEKS  = 'cco-auth-weeks';
+
+  var currentWeek = document.body && document.body.getAttribute('data-week');
+  var isIndex = !currentWeek;
+
+  // ---- Hashing ----
+  function sha256Hex(text) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.from(new Uint8Array(buf)).map(function (b) {
+        return b.toString(16).padStart(2, '0');
+      }).join('');
+    });
+  }
+
+  // ---- Tier checks (read from localStorage; auto-clear stale entries) ----
+  function isAdmin() {
+    if (!ADMIN_HASH) return false;
+    var v = localStorage.getItem(LS_ADMIN);
+    if (v && v !== ADMIN_HASH) { localStorage.removeItem(LS_ADMIN); return false; }
+    return v === ADMIN_HASH;
+  }
+  function isCourse() {
+    if (!COURSE_HASH) return false;
+    var v = localStorage.getItem(LS_COURSE);
+    if (v && v !== COURSE_HASH) { localStorage.removeItem(LS_COURSE); return false; }
+    return v === COURSE_HASH;
+  }
+  function getWeekGrants() {
+    try { return JSON.parse(localStorage.getItem(LS_WEEKS) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function hasWeekGrant(weekNum) {
+    var w = WEEKS[weekNum];
+    if (!w || !w.passwordHash) return false;
+    var grants = getWeekGrants();
+    if (grants[weekNum] && grants[weekNum] !== w.passwordHash) {
+      // Stored hash is stale — drop it
+      delete grants[weekNum];
+      localStorage.setItem(LS_WEEKS, JSON.stringify(grants));
+      return false;
+    }
+    return grants[weekNum] === w.passwordHash;
+  }
+
+  // ---- Release date check ----
+  function isWeekReleased(weekNum) {
+    var w = WEEKS[weekNum];
+    if (!w || !w.releaseDate) return false;
+    // Compare in local time at start-of-day for the configured release date.
+    var d = new Date(w.releaseDate + 'T00:00:00');
+    return !isNaN(d.getTime()) && d <= new Date();
+  }
+
+  function canAccessWeek(weekNum) {
+    if (isAdmin()) return true;
+    if (isCourse() && isWeekReleased(weekNum)) return true;
+    if (hasWeekGrant(weekNum)) return true;
+    return false;
+  }
+
+  function accessibleWeekNums() {
+    return Object.keys(WEEKS).filter(canAccessWeek);
+  }
+
+  // ---- Apply a hashed key — store grant for whichever tier matched ----
+  function applyKeyHash(hash) {
+    if (ADMIN_HASH && hash === ADMIN_HASH) {
+      localStorage.setItem(LS_ADMIN, ADMIN_HASH);
+      return 'admin';
+    }
+    if (COURSE_HASH && hash === COURSE_HASH) {
+      localStorage.setItem(LS_COURSE, COURSE_HASH);
+      return 'course';
+    }
+    var matched = null;
+    Object.keys(WEEKS).forEach(function (w) {
+      if (WEEKS[w].passwordHash && hash === WEEKS[w].passwordHash) {
+        var grants = getWeekGrants();
+        grants[w] = WEEKS[w].passwordHash;
+        localStorage.setItem(LS_WEEKS, JSON.stringify(grants));
+        matched = 'week-' + w;
+      }
+    });
+    return matched;
+  }
+
+  function stripKeyParam() {
+    try {
+      var url = new URL(window.location.href);
+      if (url.searchParams.has('key')) {
+        url.searchParams.delete('key');
+        var q = url.searchParams.toString();
+        window.history.replaceState({}, '', url.pathname + (q ? '?' + q : '') + url.hash);
+      }
+    } catch (e) { /* older browsers — ignore */ }
+  }
+
+  function formatDate(iso) {
+    try {
+      var d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (e) { return iso; }
+  }
+
+  // ---- Index-page card filtering ----
+  function filterIndexCards() {
+    var cards = document.querySelectorAll('.week-card');
+    cards.forEach(function (card) {
+      var href = card.getAttribute('href') || '';
+      var m = href.match(/week_(\d+)\.html/);
+      if (!m) return;
+      var w = m[1];
+      if (canAccessWeek(w)) return;
+
+      // Course-tier user with unreleased week: show locked placeholder card
+      var weekCfg = WEEKS[w];
+      var courseAndUnreleased = isCourse() && weekCfg && weekCfg.releaseDate && !isWeekReleased(w);
+      if (courseAndUnreleased) {
+        card.classList.add('week-card-locked');
+        card.removeAttribute('href');
+        var arrow = card.querySelector('.week-card-arrow');
+        if (arrow) arrow.remove();
+        var label = document.createElement('span');
+        label.className = 'week-card-locked-label';
+        label.textContent = 'Available ' + formatDate(weekCfg.releaseDate);
+        card.appendChild(label);
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // ---- Render the password gate ----
+  function showGate(message) {
+    document.documentElement.style.visibility = 'visible';
+    document.body.innerHTML = '';
+
+    var overlay = document.createElement('div');
+    overlay.id = 'auth-gate';
+    overlay.innerHTML =
+      '<div class="auth-box">' +
+        '<h1 class="auth-title">Compassion Course Online</h1>' +
+        '<p class="auth-label">Weekly Emails</p>' +
+        '<p class="auth-subtitle">' + (message || 'Enter password to continue') + '</p>' +
+        '<form id="auth-form">' +
+          '<input type="password" id="auth-input" placeholder="Password" autocomplete="current-password" autofocus>' +
+          '<button type="submit">Enter</button>' +
+        '</form>' +
+        '<p id="auth-error" class="auth-error"></p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    document.getElementById('auth-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var pwd = document.getElementById('auth-input').value;
+      sha256Hex(pwd).then(function (h) {
+        var tier = applyKeyHash(h);
+        if (tier) {
+          location.reload();
+        } else {
+          document.getElementById('auth-error').textContent = 'Incorrect password';
+          document.getElementById('auth-input').value = '';
+          document.getElementById('auth-input').focus();
+        }
+      });
+    });
+  }
+
+  // ---- Inject Admin nav button (only if signed in as admin) ----
+  function injectAdminNavButton() {
+    if (!isAdmin()) return;
+    var controls = document.querySelector('.top-nav .nav-controls');
+    if (!controls) return;
+    if (controls.querySelector('.admin-nav-btn')) return; // already injected
+    var a = document.createElement('a');
+    a.href = 'admin.html';
+    a.className = 'admin-nav-btn';
+    a.textContent = 'Admin';
+    a.title = 'Admin dashboard';
+    // Insert before dark-mode toggle so it reads left-to-right naturally
+    var darkBtn = controls.querySelector('#dark-mode-toggle');
+    if (darkBtn) controls.insertBefore(a, darkBtn);
+    else controls.appendChild(a);
+  }
+
+  // ---- Decide what to render ----
+  function decideGate() {
+    if (isIndex) {
+      // Index: show only weeks the user has access to. If they have none and
+      // no master tier, show the gate.
+      var hasAnyAccess = isAdmin() || isCourse() || accessibleWeekNums().length > 0;
+      if (!hasAnyAccess) { showGate(); return; }
+      var reveal = function () {
+        filterIndexCards();
+        injectAdminNavButton();
+        document.documentElement.style.visibility = 'visible';
+      };
+      if (document.readyState !== 'loading') reveal();
+      else document.addEventListener('DOMContentLoaded', reveal);
+    } else {
+      if (canAccessWeek(currentWeek)) {
+        var revealWeek = function () {
+          injectAdminNavButton();
+          document.documentElement.style.visibility = 'visible';
+        };
+        if (document.readyState !== 'loading') revealWeek();
+        else document.addEventListener('DOMContentLoaded', revealWeek);
+      } else {
+        var msg = 'Enter password to continue';
+        if (WEEKS[currentWeek] && WEEKS[currentWeek].releaseDate && !isWeekReleased(currentWeek)) {
+          msg = 'This week opens ' + formatDate(WEEKS[currentWeek].releaseDate) + '. Enter password to continue.';
+        }
+        showGate(msg);
+      }
+    }
+  }
+
+  // ---- Bootstrap ----
+  document.documentElement.style.visibility = 'hidden';
+
+  // Apply saved theme + dark-mode button icon before the page is revealed,
+  // so users on dark mode don't see a light-mode flash and the button icon
+  // doesn't shift from placeholder "Dark" text to an emoji after load.
+  try {
+    var _isDark = localStorage.getItem('cco-dark-mode') === 'true';
+    if (_isDark) document.documentElement.setAttribute('data-theme', 'dark');
+    var _dmBtn = document.getElementById('dark-mode-toggle');
+    if (_dmBtn) _dmBtn.textContent = _isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  } catch (e) {}
+
+  var urlKey = new URLSearchParams(window.location.search).get('key');
+  if (urlKey) {
+    sha256Hex(urlKey).then(function (h) {
+      applyKeyHash(h); // saves to localStorage if matched; silent if not
+      stripKeyParam();
+      decideGate();
+    });
+  } else {
+    decideGate();
+  }
+})();
+
+(function () {
+  'use strict';
+
+  // ---- Needs & Feelings Data ----
+  // Source: Thom Bond / NYCNVC "Feelings and Needs List" v5.18.15, 2015
+  var NEEDS_DATA = {
+    'Autonomy': ['Choice','Dignity','Freedom','Independence','Self-Expression','Space','Spontaneity'],
+    'Connection': ['Acceptance','Affection','Appreciation','Authenticity','Belonging','Care','Closeness','Communication','Communion','Community','Companionship','Compassion','Consideration','Empathy','Friendship','Inclusion','Inspiration','Integrity','Intimacy','Love','Mutuality','Nurturing','Partnership','Presence','Respect/Self-Respect','Security','Self-Acceptance','Self-Care','Self-Connection','Self-Expression','Shared Reality','Stability','Support','To Know and Be Known','To See and Be Seen','Trust','Understanding','Warmth'],
+    'Meaning': ['Awareness','Celebration','Challenge','Clarity','Competence','Consciousness','Contribution','Creativity','Discovery','Efficiency','Effectiveness','Growth','Integration','Integrity','Learning','Mourning','Movement','Participation','Perspective','Presence','Progress','Purpose','Self-Expression','Stimulation','Understanding'],
+    'Peace': ['Acceptance','Balance','Beauty','Communion','Ease','Equanimity','Faith','Harmony','Hope','Order','Peace-of-Mind','Space'],
+    'Physical Well-Being': ['Air','Care','Comfort','Food','Movement/Exercise','Rest/Sleep','Safety (physical)','Self-Care','Sexual Expression','Shelter','Touch','Water'],
+    'Play': ['Adventure','Excitement','Fun','Humor','Joy','Relaxation','Stimulation']
+  };
+
+  var FEELINGS_DATA = {
+    'Feelings When Needs ARE Met': {
+      'Affectionate': ['compassionate','fond','loving','openhearted','tender','warm'],
+      'Engaged': ['absorbed','curious','engrossed','enchanted','enthralled','entranced','fascinated','interested','intrigued','involved','open','spellbound','stimulated'],
+      'Excited': ['amazed','ardent','aroused','dazzled','energetic','enlivened','enthusiastic','exuberant','invigorated','lively','passionate','surprised','vibrant'],
+      'Exhilarated': ['enthralled','radiant','electrified','euphoric','overjoyed','thrilled'],
+      'Grateful': ['appreciative','moved','thankful','touched'],
+      'Happy': ['amused','blissful','cheerful','delighted','ecstatic','elated','giddy','glad','jolly','joyful','jubilant','merry','overjoyed','pleased','rapturous','tickled'],
+      'Hopeful': ['confident','expectant','jazzed','lighthearted','sanguine','up','upbeat'],
+      'Inspired': ['amazed','eager','enthused','motivated','moved','psyched','stimulated','stirred','wonder'],
+      'Peaceful': ['calm','comfortable','centered','content','equanimity','fulfilled','mellow','open','quiet','relaxed','relieved','satisfied','serene','tranquil'],
+      'Refreshed': ['recharged','rejuvenated','renewed','rested','restored','revived']
+    },
+    'Feelings When Needs Are NOT Met': {
+      'Anger': ['aggravated','angry','animosity','annoyed','contempt','disgruntled','enraged','exasperated','furious','hate','hostile','incensed','irate','irritated','irked','livid','miffed','nettled','outraged','peeved','resentful'],
+      'Aversion': ['abhorrence','appalled','bothered','displeased','disgust','dislike','enmity','horrified','loathing','repulsion','revulsion'],
+      'Confusion': ['ambivalent','baffled','bewildered','conflicted','dazed','discombobulated','disoriented','mixed','mystified','perplexed','puzzled','torn'],
+      'Disconnection': ['apathetic','bored','closed','detached','distant','indifferent','listless','numb','withdrawn'],
+      'Disquiet': ['agitated','alarmed','concerned','distraught','disconcerted','dismayed','disturbed','frustrated','perturbed','rattled','restless','shocked','startled','surprised','troubled','turbulent','turmoil','uncomfortable','uneasy','unnerved','unsettled','upset'],
+      'Embarrassment': ['ashamed','chagrined','discomfited','flustered','mortified','self-conscious'],
+      'Fatigue': ['beat','burnt out','depleted','exhausted','listless','pooped','sleepy','tired','weary','wiped out','worn out'],
+      'Fear': ['afraid','anxious','apprehensive','dread','fearful','foreboding','frightened','guarded','insecure','leery','mistrustful','panicked','petrified','scared','shaky','terrified','trepidation','wary','worried'],
+      'Pain': ['aching','agony','anguished','devastated','grief','heartbroken','hungry','hurting','lonely','miserable','regretful','remorseful'],
+      'Sadness': ['depressed','dejected','despairing','despondent','disappointed','discouraged','disheartened','forlorn','gloomy','heavy hearted','hopeless','melancholy','miserable','unhappy','wistful'],
+      'Tension': ['anxious','closed','distressed','edgy','fidgety','frazzled','frustrated','jittery','nervous','overwhelmed','restless','stressed out'],
+      'Yearning': ['longing','nostalgic','pining']
+    }
+  };
+
+  // ---- Reading Progress Bar ----
+  function initProgressBar() {
+    var bar = document.getElementById('progress-bar');
+    if (!bar) return;
+    window.addEventListener('scroll', function () {
+      var scrollTop = window.scrollY;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = pct + '%';
+    });
+  }
+
+  // ---- Dark Mode Toggle ----
+  function initDarkMode() {
+    var btn = document.getElementById('dark-mode-toggle');
+    if (!btn) return;
+    var saved = localStorage.getItem('cco-dark-mode');
+    if (saved === 'true') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      btn.textContent = '\u2600\uFE0F';
+    } else {
+      btn.textContent = '\uD83C\uDF19';
+    }
+    btn.addEventListener('click', function () {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('cco-dark-mode', 'false');
+        btn.textContent = '\uD83C\uDF19';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('cco-dark-mode', 'true');
+        btn.textContent = '\u2600\uFE0F';
+      }
+    });
+  }
+
+  // ---- Accordion Sections ----
+  function initAccordions() {
+    document.querySelectorAll('.accordion-header').forEach(function (header) {
+      header.addEventListener('click', function (e) {
+        if (e.target.classList.contains('read-badge')) return;
+        var isActive = this.classList.contains('active');
+        this.classList.toggle('active');
+        var card = this.closest('.section-card') || this.parentElement;
+        var body = card.querySelector('.accordion-body');
+        if (body) {
+          if (isActive) {
+            body.classList.remove('open');
+          } else {
+            body.classList.add('open');
+          }
+        }
+      });
+    });
+  }
+
+  // ---- Expand / Collapse All ----
+  function initExpandCollapse() {
+    var btn = document.getElementById('expand-collapse-all');
+    if (!btn) return;
+    var expanded = false;
+
+    btn.addEventListener('click', function () {
+      var headers = document.querySelectorAll('.accordion-header');
+      expanded = !expanded;
+
+      headers.forEach(function (header) {
+        var card = header.closest('.section-card') || header.parentElement;
+        var body = card.querySelector('.accordion-body');
+        if (!body) return;
+
+        if (expanded) {
+          header.classList.add('active');
+          body.classList.add('open');
+        } else {
+          header.classList.remove('active');
+          body.classList.remove('open');
+        }
+      });
+
+      btn.textContent = expanded ? 'Collapse All' : 'Expand All';
+    });
+  }
+
+  // ---- Dialogue Reveal ----
+  function initDialogueReveal() {
+    document.querySelectorAll('.dialogue-container').forEach(function (container) {
+      var lines = container.querySelectorAll('.dialogue-line, .dialogue-narration');
+      var nextBtn = container.querySelector('.dialogue-btn-next');
+      var resetBtn = container.querySelector('.dialogue-btn-reset');
+      if (!lines.length || !nextBtn) return;
+
+      var currentIndex = 0;
+
+      if (lines[0]) {
+        lines[0].classList.add('visible');
+        currentIndex = 1;
+      }
+
+      nextBtn.addEventListener('click', function () {
+        if (currentIndex < lines.length) {
+          lines[currentIndex].classList.add('visible');
+          currentIndex++;
+          lines[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        if (currentIndex >= lines.length) {
+          nextBtn.disabled = true;
+          nextBtn.textContent = 'End of conversation';
+        }
+      });
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          lines.forEach(function (line) {
+            line.classList.remove('visible');
+          });
+          currentIndex = 0;
+          if (lines[0]) {
+            lines[0].classList.add('visible');
+            currentIndex = 1;
+          }
+          nextBtn.disabled = false;
+          nextBtn.textContent = 'Next \u2192';
+        });
+      }
+    });
+  }
+
+  // ---- Practice Journal (localStorage) ----
+  function initJournals() {
+    var weekId = document.body.getAttribute('data-week') || 'unknown';
+    document.querySelectorAll('.journal-area').forEach(function (textarea) {
+      var key = 'cco-journal-' + weekId + '-' + textarea.id;
+      var savedNote = document.getElementById(textarea.id + '-saved');
+
+      var saved = localStorage.getItem(key);
+      if (saved) {
+        textarea.value = saved;
+      }
+
+      var saveTimeout;
+      textarea.addEventListener('input', function () {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(function () {
+          localStorage.setItem(key, textarea.value);
+          if (savedNote) {
+            savedNote.classList.add('show');
+            savedNote.textContent = 'Saved';
+            setTimeout(function () {
+              savedNote.classList.remove('show');
+            }, 2000);
+          }
+        }, 500);
+      });
+    });
+  }
+
+  // ---- Word Count for Journals ----
+  function initWordCount() {
+    document.querySelectorAll('.journal-area').forEach(function (textarea) {
+      var footer = document.createElement('div');
+      footer.className = 'journal-footer';
+
+      var countEl = document.createElement('span');
+      countEl.className = 'word-count';
+      countEl.textContent = '0 words';
+
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.type = 'button';
+      copyBtn.textContent = 'Copy';
+
+      footer.appendChild(countEl);
+      footer.appendChild(copyBtn);
+
+      var savedNote = textarea.nextElementSibling;
+      if (savedNote && savedNote.classList.contains('journal-saved')) {
+        savedNote.parentNode.insertBefore(footer, savedNote.nextSibling);
+      } else {
+        textarea.parentNode.insertBefore(footer, textarea.nextSibling);
+      }
+
+      function updateCount() {
+        var text = textarea.value.trim();
+        var words = text ? text.split(/\s+/).length : 0;
+        countEl.textContent = words + (words === 1 ? ' word' : ' words');
+      }
+
+      updateCount();
+      textarea.addEventListener('input', updateCount);
+
+      copyBtn.addEventListener('click', function () {
+        if (!textarea.value.trim()) return;
+        navigator.clipboard.writeText(textarea.value).then(function () {
+          copyBtn.textContent = 'Copied';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = 'Copy';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+    });
+  }
+
+  // ---- Section Read Tracking ----
+  var _readSections = {};
+  var _readStorageKey = '';
+
+  function initSectionRead() {
+    var weekId = document.body.getAttribute('data-week') || 'unknown';
+    _readStorageKey = 'cco-read-' + weekId;
+    try {
+      _readSections = JSON.parse(localStorage.getItem(_readStorageKey)) || {};
+    } catch (e) { _readSections = {}; }
+
+    document.querySelectorAll('.section-card').forEach(function (section) {
+      var sectionId = section.id;
+      if (!sectionId) return;
+
+      if (sectionId === 'resources' || sectionId === 'info') return;
+
+      var header = section.querySelector('.accordion-header');
+      var content = section.querySelector('.accordion-content');
+      if (!header || !content) return;
+
+      var badge = document.createElement('span');
+      badge.className = 'read-badge';
+      if (_readSections[sectionId]) badge.classList.add('visible');
+      var chevron = header.querySelector('.accordion-chevron');
+      if (chevron) {
+        header.insertBefore(badge, chevron);
+      }
+
+      var readBtn = document.createElement('button');
+      readBtn.type = 'button';
+      readBtn.className = 'section-read-btn';
+      if (_readSections[sectionId]) readBtn.classList.add('read');
+
+      var checkSpan = document.createElement('span');
+      checkSpan.className = 'read-check';
+      checkSpan.textContent = _readSections[sectionId] ? '\u2713' : '';
+
+      var labelSpan = document.createElement('span');
+      labelSpan.textContent = _readSections[sectionId] ? 'Completed' : 'Mark as read';
+
+      readBtn.appendChild(checkSpan);
+      readBtn.appendChild(labelSpan);
+      content.appendChild(readBtn);
+
+      readBtn.addEventListener('click', function () {
+        var isRead = readBtn.classList.contains('read');
+        if (isRead) {
+          readBtn.classList.remove('read');
+          checkSpan.textContent = '';
+          labelSpan.textContent = 'Mark as read';
+          badge.classList.remove('visible');
+          delete _readSections[sectionId];
+        } else {
+          readBtn.classList.add('read');
+          checkSpan.textContent = '\u2713';
+          labelSpan.textContent = 'Completed';
+          badge.classList.add('visible');
+          _readSections[sectionId] = true;
+        }
+        localStorage.setItem(_readStorageKey, JSON.stringify(_readSections));
+        updateProgressRing();
+        checkCelebration(weekId);
+      });
+    });
+  }
+
+  // ---- Reflection Timer ----
+  function initReflectionTimer() {
+    document.querySelectorAll('.practice-card').forEach(function (card) {
+      var container = document.createElement('div');
+      container.className = 'timer-container';
+
+      var label = document.createElement('span');
+      label.className = 'timer-label';
+      label.textContent = 'Reflect:';
+
+      var display = document.createElement('span');
+      display.className = 'timer-display';
+      display.style.display = 'none';
+
+      container.appendChild(label);
+
+      var durations = [1, 3, 5];
+      var activeInterval = null;
+
+      durations.forEach(function (mins) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'timer-btn';
+        btn.textContent = mins + ' min';
+
+        btn.addEventListener('click', function () {
+          if (activeInterval) {
+            clearInterval(activeInterval);
+            container.querySelectorAll('.timer-btn').forEach(function (b) {
+              b.classList.remove('active');
+            });
+          }
+
+          btn.classList.add('active');
+          display.style.display = 'inline';
+          display.classList.remove('done');
+
+          var remaining = mins * 60;
+          function updateDisplay() {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+          }
+          updateDisplay();
+
+          activeInterval = setInterval(function () {
+            remaining--;
+            updateDisplay();
+            if (remaining <= 0) {
+              clearInterval(activeInterval);
+              activeInterval = null;
+              display.textContent = 'Done';
+              display.classList.add('done');
+              btn.classList.remove('active');
+            }
+          }, 1000);
+        });
+
+        container.appendChild(btn);
+      });
+
+      container.appendChild(display);
+      card.appendChild(container);
+    });
+  }
+
+  // ---- Key Concept Highlighting ----
+  function initHighlights() {
+    // Key concepts are styled inline only — no click interaction
+  }
+
+  // ---- Back to Top ----
+  function initBackToTop() {
+    var btn = document.getElementById('back-to-top');
+    if (!btn) return;
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 400) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // ---- Rating Sliders (Week 4) ----
+  function initRatingSliders() {
+    document.querySelectorAll('.rating-slider').forEach(function (slider) {
+      var valueDisplay = slider.nextElementSibling;
+      var weekId = document.body.getAttribute('data-week') || 'unknown';
+      var key = 'cco-rating-' + weekId + '-' + slider.id;
+
+      var saved = localStorage.getItem(key);
+      if (saved) {
+        slider.value = saved;
+        if (valueDisplay) valueDisplay.textContent = saved;
+      }
+
+      slider.addEventListener('input', function () {
+        if (valueDisplay) valueDisplay.textContent = this.value;
+        localStorage.setItem(key, this.value);
+      });
+    });
+  }
+
+  // ---- Scroll Animations ----
+  function initScrollAnimations() {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.section-card, .practice-card').forEach(function (el) {
+      el.style.opacity = '0';
+      observer.observe(el);
+    });
+  }
+
+  // ---- Google Translate ----
+  window.googleTranslateElementInit = function () {
+    new google.translate.TranslateElement(
+      { pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
+      'google_translate_element'
+    );
+  };
+
+  // ---- Inline Reference Panel Builder ----
+  function buildReferencePanel(type, data, urlPattern, label, sourceUrl, icon) {
+    var panels = {};
+
+    // Find all links matching the URL pattern
+    var links = document.querySelectorAll('.accordion-content a[href*="' + urlPattern + '"]');
+    if (!links.length) return;
+
+    links.forEach(function (link) {
+      var section = link.closest('.accordion-content');
+      if (!section) return;
+
+      var sectionKey = section.parentElement && section.parentElement.parentElement
+        ? section.parentElement.parentElement.id || 'section'
+        : 'section';
+
+      // Only create one panel per section
+      if (panels[sectionKey]) return;
+
+      // Build unified expandable panel (header + body as one component)
+      var panel = document.createElement('div');
+      panel.className = 'inline-reference-panel';
+
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'reference-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.innerHTML = '<span class="reference-toggle-icon">' + icon + '</span>' +
+        '<span class="reference-toggle-label">' + type + ' List</span>' +
+        '<span class="reference-toggle-chevron">\u25BC</span>';
+
+      var body = document.createElement('div');
+      body.className = 'reference-panel-body';
+
+      // Build content based on data structure
+      if (type === 'Needs') {
+        Object.keys(data).forEach(function (category) {
+          var catDiv = document.createElement('div');
+          catDiv.className = 'reference-category';
+          var catTitle = document.createElement('h5');
+          catTitle.className = 'reference-category-title';
+          catTitle.textContent = category;
+          catDiv.appendChild(catTitle);
+          var tags = document.createElement('div');
+          tags.className = 'reference-tags';
+          data[category].forEach(function (need) {
+            var tag = document.createElement('span');
+            tag.className = 'reference-tag';
+            tag.textContent = need;
+            tags.appendChild(tag);
+          });
+          catDiv.appendChild(tags);
+          body.appendChild(catDiv);
+        });
+      } else if (type === 'Feelings') {
+        Object.keys(data).forEach(function (groupName) {
+          var group = document.createElement('div');
+          var isPositive = groupName.indexOf('ARE Met') !== -1;
+          group.className = 'reference-group reference-group--' + (isPositive ? 'positive' : 'negative');
+          var groupTitle = document.createElement('h4');
+          groupTitle.className = 'reference-group-title';
+          groupTitle.textContent = groupName;
+          group.appendChild(groupTitle);
+          Object.keys(data[groupName]).forEach(function (category) {
+            var catDiv = document.createElement('div');
+            catDiv.className = 'reference-category';
+            var catTitle = document.createElement('h5');
+            catTitle.className = 'reference-category-title';
+            catTitle.textContent = category;
+            catDiv.appendChild(catTitle);
+            var tags = document.createElement('div');
+            tags.className = 'reference-tags';
+            data[groupName][category].forEach(function (feeling) {
+              var tag = document.createElement('span');
+              tag.className = 'reference-tag';
+              tag.textContent = feeling;
+              tags.appendChild(tag);
+            });
+            catDiv.appendChild(tags);
+            group.appendChild(catDiv);
+          });
+          body.appendChild(group);
+        });
+      }
+
+      // Source link
+      var source = document.createElement('p');
+      source.className = 'reference-source';
+      source.innerHTML = 'Source: <a href="' + sourceUrl + '" target="_blank" rel="noopener">NYCNVC ' + type + ' List</a>';
+      body.appendChild(source);
+
+      panel.appendChild(toggle);
+      panel.appendChild(body);
+
+      // Toggle expand/collapse
+      toggle.addEventListener('click', function () {
+        var isOpen = body.classList.contains('open');
+        body.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', !isOpen);
+        toggle.querySelector('.reference-toggle-chevron').textContent = isOpen ? '\u25BC' : '\u25B2';
+        if (!isOpen) {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+
+      // Insert after the link's wrapper paragraph/list item
+      var linkWrapper = link.closest('p, li');
+      if (linkWrapper) {
+        linkWrapper.parentNode.insertBefore(panel, linkWrapper.nextSibling);
+      } else {
+        link.parentNode.insertBefore(panel, link.nextSibling);
+      }
+
+      panels[sectionKey] = panel;
+    });
+  }
+
+  // ---- Inline Needs Panel ----
+  function initNeedsPanel() {
+    buildReferencePanel('Needs', NEEDS_DATA, 'nycnvc.org/needs', 'Needs List Reference', 'http://www.nycnvc.org/needs/', '\uD83D\uDCCB');
+  }
+
+  // ---- Inline Feelings Panel ----
+  function initFeelingsPanel() {
+    buildReferencePanel('Feelings', FEELINGS_DATA, 'nycnvc.org/feelings', 'Feelings List Reference', 'http://www.nycnvc.org/feelings/', '\uD83D\uDC9A');
+  }
+
+  // ---- Breathing Widget ----
+  function initBreathingWidget() {
+    var practicesSections = document.querySelectorAll('#practices .accordion-content');
+    if (!practicesSections.length) return;
+
+    practicesSections.forEach(function (section) {
+      var widget = document.createElement('div');
+      widget.className = 'breathing-widget';
+
+      var prompt = document.createElement('p');
+      prompt.className = 'breathing-prompt';
+      prompt.textContent = 'Take a moment to center yourself before practicing.';
+
+      var container = document.createElement('div');
+      container.className = 'breathing-container';
+
+      var circle = document.createElement('div');
+      circle.className = 'breathing-circle';
+
+      var text = document.createElement('span');
+      text.className = 'breathing-text';
+      text.textContent = 'Breathe';
+
+      circle.appendChild(text);
+      container.appendChild(circle);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'breathing-btn';
+      btn.textContent = 'Start Breathing';
+
+      var isActive = false;
+      var textInterval = null;
+
+      btn.addEventListener('click', function () {
+        isActive = !isActive;
+        if (isActive) {
+          circle.classList.add('active');
+          btn.textContent = 'Stop';
+          btn.classList.add('active');
+          // Cycle text to match CSS animation phases
+          var phase = 0;
+          function updateText() {
+            if (phase === 0) {
+              text.textContent = 'Breathe In';
+              phase = 1;
+            } else if (phase === 1) {
+              text.textContent = 'Hold';
+              phase = 2;
+            } else if (phase === 2) {
+              text.textContent = 'Breathe Out';
+              phase = 3;
+            } else {
+              text.textContent = 'Breathe In';
+              phase = 1;
+            }
+          }
+          updateText();
+          textInterval = setInterval(function () {
+            updateText();
+          }, 2000);
+        } else {
+          circle.classList.remove('active');
+          btn.textContent = 'Start Breathing';
+          btn.classList.remove('active');
+          text.textContent = 'Breathe';
+          if (textInterval) {
+            clearInterval(textInterval);
+            textInterval = null;
+          }
+        }
+      });
+
+      widget.appendChild(prompt);
+      widget.appendChild(container);
+      widget.appendChild(btn);
+      section.insertBefore(widget, section.firstChild);
+    });
+  }
+
+  // ---- Progress Ring ----
+  var _progressRingFill = null;
+  var _progressRingText = null;
+
+  function initProgressRing() {
+    var tocActions = document.querySelector('.toc-actions');
+    if (!tocActions) return;
+
+    var container = document.createElement('div');
+    container.className = 'progress-ring-container';
+    container.title = 'Section completion';
+
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'progress-ring');
+    svg.setAttribute('width', '42');
+    svg.setAttribute('height', '42');
+    svg.setAttribute('viewBox', '0 0 42 42');
+
+    var bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bgCircle.setAttribute('cx', '21');
+    bgCircle.setAttribute('cy', '21');
+    bgCircle.setAttribute('r', '18');
+    bgCircle.setAttribute('fill', 'none');
+    bgCircle.setAttribute('stroke', '#e0dbd2');
+    bgCircle.setAttribute('stroke-width', '3');
+
+    var fillCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    fillCircle.setAttribute('class', 'progress-ring-fill');
+    fillCircle.setAttribute('cx', '21');
+    fillCircle.setAttribute('cy', '21');
+    fillCircle.setAttribute('r', '18');
+    fillCircle.setAttribute('fill', 'none');
+    fillCircle.setAttribute('stroke', '#2a7a6e');
+    fillCircle.setAttribute('stroke-width', '3');
+    var circumference = 2 * Math.PI * 18;
+    fillCircle.setAttribute('stroke-dasharray', circumference.toFixed(2));
+    fillCircle.setAttribute('stroke-dashoffset', circumference.toFixed(2));
+    fillCircle.setAttribute('stroke-linecap', 'round');
+    fillCircle.setAttribute('transform', 'rotate(-90 21 21)');
+
+    svg.appendChild(bgCircle);
+    svg.appendChild(fillCircle);
+
+    var textEl = document.createElement('span');
+    textEl.className = 'progress-ring-text';
+    textEl.textContent = '0%';
+
+    container.appendChild(svg);
+    container.appendChild(textEl);
+    tocActions.insertBefore(container, tocActions.firstChild);
+
+    _progressRingFill = fillCircle;
+    _progressRingText = textEl;
+
+    updateProgressRing();
+  }
+
+  function updateProgressRing() {
+    if (!_progressRingFill || !_progressRingText) return;
+
+    var totalSections = document.querySelectorAll('.section-card:not(#resources):not(#info)');
+    var total = 0;
+    totalSections.forEach(function (s) {
+      if (s.id) total++;
+    });
+    var readCount = Object.keys(_readSections).length;
+    var pct = total > 0 ? Math.round((readCount / total) * 100) : 0;
+
+    var circumference = 2 * Math.PI * 18;
+    var offset = circumference - (pct / 100) * circumference;
+    _progressRingFill.setAttribute('stroke-dashoffset', offset.toFixed(2));
+    _progressRingText.textContent = pct + '%';
+  }
+
+  // ---- Typewriter Effect on Blockquotes ----
+  function initTypewriterQuotes() {
+    var quotes = document.querySelectorAll('blockquote');
+    if (!quotes.length) return;
+
+    quotes.forEach(function (quote) {
+      var p = quote.querySelector('p');
+      if (!p) return;
+      // Only apply to simple text (no nested HTML elements like key-concept spans)
+      if (p.children.length > 0) return;
+
+      var originalText = p.textContent;
+      quote.setAttribute('data-original-text', originalText);
+      p.textContent = '';
+      quote.classList.add('typewriter-ready');
+
+      var cursor = document.createElement('span');
+      cursor.className = 'typewriter-cursor';
+      p.appendChild(cursor);
+
+      var started = false;
+      function tryStart() {
+        if (started) return;
+        started = true;
+        setTimeout(function () {
+          startTypewriter(quote);
+        }, 400);
+      }
+
+      // Check if inside an accordion
+      var accordionBody = quote.closest('.accordion-body');
+      if (!accordionBody) {
+        // Not inside an accordion — use IntersectionObserver
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              tryStart();
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        observer.observe(quote);
+        return;
+      }
+
+      // If already open, start now
+      if (accordionBody.classList.contains('open')) {
+        tryStart();
+        return;
+      }
+
+      // Watch for accordion to open
+      var obs = new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'class' && accordionBody.classList.contains('open')) {
+            tryStart();
+            obs.disconnect();
+          }
+        });
+      });
+      obs.observe(accordionBody, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  function startTypewriter(quote) {
+    var p = quote.querySelector('p');
+    var cursor = p.querySelector('.typewriter-cursor');
+    var text = quote.getAttribute('data-original-text');
+    if (!text) return;
+
+    var textNode = document.createTextNode('');
+    p.insertBefore(textNode, cursor);
+
+    var i = 0;
+    var interval = setInterval(function () {
+      if (i < text.length) {
+        textNode.textContent += text.charAt(i);
+        i++;
+      } else {
+        clearInterval(interval);
+        quote.classList.add('typewriter-complete');
+      }
+    }, 25);
+  }
+
+  // ---- Animated Step Reveals ----
+  function initStepReveals() {
+    var stepContainers = document.querySelectorAll('.step-cards');
+    if (!stepContainers.length) return;
+
+    stepContainers.forEach(function (container) {
+      var steps = container.querySelectorAll('.step-card');
+      steps.forEach(function (step) {
+        step.classList.add('step-animate');
+      });
+
+      var revealed = false;
+      function revealSteps() {
+        if (revealed) return;
+        revealed = true;
+        steps.forEach(function (step, index) {
+          setTimeout(function () {
+            step.classList.add('step-visible');
+          }, 200 + index * 300);
+        });
+      }
+
+      // Watch for the accordion body gaining the 'open' class
+      var accordionBody = container.closest('.accordion-body');
+      if (!accordionBody) {
+        revealSteps();
+        return;
+      }
+
+      // If already open, reveal now
+      if (accordionBody.classList.contains('open')) {
+        revealSteps();
+        return;
+      }
+
+      // Use MutationObserver to detect when accordion opens
+      var obs = new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'class' && accordionBody.classList.contains('open')) {
+            setTimeout(revealSteps, 200);
+            obs.disconnect();
+          }
+        });
+      });
+      obs.observe(accordionBody, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  // ---- Celebration Animation ----
+  function showCelebration() {
+    var overlay = document.createElement('div');
+    overlay.className = 'celebration-overlay';
+
+    var message = document.createElement('div');
+    message.className = 'celebration-message';
+    message.innerHTML = '<h3>Week Complete!</h3><p>You\'ve read all sections. Well done.</p>';
+    overlay.appendChild(message);
+    document.body.appendChild(overlay);
+
+    // Spawn particles
+    var colors = ['#2a7a6e', '#e8a838', '#8fad8b', '#c9827a', '#3a9e8f'];
+    for (var i = 0; i < 30; i++) {
+      var particle = document.createElement('div');
+      particle.className = 'celebration-particle';
+      particle.style.left = Math.random() * 100 + 'vw';
+      particle.style.top = '-10px';
+      particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.animationDelay = (Math.random() * 0.5) + 's';
+      particle.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+      particle.style.width = (6 + Math.random() * 6) + 'px';
+      particle.style.height = particle.style.width;
+      document.body.appendChild(particle);
+      (function (p) {
+        setTimeout(function () { p.remove(); }, 3500);
+      })(particle);
+    }
+
+    // Auto-dismiss
+    setTimeout(function () {
+      message.classList.add('celebration-fade-out');
+      setTimeout(function () { overlay.remove(); }, 500);
+    }, 3000);
+  }
+
+  function checkCelebration(weekId) {
+    var allSections = document.querySelectorAll('.section-card:not(#resources):not(#info)');
+    var allRead = true;
+    var count = 0;
+    allSections.forEach(function (s) {
+      if (!s.id) return;
+      count++;
+      if (!_readSections[s.id]) allRead = false;
+    });
+
+    if (allRead && count > 0) {
+      var celebKey = 'cco-celebrated-' + weekId;
+      if (!localStorage.getItem(celebKey)) {
+        showCelebration();
+        localStorage.setItem(celebKey, 'true');
+      }
+    }
+  }
+
+  // ---- ElevenLabs TTS Narration ----
+
+  var _narrationAudio = null;
+  var _narrationState = 'idle'; // idle | loading | playing | paused
+  var _narrationQueue = []; // for sequential playback of multiple sections
+  var _narrationQueueIndex = 0;
+  var _activeNarrateBtn = null; // the button that triggered current playback
+
+  function getWeekId() {
+    var weekNum = document.body.getAttribute('data-week') || '1';
+    return 'week_' + weekNum;
+  }
+
+  // Selectors stripped from content before hashing/narrating.
+  // MUST match STRIP_SELECTORS in generate-audio.js exactly.
+  var AUDIO_STRIP_SELECTORS = [
+    '.inline-reference-panel', '.inline-ref-trigger',
+    '.breathing-widget', '.timer-container',
+    '.journal-area', '.journal-saved', '.journal-footer',
+    '.word-count', '.copy-btn',
+    '.section-read-btn', '.section-narrate-btn',
+    '.calendar-buttons', '.progress-ring-container',
+    '.rating-slider-container',
+    '.needs-panel', '.feelings-panel',
+    '.celebration-overlay', '.typewriter-cursor',
+    '.dialogue-controls'
+  ].join(', ');
+
+  // Extract the normalized narration text for a section (same as generate-audio.js)
+  function getSectionContentText(card) {
+    var content = card.querySelector('.accordion-content');
+    if (!content) return '';
+    var clone = content.cloneNode(true);
+    // initTypewriterQuotes() empties the first <p> of each blockquote and stashes
+    // the original text in data-original-text on the blockquote. Restore it so
+    // the hash matches what generate-audio.js computes from the raw HTML.
+    clone.querySelectorAll('blockquote[data-original-text]').forEach(function (bq) {
+      var p = bq.querySelector('p');
+      if (p) p.textContent = bq.getAttribute('data-original-text');
+    });
+    clone.querySelectorAll(AUDIO_STRIP_SELECTORS).forEach(function (el) { el.remove(); });
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  // Short hash of (title + content) for content-addressed audio filenames.
+  // MUST match audioHash() in generate-audio.js exactly.
+  function audioHash(title, content) {
+    var str = title.toLowerCase().trim() + '::' + content.toLowerCase().trim();
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return (h >>> 0).toString(36);
+  }
+
+  function getSectionAudioPath(headerEl) {
+    // Hardcoded mapping for this static Week 10 sample — filenames are
+    // pinned to the real files in audio/ so the preview-mode DOM injections
+    // (banner, disabled labels) don't break the content-addressed hash lookup.
+    var SAMPLE_WEEK10_MAP = {
+      'The Concept': 'lcuwkj',
+      'In Practice: The Car, the Clubs and the Cab Driver': 'fsf394',
+      'Practice(s) for the Week': '18e1yhh',
+      'Compassion Course Information': 'dsq2m4',
+      'Resources': '1d6v2sz'
+    };
+    var title = (headerEl.textContent || '').trim().replace(/[▼▲]/g, '').trim();
+    var hash = SAMPLE_WEEK10_MAP[title];
+    return hash ? 'audio/' + hash + '.mp3' : '';
+  }
+
+
+  // Check if a static file exists (returns promise resolving to boolean).
+  // Firebase Hosting's SPA fallback rewrites missing paths to /index.html with
+  // a 200 status, so `r.ok` alone is unreliable for audio existence checks.
+  // We verify the response is actually audio/video by checking Content-Type.
+  function staticFileExists(path) {
+    return fetch(path, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) return false;
+      var ct = (r.headers.get('content-type') || '').toLowerCase();
+      if (ct.indexOf('audio/') === 0 || ct.indexOf('video/') === 0 || ct.indexOf('application/octet-stream') === 0) return true;
+      // Any other Content-Type (notably text/html from the SPA fallback) means
+      // the actual file doesn't exist — don't treat as existing.
+      return false;
+    }).catch(function () { return false; });
+  }
+
+  // Load all audio parts for a section, returns Promise<Audio[]>
+  // Only plays pre-generated static files (no live API calls)
+  function loadSectionAudioParts(audioPath) {
+    var basePath = audioPath.replace('.mp3', '');
+
+    // First check if multi-part files exist (e.g. audio/{hash}_part1.mp3)
+    return staticFileExists(basePath + '_part1.mp3').then(function (hasParts) {
+      if (hasParts) {
+        var parts = [];
+        var partNum = 1;
+        function loadNext() {
+          return staticFileExists(basePath + '_part' + partNum + '.mp3').then(function (exists) {
+            if (!exists) return parts;
+            parts.push(new Audio(basePath + '_part' + partNum + '.mp3'));
+            partNum++;
+            return loadNext();
+          });
+        }
+        return loadNext();
+      }
+
+      // Check single file
+      return staticFileExists(audioPath).then(function (exists) {
+        if (exists) return [new Audio(audioPath)];
+        return [];
+      });
+    });
+  }
+
+  // --- Per-section narrate buttons ---
+  function initSectionNarration() {
+    var cards = document.querySelectorAll('.section-card');
+    cards.forEach(function (card) {
+      if (card.id === 'info' || card.id === 'resources') return;
+      var header = card.querySelector('.accordion-header');
+      var body = card.querySelector('.accordion-body');
+      if (!header || !body) return;
+
+      var sectionName = header.querySelector('h2') ? header.querySelector('h2').textContent.trim() : header.textContent.trim();
+      // Remove chevron text from section name
+      sectionName = sectionName.replace(/[▼▲]/g, '').trim();
+
+      var btn = document.createElement('button');
+      btn.className = 'section-narrate-btn';
+      btn.type = 'button';
+      btn.title = 'Narrate ' + sectionName;
+      btn.innerHTML = ICON_SPEAKER;
+      btn.setAttribute('data-state', 'idle');
+      card.insertBefore(btn, body);
+
+      // Position vertically centered with header
+      function alignBtn() {
+        var hh = header.offsetHeight;
+        btn.style.top = ((hh - btn.offsetHeight) / 2) + 'px';
+      }
+      alignBtn();
+      window.addEventListener('resize', alignBtn);
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var state = btn.getAttribute('data-state');
+        if (state === 'idle') {
+          stopAllNarration();
+          playSingleSection(btn, body);
+        } else if (state === 'playing') {
+          pauseCurrentNarration();
+        } else if (state === 'paused') {
+          resumeCurrentNarration();
+        }
+      });
+    });
+  }
+
+  // --- Floating audio control bar ---
+  var _audioBar = null;
+  var _seekSlider = null;
+  var _timeLabel = null;
+  var _seekUpdateId = null;
+
+  function createAudioBar() {
+    if (_audioBar) return;
+    var bar = document.createElement('div');
+    bar.id = 'audio-bar';
+    bar.innerHTML =
+      '<button class="audio-bar-btn ab-skip" id="ab-rew" title="Rewind 10 seconds"><span class="ab-skip-arrow">\u25C0</span><span class="ab-skip-label">10</span></button>' +
+      '<button class="audio-bar-btn" id="ab-play" title="Play / Pause">\u2759\u2759</button>' +
+      '<button class="audio-bar-btn ab-skip" id="ab-fwd" title="Forward 10 seconds"><span class="ab-skip-label">10</span><span class="ab-skip-arrow">\u25B6</span></button>' +
+      '<input type="range" id="ab-seek" min="0" max="100" value="0" step="0.5">' +
+      '<span id="ab-time">0:00</span>' +
+      '<button class="audio-bar-btn audio-bar-close" id="ab-stop" title="Stop">&times;</button>';
+    document.body.appendChild(bar);
+    _audioBar = bar;
+    _seekSlider = document.getElementById('ab-seek');
+    _timeLabel = document.getElementById('ab-time');
+
+    document.getElementById('ab-rew').addEventListener('click', function () {
+      if (_narrationAudio) _narrationAudio.currentTime = Math.max(0, _narrationAudio.currentTime - 10);
+    });
+    document.getElementById('ab-fwd').addEventListener('click', function () {
+      if (_narrationAudio) _narrationAudio.currentTime = Math.min(_narrationAudio.duration || 0, _narrationAudio.currentTime + 10);
+    });
+    document.getElementById('ab-play').addEventListener('click', function () {
+      if (!_narrationAudio) return;
+      if (_narrationAudio.paused) {
+        resumeCurrentNarration();
+      } else {
+        pauseCurrentNarration();
+      }
+    });
+    document.getElementById('ab-stop').addEventListener('click', function () {
+      stopAllNarration();
+    });
+
+    var seeking = false;
+    _seekSlider.addEventListener('input', function () {
+      seeking = true;
+      if (_narrationAudio && _narrationAudio.duration) {
+        _narrationAudio.currentTime = (_seekSlider.value / 100) * _narrationAudio.duration;
+      }
+    });
+    _seekSlider.addEventListener('change', function () { seeking = false; });
+
+    // Update seek slider position
+    function updateSeek() {
+      if (_narrationAudio && isFinite(_narrationAudio.duration) && _narrationAudio.duration > 0 && !seeking) {
+        var pct = (_narrationAudio.currentTime / _narrationAudio.duration) * 100;
+        _seekSlider.value = pct;
+        _timeLabel.textContent = formatTime(_narrationAudio.currentTime) + ' / ' + formatTime(_narrationAudio.duration);
+      } else if (_narrationAudio) {
+        _timeLabel.textContent = formatTime(_narrationAudio.currentTime);
+      }
+      _seekUpdateId = requestAnimationFrame(updateSeek);
+    }
+    _seekUpdateId = requestAnimationFrame(updateSeek);
+  }
+
+  function formatTime(s) {
+    if (!s || isNaN(s)) return '0:00';
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function showAudioBar() {
+    createAudioBar();
+    _audioBar.classList.add('visible');
+    var playBtn = document.getElementById('ab-play');
+    if (playBtn) playBtn.innerHTML = ICON_PAUSE;
+  }
+
+  function hideAudioBar() {
+    if (_audioBar) _audioBar.classList.remove('visible');
+    if (_seekSlider) { _seekSlider.value = 0; }
+    if (_timeLabel) _timeLabel.textContent = '0:00';
+  }
+
+  // Play an array of Audio objects in sequence
+  function playAudioSequence(audios, onEnd) {
+    showAudioBar();
+    var index = 0;
+    function playNext() {
+      if (index >= audios.length) { hideAudioBar(); onEnd(); return; }
+      _narrationAudio = audios[index];
+      function onEnded() {
+        _narrationAudio.removeEventListener('ended', onEnded);
+        index++;
+        playNext();
+      }
+      _narrationAudio.addEventListener('ended', onEnded);
+      _narrationAudio.play();
+    }
+    playNext();
+  }
+
+  function playSingleSection(btn, body) {
+    var card = body.closest('.section-card') || body.parentElement;
+    var header = card.querySelector('.accordion-header');
+    var audioPath = getSectionAudioPath(header);
+
+    btn.setAttribute('data-state', 'loading');
+    btn.innerHTML = ICON_LOADING;
+    _activeNarrateBtn = btn;
+    _narrationState = 'loading';
+
+    loadSectionAudioParts(audioPath).then(function (audios) {
+      if (!audios.length) { resetNarrateBtn(btn); _narrationState = 'idle'; return; }
+      playAudioSequence(audios, function () {
+        resetNarrateBtn(btn);
+        _narrationAudio = null;
+        _activeNarrateBtn = null;
+        _narrationState = 'idle';
+      });
+      btn.setAttribute('data-state', 'playing');
+      btn.innerHTML = ICON_PAUSE;
+      _narrationState = 'playing';
+    }).catch(function () {
+      alert('Narration failed for this section.');
+      resetNarrateBtn(btn);
+      _narrationState = 'idle';
+    });
+  }
+
+  function resetNarrateBtn(btn) {
+    btn.setAttribute('data-state', 'idle');
+    btn.innerHTML = ICON_SPEAKER;
+  }
+
+  function resetAllSectionBtns() {
+    document.querySelectorAll('.section-narrate-btn').forEach(function (btn) {
+      resetNarrateBtn(btn);
+    });
+  }
+
+  // --- Main nav narrate button (plays all sections sequentially) ---
+  function initNarration() {
+    var navControls = document.querySelector('.nav-controls');
+    if (!navControls) return;
+    // Only add the narrate button on pages that actually have sections to
+    // narrate (i.e. week pages). Skip the index/admin pages.
+    if (!document.querySelector('.section-card')) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'narrate-btn';
+    btn.type = 'button';
+    btn.title = 'Narrate full weekly lesson';
+    btn.innerHTML = ICON_SPEAKER;
+    navControls.insertBefore(btn, navControls.firstChild);
+
+    btn.addEventListener('click', function () {
+      if (_narrationState === 'idle' || (_narrationState !== 'idle' && !_narrationQueue.length)) {
+        // Idle, or a single section is playing — start full narration from the top
+        startFullNarration(btn);
+      } else if (_narrationState === 'playing') {
+        pauseCurrentNarration();
+      } else if (_narrationState === 'paused') {
+        resumeCurrentNarration();
+      }
+    });
+
+    btn.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      stopAllNarration();
+    });
+
+    // Hide when translated
+    function checkLanguage() {
+      var cookie = document.cookie;
+      var match = cookie.match(/googtrans=\/en\/(\w+)/);
+      var isTranslated = match && match[1] && match[1] !== 'en';
+      var htmlLang = document.documentElement.lang;
+      if (htmlLang && htmlLang !== 'en' && htmlLang.indexOf('en') !== 0) isTranslated = true;
+      var display = isTranslated ? 'none' : '';
+      btn.style.display = display;
+      document.querySelectorAll('.section-narrate-btn').forEach(function (b) { b.style.display = display; });
+      if (isTranslated && _narrationState !== 'idle') stopAllNarration();
+    }
+    checkLanguage();
+    setInterval(checkLanguage, 2000);
+
+    // Also init per-section buttons
+    initSectionNarration();
+  }
+
+  function startFullNarration(btn) {
+    stopAllNarration();
+    // Build queue of all sections
+    var cards = document.querySelectorAll('.section-card');
+    _narrationQueue = [];
+    cards.forEach(function (card) {
+      if (card.id === 'info' || card.id === 'resources') return;
+      var header = card.querySelector('.accordion-header');
+      var body = card.querySelector('.accordion-body');
+      if (!header || !body) return;
+      _narrationQueue.push({
+        audioPath: getSectionAudioPath(header),
+        sectionBtn: card.querySelector('.section-narrate-btn')
+      });
+    });
+
+    if (!_narrationQueue.length) return;
+
+    _narrationQueueIndex = 0;
+    _narrationState = 'loading';
+    _activeNarrateBtn = btn;
+    btn.innerHTML = ICON_LOADING;
+    btn.classList.add('narrating');
+
+    playNextInQueue(btn);
+  }
+
+  function playNextInQueue(navBtn) {
+    if (_narrationQueueIndex >= _narrationQueue.length) {
+      stopAllNarration();
+      return;
+    }
+
+    var item = _narrationQueue[_narrationQueueIndex];
+
+    // Highlight current section button
+    resetAllSectionBtns();
+    if (item.sectionBtn) {
+      item.sectionBtn.setAttribute('data-state', 'playing');
+      item.sectionBtn.innerHTML = ICON_PAUSE;
+    }
+
+    loadSectionAudioParts(item.audioPath).then(function (audios) {
+      if (!audios.length) {
+        if (item.sectionBtn) resetNarrateBtn(item.sectionBtn);
+        _narrationQueueIndex++;
+        playNextInQueue(navBtn);
+        return;
+      }
+      playAudioSequence(audios, function () {
+        if (item.sectionBtn) resetNarrateBtn(item.sectionBtn);
+        _narrationQueueIndex++;
+        playNextInQueue(navBtn);
+      });
+      _narrationState = 'playing';
+      navBtn.innerHTML = ICON_PAUSE;
+    }).catch(function () {
+      if (item.sectionBtn) resetNarrateBtn(item.sectionBtn);
+      _narrationQueueIndex++;
+      playNextInQueue(navBtn);
+    });
+  }
+
+  // --- Centralized UI sync for all play controls ---
+  var ICON_PLAY = '\u25B6';
+  var ICON_PAUSE = '\u2759\u2759';
+  var ICON_SPEAKER = '\uD83D\uDD0A';
+  var ICON_LOADING = '\u23F3';
+
+  function syncAllPlayButtons(state) {
+    var icon = (state === 'playing') ? ICON_PAUSE : ICON_PLAY;
+    var dataState = (state === 'playing') ? 'playing' : 'paused';
+
+    // 1. Audio bar play button
+    var abPlay = document.getElementById('ab-play');
+    if (abPlay) abPlay.innerHTML = icon;
+
+    // 2. Nav button (top bar)
+    var navBtn = document.getElementById('narrate-btn');
+    if (navBtn && (navBtn === _activeNarrateBtn || _narrationQueue.length)) {
+      navBtn.innerHTML = icon;
+    }
+
+    // 3. Active section button (single-section playback)
+    if (_activeNarrateBtn && _activeNarrateBtn.classList.contains('section-narrate-btn')) {
+      _activeNarrateBtn.setAttribute('data-state', dataState);
+      _activeNarrateBtn.innerHTML = icon;
+    }
+
+    // 4. Current queue section button (full narration)
+    if (_narrationQueue.length) {
+      var item = _narrationQueue[_narrationQueueIndex];
+      if (item && item.sectionBtn) {
+        item.sectionBtn.setAttribute('data-state', dataState);
+        item.sectionBtn.innerHTML = icon;
+      }
+    }
+  }
+
+  // --- Shared pause/resume/stop ---
+  function pauseCurrentNarration() {
+    if (_narrationAudio) {
+      _narrationAudio.pause();
+      _narrationState = 'paused';
+      syncAllPlayButtons('paused');
+    }
+  }
+
+  function resumeCurrentNarration() {
+    if (_narrationAudio) {
+      _narrationAudio.play();
+      _narrationState = 'playing';
+      syncAllPlayButtons('playing');
+    }
+  }
+
+  function stopAllNarration() {
+    if (_narrationAudio) {
+      _narrationAudio.pause();
+      _narrationAudio.currentTime = 0;
+      _narrationAudio = null;
+    }
+    _narrationState = 'idle';
+    _narrationQueue = [];
+    _narrationQueueIndex = 0;
+    hideAudioBar();
+    // Reset nav button
+    var navBtn = document.getElementById('narrate-btn');
+    if (navBtn) {
+      navBtn.innerHTML = ICON_SPEAKER;
+      navBtn.classList.remove('narrating');
+    }
+    // Reset all section buttons
+    resetAllSectionBtns();
+    _activeNarrateBtn = null;
+  }
+
+  // ---- Add-to-Calendar for Monthly Conferences ----
+  function initCalendarButtons() {
+    var ZOOM_URL = 'https://us06web.zoom.us/j/81925069376?pwd=AqvTHV0FbEUgGWh4Zea8wy2A3pYuHH.1';
+    var TITLE = 'Compassion Course Monthly Conference';
+    var DESC = 'Monthly 90-min conference with Thom Bond via Zoom.\\n' + ZOOM_URL;
+    var LOCATION = 'Zoom';
+
+    // Find "Monthly Conferences" h3 headings
+    var headings = document.querySelectorAll('.accordion-content h3');
+    headings.forEach(function (h3) {
+      if (h3.textContent.trim() !== 'Monthly Conferences') return;
+
+      // Compute next 2nd Monday from today
+      function getNextSecondMonday() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = now.getMonth();
+
+        // Find 2nd Monday of current month
+        var first = new Date(year, month, 1);
+        var dayOfWeek = first.getDay();
+        var firstMonday = dayOfWeek <= 1 ? (1 + (1 - dayOfWeek)) : (1 + (8 - dayOfWeek));
+        var secondMonday = firstMonday + 7;
+        var candidate = new Date(year, month, secondMonday, 12, 0, 0);
+
+        // If already past, get next month's
+        if (candidate < now) {
+          month++;
+          if (month > 11) { month = 0; year++; }
+          first = new Date(year, month, 1);
+          dayOfWeek = first.getDay();
+          firstMonday = dayOfWeek <= 1 ? (1 + (1 - dayOfWeek)) : (1 + (8 - dayOfWeek));
+          secondMonday = firstMonday + 7;
+          candidate = new Date(year, month, secondMonday, 12, 0, 0);
+        }
+        return candidate;
+      }
+
+      var nextConf = getNextSecondMonday();
+
+      // Format for calendar URLs
+      function pad(n) { return n < 10 ? '0' + n : '' + n; }
+      function toUTC(d) {
+        // Conference is 12:00 PM EDT (UTC-4)
+        var utc = new Date(d.getTime());
+        // Set to EDT noon: add 4 hours for UTC
+        utc.setUTCHours(16, 0, 0, 0);
+        utc.setUTCFullYear(d.getFullYear());
+        utc.setUTCMonth(d.getMonth());
+        utc.setUTCDate(d.getDate());
+        return utc;
+      }
+      var start = toUTC(nextConf);
+      var end = new Date(start.getTime() + 90 * 60 * 1000);
+
+      function fmtICal(d) {
+        return d.getUTCFullYear() +
+          pad(d.getUTCMonth() + 1) +
+          pad(d.getUTCDate()) + 'T' +
+          pad(d.getUTCHours()) +
+          pad(d.getUTCMinutes()) +
+          pad(d.getUTCSeconds()) + 'Z';
+      }
+      var startStr = fmtICal(start);
+      var endStr = fmtICal(end);
+
+      // Recurrence: 2nd Monday every month
+      var RRULE = 'RRULE:FREQ=MONTHLY;BYDAY=2MO';
+
+      // Google Calendar URL
+      var googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+        '&text=' + encodeURIComponent(TITLE) +
+        '&dates=' + startStr + '/' + endStr +
+        '&details=' + encodeURIComponent(DESC) +
+        '&location=' + encodeURIComponent(LOCATION) +
+        '&recur=' + encodeURIComponent(RRULE);
+
+      // Outlook Web URL
+      var outlookUrl = 'https://outlook.live.com/calendar/0/action/compose?allday=false' +
+        '&subject=' + encodeURIComponent(TITLE) +
+        '&startdt=' + start.toISOString() +
+        '&enddt=' + end.toISOString() +
+        '&body=' + encodeURIComponent(DESC) +
+        '&location=' + encodeURIComponent(LOCATION);
+
+      // ICS file (Apple Calendar / any app)
+      var icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//CCO//EN',
+        'BEGIN:VEVENT',
+        'DTSTART:' + startStr,
+        'DTEND:' + endStr,
+        RRULE,
+        'SUMMARY:' + TITLE,
+        'DESCRIPTION:' + DESC.replace(/\n/g, '\\n'),
+        'LOCATION:' + LOCATION,
+        'URL:' + ZOOM_URL,
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      var icsBlob = new Blob([icsContent], { type: 'text/calendar' });
+      var icsUrl = URL.createObjectURL(icsBlob);
+
+      // Build button group
+      var wrap = document.createElement('div');
+      wrap.className = 'calendar-buttons';
+      wrap.innerHTML =
+        '<span class="calendar-label">Add to Calendar:</span>' +
+        '<a href="' + googleUrl + '" target="_blank" rel="noopener" class="calendar-btn calendar-btn--google" title="Google Calendar">Google</a>' +
+        '<a href="' + outlookUrl + '" target="_blank" rel="noopener" class="calendar-btn calendar-btn--outlook" title="Outlook Calendar">Outlook</a>' +
+        '<a href="' + icsUrl + '" download="compassion-conference.ics" class="calendar-btn calendar-btn--apple" title="Apple Calendar / ICS">Apple / ICS</a>';
+
+      // Insert after the paragraph following this h3
+      var nextEl = h3.nextElementSibling;
+      while (nextEl && nextEl.tagName === 'P') {
+        nextEl = nextEl.nextElementSibling;
+      }
+      // Insert before the next non-p element (or at end)
+      if (nextEl) {
+        h3.parentNode.insertBefore(wrap, nextEl);
+      } else {
+        h3.parentNode.appendChild(wrap);
+      }
+    });
+  }
+
+  // ---- Print ----
+  function initPrint() {
+    var printBtn = document.querySelector('.toc-btn[onclick*="print"]');
+    if (!printBtn) {
+      var btns = document.querySelectorAll('.toc-btn');
+      btns.forEach(function (b) { if (b.textContent.trim() === 'Print') printBtn = b; });
+    }
+    if (!printBtn) return;
+
+    printBtn.removeAttribute('onclick');
+    printBtn.textContent = 'Print Lesson';
+
+    function openPrintMenu() {
+      var existing = document.getElementById('print-menu');
+      if (existing) { existing.remove(); return; }
+      var menu = document.createElement('div');
+      menu.id = 'print-menu';
+      menu.className = 'print-menu';
+      menu.innerHTML =
+        '<button type="button" data-mode="lesson"><strong>Lesson content only</strong><span>Just the reading material</span></button>' +
+        '<button type="button" data-mode="both"><strong>Lesson with my responses</strong><span>Reading + your journal entries</span></button>' +
+        '<button type="button" data-mode="work"><strong>My responses only</strong><span>Worksheet with your entries</span></button>';
+      document.body.appendChild(menu);
+      var rect = printBtn.getBoundingClientRect();
+      menu.style.position = 'fixed';
+      menu.style.top = (rect.bottom + 6) + 'px';
+      menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+      menu.style.zIndex = '10000';
+      menu.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var mode = b.getAttribute('data-mode');
+          menu.remove();
+          runPrint(mode);
+        });
+      });
+      setTimeout(function () {
+        function closer(ev) {
+          if (!menu.contains(ev.target) && ev.target !== printBtn) {
+            menu.remove();
+            document.removeEventListener('click', closer);
+          }
+        }
+        document.addEventListener('click', closer);
+      }, 0);
+    }
+
+    printBtn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      runPrint('lesson');
+    });
+
+    function getJournalKey(textareaId) {
+      var weekId = document.body.getAttribute('data-week') || 'unknown';
+      return 'cco-journal-' + weekId + '-' + textareaId;
+    }
+
+    function getJournalLabel(textarea) {
+      // Walk up to find the closest heading label for this journal entry
+      var cur = textarea;
+      while (cur && cur !== document.body) {
+        // Check parent practice-card first for its h4
+        if (cur.classList && cur.classList.contains('practice-card')) {
+          var h4 = cur.querySelector('h4');
+          if (h4) return h4.textContent.trim();
+        }
+        // Walk previous siblings looking for headings (not paragraphs)
+        var prev = cur.previousElementSibling;
+        while (prev) {
+          if (/^(H3|H4|LABEL)$/.test(prev.tagName)) {
+            var txt = prev.textContent.trim();
+            if (txt) return txt;
+          }
+          prev = prev.previousElementSibling;
+        }
+        cur = cur.parentElement;
+      }
+      return 'Journal Entry';
+    }
+
+    function runPrint(mode) {
+      // Extract all text content from the page into a clean standalone document
+      var weekLabel = '';
+      var el = document.querySelector('.hero-week-label');
+      if (el) weekLabel = el.textContent.trim();
+
+      var title = '';
+      el = document.querySelector('.hero h1');
+      if (el) title = el.textContent.trim();
+
+      var instructor = '';
+      el = document.querySelector('.hero-instructor');
+      if (el) instructor = el.textContent.trim();
+
+      // Build sections
+      var sectionsHTML = '';
+      var includeResponses = (mode === 'both' || mode === 'work');
+      var lessonOnly = (mode === 'lesson');
+      var responsesOnly = (mode === 'work');
+      var anyResponsesFound = false;
+
+      document.querySelectorAll('.section-card').forEach(function (card) {
+        if (lessonOnly && (card.id === 'info' || card.id === 'resources')) return;
+        var h2 = card.querySelector('.accordion-header h2');
+        if (!h2) return;
+        var sectionTitle = h2.textContent.replace(/[▼▲]/g, '').trim();
+        // Remove emoji icons from the start
+        sectionTitle = sectionTitle.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}]+\s*/u, '').trim();
+
+        var content = card.querySelector('.accordion-content');
+        if (!content) return;
+
+        // Clone to manipulate without affecting page
+        var clone = content.cloneNode(true);
+
+        // Inject journal responses (if requested) BEFORE removal pass
+        var sectionHasResponse = false;
+        if (includeResponses) {
+          clone.querySelectorAll('.journal-area').forEach(function (ta) {
+            var saved = localStorage.getItem(getJournalKey(ta.id)) || '';
+            if (!saved.trim()) return;
+            sectionHasResponse = true;
+            anyResponsesFound = true;
+            var label = getJournalLabel(ta);
+            var resp = document.createElement('div');
+            resp.className = 'journal-response-print';
+            resp.setAttribute('data-label', label);
+            resp.setAttribute('data-value', saved);
+            ta.parentNode.insertBefore(resp, ta);
+          });
+        }
+
+        // Remove UI elements from clone
+        var removeSelectors = [
+          '.breathing-widget', '.section-read-btn', '.dialogue-controls',
+          '.journal-area', '.journal-saved', '.journal-footer', '.copy-btn',
+          '.cc-widget', '.cc-done-row',
+          '.timer-container', '.calendar-buttons', '.progress-ring-container',
+          '.word-count', '.rating-slider-container', '.inline-reference-panel',
+          '.inline-ref-trigger', '.celebration-overlay', '.typewriter-cursor',
+          '.step-card-number', '.needs-panel', '.feelings-panel'
+        ].join(',');
+        clone.querySelectorAll(removeSelectors).forEach(function (el) { el.remove(); });
+
+        // For "responses only" mode: strip ALL content except headings and response blocks
+        if (responsesOnly) {
+          if (!sectionHasResponse) return; // skip sections with no user responses
+          // Keep only practice-card wrappers that contain responses, or standalone responses
+          // Simplest: replace clone's content with just the response blocks + their labels
+          var responses = clone.querySelectorAll('.journal-response-print');
+          if (!responses.length) return;
+          var newRoot = document.createElement('div');
+          responses.forEach(function (r) { newRoot.appendChild(r.cloneNode(true)); });
+          clone = newRoot;
+        }
+
+        // Make all dialogue lines visible
+        clone.querySelectorAll('.dialogue-line, .dialogue-narration').forEach(function (el) {
+          el.style.display = 'block';
+          el.style.opacity = '1';
+          el.style.visibility = 'visible';
+        });
+
+        // Process the content into clean HTML
+        var sectionContent = processContentForPrint(clone);
+
+        // Skip sections with no meaningful content (avoids blank pages)
+        var stripped = sectionContent.replace(/<[^>]*>/g, '').trim();
+        if (!stripped && !sectionContent.match(/<(table|img|svg|div class="journal-response)/i)) return;
+
+        sectionsHTML += '<div class="print-section">' +
+          '<h2>' + escapeHTML(sectionTitle) + '</h2>' +
+          sectionContent +
+          '</div>';
+      });
+
+      if (responsesOnly && !anyResponsesFound) {
+        sectionsHTML = '<div class="print-section"><h2>No Responses Yet</h2>' +
+          '<p>You haven\'t filled in any journal entries for this week yet. Once you add responses in the practice sections, they will appear here.</p></div>';
+      }
+
+      // Build the print document
+      var printHTML = buildPrintDocument(weekLabel, title, instructor, sectionsHTML, mode);
+
+      // Print via hidden iframe (no popup)
+      var existingFrame = document.getElementById('print-frame');
+      if (existingFrame) existingFrame.remove();
+
+      var iframe = document.createElement('iframe');
+      iframe.id = 'print-frame';
+      iframe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;border:none;visibility:hidden;';
+      document.body.appendChild(iframe);
+
+      var iframeDoc = iframe.contentWindow.document;
+      iframeDoc.open();
+      iframeDoc.write(printHTML);
+      iframeDoc.close();
+
+      // Wait for fonts to load then print
+      setTimeout(function () {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        // Clean up after print dialog closes
+        setTimeout(function () { iframe.remove(); }, 1000);
+      }, 500);
+    }
+  }
+
+  function escapeHTML(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function processContentForPrint(container) {
+    var html = '';
+
+    function walk(el) {
+      if (!el) return;
+      var children = el.children;
+      for (var i = 0; i < children.length; i++) {
+        var node = children[i];
+        var tag = node.tagName;
+        var cls = node.className || '';
+
+        // Skip hidden/removed elements (but not injected journal responses or dialogue lines)
+        if (getComputedStyle(node).display === 'none' && !node.classList.contains('dialogue-line') && !node.classList.contains('journal-response-print')) continue;
+
+        if (tag === 'H3') {
+          html += '<h3>' + node.innerHTML + '</h3>';
+        } else if (tag === 'H4') {
+          html += '<h4>' + node.innerHTML + '</h4>';
+        } else if (tag === 'P') {
+          html += '<p>' + node.innerHTML + '</p>';
+        } else if (tag === 'UL') {
+          html += '<ul>' + node.innerHTML + '</ul>';
+        } else if (tag === 'OL') {
+          html += '<ol>' + node.innerHTML + '</ol>';
+        } else if (tag === 'BLOCKQUOTE') {
+          html += '<blockquote>' + node.innerHTML + '</blockquote>';
+        } else if (tag === 'TABLE') {
+          html += '<table>' + node.innerHTML + '</table>';
+        } else if (cls.indexOf('insight-box') !== -1) {
+          html += '<div class="insight-box">' + node.innerHTML + '</div>';
+        } else if (cls.indexOf('dialogue-container') !== -1) {
+          html += processPrintDialogue(node);
+        } else if (cls.indexOf('step-cards') !== -1) {
+          html += processPrintSteps(node);
+        } else if (cls.indexOf('practice-card') !== -1) {
+          html += processPrintPractice(node);
+        } else if (cls.indexOf('resource-grid') !== -1) {
+          html += processPrintResources(node);
+        } else if (cls.indexOf('journal-response-print') !== -1) {
+          var label = node.getAttribute('data-label') || 'Journal Entry';
+          var value = node.getAttribute('data-value') || '';
+          html += '<div class="journal-response">' +
+            '<div class="journal-response-label">' + escapeHTML(label) + '</div>' +
+            '<div class="journal-response-value">' + escapeHTML(value).replace(/\n/g, '<br>') + '</div>' +
+            '</div>';
+        } else {
+          // Recurse into generic containers
+          walk(node);
+        }
+      }
+    }
+
+    walk(container);
+    return html;
+  }
+
+  function processPrintDialogue(container) {
+    var html = '<div class="dialogue">';
+    var lines = container.querySelectorAll('.dialogue-line, .dialogue-narration');
+    lines.forEach(function (line) {
+      if (line.classList.contains('dialogue-narration')) {
+        html += '<p class="narration"><em>' + line.textContent.trim() + '</em></p>';
+      } else {
+        var speaker = line.querySelector('.speaker-name');
+        var text = line.querySelector('.speaker-text');
+        var speakerName = speaker ? speaker.textContent.trim() : '';
+        var speakerText = text ? text.innerHTML : line.textContent.trim();
+        var side = line.classList.contains('speaker-b') ? 'self' : 'other';
+        html += '<div class="dialogue-line-print ' + side + '">' +
+          '<span class="speaker">' + escapeHTML(speakerName) + '</span>' +
+          '<span class="speech">' + speakerText + '</span>' +
+          '</div>';
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function processPrintSteps(container) {
+    var html = '';
+    var cards = container.querySelectorAll('.step-card');
+    cards.forEach(function (card, i) {
+      var num = card.querySelector('.step-num');
+      var h4 = card.querySelector('h4');
+      var p = card.querySelector('p');
+      html += '<div class="step-print">' +
+        '<div class="step-num-print">' + (num ? num.textContent.trim() : (i + 1)) + '</div>' +
+        '<div class="step-body-print">' +
+        (h4 ? '<h4>' + h4.innerHTML + '</h4>' : '') +
+        (p ? '<p>' + p.innerHTML + '</p>' : '') +
+        '</div></div>';
+    });
+    return html;
+  }
+
+  function processPrintPractice(card) {
+    var h4 = card.querySelector('h4');
+    var paragraphs = card.querySelectorAll('p');
+    var responses = card.querySelectorAll('.journal-response-print');
+    var html = '<div class="practice-print">';
+    if (h4) html += '<h4>' + h4.innerHTML + '</h4>';
+    paragraphs.forEach(function (p) { html += '<p>' + p.innerHTML + '</p>'; });
+    responses.forEach(function (r) {
+      var label = r.getAttribute('data-label') || 'Journal Entry';
+      var value = r.getAttribute('data-value') || '';
+      html += '<div class="journal-response">' +
+        '<div class="journal-response-label">' + escapeHTML(label) + '</div>' +
+        '<div class="journal-response-value">' + escapeHTML(value).replace(/\n/g, '<br>') + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function processPrintResources(grid) {
+    var html = '<ul class="resources-print">';
+    grid.querySelectorAll('.resource-link').forEach(function (link) {
+      var text = link.querySelector('.resource-text');
+      var href = link.getAttribute('href') || '';
+      var label = text ? text.textContent.trim() : link.textContent.trim();
+      html += '<li><a href="' + href + '">' + escapeHTML(label) + '</a></li>';
+    });
+    html += '</ul>';
+    return html;
+  }
+
+  function buildPrintDocument(weekLabel, title, instructor, sectionsHTML, mode) {
+    var modeLabel = '';
+    if (mode === 'work') modeLabel = 'My Responses';
+    else if (mode === 'both') modeLabel = 'Lesson + My Responses';
+    var docTitle = weekLabel + ': ' + title + (modeLabel ? ' — ' + modeLabel : '');
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<title>' + escapeHTML(docTitle) + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">' +
+      '<style>' +
+      '*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }' +
+      'body { font-family: "Inter", "Segoe UI", Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.7; color: #222; max-width: 7in; margin: 0 auto; padding: 0.4in 0; }' +
+
+      /* Header */
+      '.print-header { border-bottom: 2.5pt solid #2a7a6e; padding-bottom: 0.3in; margin-bottom: 0.2in; }' +
+      '.print-week { display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #2a7a6e; border: 1.5px solid #2a7a6e; padding: 2px 10px; border-radius: 3px; margin-bottom: 0.15in; }' +
+      '.print-title { font-family: "Playfair Display", Georgia, serif; font-size: 22pt; line-height: 1.2; color: #222; margin: 0.08in 0; }' +
+      '.print-instructor { font-size: 10pt; color: #666; }' +
+
+      /* Sections */
+      '.print-section { page-break-before: always; padding-top: 0.15in; }' +
+      '.print-header + .print-section { page-break-before: auto; }' +
+      '.print-section:empty { display: none; page-break-before: auto; }' +
+      '.print-section h2 { font-family: "Playfair Display", Georgia, serif; font-size: 16pt; color: #2a7a6e; border-bottom: 1px solid #ddd; padding-bottom: 0.06in; margin: 0 0 0.15in; }' +
+
+      /* Typography */
+      'h3 { font-family: "Playfair Display", Georgia, serif; font-size: 12pt; color: #333; margin: 0.2in 0 0.08in; }' +
+      'h4 { font-size: 10.5pt; font-weight: 700; color: #222; margin: 0.12in 0 0.04in; }' +
+      'p { margin: 0.06in 0; }' +
+      'ul, ol { margin: 0.08in 0 0.08in 0.3in; }' +
+      'li { margin: 0.03in 0; }' +
+      'a { color: #2a7a6e; }' +
+      'strong { color: #111; }' +
+      'em { color: #444; }' +
+
+      /* Blockquote */
+      'blockquote { border-left: 3px solid #2a7a6e; margin: 0.1in 0; padding: 0.06in 0 0.06in 0.15in; color: #444; font-style: italic; }' +
+
+      /* Insight box */
+      '.insight-box { background: #f9f7f3; border: 1.5pt solid #2a7a6e; padding: 0.12in 0.15in; margin: 0.12in 0; page-break-inside: avoid; position: relative; }' +
+      '.insight-box::before { content: "KEY INSIGHT"; display: inline-block; background: #2a7a6e; color: white; font-size: 7pt; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 2px; margin-bottom: 0.06in; }' +
+
+      /* Dialogues */
+      '.dialogue { margin: 0.1in 0; }' +
+      '.dialogue-line-print { padding: 0.08in 0.12in; margin-bottom: 0.05in; border-radius: 4px; page-break-inside: avoid; }' +
+      '.dialogue-line-print.other { background: #f3f0eb; margin-right: 1in; border-left: 3px solid #c4756e; }' +
+      '.dialogue-line-print.self { background: #eef6f4; margin-left: 1in; border-left: 3px solid #2a7a6e; }' +
+      '.dialogue-line-print .speaker { display: block; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.02in; }' +
+      '.other .speaker { color: #c4756e; }' +
+      '.self .speaker { color: #2a7a6e; }' +
+      '.dialogue-line-print .speech { font-size: 9.5pt; color: #333; }' +
+      '.narration { font-size: 9pt; color: #888; margin: 0.04in 0; padding-left: 0.12in; }' +
+
+      /* Steps */
+      '.step-print { display: flex; gap: 0.12in; border-left: 3px solid #2a7a6e; background: #f9f9f9; padding: 0.1in 0.15in; margin: 0.06in 0; page-break-inside: avoid; }' +
+      '.step-num-print { font-family: "Playfair Display", Georgia, serif; font-size: 1.3rem; font-weight: 700; color: #2a7a6e; flex-shrink: 0; width: 0.3in; }' +
+      '.step-body-print h4 { margin: 0 0 0.03in; }' +
+      '.step-body-print p { font-size: 9.5pt; color: #444; margin: 0; }' +
+
+      /* Practice cards */
+      '.practice-print { border: 1px solid #e8e0d0; border-left: 3px solid #e8a838; background: #fffdf8; padding: 0.1in 0.12in; margin: 0.08in 0; page-break-inside: avoid; }' +
+      '.practice-print h4 { color: #222; margin: 0 0 0.04in; }' +
+      '.practice-print p { font-size: 9.5pt; color: #333; margin: 0.03in 0; }' +
+
+      /* Journal responses */
+      '.journal-response { border: 1px solid #d8cfbd; border-left: 3px solid #2a7a6e; background: #fbfaf6; padding: 0.1in 0.14in; margin: 0.1in 0; page-break-inside: avoid; }' +
+      '.journal-response-label { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2a7a6e; margin-bottom: 0.05in; }' +
+      '.journal-response-value { font-size: 10pt; color: #222; white-space: pre-wrap; line-height: 1.6; }' +
+
+      /* Resources */
+      '.resources-print { list-style: none; margin: 0; padding: 0; }' +
+      '.resources-print li { padding: 0.03in 0; font-size: 9.5pt; }' +
+      '.resources-print a { color: #2a7a6e; text-decoration: underline; }' +
+
+      /* Tables */
+      'table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 0.1in 0; page-break-inside: avoid; }' +
+      'th, td { border: 1px solid #ccc; padding: 0.05in 0.08in; text-align: left; }' +
+      'th { background: #f5f5f5; font-weight: 700; }' +
+
+      /* Page flow */
+      '@page { margin: 0.6in 0.7in; }' +
+      'h2, h3, h4 { page-break-after: avoid; }' +
+      'p, li, blockquote { orphans: 3; widows: 3; }' +
+      '@media print { body { padding: 0; } }' +
+      '</style></head><body>' +
+      '<div class="print-header">' +
+      '<div class="print-week">' + escapeHTML(weekLabel) + (modeLabel ? ' &middot; ' + escapeHTML(modeLabel) : '') + '</div>' +
+      '<h1 class="print-title">' + escapeHTML(title) + '</h1>' +
+      '<p class="print-instructor">' + escapeHTML(instructor) + '</p>' +
+      '</div>' +
+      sectionsHTML +
+      '</body></html>';
+  }
+
+  // ---- Init All ----
+  document.addEventListener('DOMContentLoaded', function () {
+    initProgressBar();
+    initDarkMode();
+    initAccordions();
+    initExpandCollapse();
+    initDialogueReveal();
+    // Retired for the 2026 cohort: initJournals(), initWordCount(),
+    // initSectionRead(), initReflectionTimer(), initProgressRing().
+    initHighlights();
+    initBackToTop();
+    initRatingSliders();
+    initScrollAnimations();
+    initNeedsPanel();
+    initFeelingsPanel();
+    initBreathingWidget();
+    initTypewriterQuotes();
+    initStepReveals();
+    initNarration();
+    initCalendarButtons();
+
+    initPrint();
+  });
+})();
+
+</script>
+  <script>document.documentElement.style.visibility = 'visible';</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<!--
+  Per-page HTML (title, footer year, hero label, literal button text, etc.)
+  does NOT propagate automatically. Site-wide fixes belong in styles.css
+  or script.js. When adding a new week page, copy from an up-to-date
+  existing week (or a shared template) rather than an old one so year
+  text and other boilerplate stay current.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 3: We Are All Equipped with Onboard Need Radar — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body data-week="3">
+
+  <div id="progress-bar"></div>
+
+  <!-- Navigation -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 3</span>
+      <h1>We Are All Equipped with Onboard Need Radar</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Table of Contents -->
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <!-- THE CONCEPT -->
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <p>In previous weeks, we have explored the idea of looking at all acts as an attempt to meet needs. We've also worked on noticing and translating our judgments as a way of finding out about needs. Although doing this may be challenging at first, when we can bring our awareness to needs, we are more likely to be compassionate.</p>
+
+          <p>There is yet another way to bring our awareness to needs. This way is called feeling... quite simply, feeling. I have come to realize that when I am aware of how I'm feeling, I can track how well my needs are met or not. This is based on the simple idea that:</p>
+
+          <div class="insight-box">
+            <p><span class="key-concept" data-concept="needs-met">When our needs are met, we feel fulfilled and satisfied - happy - we feel good.</span></p>
+            <p><span class="key-concept" data-concept="needs-unmet">When our needs are not met, we feel unfulfilled, unsatisfied, unhappy - we feel bad.</span></p>
+          </div>
+
+          <p>Think about it. If I gave you $1000 (no strings attached), I'm guessing you would feel pretty good (needs met). On the other hand, if someone somehow took $1000 from you, I suspect you would not feel so great (needs unmet). This relationship between feelings and needs means that if we can be aware of our feelings, they will provide guidance. They will inform us about the "metness" of our needs.</p>
+
+          <p>We can notice this over and over. Eat a delicious, healthy meal - feel good, needs met. Don't eat for a day - feel hungry, not-good, needs not met. A friend sends you a little card, thanking you for being their friend - usually, that feels pretty good, needs met. If someone starts a lawsuit against you - not so good, needs not met.</p>
+
+          <div class="feeling-examples">
+            <div class="feeling-card positive">
+              <span class="feeling-indicator">Met</span>
+              <span class="feeling-event">Receive $1,000</span>
+              <span class="feeling-result">Feel pretty good &mdash; needs met</span>
+            </div>
+            <div class="feeling-card negative">
+              <span class="feeling-indicator">Unmet</span>
+              <span class="feeling-event">Lose $1,000</span>
+              <span class="feeling-result">Not feel so great &mdash; needs unmet</span>
+            </div>
+            <div class="feeling-card positive">
+              <span class="feeling-indicator">Met</span>
+              <span class="feeling-event">Delicious, healthy meal</span>
+              <span class="feeling-result">Feel good &mdash; needs met</span>
+            </div>
+            <div class="feeling-card negative">
+              <span class="feeling-indicator">Unmet</span>
+              <span class="feeling-event">Don't eat for a day</span>
+              <span class="feeling-result">Feel hungry, not-good &mdash; needs not met</span>
+            </div>
+            <div class="feeling-card positive">
+              <span class="feeling-indicator">Met</span>
+              <span class="feeling-event">Friend's thank-you card</span>
+              <span class="feeling-result">Feels pretty good &mdash; needs met</span>
+            </div>
+            <div class="feeling-card negative">
+              <span class="feeling-indicator">Unmet</span>
+              <span class="feeling-event">Someone starts a lawsuit</span>
+              <span class="feeling-result">Not so good &mdash; needs not met</span>
+            </div>
+          </div>
+
+          <h3>We Can Look at Every Feeling This Way</h3>
+
+          <p>By noticing feelings and connecting them to needs, we start to see things differently. I call it "the parallel universe of feelings and needs". Seeing into this universe, by noticing our feelings, gives us a greater ability to consider our own (or someone else's) needs - and that means more compassion.</p>
+
+          <p>That said, I am compelled to share that for me, this skill of feeling (or noticing) feelings, naming feelings and connecting them to needs is a lifework. Although the ideas discussed here are relatively simple and easy to understand, actually putting them into practice can be very challenging. This week's practices (below) begin to address this.</p>
+
+          <h3>The Good News and Bad News about Feelings</h3>
+
+          <p><strong>First, the bad news:</strong> Many of us are challenged to notice or feel our feelings. Many of us have come to believe they don't exist. Some of us have come to the conclusion that we're better off without them.</p>
+
+          <p><strong>The good news:</strong> They're still here. <span class="key-concept" data-concept="feelings-present">As far as I have seen, no one with an alive human body/mind can stop having feelings. We just learn to stop noticing them.</span> Simply put, this means one of most important skills that we can develop to have more compassion in our lives is the skill of feeling feelings. This empowers us to connect to needs, which in turn, engenders compassion.</p>
+
+          <p>More about this in coming weeks as The Compassion Course continues.</p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- IN PRACTICE -->
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice: My First Day of School and What I Learned about Feelings and Needs</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <p><em>"My First Day of School and What I Learned about Feelings and Needs"</em></p>
+
+          <p>I will never forget my first day of school and what I learned that day.</p>
+
+          <h3>The Bus Stop</h3>
+
+          <div class="dialogue-container">
+            <div class="dialogue-narration">I remember standing at the bus stop in the early morning chill of the Fall season. I was with my mother, feeling really anxious and confused, not really understanding what was going on. When the bus arrived, my mother informed me that I was to get on the bus. In that moment, my whole world changed. I suddenly became awash in fear. I knew clearly how much I did NOT want to go. I DID NOT want to be on a bus with strangers or go to a big strange building full of more strangers. I wanted to stay home in my house with my toys and my mother. That morning, not a cell in my body wanted to go to school. I was terrified.</div>
+            <div class="dialogue-narration">I refused to get on the bus. Clinging to my mother, crying, yelling at the top of my lungs, I begged to be allowed to stay home. As all this was going on, the bus driver had stepped down from his driver's seat and was now walking toward me and my mother - quickly. He then nonchalantly pulled me from my mother, threw me over his shoulder and carried me onto the bus as I screamed, begging and pleading not to go. Maybe I'm mistaken, but it seemed like he had done this before. As the bus pulled away with me pounding my little fists on the inevitably closed steel and glass door, I was learning something.</div>
+            <div class="dialogue-narration">As upset as I was, it didn't matter. My feelings, as strong as they were, didn't matter. I was going to school that day.</div>
+            <div class="dialogue-narration">I learned that feeling my feelings can be a horrible experience. I learned that I could experience tremendous pain and desire, and there was really not much that I could do about it. For me that day, and for many of us still, feelings have mainly been a source of pain - bad news that we just don't want to receive. Some of us have learned to ignore, disregard or deny the existence of them. For some it helps us survive.</div>
+            <div class="dialogue-narration">I'm sharing this, not to blame my mother or the teacher, or the bus driver, or society. I'm sharing this experience with you because remembering it helps me understand my relationship to feelings. I'm hoping it might help you understand yours. In the practice of compassion, feelings play an essential role. Often the path to compassion starts at noticing feelings and feeling them with a curiosity about what they are telling us (needs). So when it comes to feelings, this memory of my first day of school helps me to see how I'm trained or "untrained" and why feeling feelings can be so hard.</div>
+
+            <div class="dialogue-controls">
+              <button class="dialogue-btn dialogue-btn-next">Next &rarr;</button>
+              <button class="dialogue-btn secondary dialogue-btn-reset">Reset</button>
+            </div>
+          </div>
+
+          <h3>How We're Trained Away from Feelings</h3>
+
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h4>Hunger</h4>
+                <p>As children and often as adults, we eat by the clock. Hence the term "lunch time". In school, we generally ate at 12:00 - not when we felt hungry.</p>
+                <p>Additionally, many of us have heard the phrase "finish your plate" or have been encouraged in one form or another to eat all the food we have been served - not until we feel full.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h4>Sleep</h4>
+                <p>As children and often as adults we sleep by the clock. Hence the invention and widespread use of the alarm clock. As children, most of us had "bed times" that had more to do with what time it was than being tired.</p>
+              </div>
+            </div>
+          </div>
+
+          <p>Eating and sleeping are crucial human functions, yet many of us do them without an awareness of what our body tells us about them. So now, when I look back on my upbringing, it helps me understand why I distanced myself from my feelings. It seemed they weren't really serving any purpose. To a large extent, I learned to fear and suppress them.</p>
+
+          <h3>The Shift to Understanding</h3>
+
+          <p>As an adult, I have discovered an excellent reason to feel my feelings, to pay attention to them. Now, they tell me about my needs, my life. Now my feelings are guidance. The more I feel my feelings, the more I understand "how I am", how my needs are or are not being met - and this opens a world of creative opportunities (more about that later).</p>
+
+          <p>In my years as a trainer and empathologist, I have come to believe that we all have a "feeling feelings muscle" that we can develop - All of us. And when we develop that skill (muscle) and create a deeper relationship with our feelings, it gives them a profound new meaning and purpose.</p>
+
+          <blockquote>
+            <p>It has been my repeated experience that when we have a deeper relationship with feelings (and needs), almost all of us experience more self-connection and connection with others. That, in turn, engenders compassion, both inward and outward.</p>
+          </blockquote>
+
+          <p>So I find it important to remember that first day of school and what I learned that day. It gives me more compassion for my "grown-up" self now, when I have difficulty experiencing or understanding feelings. And that helps me stay with my practice; and inevitably, life becomes more wonderful.</p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICES -->
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practices for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <p><strong>Note:</strong> The practices below are designed to get us into the habit of even thinking about feelings throughout our day. Remembering to think this way is a challenge unto itself, so journaling as described below, helps us remember to turn our awareness to feelings (and eventually needs). Having a physical journal acts as a reminder.</p>
+
+          <p>I remember the first time I did this exercise I kept getting frustrated because I would carry this journal around with me all day and not use it. It was this very frustration that helped me see how much I wanted to have growth and integration. It took a while but my frustration guided me to eventually do my practice and actually use the journal. Pretty cool.</p>
+
+          <!-- Practice 1 -->
+          <div class="practice-card">
+            <h4><span class="practice-number">1</span> Notice Feelings</h4>
+            <p>Keep a small journal with you throughout the day. This can be a small notebook or even a folded piece of paper. Make 2 to 4 entries per day that include something that someone else did or said and the feeling (or feelings) you experienced at that moment.</p>
+            <p>Later on, when you have time, sit down with the <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener">feelings list</a> and see if you can find a similar feeling word from the list that describes how you were feeling. Give the list a thorough looking over. See if there are other words that reflect your experience as well.</p>
+            <p><strong>NOTE:</strong> If you are going to complete this practice effectively, it is imperative that you read the "Big Hint" at the top of the feelings list.</p>
+            <p>Then look at the <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener">needs list</a> and see if you can figure out what need your feeling was about. Remember, it's VERY helpful to limit the words you use to those on the needs list.</p>
+            <textarea class="journal-area" id="journal-p1" placeholder="Someone said/did... I felt... The underlying need might be..."></textarea>
+            <div class="journal-saved" id="journal-p1-saved"></div>
+          </div>
+
+          <!-- Practice 2 -->
+          <div class="practice-card">
+            <h4><span class="practice-number">2</span> Notice More Feelings</h4>
+            <p>Keep a small journal with you throughout the day. Make 2 to 4 entries per day that include something you did, said or were thinking of saying and the feeling (or feelings) you experienced at that moment. Again, later on, when you have time, sit down with the <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener">feelings list</a> and see if you can find feeling words from the list that describe how you were feeling. Again, give the list a thorough looking over. See if there are other words that reflect your experience as well.</p>
+            <p><strong>NOTE:</strong> If you are going to complete this practice effectively, it is imperative that you read the "Big Hint" at the top of the feelings list.</p>
+            <p>Then look at the <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener">needs list</a> and see if you can figure out what need your feeling was about. Remember, here too, it's VERY important to limit the words you use to those on the needs list.</p>
+            <textarea class="journal-area" id="journal-p2" placeholder="I did/said/thought of saying... I felt... The underlying need might be..."></textarea>
+            <div class="journal-saved" id="journal-p2-saved"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- COURSE INFORMATION -->
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+
+          <h3>Monthly Conferences</h3>
+          <p>On the second Monday of each month, starting July 14, at 12:00 noon (US &ndash; EDT), Thom will host a 90-min conference to provide depth and clarity via Zoom. He will review previous weeks' messages and answer questions. For the monthly Zoom conference on July 14th.</p>
+          <p><strong>Remember to <a href="https://us06web.zoom.us/j/81925069376?pwd=AqvTHV0FbEUgGWh4Zea8wy2A3pYuHH.1" target="_blank" rel="noopener">Click Here</a> on July 14th and every second Monday after that (The link is the same for all monthly conferences).</strong></p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, a new message is published via internet <em>and</em> sent to your in box through email.</p>
+          <p>The course will last for an entire year, ending in June 2026.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p><strong>Join the Global Compassion Network (GCN) so you can:</strong></p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages &amp; exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join or start your own Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Step into leadership trainings and opportunities</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Another Chance to Join the Certificate of Completion Track</h3>
+          <p>Registrations will be accepted for the Certificate of Completion Track until July 9th.</p>
+          <p>For increased structure, accountability and recognition of your work, this year The Compassion Course offers an optional Certificate of Completion (for an additional fee of $70).</p>
+          <ul>
+            <li>Document your coursework related to weekly readings, exercises and experiences using our secure online platform and database.</li>
+            <li>Get weekly reminders and helpful hints and advice to help you stay on track.</li>
+            <li>Have your work confidentially verified* by Compassion Course staff at the end of the course year for certificate qualification.</li>
+            <li>Pre-qualify to apply for the 2024 Mentor Program</li>
+          </ul>
+          <p><small>*Verification does not include personal mentoring or feedback. It is specifically to verify that you have completed the work of the course.</small></p>
+
+          <h3>Questions</h3>
+          <p>Specific content questions will be answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a></p>
+          <p>We may get more emails than we can handle at times so please be patient.</p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Feelings List</span>
+            </a>
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📄</span>
+              <span class="resource-text">Needs List</span>
+            </a>
+            <a href="https://files.constantcontact.com/09fd6f49001/3daf3170-7425-469b-ab95-1ad18d068fba.pdf" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📄</span>
+              <span class="resource-text">Printable Needs List (PDF)</span>
+            </a>
+            <a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🤝</span>
+              <span class="resource-text">Join the Global Compassion Network</span>
+            </a>
+            <a href="https://www.compassioncourse.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">💌</span>
+              <span class="resource-text">Share the Course</span>
+            </a>
+            <a href="https://us06web.zoom.us/j/81925069376?pwd=AqvTHV0FbEUgGWh4Zea8wy2A3pYuHH.1" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📹</span>
+              <span class="resource-text">Zoom Meeting Link</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright Thom Bond 2026 &mdash; NY Center for Nonviolent Communication<br>
+        645 Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

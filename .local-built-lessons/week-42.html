@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 42: Power With versus Power Over — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="42"] {
+      --wk-primary: #a16a2c;
+      --wk-primary-dark: #7a4f1d;
+      --wk-accent: #5a8a7a;
+      --wk-tint: rgba(161,106,44,0.08);
+      --wk-hero-a: #7a4f1d;
+      --wk-hero-b: #a16a2c;
+    }
+    body[data-week="42"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="42"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="42"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="42"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="42"] .story-title::before,
+    body[data-week="42"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="42"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="42"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="42"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="42"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="42"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="42"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="42"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="42"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="42"] .lesson-subhead { color: #f3e9d2; }
+    body[data-week="42"] .pull-quote.opening-question {
+      text-align: center; font-size: 1.5rem;
+      max-width: 24em; margin: 1.4rem auto;
+      border-left: none; padding: 0.6rem 0;
+    }
+    /* Power Over (red) vs Power With (primary) head accents */
+    body[data-week="42"] .lesson-subhead.power-head[data-mode="over"] {
+      border-bottom-color: #b06b5a;
+      color: #8a4f42;
+    }
+    body[data-week="42"] .lesson-subhead.power-head[data-mode="over"]::before {
+      content: '\21D3'; margin-right: 0.4em; opacity: 0.7;
+    }
+    body[data-week="42"] .lesson-subhead.power-head[data-mode="with"]::before {
+      content: '\21CC'; margin-right: 0.4em; color: var(--wk-primary); opacity: 0.7;
+    }
+  </style>
+</head>
+<body data-week="42" data-theme="amber">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 42</span>
+      <h1>Power With versus Power Over</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Power With versus Power Over</h3>
+            <aside class="pull-quote opening-question">How do I want to make a difference in this world?</aside>
+            <p>As we study and practice living a more <span class="nvc-word" data-nvc="compassionate">compassionate</span> life, it can be confusing to understand our own power as it relates to the power of others. By power, I mean our ability to create, to make things happen and to make a difference in the world.</p>
+            <p>I can recall thinking that using my power was unfair or manipulative and that by using my power, I was in conflict with my values for mutuality, care and acceptance.</p>
+            <p>With this thinking, I felt lost and frustrated, confused about how I could live out my values for creativity, self-expression and movement.</p>
+            <p>Then I realized that throughout most of my life, power was something that was used against or over others. It was difficult for me to think about power without associating it with power over.</p>
+            <p>As a student of <span class="nvc-word" data-nvc="compassionate">compassionate</span> living, I have been able to discern another choice when it comes to using my power. By using my power in consort with my awareness of <span class="nvc-word" data-nvc="needs">needs</span>, I can act with others, without acting over them.</p>
+            <h4 class="lesson-subhead power-head" data-mode="over">Power Over</h4>
+            <p>If we look around us, we can see power is often used in the attempt to control the thoughts and actions of others. In politics, law, media, education and parenting, we often use power as a means of getting people to do things, whether or not they really want to. And as we have discussed before, this does meet <span class="nvc-word" data-nvc="needs">needs</span> (or people wouldn't do it), including needs for safety, security, efficiency and shared understanding.</p>
+            <p>That said, while this mode of using power does meet some <span class="nvc-word" data-nvc="needs">needs</span>, it does so at a cost. It can contribute to disconnection, resentment, isolation and alienation. It can readily support us in acting out our should/shouldn't thinking and function to deny choice.</p>
+            <h4 class="lesson-subhead">The Choice</h4>
+            <p>This is not to say we are going to disavow our power over others at all costs (see Week 17 - The <span class="nvc-word" data-nvc="compassionate">Compassionate</span> Use of Force). It does mean that we can choose to find new ways to use our power with others, especially when the power over mode doesn't seem to be working to our satisfaction.</p>
+            <h4 class="lesson-subhead power-head" data-mode="with">Power With</h4>
+            <p><span class="key-concept" data-concept="week-thesis">As practitioners of <span class="nvc-word" data-nvc="compassionate">compassionate</span> thinking and living, we can apply our power while considering our <span class="nvc-word" data-nvc="needs">needs</span> and the needs of others.</span></p>
+            <p>In power with thinking, we share our power with others, in the awareness of what it is we value. Power with thinking calls on us to be aware of why we are doing what we are doing, to check in with our <span class="nvc-word" data-nvc="needs">needs</span> and values. It also asks us to understand and trust in the life energy that lives in others. Although this can be frightening, it also holds the promise of creating a more <span class="nvc-word" data-nvc="compassionate">compassionate</span> and connected world - big stuff.</p>
+            <p>More to come, as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">The Report Card</h3>
+            <p class="story-lede">Some years ago, as a parent of two teenage sons, I was often presented with challenges that I had never anticipated, let alone knew how to deal with. Many a time, I wished that my children had come with an instruction manual. Since they didn't, it was up to me to learn as I went. One of these learning experiences came in relation to my older son's grades.</p>
+            <p>Collin was in 10th grade when it became clear we had a problem. He was struggling in school. He was a straight "D" student, and I was quite scared and worried. My response to this situation was to create "structure" for him to follow for the coming marking periods. I created a regime that included a complex series of incentives, benchmarks, punishments and rewards.</p>
+            <p>As his father, I pulled out all the stops in my attempt to use my power over him. I was determined to "help" him get a better report card. I remember how at odds Collin and I had become during that period - the discipline, the resentment, the disconnection. I remember lamenting that this was simply part of being a parent, the cost of "doing what was right" for my child.</p>
+            <p>After a full marking period of this "grade improvement program" his new report card came. Collin's grades had gone from straight D's to straight D+'s. I was scared and confused at even higher levels now, not knowing what it would take for things to change.</p>
+            <p>By this time, I had been studying with my teacher, Marshall Rosenberg, for a little over a year. I was beginning to develop a respect for the guidance that we all have inside of us, yet often struggle to connect with - our <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span>. It seemed my "program" for my son was hardly working at all, as far as his grades were concerned. It was, however, having a tremendous effect on our relationship. We were seriously disconnected.</p>
+            <p>So I decided to try a new approach. I asked Collin to come into my office for a talk. With his new report card in hand, I spoke. "Collin, if you want good grades, get them. I'll do everything I can to support you. Just let me know. If you don't want good grades, don't get them. They're your grades. It's your choice. Our program is over. You can do whatever you want."</p>
+            <p>I remember the look of terror in his eyes as I finished speaking. I'm not sure if he was waiting for "the other shoe to drop" or if he was simply afraid of having the responsibility for his grades on his own shoulders.</p>
+            <p>The weeks passed, as our new arrangement was carried out. My curiosity was torturous as I left him to his own devices.</p>
+            <p>Finally, the next marking period ended and the new report card came. I was sitting at my desk when my obviously scared son came in to share the news. His grades had plummeted. His report card now included D's and F's.</p>
+            <p>As I read the report card I could feel my heart sinking. Panic began to rise in me. Then, just as I was about to reinstate the "old regime" in a fit of "power over", something happened. Some other words came from my mouth.</p>
+            <p>"Wow, it must really be horrible to get a report card like this." Collin, who was sitting on the floor in front of me, looked up and tears came to his eyes. As he began to cry, so did I.</p>
+            <p>It seemed that Collin's fate was at stake, and we both knew it. It was an experience I had never imagined could have happened so clearly and in such a connected way. My faith in "power with" had somehow transcended my moment of panic and somewhere inside me, I knew this was going to serve us.</p>
+            <p>During the coming weeks, I noticed a change in Collin's habits. He spent more time in his room doing his homework. He took time on the weekends to pay attention to his assignments. He even asked for help - and, over time, his grades improved. He had gotten in touch with his own power, his own <span class="nvc-word" data-nvc="connection">connection</span> to what he wanted - and it worked.</p>
+            <p>Two years later, Collin graduated an Honor Role student. And as pleased as I was about that, the deepest reward was knowing that we had given him access to his power and given us back our <span class="nvc-word" data-nvc="connection">connection</span> - one of the scariest and most valuable things I have ever done as a parent.</p>
+            <p>Note: I shared this story on a parenting Yahoo Group a few years back and two parents reported breakthroughs with their children - one about "brushing teeth" and the other about "potty training".</p>
+            <p>That said, I am not you, and I don't know if this will "work" in your situation. I am sharing this idea with the hope of giving you a greater sense of choice, if you want it.</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w42-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w42-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Power Over Redo</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of situation where you have used your power over someone. Next, write down the need(s) you were trying to fulfill in this situation.</p>
+              <p>Then, write down the need(s) you did not fulfill in this situation.</p>
+              <p>Next, embody all these needs (see Week 41). Take your time.</p>
+              <p>Finally, see if you can imagine a way all these needs might have been met by making a request (of yourself or others) that would have included the other person's power (see Week 13 and Week 15).</p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-1-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p1" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Power With Transformation</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of situation where you are using your power over someone.</p>
+              <p>Next, write down your feelings, and the need(s) you are trying to fulfill in this situation as well as the need(s) you are not fulfilling in this situation.</p>
+              <p>Next, embody all these needs (see Week 41).</p>
+              <p>Finally, see if you can imagine a new way these needs might be met by changing your actions or making a request that includes the other person's power (see Week 13 and Week 15).</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-2-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

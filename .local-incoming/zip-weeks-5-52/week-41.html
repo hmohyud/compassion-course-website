@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 41: Enemy Images — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="41"] {
+      --wk-primary: #2a7a6e;
+      --wk-primary-dark: #1f5c52;
+      --wk-accent: #b08a4a;
+      --wk-tint: rgba(42,122,110,0.08);
+      --wk-hero-a: #1f5c52;
+      --wk-hero-b: #2a7a6e;
+    }
+    body[data-week="41"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="41"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="41"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="41"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="41"] .story-title::before,
+    body[data-week="41"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="41"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="41"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="41"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="41"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="41"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="41"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="41"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="41"] .story-subtitle {
+      text-align: center; font-style: italic; font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-accent); margin: -0.6rem 0 1.4rem; letter-spacing: 0.04em; font-size: 1.05rem;
+    }
+    body[data-week="41"] .lesson-subhead {
+      font-family: 'Playfair Display', Georgia, serif; font-size: 1.18rem; font-weight: 600;
+      color: var(--wk-primary-dark); margin: 1.6rem 0 0.5rem; padding-bottom: 0.25rem;
+      border-bottom: 1px dotted var(--wk-accent); max-width: 28em; display: inline-block;
+    }
+    body.dark-mode[data-week="41"] .lesson-subhead { color: #f3e9d2; }
+  </style>
+</head>
+<body data-week="41" data-theme="teal">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 41</span>
+      <h1>Enemy Images</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Enemy Images</h3>
+            <p class="story-subtitle">If It Weren't for Them!</p>
+            <p><span class="key-concept" data-concept="week-thesis">Often, moments of disconnection and anger come from the thought that a particular person or group is responsible for our needs not being met - this is often accompanied by the thought that if someone else's needs are met, then ours will not be - and they should be different so our needs can be met.</span></p>
+            <p>In the understanding that <span class="nvc-word" data-nvc="needs">needs</span> are different than strategies or actions, we can create a way of thinking that separates the fulfillment of our needs from the actions of others. This in turn, gives us the potential to see alternatives we may never have thought of otherwise.</p>
+            <h4 class="lesson-subhead">Our Habitual Thoughts of Blame</h4>
+            <p>When I think about it, it becomes clear to me that blaming has certain benefits. First, it's easy. I have practiced blaming my whole life. I have watched everyone around me blame others for our problems and challenges - from neighbors, to corporations, to political parties, to immigrants, to other countries. By watching the world, I have learned to blame well.</p>
+            <p>Another benefit is that when I blame someone else for my problems, I don't have to accept responsibility to take care of things myself. I can simply aim my <span class="nvc-word" data-nvc="judgment">judgment</span> at someone else, see them as "the enemy" and I'm "off the hook".</p>
+            <h4 class="lesson-subhead">Life-Serving Thoughts</h4>
+            <p>As we discussed in Week 4, we can see that <span class="nvc-word" data-nvc="needs">needs</span> do not conflict; only our strategies (the ways we try to meet them) do. For many of us, this can be difficult to remember because we are so accustomed to thinking in terms of strategies that we lose sight of needs.</p>
+            <p>Previously in this course, we have learned how we can relate our pain directly to our <span class="nvc-word" data-nvc="needs">needs</span> - that we can view our pain as the result of our needs not being met, as opposed to someone else's actions (Week 32). This creates an opportunity to change how we think about all human actions and ultimately create a more life-connected, <span class="nvc-word" data-nvc="compassionate">compassionate</span> experience.</p>
+            <h4 class="lesson-subhead">Reality Check</h4>
+            <p>As I think about redirecting my awareness to my <span class="nvc-word" data-nvc="needs">needs</span> rather than others' actions, it occurs to me that there will inevitably be situations where someone else's actions so immediately affect me, that I will want to deal with their actions directly - like if someone were coming at me with a knife, or bombing my neighborhood. It would seem impractical to simply say, "Oh well, I'll just do something else." Situations like these call on us to take immediate action.</p>
+            <p>Two things come to mind when I think about this. First, there are many situations where we perceive that this immediacy exists, when perhaps it doesn't. We can habitually think and act as if there is no other way to respond to a situation when, in fact, there might be. We might have an opportunity to create something new and more life-serving.</p>
+            <p>Second, in times when there really is this dire <span class="nvc-word" data-nvc="need">need</span> for safety, there is a way to act on it in a "protective" manner. We can forcefully act on behalf of our <span class="nvc-word" data-nvc="needs">needs</span> without <span class="nvc-word" data-nvc="judgment">judgment</span> or hatred of others in our hearts (see Week 17).</p>
+            <p>Learning to act in a forceful yet <span class="nvc-word" data-nvc="compassionate">compassionate</span> manner presents a daunting yet beautiful challenge and opportunity for us humans, trying to live on this planet together. It is my hope and dream that we accomplish this as individuals and as a human family.</p>
+            <h4 class="lesson-subhead">It's a Choice</h4>
+            <p>There is little doubt in my mind that I could believe, or even argue, that others really are responsible for my <span class="nvc-word" data-nvc="needs">needs</span> not being met. Thinking in this way is an option. Although when I look at the results that this way of thinking has created in my lifetime - all the disconnection, pain, killing and destruction, I'm sure I would like to have another way of seeing things - one that is less likely to create disconnection and hatred and more likely to engender <span class="nvc-word" data-nvc="compassion">compassion</span> and harmony.</p>
+            <p>Whether it is a partner blaming their spouse, an employee blaming their boss, a nation blaming another nation or a race blaming another race, the perpetuation of enemy images doesn't seem to be creating a world I want to live in. It doesn't appear to be meeting <span class="nvc-word" data-nvc="needs">needs</span> very well.</p>
+            <h4 class="lesson-subhead">The Alternative</h4>
+            <p>As I stated earlier, we can see our <span class="nvc-word" data-nvc="needs">needs</span> as separate from the actions of others. We can create another way of thinking. We can choose to see others as simply trying to meet their needs, and yes, in ways that don't work for us.</p>
+            <p>That said, if we can separate our "enemy" from our unfulfilled <span class="nvc-word" data-nvc="needs">needs</span>, we are more likely to think of numerous ways to fulfill these needs. When we do this, we don't <span class="nvc-word" data-nvc="need">need</span> the others to change in order for life to become more wonderful.</p>
+            <p>More to come, as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">If It Weren't for Him</h3>
+            <p class="story-lede">A number of years ago, I was invited to join a team of trainers who would be responsible for training other trainers.</p>
+            <p>During my time at our first team meeting, it occurred to me that the form and method that had been developed for this process was contrary to my understanding of what was an effective way of training trainers.</p>
+            <p>I spent the following months trying to address these concerns with the person who was responsible for coordinating the process. The harder I tried, the worse things seemed to get. The more I shared my understanding and experience, the less this person seemed interested in hearing what I had to say.</p>
+            <p>At one point I was convinced that this person was "out to get me" and because of this, the entire process was failing - failing to expand the training and failing to generate qualified trainers. As someone who was thrilled and inspired about the subject of the training and my opportunity to contribute to it, I was devastated. It seemed to me that if this person didn't understand what I had to say, my dreams would be thwarted and the whole world would suffer.</p>
+            <p>My struggle to get this person to understand me was stimulating tremendous pain in me. I was disheartened and hopeless in my thought that "If it weren't for him, my <span class="nvc-word" data-nvc="needs">needs</span> would be so wonderfully fulfilled - if it weren't for him."</p>
+            <p>My pain was growing deeper as time passed. Eventually, it occurred to me that I was holding an "enemy image" of this person, and it wasn't doing me or anyone else a bit of good.</p>
+            <p>So I spent some time giving myself <span class="nvc-word" data-nvc="empathy">empathy</span> and getting empathy from my colleagues. In that process, I discovered that my <span class="nvc-word" data-nvc="needs">needs</span> for movement, effectiveness and, most of all, purpose and meaning were at the root of all this pain. And during this entire time, I had been blaming this one person for the fact that these needs were not being fulfilled. I had been stuck in an "enemy image" of this person and distracted from my needs.</p>
+            <p>After some time and effort, my awareness shifted from this person's actions to my <span class="nvc-word" data-nvc="needs">needs</span>. From this new awareness, I realized there were hundreds, if not thousands, of ways for me to fulfill my needs. At that point, I could easily and joyfully join another program or even create my own. I was back on track. My life had become more wonderful.</p>
+            <p>Through my process, I also came to understand that this person wasn't "out to get me". He was simply trying to meet his <span class="nvc-word" data-nvc="needs">needs</span>, doing the best he could. This understanding helped us stay in <span class="nvc-word" data-nvc="connection">connection</span> and keep our relationship alive, despite our differences. My <span class="nvc-word" data-nvc="compassion">compassion</span> and connection returned and I was able to fulfill my dreams. Sweet.</p>
+            <div class="cc-widget cc-reflect">
+              <h5>Quick reflection</h5>
+              <p class="cc-widget-hint">Take a moment with this story. What <span class="nvc-word" data-nvc="feelings">feelings</span> and <span class="nvc-word" data-nvc="needs">needs</span> do you imagine were in play — for the people in it, and for you as you read?</p>
+              <label>Feelings I noticed:
+                <input type="text" class="cc-input" data-key="w41-reflect-feelings" placeholder="e.g. tender, frustrated, curious">
+              </label>
+              <label>Needs I imagine:
+                <input type="text" class="cc-input" data-key="w41-reflect-needs" placeholder="e.g. connection, ease, to be seen">
+              </label>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Changing Your Focus</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span></div>
+              <p>Think of a situation where you believe that someone is preventing you from getting your need(s) fulfilled - where you believe that if their needs are met, yours won't be. Next, write down your feelings and the need(s) you would like (or love) to have fulfilled in this situation.</p>
+              <p>After you have identified the need(s), go to Practice #2 and embody the need(s) you are now aware of.</p>
+              <label class="cc-done-row"><input type="checkbox" class="cc-done" data-key="practice-1-done"> I worked with this practice this week</label>
+              <textarea class="journal-area" id="journal-p1" placeholder="Notes for this practice..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Embodying Needs (intentionally repeated from last week)</h4>
+              <p>You may want to find some quiet space and time for this practice. Practice this separately with each need that you would like to experience more "metness" of (from Practice #1).</p>
+              <p>Sit back and make yourself comfortable. Close your eyes. Feel your breath... Relax.</p>
+              <p>Now, in your mind's eye, remember a time when that need was met. "Relive" this experience in your mind. Remember where you were, who was there, what was happening - Remember what it felt like. Slow it down. Replay this moment over and over in your mind. Let the feeling of the experience into your body.</p>
+              <p>Bask in the moment. Bask in the memory, especially in the feeling of it.</p>
+              <p>When you are feeling full or "complete" in this practice, open your eyes and come back into your space.</p>
+              <p>Repeat this exercise with all the needs you have identified from Practice #1.</p>
+              <p>To listen to Thom guiding a need-embodiment meditation: CLICK HERE.</p>
+              <div class="cc-widget cc-breath" data-key="practice-2-breath">
+                <h5>Breathing check-in</h5>
+                <p class="cc-widget-hint">Tap when you've completed one round of slow breaths today.</p>
+                <button type="button" class="cc-breath-btn">+1 round</button>
+                <span class="cc-breath-count">0 rounds</span>
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What shifted while you breathed..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="2">
+            <h4><span class="practice-number">3</span> Expanding</h4>
+              <p>See if you can imagine 3 ways each of the need(s) that you embodied in Practice #2 might be met by changing your actions or by making a request of yourself or others (see Week 13 and Week 15).</p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576" target="_blank" rel="noopener">New to the GCN? Click Here to Join</a></p>
+              <p><a href="https://www.theglobalcompassionnetwork.com/" target="_blank" rel="noopener">GCN Members Click Here to Access it</a></p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-3-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p3" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p3-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

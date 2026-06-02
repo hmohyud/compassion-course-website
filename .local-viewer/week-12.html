@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 12: Slowing Down — Compassion Course Online 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    body[data-week="12"] {
+      --wk-primary: #a06168;
+      --wk-primary-dark: #7a474d;
+      --wk-accent: #7a8a5a;
+      --wk-tint: rgba(160,97,104,0.08);
+      --wk-hero-a: #7a474d;
+      --wk-hero-b: #a06168;
+    }
+    body[data-week="12"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="12"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="12"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="12"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="12"] .story-title::before,
+    body[data-week="12"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="12"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="12"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="12"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="12"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="12"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="12"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="12"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    /* W12 — "SLOW... IT... DOWN." staggered reveal that visually
+       demonstrates the lesson. Each word/dot fades in on a delay so the
+       reader experiences the pacing the text is asking for. Animation
+       only runs once; respects prefers-reduced-motion. */
+    body[data-week="12"] .slow-it-down {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.2em 0.4em;
+      margin: 2rem 0 2.2rem;
+      font-family: 'Playfair Display', Georgia, serif;
+      letter-spacing: 0.04em;
+    }
+    body[data-week="12"] .slow-it-down .slow-word {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--wk-primary);
+      opacity: 0;
+      animation: slowAppear 0.9s ease forwards;
+      animation-delay: var(--d, 0s);
+    }
+    body[data-week="12"] .slow-it-down .slow-dots {
+      font-size: 2.2rem;
+      color: var(--wk-accent);
+      opacity: 0;
+      animation: slowAppear 0.9s ease forwards;
+      animation-delay: var(--d, 0s);
+    }
+    @keyframes slowAppear {
+      from { opacity: 0; transform: translateY(8px); letter-spacing: 0.5em; }
+      to   { opacity: 1; transform: translateY(0);   letter-spacing: 0.04em; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body[data-week="12"] .slow-it-down .slow-word,
+      body[data-week="12"] .slow-it-down .slow-dots {
+        opacity: 1;
+        animation: none;
+      }
+    }
+    body.dark-mode[data-week="12"] .slow-it-down .slow-word { color: #e8c896; }
+  </style>
+</head>
+<body data-week="12" data-theme="rose">
+
+  <div id="progress-bar"></div>
+
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">&larr; All Weeks</a>
+      <a href="index.html" class="nav-brand">Compassion Course Online</a>
+      <div class="nav-controls">
+        <div id="google_translate_element" class="nav-translate notranslate" translate="no"></div>
+        <button id="dark-mode-toggle" title="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <span class="hero-week-label">Week 12</span>
+      <h1>Slowing Down</h1>
+      <p class="hero-instructor">
+        With <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> &mdash;
+        Founder &amp; Director of Education, <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div class="toc">
+      <div class="toc-header">
+        <h2>In This Week</h2>
+        <div class="toc-actions">
+          <button class="toc-btn" id="expand-collapse-all">Expand All</button>
+          <button class="toc-btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <ul class="toc-list">
+        <li><a href="#concept">The Concept</a></li>
+        <li><a href="#in-practice">In Practice</a></li>
+        <li><a href="#practices">Practices for the Week</a></li>
+        <li><a href="#info">Course Information</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </div>
+
+    <section class="section-card" id="concept">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon concept"></span> The Concept</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3>"Slowing Down"</h3>
+            <p>Imagine you've just begun to study a new language, like Mandarin or English. Then imagine being asked to participate in a real-time debate in that language after just a few weeks of study. Yikes, wouldn't that be difficult? OK, maybe impossible.</p>
+            <p>Then imagine you could stop and take some time between each exchange, translate what you've heard, do some research, figure out what you want to convey, practice what you are going to say, and then speak - more doable, right?</p>
+            <p>I find that this is a perfect analogy for the work we are doing in this course. The language of <span class="nvc-word" data-nvc="compassion">compassion</span> is a new way to think and speak. So does it make sense to slow it down? I know it does for me.</p>
+            <p>There's an expression, "take time to smell the roses". In our work of moving toward a more <span class="nvc-word" data-nvc="compassionate">compassionate</span> life, we could change that to "take time to feel the <span class="nvc-word" data-nvc="feelings">feelings</span>".</p>
+            <p>Our brains are fast. They're really quite amazing - the ultimate biological super computer. I call my brain my "Maserati". FYI, that's a reeeeeally fast car. If I had one, it would be difficult for me to leave it in the garage. I would most likely take it out and drive.</p>
+            <p>I think sometimes we're the same way with our brains. They are very good at what they do and we love to use them. The thing is, they can make it hard to slow down enough to do something else - like feel our <span class="nvc-word" data-nvc="feelings">feelings</span> - or connect our feelings to <span class="nvc-word" data-nvc="needs">needs</span> - or wonder what others are <span class="nvc-word" data-nvc="feeling">feeling</span> and needing.</p>
+            <p><span class="key-concept" data-concept="week-thesis">So in order to give ourselves the gift of <span class="nvc-word" data-nvc="compassion">compassion</span>, it helps to give ourselves the gift of time and space. This is particularly true in the beginning of our practice - just like when we learn a new language - in our case, the language of compassion. That said, for me, slowing down is a life practice.</span></p>
+            <p>Imagine you are in a car and you're going 100 miles per hour (161 kilometers per hour), headed straight for a huge brick wall. Would you have any interest in getting out or slowing down and going in a new direction?</p>
+            <p>I know for me, when I get stimulated or upset (particularly with people who are important to me), it feels like I'm in that car. And when I don't get out or slow down, I always regret it. Always. So I have learned to slow it down. SLOW... IT... DOWN.</p>
+            <div class="slow-it-down" aria-label="Slow it down">
+              <span class="slow-word" style="--d:0s">SLOW</span>
+              <span class="slow-dots" style="--d:.45s">...</span>
+              <span class="slow-word" style="--d:.9s">IT</span>
+              <span class="slow-dots" style="--d:1.35s">...</span>
+              <span class="slow-word" style="--d:1.8s">DOWN.</span>
+            </div>
+            <p>When I can stop or slow down an interaction that I'm in, I can create the time and space to find my <span class="nvc-word" data-nvc="compassion">compassion</span> and make room to practice what we have been studying together in this course. I can wonder, "What is that?" "What am I <span class="nvc-word" data-nvc="feeling">feeling</span>?" "What am I wanting to experience right now that I'm not?" With time, I can get to my aliveness, begin to wonder what is alive in the other person as well and be a more <span class="nvc-word" data-nvc="compassionate">compassionate</span> me.</p>
+            <p>I have learned that stopping a conversation, or an argument, is one of the greatest gifts I can give myself and those around me. Not like "The hell with you! I'm out of here!" - more like "I'm <span class="nvc-word" data-nvc="feeling">feeling</span> very upset right now and I <span class="nvc-word" data-nvc="need">need</span> to take some space to think of what to say."</p>
+            <p>That said, I know slowing down is not that easy to do. However, it is easier than having a debate in Mandarin - and less painful than driving a 100 miles per hour into a brick wall.</p>
+            <p>More to come as The <span class="nvc-word" data-nvc="compassion">Compassion</span> Course continues...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="in-practice">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon practice-story"></span> In Practice</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+            <h3 class="story-title">Slowing Down to Step Up</h3>
+            <p class="story-lede">﻿Before my studies in <span class="nvc-word" data-nvc="compassionate">compassionate</span> living, I had a habit of getting into yelling matches with my son. When we had a disagreement, we would yell back and forth. This would usually build to a crescendo and we would both end up full of anger and pain.</p>
+            <p>After several months of study with my mentor, Marshall Rosenberg, I was hoping to create a change in this dynamic with my son. Try as I did, I just couldn't seem to come up with the right words to move us to a better <span class="nvc-word" data-nvc="connection">connection</span>. If I tried to be <span class="nvc-word" data-nvc="empathic">empathic</span>, it just came out as mechanical and certainly not sincere. And checking in with myself, I realized it wasn't sincere because I was usually still angry and awash with should/shouldn't thoughts.</p>
+            <aside class="pull-quote">It occurred to me that I needed more time to process.</aside>
+            <p>At that time I had also been reading about anger in a book titled "Emotional Intelligence" by Daniel Goleman. In the book, he explains that certain chemical compounds are released into our bodies when we get angry. The longer we are angry, the more chemicals. Even a moment of anger will release a twenty-minute supply. These chemicals, as it turns out, actually reduce our ability to think, while they increase our ability to act - not a great combination when trying to use a new language in a heated moment.</p>
+            <p>So I made myself a promise. Whenever I felt angry, I would give myself space and time to recover from my internal dose of intellectual diminishment. I did this by creating at least twenty minutes of quiet time after an "anger attack". The next time my son and I disagreed, it went like this:</p>
+            <p>"Collin, I really don't want to talk like this anymore. I <span class="nvc-word" data-nvc="need">need</span> time to regroup... so I'm open to trying this again in twenty minutes."</p>
+            <p>"That's ridiculous," he replied and stormed out of the room. During the time he was gone I gave myself <span class="nvc-word" data-nvc="empathy">empathy</span> and wondered what Collin must be <span class="nvc-word" data-nvc="feeling">feeling</span> and needing too. Slowly, carefully, I was able to undertake my exploration.</p>
+            <p>Twenty minutes later he returned. We started to talk. After about thirty seconds, we were yelling again. I stopped. "Collin, I really don't want to talk like this. I <span class="nvc-word" data-nvc="need">need</span> another twenty minutes."</p>
+            <p>With a look somewhere between disbelief and frustration, without a word, he left again. I gave myself more <span class="nvc-word" data-nvc="empathy">empathy</span>... more <span class="nvc-word" data-nvc="connection">connection</span> and a vision of what I wanted my life to be like in moments like these. I continued to center myself and envision my <span class="nvc-word" data-nvc="needs">needs</span> for harmony, understanding and connection.</p>
+            <p>Collin returned for our next attempt and after just a few minutes, for the third time we began to yell. I requested another twenty-minute break. This time Collin exclaimed, "I'm never coming back!" He left the room, slamming the door behind him.</p>
+            <p>I sat there, wondering if this was ever going to work... doubting myself, my actions and the prospect of having a new kind of relationship with my son. I struggled like a drowning man clinging to a rock, struggling to do nothing, except my process of self-<span class="nvc-word" data-nvc="empathy">empathy</span> and empathy.</p>
+            <p>To my surprise, twenty minutes later he returned. This time we "held it together" and got through the conversation in a way that was absent of outbursts. It wasn't perfect. It wasn't easy, although it worked. We were able to stop the yelling and fighting.</p>
+            <aside class="pull-quote">It was a pivotal moment in our relationship.</aside>
+            <p>And yes, we have had our share of upsets after that, although in general, we have held our course and transformed the way we are with each other even today, over 20 years later.</p>
+            <p>In retrospect, it's clear to me, it was the process of "SLOWING DOWN" that made the difference. Like climbing a set of stairs, it was the step to get to the next place. The place where we could be self-expressed and allow the <span class="nvc-word" data-nvc="compassion">compassion</span> that was always there inside us, to be a part of our lives.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="practices">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon exercises"></span> Practice(s) for the Week</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="practice-card" data-accent="0">
+            <h4><span class="practice-number">1</span> Find Your Moment</h4>
+              <div class="practice-tags"><span class="practice-tag">Journal</span><span class="practice-tag">Whenever it comes up</span></div>
+              <p>Remember a time when you were about to "lose it". Re-visit the moment in your mind. Notice how your body feels, notice the tension or the thoughts that occur in the moments when you are in that place. You may want to journal your experiences as a way to recall and deepen your awareness. Next think of a "cue" that you can give yourself in the future when you find yourself getting upset, a way to give yourself space to ask "What is happening"?</p>
+              <p>Think of a message or phrase you can say to yourself that helps you find your way off of the super highway of upset and onto the path of compassionate, empathic thought and awareness.</p>
+              <p>You might consider words like "What is that?" or "Wow, this isn't working" or "This is one of those moments", whatever works for you. The goal is to signal yourself to move to a process of compassionate understanding of yourself and others.</p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-1-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p1" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p1-saved"></div>
+            </div>
+          <div class="practice-card" data-accent="1">
+            <h4><span class="practice-number">2</span> Find Your Words</h4>
+              <div class="practice-tags"><span class="practice-tag">In conversation</span><span class="practice-tag">Whenever it comes up</span></div>
+              <p>Imagine what you might say to someone when you notice this moment. How could you slow your conversation down and create the vital time and space to connect to the compassion that awaits inside you? For example:</p>
+              <p>"I really don't want to talk like this. I need to take some time."</p>
+              <p>"I'm so upset and I don't want to say anything I'll regret, so I'm taking some time to gather myself."</p>
+              <p>"I love you so much that I really don't want to talk like this. I need some time to think this out."</p>
+              <p>"I can't think of a way I can respond that's going to help us right now. I need to take a time-out and talk when I'm more centered."</p>
+              <p>HINTS:</p>
+              <p>1) Don't ask; tell. If we ask for permission, chances are we won't get it. Often, the other person will encourage us to stay in the conversation. It will likely take some compassionate resolve to create the time and space we need. It is especially hard in the beginning.</p>
+              <p>2) Practice ahead of time so you have the words you need within your grasp. Make them your words, remembering they are being said to create compassion and connection. Explain this to others. They may thank you later.</p>
+              <p>3) Let the other person know that you do want to resume. Maybe even provide a time to re-connect. Remember, to the other person "later" can be heard as "never".</p>
+              <div class="cc-widget cc-prompt">
+                <h5>Pick a person</h5>
+                <p class="cc-widget-hint">Bring this practice into one specific relationship this week.</p>
+                <input type="text" class="cc-input" data-key="practice-2-person" placeholder="e.g. my sister, my coworker, the cashier...">
+              </div>
+              <textarea class="journal-area" id="journal-p2" placeholder="What I noticed about feelings & needs in our exchange..."></textarea>
+              <div class="journal-saved" id="journal-p2-saved"></div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="info">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Compassion Course Information</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <h3>Monthly Conferences</h3>
+          <p>There are 12 monthly live Zoom conferences held on the second Monday of every month at 12:00 PM US Eastern Time. These conferences feature Thom Bond and guest trainers from around the world, reviewing recent lessons and a Q&A session. Conferences are 90 minutes long, followed by 30 minutes of practice (totaling 120 Minutes)
+             The first conference for the 2026 course is scheduled for July 13th, 2026 12:00 New York Time.</p>
+          <p>All these conferences are recorded and made available to participants.</p>
+          <p>Additionally, there are 11 monthly Deep-Dive Sessions. These are also live Zoom conferences, hosted by guest trainers, and are held on the fourth Monday of each month at 12:00 PM US Eastern Time. Starting on July 27th, these 90-minute sessions focus on deepening the practice of one of the concepts from the weekly messages of that month. These deep-dive sessions allow participants to see how a single Compassion Course concept can be applied in daily life.</p>
+
+          <h3>Weekly Message Schedule</h3>
+          <p>Every Wednesday, for 52 weeks, a new message is published via internet and email starting today, June 24th.</p>
+          <p>The course will last for an entire year, ending in June 2027.</p>
+
+          <h3>The Compassion Course's Global Compassion Network</h3>
+          <p>Join the Global Compassion Network (GCN) so you can:</p>
+          <ul>
+            <li>Create and customize your own profile</li>
+            <li>See the profiles of others in the course from around the globe</li>
+            <li>Follow the Course Calendar of Events</li>
+            <li>Set up notifications</li>
+            <li>Find reference pages & exercises</li>
+            <li>View and listen to video, audio and written Libraries</li>
+            <li>View or listen to Monthly Conferences in the Conference Library</li>
+            <li>Find empathy support, trainings and events</li>
+            <li>Join a Practice Group</li>
+            <li>Find a CCO Mentor</li>
+            <li>Connect to our multilingual leaders, translators and trainers</li>
+            <li>Find Practice Partners</li>
+            <li>Find Empathy Buddies</li>
+            <li>Join in Community Forums and Chat Rooms</li>
+            <li>Find volunteer and paid positions in the course</li>
+          </ul>
+
+          <h3>Questions</h3>
+          <p>Specific content questions are answered in the conference calls.</p>
+          <p>If you have questions or need assistance with something else, please call (646) 201-9226 or email <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="resources">
+      <button class="accordion-header" aria-expanded="true">
+        <h2><span class="section-icon resources"></span> Resources</h2>
+        <span class="accordion-chevron">▼</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div class="resource-grid">
+            <a href="http://www.nycnvc.org/needs/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Needs List</span>
+            </a>
+            <a href="http://www.nycnvc.org/feelings/" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🌐</span>
+              <span class="resource-text">Online Feelings List</span>
+            </a>
+            <a href="http://www.theexercise.org" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">🧘</span>
+              <span class="resource-text">The Exercise — Shifting Toward Compassion</span>
+            </a>
+            <a href="http://thombond.com" target="_blank" rel="noopener" class="resource-link">
+              <span class="resource-icon">📚</span>
+              <span class="resource-text">Thom Bond — Resources</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="https://www.compassioncourse.org" target="_blank" rel="noopener">Compassion Course</a>
+        <a href="http://nycnvc.org" target="_blank" rel="noopener">NYCNVC</a>
+        <a href="https://www.theglobalcompassionnetwork.com" target="_blank" rel="noopener">Global Compassion Network</a>
+      </div>
+      <p class="footer-meta">
+        &copy; Copyright <a href="http://thombond.com" target="_blank" rel="noopener">Thom Bond</a> 2026 &mdash; NY Center for Nonviolent Communication<br>
+        Gardnertown Road | Newburgh, NY 12550 US<br>
+        <a href="mailto:coursecoordinator@nycnvc.org">coursecoordinator@nycnvc.org</a> &middot; (646) 201-9226
+      </p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" title="Back to top">&uarr;</button>
+
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Tailored practice widgets — checklists, breath counters, sliders.
+       Self-contained so we don't risk regressing the existing lesson-
+       player styles. State persists in localStorage keyed per lesson. -->
+  <style>
+    .cc-widget {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0 10px;
+    }
+    body.dark-mode .cc-widget {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .cc-widget h5 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+    }
+    .cc-widget-hint {
+      font-size: 0.85rem;
+      opacity: 0.78;
+      margin: 0 0 10px;
+    }
+    .cc-day-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .cc-day-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .cc-day-grid input { accent-color: var(--clr-primary, #2a7a6e); }
+    .cc-slider label {
+      display: block;
+      font-size: 0.9rem;
+      margin: 6px 0;
+    }
+    .cc-slider input[type="range"] {
+      width: 100%;
+      max-width: 360px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .cc-breath {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cc-breath-btn {
+      background: var(--clr-primary, #2a7a6e);
+      color: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cc-breath-btn:hover { filter: brightness(1.05); }
+    .cc-breath-count { font-size: 0.9rem; opacity: 0.8; }
+    .cc-input {
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      font: inherit;
+    }
+    body.dark-mode .cc-input {
+      background: rgba(255,255,255,0.06);
+      color: inherit;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .cc-done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+      font-size: 0.95rem;
+    }
+    .practices-intro {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      border-left: 3px solid var(--clr-primary, #2a7a6e);
+      background: rgba(0, 0, 0, 0.025);
+      border-radius: 0 8px 8px 0;
+    }
+    body.dark-mode .practices-intro {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .practices-intro p { margin: 0; }
+    .practice-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: -4px 0 10px;
+    }
+    .practice-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: inherit;
+      opacity: 0.85;
+    }
+    body.dark-mode .practice-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    /* Soft, low-contrast accent rotation so consecutive practice cards
+       feel distinct without making the page loud. 4 hues, all desaturated. */
+    .practice-card[data-accent="0"] { border-left: 3px solid #2a7a6e; }  /* teal  */
+    .practice-card[data-accent="1"] { border-left: 3px solid #b08a4a; }  /* gold  */
+    .practice-card[data-accent="2"] { border-left: 3px solid #6a8da3; }  /* slate */
+    .practice-card[data-accent="3"] { border-left: 3px solid #b06b5a; }  /* rose  */
+  </style>
+  <script>
+    (function () {
+      var WEEK = document.body.getAttribute('data-week') || 'x';
+      var KEY_PREFIX = 'cco-w' + WEEK + '-';
+      function load(k) { try { return localStorage.getItem(KEY_PREFIX + k); } catch (e) { return null; } }
+      function save(k, v) { try { localStorage.setItem(KEY_PREFIX + k, v); } catch (e) {} }
+
+      // Restore + persist all data-key checkboxes / inputs / ranges.
+      function bindKeyed(el, getter, setter, evt) {
+        var k = el.getAttribute('data-key') || (el.parentElement && el.parentElement.getAttribute('data-key'));
+        if (!k) return;
+        // For day-grid checkboxes, scope by the day.
+        if (el.dataset.day) k = k + ':' + el.dataset.day;
+        var saved = load(k);
+        if (saved !== null) setter(el, saved);
+        el.addEventListener(evt, function () { save(k, getter(el)); });
+      }
+
+      document.querySelectorAll('.cc-day-grid input[type="checkbox"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      document.querySelectorAll('.cc-slider input[type="range"]').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-input').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.value; },
+          function (e, v) { e.value = v; },
+          'input'
+        );
+      });
+
+      document.querySelectorAll('.cc-done').forEach(function (el) {
+        bindKeyed(
+          el,
+          function (e) { return e.checked ? '1' : '0'; },
+          function (e, v) { e.checked = v === '1'; },
+          'change'
+        );
+      });
+
+      // Breath counter — click increments, persists.
+      document.querySelectorAll('.cc-breath').forEach(function (root) {
+        var key = root.getAttribute('data-key');
+        var btn = root.querySelector('.cc-breath-btn');
+        var lbl = root.querySelector('.cc-breath-count');
+        var n = parseInt(load(key) || '0', 10);
+        function paint() { lbl.textContent = n + (n === 1 ? ' round' : ' rounds'); }
+        paint();
+        btn.addEventListener('click', function () { n += 1; save(key, String(n)); paint(); });
+      });
+    })();
+  </script>
+</body>
+</html>

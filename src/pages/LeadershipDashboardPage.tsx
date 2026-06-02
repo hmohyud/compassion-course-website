@@ -650,6 +650,8 @@ const LeadershipDashboardPage: React.FC = () => {
                     onQuietRefresh={refreshWorkItemsQuietly}
                     initialEditItemId={pendingEditItemId}
                     onInitialEditConsumed={() => setPendingEditItemId(null)}
+                    // Admins, or any member of the team being viewed, can add tasks.
+                    canAddTask={!!(isAdminUser || isAdmin || (user?.uid && memberIds.includes(user.uid)))}
                   />
                 </>
               )}

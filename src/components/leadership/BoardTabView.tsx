@@ -690,6 +690,8 @@ interface BoardTabViewProps {
   initialEditItemId?: string | null;
   /** Called when the initial edit item has been consumed (so parent can clear the prop) */
   onInitialEditConsumed?: () => void;
+  /** Whether the current user may create tasks on this board. */
+  canAddTask?: boolean;
 }
 
 const BoardTabView: React.FC<BoardTabViewProps> = ({
@@ -704,6 +706,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   onQuietRefresh,
   initialEditItemId,
   onInitialEditConsumed,
+  canAddTask = false,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropTargetLane, setDropTargetLane] = useState<WorkItemLane | null>(null);
@@ -974,7 +977,9 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         title: data.title,
         description: data.description,
         teamId,
-        status: 'backlog',
+        // Use the status chosen in the form (defaults to "To Do") so a task
+        // added from the board lands on the board, not hidden in the backlog.
+        status: data.status || 'todo',
         lane: data.lane,
         estimate: data.estimate,
         assigneeIds: data.assigneeIds,
@@ -1073,6 +1078,35 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
   return (
     <>
+      {/* Add-task toolbar — visible to admins and members of this team. */}
+      {canAddTask && !showCreateForm && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
+          <button
+            type="button"
+            className="ld-create-team-btn"
+            onClick={() => setShowCreateForm(true)}
+          >
+            <i className="fas fa-plus" aria-hidden />
+            &nbsp;Add task
+          </button>
+        </div>
+      )}
+      {showCreateForm && (
+        <div style={{ marginBottom: '18px' }}>
+          {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
+          <TaskForm
+            mode="create"
+            defaultStatus="todo"
+            teamId={teamId}
+            teamMemberIds={memberIds}
+            memberLabels={memberLabels}
+            memberAvatars={memberAvatars}
+            onSave={handleCreateSave}
+            onCancel={() => { setShowCreateForm(false); setSaveError(null); }}
+          />
+        </div>
+      )}
+
       {backlogCount > 0 && !showBacklogOnBoard && (
         <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '12px' }}>
           {backlogCount} task{backlogCount !== 1 ? 's' : ''} in backlog — use the Team tab to move them onto the board.
@@ -1140,21 +1174,6 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         </DragOverlay>
       </DndContext>
 
-      {showCreateForm && (
-        <>
-          {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
-          <TaskForm
-            mode="create"
-            defaultStatus="backlog"
-            teamId={teamId}
-            teamMemberIds={memberIds}
-            memberLabels={memberLabels}
-            memberAvatars={memberAvatars}
-            onSave={handleCreateSave}
-            onCancel={() => { setShowCreateForm(false); setSaveError(null); }}
-          />
-        </>
-      )}
       {editingItem && (
         <>
           {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}

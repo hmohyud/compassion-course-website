@@ -176,6 +176,20 @@ const WeeklyViewerPage: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [status.kind, iframeBooted]);
 
+  // Set the browser-tab title to include the week number while a lesson is
+  // open. This is what most browsers use as the default "Save as PDF"
+  // filename when the user prints (Ctrl+P, or the in-lesson Print Lesson
+  // button — Chrome falls back to the top document's title for nested
+  // iframe prints). Restored on unmount / week change.
+  useEffect(() => {
+    if (status.kind !== 'ready') return;
+    const prev = document.title;
+    const wk = status.content.weekNumber;
+    const t = status.content.title ? ` - ${status.content.title}` : '';
+    document.title = `Compassion Course - Week ${wk}${t}`;
+    return () => { document.title = prev; };
+  }, [status]);
+
   if (loading || adminLoading) {
     return (
       <Layout>

@@ -2545,6 +2545,11 @@ blockquote.typewriter-complete .typewriter-cursor {
 .journal-area,.journal-saved,.journal-footer,.cc-widget,.cc-done-row,
 .section-read-btn,.accordion-header .read-badge,.progress-ring-container,
 .timer-container{display:none !important;}
+/* Dialogues show in full from the start (no Next/Reset reveal) — matches
+   the live lessons. The inline initDialogueReveal still runs but its
+   Next/Reset buttons are hidden and every line is forced visible here. */
+.dialogue-line,.dialogue-narration{display:block !important;}
+.dialogue-controls{display:none !important;}
 </style>
 </head>
 <body data-week="22">

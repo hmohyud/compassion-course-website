@@ -2574,6 +2574,13 @@ blockquote.typewriter-complete .typewriter-cursor {
 }
 
 </style>
+<style>
+/* Retired interactive features (2026 cohort) — hidden so the static
+   markup that still ships in this sample doesn't render. */
+.journal-area,.journal-saved,.journal-footer,.cc-widget,.cc-done-row,
+.section-read-btn,.accordion-header .read-badge,.progress-ring-container,
+.timer-container{display:none !important;}
+</style>
 </head>
 <body data-week="10">
 
@@ -4807,7 +4814,7 @@ blockquote.typewriter-complete .typewriter-cursor {
     if (!printBtn) return;
 
     printBtn.removeAttribute('onclick');
-    printBtn.textContent = 'Print \u25BE';
+    printBtn.textContent = 'Print Lesson';
 
     function openPrintMenu() {
       var existing = document.getElementById('print-menu');
@@ -4846,7 +4853,7 @@ blockquote.typewriter-complete .typewriter-cursor {
 
     printBtn.addEventListener('click', function (ev) {
       ev.stopPropagation();
-      openPrintMenu();
+      runPrint('lesson');
     });
 
     function getJournalKey(textareaId) {
@@ -4899,6 +4906,7 @@ blockquote.typewriter-complete .typewriter-cursor {
       var anyResponsesFound = false;
 
       document.querySelectorAll('.section-card').forEach(function (card) {
+        if (lessonOnly && (card.id === 'info' || card.id === 'resources')) return;
         var h2 = card.querySelector('.accordion-header h2');
         if (!h2) return;
         var sectionTitle = h2.textContent.replace(/[▼▲]/g, '').trim();
@@ -4932,6 +4940,7 @@ blockquote.typewriter-complete .typewriter-cursor {
         var removeSelectors = [
           '.breathing-widget', '.section-read-btn', '.dialogue-controls',
           '.journal-area', '.journal-saved', '.journal-footer', '.copy-btn',
+          '.cc-widget', '.cc-done-row',
           '.timer-container', '.calendar-buttons', '.progress-ring-container',
           '.word-count', '.rating-slider-container', '.inline-reference-panel',
           '.inline-ref-trigger', '.celebration-overlay', '.typewriter-cursor',
@@ -5235,10 +5244,8 @@ blockquote.typewriter-complete .typewriter-cursor {
     initAccordions();
     initExpandCollapse();
     initDialogueReveal();
-    initJournals();
-    initWordCount();
-    initSectionRead();
-    initReflectionTimer();
+    // Retired for the 2026 cohort: initJournals(), initWordCount(),
+    // initSectionRead(), initReflectionTimer(), initProgressRing().
     initHighlights();
     initBackToTop();
     initRatingSliders();
@@ -5246,7 +5253,6 @@ blockquote.typewriter-complete .typewriter-cursor {
     initNeedsPanel();
     initFeelingsPanel();
     initBreathingWidget();
-    initProgressRing();
     initTypewriterQuotes();
     initStepReveals();
     initNarration();

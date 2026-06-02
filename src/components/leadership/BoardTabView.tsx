@@ -719,21 +719,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   // column of every lane has its own add box, so a new task is pre-set to that
   // priority (lane) and that column's status.
   const [createTarget, setCreateTarget] = useState<{ lane: WorkItemLane; status: WorkItemStatus } | null>(null);
-  const createFormRef = useRef<HTMLDivElement>(null);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showDoneHistory, setShowDoneHistory] = useState(false);
 
   const [optimisticItems, setOptimisticItems] = useState<LeadershipWorkItem[] | null>(null);
   const displayItems = optimisticItems ?? workItems;
-
-  // The create form renders below the board (outside the DndContext), so when a
-  // column's "Add task" box is clicked, bring the form into view.
-  useEffect(() => {
-    if (createTarget && createFormRef.current) {
-      createFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [createTarget]);
 
   React.useEffect(() => {
     setOptimisticItems(null);
@@ -1153,12 +1144,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
         </DragOverlay>
       </DndContext>
 
-      {/* Create form lives OUTSIDE the DndContext (like the edit form) so its
-          inputs and the layout shift on open can't interfere with the board's
-          drag-and-drop reordering. The column's add box pre-selects that lane
-          (priority) and that column's status. */}
+      {/* Create form is a fixed, centered modal (TaskForm renders its own
+          backdrop), so it lives OUTSIDE the DndContext — its mount can't shift
+          the board layout or interfere with drag-and-drop reordering. The
+          column's add box pre-selects that lane (priority) and column status. */}
       {createTarget && (
-        <div ref={createFormRef}>
+        <>
           {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
           <TaskForm
             mode="create"
@@ -1171,7 +1162,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
             onSave={handleCreateSave}
             onCancel={() => { setCreateTarget(null); setSaveError(null); }}
           />
-        </div>
+        </>
       )}
 
       {editingItem && (

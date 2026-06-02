@@ -488,6 +488,7 @@ function BoardColumn({
   isDragging,
   activeItemId,
   isDropTarget,
+  canAddTask,
 }: {
   lane: WorkItemLane;
   column: (typeof COLUMNS)[0];
@@ -495,7 +496,7 @@ function BoardColumn({
   memberLabels: Record<string, string>;
   memberAvatars: Record<string, string>;
   onEditItem: (item: LeadershipWorkItem) => void;
-  onAddItem: () => void;
+  onAddItem: (status: WorkItemStatus) => void;
   onOpenHistory?: () => void;
   dropPreviewIndex?: number;
   dropPreviewItem?: LeadershipWorkItem | null;
@@ -504,6 +505,8 @@ function BoardColumn({
   activeItemId?: string | null;
   /** Whether this column is the current drop target (driven by parent state, not local isOver) */
   isDropTarget?: boolean;
+  /** Whether the current user may add tasks (shows the per-column "+ Add task" box). */
+  canAddTask?: boolean;
 }) {
   const { setNodeRef } = useDroppable({
     id: `column-${lane}-${column.id}`,
@@ -556,8 +559,8 @@ function BoardColumn({
           </button>
         )}
       </div>
-      {isBacklog && (
-        <button type="button" className="ld-board-add-btn" onClick={onAddItem}>
+      {canAddTask && (
+        <button type="button" className="ld-board-add-btn" onClick={() => onAddItem(column.id)}>
           + Add task
         </button>
       )}
@@ -712,9 +715,10 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   const [dropTargetLane, setDropTargetLane] = useState<WorkItemLane | null>(null);
   const [dropTargetColumn, setDropTargetColumn] = useState<WorkItemStatus | null>(null);
   const [dropInsertIndex, setDropInsertIndex] = useState<number | null>(null);
-  // Which swim lane's "Add task" form is open (null = none). Each lane has
-  // its own add button so a new task is pre-set to that priority.
-  const [createLane, setCreateLane] = useState<WorkItemLane | null>(null);
+  // Which lane + column the "Add task" form is open for (null = none). Every
+  // column of every lane has its own add box, so a new task is pre-set to that
+  // priority (lane) and that column's status.
+  const [createTarget, setCreateTarget] = useState<{ lane: WorkItemLane; status: WorkItemStatus } | null>(null);
   const createFormRef = useRef<HTMLDivElement>(null);
   const [editingItem, setEditingItem] = useState<LeadershipWorkItem | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -724,12 +728,12 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
   const displayItems = optimisticItems ?? workItems;
 
   // The create form renders below the board (outside the DndContext), so when a
-  // lane's "Add task" button is clicked, bring the form into view.
+  // column's "Add task" box is clicked, bring the form into view.
   useEffect(() => {
-    if (createLane && createFormRef.current) {
+    if (createTarget && createFormRef.current) {
       createFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [createLane]);
+  }, [createTarget]);
 
   React.useEffect(() => {
     setOptimisticItems(null);
@@ -1004,7 +1008,7 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
           }
         }
       }
-      setCreateLane(null);
+      setCreateTarget(null);
       onRefresh();
     } catch (err) {
       console.error(err);
@@ -1108,29 +1112,10 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
             <div key={lane} className="ld-board-swimlane">
               <div
                 className="ld-board-lane-label"
-                style={{
-                  marginBottom: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 6,
-                }}
+                style={{ marginBottom: 8, color: LANE_META[lane].color, fontWeight: 600, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
-                <span style={{ color: LANE_META[lane].color, fontWeight: 600, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
-                  {LANE_META[lane].label}
-                </span>
-                {canAddTask && (
-                  <button
-                    type="button"
-                    className="ld-board-lane-add-btn"
-                    onClick={() => { setCreateLane(lane); setSaveError(null); }}
-                    title={`Add a ${LANE_META[lane].label.toLowerCase()} task`}
-                  >
-                    <i className="fas fa-plus" aria-hidden />
-                    &nbsp;Add task
-                  </button>
-                )}
+                <i className={LANE_META[lane].icon} style={{ fontSize: '0.7rem' }} />
+                {LANE_META[lane].label}
               </div>
               <div className={`ld-board-columns ${activeId ? 'ld-board-columns--dragging' : ''}`}>
                 {effectiveColumns.map((col) => (
@@ -1142,7 +1127,8 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
                     memberLabels={memberLabels}
                     memberAvatars={memberAvatars}
                     onEditItem={setEditingItem}
-                    onAddItem={() => { setCreateLane(lane); setSaveError(null); }}
+                    canAddTask={canAddTask}
+                    onAddItem={(status) => { setCreateTarget({ lane, status }); setSaveError(null); }}
                     onOpenHistory={col.id === 'done' ? () => setShowDoneHistory(true) : undefined}
                     dropPreviewIndex={dropTargetLane === lane && dropTargetColumn === col.id ? (dropInsertIndex ?? undefined) : undefined}
                     dropPreviewItem={dropTargetLane === lane && dropTargetColumn === col.id ? dropPreviewItem : null}
@@ -1169,21 +1155,21 @@ const BoardTabView: React.FC<BoardTabViewProps> = ({
 
       {/* Create form lives OUTSIDE the DndContext (like the edit form) so its
           inputs and the layout shift on open can't interfere with the board's
-          drag-and-drop reordering. The lane that was clicked is pre-selected
-          via defaultLane, with status defaulting to "To Do". */}
-      {createLane && (
+          drag-and-drop reordering. The column's add box pre-selects that lane
+          (priority) and that column's status. */}
+      {createTarget && (
         <div ref={createFormRef}>
           {saveError && <p style={{ color: '#dc2626', marginBottom: '16px' }}>{saveError}</p>}
           <TaskForm
             mode="create"
-            defaultStatus="todo"
-            defaultLane={createLane}
+            defaultStatus={createTarget.status}
+            defaultLane={createTarget.lane}
             teamId={teamId}
             teamMemberIds={memberIds}
             memberLabels={memberLabels}
             memberAvatars={memberAvatars}
             onSave={handleCreateSave}
-            onCancel={() => { setCreateLane(null); setSaveError(null); }}
+            onCancel={() => { setCreateTarget(null); setSaveError(null); }}
           />
         </div>
       )}

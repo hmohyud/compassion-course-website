@@ -100,7 +100,6 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
 
     let observer: ResizeObserver | null = null;
     let clickHandler: ((e: Event) => void) | null = null;
-    let printMenuObserver: MutationObserver | null = null;
 
     // Target element to measure — a wrapper that represents "actual content"
     // so the iframe's own chrome doesn't mess with height reporting.
@@ -125,75 +124,6 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
         // is expanded. Lower bound guards against transient 0-values during load.
         if (h > 200) setHeight(h + 4);
       } catch { /* noop — same-origin should be fine */ }
-    };
-
-    // Apply preview-mode treatment: disable journaling, mark-completed, print
-    // while keeping them visible so visitors can see the real weekly-message layout.
-    // Audio narration stays enabled.
-    const applyPreviewMode = (doc: Document) => {
-      // Helper: wrap a disabled element and its label in a flex-row container so
-      // the label sits inline next to the button (not below it on its own line).
-      const addDisabledLabel = (el: Element, text = 'Disabled in preview') => {
-        // Skip if already wrapped
-        if ((el.parentElement as HTMLElement | null)?.classList?.contains('sample-preview-wrap')) return;
-
-        const wrap = doc.createElement('span');
-        wrap.className = 'sample-preview-wrap';
-
-        const label = doc.createElement('small');
-        label.className = 'sample-preview-label';
-        label.setAttribute('aria-hidden', 'true');
-        label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>${text}`;
-
-        // Insert wrap in element's place, then move element + label inside wrap
-        el.parentNode?.insertBefore(wrap, el);
-        wrap.appendChild(el);
-        wrap.appendChild(label);
-      };
-
-      // 1) Journal textareas: readonly + placeholder-as-hint + lock icon overlay
-      doc.querySelectorAll<HTMLTextAreaElement>('.journal-area').forEach((ta) => {
-        ta.readOnly = true;
-        ta.setAttribute('aria-disabled', 'true');
-        ta.setAttribute('data-preview-disabled', 'journal');
-        if (!ta.placeholder || !ta.placeholder.includes('Preview')) {
-          ta.placeholder = '🔒 Journal disabled in preview — enrolled participants have a personal journal that autosaves between visits.';
-        }
-      });
-      // 2) Mark-as-read buttons: disabled + tooltip + inline label
-      doc.querySelectorAll<HTMLButtonElement>('.section-read-btn').forEach((btn) => {
-        btn.setAttribute('disabled', 'disabled');
-        btn.setAttribute('aria-disabled', 'true');
-        btn.setAttribute('data-preview-disabled', 'mark-read');
-        btn.title = 'Disabled in preview — enrolled participants can track their progress through the course';
-        addDisabledLabel(btn);
-      });
-      // 3) Print popup menu: "Lesson content only" stays enabled. The other
-      //    two modes (both / work) rely on saved journal entries which don't
-      //    exist in preview, so we disable them in the popup when it appears.
-      const disablePrintSubOptions = (menu: HTMLElement) => {
-        if (menu.getAttribute('data-preview-modified') === 'true') return;
-        menu.setAttribute('data-preview-modified', 'true');
-        menu.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
-          const mode = b.getAttribute('data-mode');
-          if (mode === 'lesson') return;
-          b.setAttribute('disabled', 'disabled');
-          b.setAttribute('aria-disabled', 'true');
-          b.setAttribute('data-preview-disabled', 'print-option');
-          b.title = 'Disabled in preview — requires saved journal entries';
-          // Inject a small "Disabled in preview" label after the button's text
-          if (!b.querySelector('.sample-preview-label')) {
-            const label = doc.createElement('span');
-            label.className = 'sample-preview-label';
-            label.setAttribute('aria-hidden', 'true');
-            label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>Disabled in preview`;
-            b.appendChild(label);
-          }
-        });
-      };
-      // If the menu is already open when applyPreviewMode re-runs, handle it now.
-      const existingMenu = doc.getElementById('print-menu');
-      if (existingMenu) disablePrintSubOptions(existingMenu);
     };
 
     const onLoad = () => {
@@ -326,101 +256,14 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
           }
           .sample-preview-banner strong { color: var(--clr-primary, #2a7a6e); }
 
-          /* Disabled-feature visual: show element but make it clearly non-interactive */
-          [data-preview-disabled] {
-            opacity: 0.55;
-            cursor: not-allowed !important;
-            position: relative;
-          }
-          [data-preview-disabled]:hover { opacity: 0.65; }
-          textarea[data-preview-disabled="journal"] {
-            background: repeating-linear-gradient(
-              -45deg,
-              var(--clr-bg-card, #fff),
-              var(--clr-bg-card, #fff) 12px,
-              var(--clr-bg-alt, #f0ece4) 12px,
-              var(--clr-bg-alt, #f0ece4) 24px
-            ) !important;
-            color: var(--clr-text-muted, #8a8a8a) !important;
-            caret-color: transparent;
-          }
-          button[data-preview-disabled] { pointer-events: none; }
-
-          /* Flex-row wrapper that keeps the disabled button and its label on
-             the same line even when the parent is a flex column. */
-          .sample-preview-wrap {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            flex-wrap: nowrap;
-            max-width: 100%;
-            margin-top: 1.5rem;
-          }
-          /* Move the button's own margin up to the wrap so the two items sit
-             on a shared baseline (otherwise the button gets pushed down). */
-          .sample-preview-wrap .section-read-btn { margin-top: 0 !important; }
-          .sample-preview-wrap .toc-btn { margin-top: 0 !important; }
-          /* Don't add a top margin if the wrap is inside the TOC's action row */
-          .toc-actions .sample-preview-wrap { margin-top: 0; }
-          /* Inline "(Disabled in preview)" label injected next to disabled buttons */
-          .sample-preview-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35em;
-            padding: 0.12rem 0.55rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            color: var(--clr-text-muted, #8a8a8a);
-            background: var(--clr-bg-alt, #f0ece4);
-            border: 1px dashed var(--clr-border, #e0dbd2);
-            border-radius: 999px;
-            white-space: nowrap;
-            vertical-align: middle;
-            line-height: 1.4;
-            font-family: inherit;
-          }
-          .sample-preview-label-dot { font-size: 0.72em; line-height: 1; }
-          /* Keep TOC actions tidy when the print wrapper wraps */
+          /* Keep TOC actions tidy when buttons wrap */
           .toc-actions { flex-wrap: wrap; gap: 0.4rem; }
-
-          /* Parent wrapper padlock badge for disabled journal */
-          .practice-card { position: relative; }
-          .practice-card:has(textarea[data-preview-disabled]) > .journal-footer,
-          .practice-card:has(textarea[data-preview-disabled]) > .journal-saved {
-            display: none !important;
-          }
-          .practice-card:has(textarea[data-preview-disabled])::after {
-            content: '🔒 Journal disabled in preview';
-            position: absolute;
-            top: 0.8rem;
-            right: 0.8rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 0.25rem 0.6rem;
-            border-radius: 999px;
-            background: var(--clr-bg-card, #fff);
-            color: var(--clr-text-muted, #8a8a8a);
-            border: 1px dashed var(--clr-border, #e0dbd2);
-          }
         `;
         doc.head.appendChild(style);
 
         // Tag the hero so our injected CSS can target it narrowly (scoped to
          // inside this iframe only — no outer-site impact).
         doc.querySelector('.hero')?.classList.add('sample-embedded-hero');
-
-        // Some dialogue containers in the bundle only have a single line (the
-        // Friend's quote used as setup) — their Next/Reset controls are
-        // vestigial and clicking Next does nothing visible. Hide those
-        // controls so visitors don't mash a non-functional button.
-        doc.querySelectorAll('.dialogue-container').forEach((container) => {
-          const lineCount = container.querySelectorAll('.dialogue-line, .dialogue-narration').length;
-          if (lineCount <= 1) {
-            const controls = container.querySelector('.dialogue-controls') as HTMLElement | null;
-            if (controls) controls.style.display = 'none';
-          }
-        });
 
         // Inject preview banner at the top of .main-content (once)
         const main = doc.querySelector('.main-content');
@@ -431,45 +274,13 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
           banner.innerHTML = `
             <span class="sample-preview-banner-icon" aria-hidden="true">i</span>
             <span>
-              <strong>Preview mode.</strong>
-              You can read the lesson, play the audio narration, and print the lesson content.
-              <em>Mark-completed</em>, <em>journaling</em>, and print-with-responses are disabled here —
-              enrolled participants get full access.
+              <strong>Sample lesson.</strong>
+              This is a preview of a weekly message — read it and play the audio
+              narration. Enrolled participants get the full set of 52 weekly lessons.
             </span>
           `;
           main.insertBefore(banner, main.firstChild);
         }
-
-        // Apply disabled treatment to interactive features
-        applyPreviewMode(doc);
-        // Re-apply after the bundled script initializes (buttons are injected late)
-        setTimeout(() => applyPreviewMode(doc), 300);
-        setTimeout(() => applyPreviewMode(doc), 1200);
-
-        // Print popup menu is created on-demand when the user clicks Print.
-        // Watch for it so we can disable "Lesson with my responses" and
-        // "My responses only" while leaving "Lesson content only" enabled.
-        printMenuObserver = new MutationObserver(() => {
-          const menu = doc.getElementById('print-menu');
-          if (!menu || menu.getAttribute('data-preview-modified') === 'true') return;
-          menu.setAttribute('data-preview-modified', 'true');
-          menu.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
-            const mode = b.getAttribute('data-mode');
-            if (mode === 'lesson') return;
-            b.setAttribute('disabled', 'disabled');
-            b.setAttribute('aria-disabled', 'true');
-            b.setAttribute('data-preview-disabled', 'print-option');
-            b.title = 'Disabled in preview — requires saved journal entries';
-            if (!b.querySelector('.sample-preview-label')) {
-              const label = doc.createElement('span');
-              label.className = 'sample-preview-label';
-              label.setAttribute('aria-hidden', 'true');
-              label.innerHTML = `<span class="sample-preview-label-dot">🔒</span>Disabled in preview`;
-              b.appendChild(label);
-            }
-          });
-        });
-        printMenuObserver.observe(doc.body, { childList: true });
 
         // ── Audio coordination ─────────────────────────────────────────────
         // Register this iframe and tag it with a unique id
@@ -578,10 +389,9 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
         }
 
         // Re-measure shortly after any click (accordion animations finish in ~500ms).
-        // Also re-apply preview mode in case new buttons were injected by the bundle's JS.
         clickHandler = () => {
-          setTimeout(() => { measure(); applyPreviewMode(doc); }, 100);
-          setTimeout(() => { measure(); applyPreviewMode(doc); }, 600);
+          setTimeout(measure, 100);
+          setTimeout(measure, 600);
         };
         doc.addEventListener('click', clickHandler);
       } catch (err) {
@@ -593,7 +403,6 @@ const SampleIframe: React.FC<{ src: string; title: string }> = ({ src, title }) 
     return () => {
       iframe.removeEventListener('load', onLoad);
       if (observer) observer.disconnect();
-      if (printMenuObserver) printMenuObserver.disconnect();
       try {
         if (clickHandler && iframe.contentDocument) {
           iframe.contentDocument.removeEventListener('click', clickHandler);

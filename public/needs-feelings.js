@@ -430,16 +430,25 @@
     list.parentNode.insertBefore(wrap, list.nextSibling);
   }
 
-  // List view: wrap each related word in a hover-to-define term.
+  // List view: wrap each category heading and related word in a hover-to-define term.
   function enhanceList() {
-    document.querySelectorAll('.view-list .card p').forEach(function (p) {
-      if (p.dataset.enhanced) return;
-      var words = synWords(p.textContent);
-      p.innerHTML = words.map(function (w) {
-        var def = defFor(w);
-        return def ? '<span class="term" data-def="' + escapeAttr(def) + '">' + escapeHtml(w) + '</span>' : escapeHtml(w);
-      }).join(', ');
-      p.dataset.enhanced = '1';
+    document.querySelectorAll('.view-list .card').forEach(function (card) {
+      var h = card.querySelector('h3');
+      if (h && !h.dataset.enhanced) {
+        var hw = h.textContent.trim();
+        var hd = DEFS[hw];
+        if (hd) h.innerHTML = '<span class="term term-head" data-def="' + escapeAttr(hd) + '">' + escapeHtml(hw) + '</span>';
+        h.dataset.enhanced = '1';
+      }
+      var p = card.querySelector('p');
+      if (p && !p.dataset.enhanced) {
+        var words = synWords(p.textContent);
+        p.innerHTML = words.map(function (w) {
+          var def = defFor(w);
+          return def ? '<span class="term" data-def="' + escapeAttr(def) + '">' + escapeHtml(w) + '</span>' : escapeHtml(w);
+        }).join(', ');
+        p.dataset.enhanced = '1';
+      }
     });
   }
 

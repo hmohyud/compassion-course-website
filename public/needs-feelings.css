@@ -175,6 +175,8 @@ body[data-view="grid"] .view-grid { display: block; }
 /* ── hover-to-define terms (List view) + tooltip ── */
 .term { border-bottom: 1px dotted var(--gray-400); cursor: help; transition: color .12s ease, border-color .12s ease; }
 .term:hover { color: var(--primary); border-bottom-color: var(--primary); }
+/* heading terms: underline only on hover so the headings stay clean */
+.term-head { border-bottom-color: transparent; }
 .feelings-met .term:hover { color: var(--met); border-bottom-color: var(--met); }
 .feelings-unmet .term:hover { color: var(--unmet); border-bottom-color: var(--unmet); }
 .nf-tooltip {

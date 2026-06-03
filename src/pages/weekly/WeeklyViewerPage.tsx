@@ -10,9 +10,7 @@ import {
   type WeeklyContent,
   STORAGE_ASSETS_PREFIX,
 } from '../../services/weeklyContentService';
-import { getMember } from '../../services/memberService';
-import { getMemberSessionEmail, clearMemberSession } from '../../services/memberSession';
-import { useEmailLinkSignIn } from '../../hooks/useEmailLinkSignIn';
+import { processWeeklyAccessLink, hasWeeklyAccess } from '../../services/weeklyAccess';
 import { formatReleaseDate } from '../../utils/formatReleaseDate';
 
 // Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
@@ -33,10 +31,10 @@ type Status =
   | { kind: 'ready'; html: string; content: WeeklyContent };
 
 const WeeklyViewerPage: React.FC = () => {
-  // Process ?email=... sign-in links BEFORE getMemberSessionEmail() reads
-  // localStorage below, so a fresh URL link unlocks access on first render
-  // without bouncing the user to /weekly to type their email.
-  useEmailLinkSignIn();
+  // Process a ?hash=... access link BEFORE reading the access flag below, so a
+  // fresh link from the email unlocks access on first render without bouncing
+  // the visitor to /weekly.
+  processWeeklyAccessLink();
 
   const { weekNum } = useParams<{ weekNum: string }>();
   const { user, isAdmin, loading, adminLoading } = useAuth();
@@ -50,10 +48,9 @@ const WeeklyViewerPage: React.FC = () => {
   const [iframeBooted, setIframeBooted] = useState(false);
   const [iframeStuck, setIframeStuck] = useState(false);
 
-  // Pull member-session email synchronously on mount; the async useEffect
-  // below verifies it against the roster before unlocking content.
-  const memberEmail = isAdmin ? null : getMemberSessionEmail();
-  const hasAccessClaim = isAdmin || !!memberEmail;
+  // Access claim: admin, or anyone who arrived with (or previously used) the
+  // access hash. The single hash is the access password — no email roster.
+  const hasAccessClaim = isAdmin || hasWeeklyAccess();
 
   useEffect(() => {
     if (loading || adminLoading) return;
@@ -61,22 +58,6 @@ const WeeklyViewerPage: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        // For non-admin members: re-verify the email is still on the
-        // roster (admin may have removed them) before fetching content.
-        if (!isAdmin && memberEmail) {
-          const m = await getMember(memberEmail);
-          if (!m) {
-            clearMemberSession();
-            if (!cancelled) {
-              setStatus({
-                kind: 'forbidden',
-                reason: "Your email is no longer on the 2026 cohort roster. Please sign in again.",
-              });
-            }
-            return;
-          }
-        }
-
         const n = parseInt(weekNum || '', 10);
         if (!Number.isFinite(n) || n < 1 || n > 52) {
           if (!cancelled) setStatus({ kind: 'not-found' });
@@ -140,7 +121,7 @@ const WeeklyViewerPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [weekNum, user, isAdmin, loading, adminLoading, hasAccessClaim, memberEmail]);
+  }, [weekNum, user, isAdmin, loading, adminLoading, hasAccessClaim]);
 
   // Receive messages from the bundle: "back to all weeks" navigation + the
   // iframe's live content-height so we can auto-size the frame (no internal

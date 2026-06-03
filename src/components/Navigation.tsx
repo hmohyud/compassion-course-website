@@ -246,12 +246,6 @@ const Navigation: React.FC = () => {
             <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>About Us</Link>
           </li>
           <li className="nav-item">
-            <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
-              <i className="fas fa-calendar-week nav-weekly-icon" aria-hidden="true"></i>
-              2026 Member Portal
-            </Link>
-          </li>
-          <li className="nav-item">
             <Link to="/portal/community" className={`nav-link ${isActive('/portal/community') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
               <i className="fas fa-globe-americas nav-gcn-icon" aria-hidden="true"></i>
               Global Compassion Network

@@ -20,11 +20,14 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
   AlignmentType, LevelFormat, BorderStyle, WidthType, ShadingType,
   HeightRule, HeadingLevel, PageBreak, VerticalAlign,
   Footer, PageNumber, TabStopType, TabStopPosition,
 } = require('docx');
+
+// Heart-globe logo for the cover (319×261 → ratio ~1.22).
+const heartLogo = fs.readFileSync(path.join(__dirname, '..', 'public', 'logo_heart.png'));
 
 // ── palette ──────────────────────────────────────────────────────────────
 const TEAL = '2A7A6E';
@@ -175,9 +178,9 @@ const children = [];
 
 // ── page 1: styled cover + intro ─────────────────────────────────────────────
 children.push(
-  // small gold motif crowning the cover
-  new Paragraph({ spacing: { before: 220, after: 30 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: '❖', color: GOLD, size: 30, font: 'Georgia' })] }),
+  // heart-globe logo crowning the cover
+  new Paragraph({ spacing: { before: 180, after: 40 }, alignment: AlignmentType.CENTER,
+    children: [new ImageRun({ data: heartLogo, type: 'png', transformation: { width: 132, height: 108 } })] }),
   // teal rule above the title
   new Paragraph({ spacing: { before: 0, after: 70 }, alignment: AlignmentType.CENTER,
     border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: TEAL, space: 1 } },

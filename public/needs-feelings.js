@@ -366,12 +366,16 @@
   };
 
   function escapeHtml(s) { var t = document.createElement('div'); t.textContent = s; return t.innerHTML; }
+  function escapeAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function defFor(w) { return WORD_DEFS[w] || WORD_DEFS[w.toLowerCase()] || ''; }
 
-  function synList(synStr) {
-    var words = synStr.split(',').map(function (w) { return w.trim(); }).filter(Boolean);
+  function synWords(synStr) {
+    return synStr.split(',').map(function (w) { return w.trim(); }).filter(Boolean);
+  }
+  function synList(words) {
     var html = '<div class="word-syn-head">Related words — tap to define</div><div class="word-syn-list">';
     words.forEach(function (w) {
-      var def = WORD_DEFS[w] || WORD_DEFS[w.toLowerCase()] || '';
+      var def = defFor(w);
       html += '<details class="syn"><summary>' + escapeHtml(w) + '</summary>' +
         '<div class="syn-def">' + (def ? escapeHtml(def) : '&mdash;') + '</div></details>';
     });
@@ -402,15 +406,16 @@
         if (!h || !p) return;
         var word = h.textContent.trim();
         var def = DEFS[word] || '';
+        var words = synWords(p.textContent.trim());
 
         var d = document.createElement('details');
         d.className = 'word-tile';
         var s = document.createElement('summary');
-        s.textContent = word;
+        s.innerHTML = '<span class="wt-word">' + escapeHtml(word) + '</span><span class="wt-count">' + words.length + '</span>';
         d.appendChild(s);
         var body = document.createElement('div');
         body.className = 'word-body';
-        body.innerHTML = (def ? '<p class="word-def">' + escapeHtml(def) + '</p>' : '') + synList(p.textContent.trim());
+        body.innerHTML = (def ? '<p class="word-def">' + escapeHtml(def) + '</p>' : '') + synList(words);
         d.appendChild(body);
         wg.appendChild(d);
       });
@@ -425,6 +430,45 @@
     list.parentNode.insertBefore(wrap, list.nextSibling);
   }
 
+  // List view: wrap each related word in a hover-to-define term.
+  function enhanceList() {
+    document.querySelectorAll('.view-list .card p').forEach(function (p) {
+      if (p.dataset.enhanced) return;
+      var words = synWords(p.textContent);
+      p.innerHTML = words.map(function (w) {
+        var def = defFor(w);
+        return def ? '<span class="term" data-def="' + escapeAttr(def) + '">' + escapeHtml(w) + '</span>' : escapeHtml(w);
+      }).join(', ');
+      p.dataset.enhanced = '1';
+    });
+  }
+
+  // A single shared, viewport-clamped tooltip for the .term hovers.
+  function initTooltip() {
+    var tip = document.createElement('div');
+    tip.className = 'nf-tooltip';
+    document.body.appendChild(tip);
+    document.addEventListener('mouseover', function (e) {
+      var t = e.target.closest && e.target.closest('.term');
+      if (!t || !t.getAttribute('data-def')) return;
+      tip.textContent = t.getAttribute('data-def');
+      tip.classList.add('show');
+      var r = t.getBoundingClientRect();
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var vw = document.documentElement.clientWidth;
+      var left = r.left + r.width / 2 - tw / 2 + window.scrollX;
+      left = Math.max(8 + window.scrollX, Math.min(left, window.scrollX + vw - tw - 8));
+      var top = r.top + window.scrollY - th - 10;
+      if (r.top - th - 10 < 0) { top = r.bottom + window.scrollY + 10; tip.classList.add('below'); }
+      else { tip.classList.remove('below'); }
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    });
+    document.addEventListener('mouseout', function (e) {
+      if (e.target.closest && e.target.closest('.term')) tip.classList.remove('show');
+    });
+  }
+
   function setView(v) {
     document.body.setAttribute('data-view', v);
     document.querySelectorAll('.viewbar button').forEach(function (b) {
@@ -435,6 +479,8 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     buildGrid();
+    enhanceList();
+    initTooltip();
     document.querySelectorAll('.viewbar button').forEach(function (b) {
       b.addEventListener('click', function () { setView(b.getAttribute('data-view')); });
     });

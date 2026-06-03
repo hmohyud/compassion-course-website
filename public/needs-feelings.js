@@ -478,18 +478,42 @@
     });
   }
 
+  // Distribute the tiles in each .word-grid across N flex columns, in order
+  // (round-robin), so reading order is preserved and each column stacks
+  // independently. Re-runs on resize / view change; reuses the same tile nodes
+  // so their open/closed state is kept.
+  function layoutColumns() {
+    document.querySelectorAll('.word-grid').forEach(function (wg) {
+      var tiles = wg._tiles || Array.prototype.slice.call(wg.querySelectorAll('.word-tile'));
+      wg._tiles = tiles;
+      var w = wg.clientWidth || (wg.parentNode && wg.parentNode.clientWidth) || 0;
+      var k = Math.max(1, Math.floor(w / 250));
+      if (wg._k === k) return;
+      wg._k = k;
+      var cols = [];
+      for (var i = 0; i < k; i++) { var c = document.createElement('div'); c.className = 'wg-col'; cols.push(c); }
+      tiles.forEach(function (t, i) { cols[i % k].appendChild(t); });
+      wg.innerHTML = '';
+      cols.forEach(function (c) { wg.appendChild(c); });
+    });
+  }
+
   function setView(v) {
     document.body.setAttribute('data-view', v);
     document.querySelectorAll('.viewbar button').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-view') === v);
     });
     try { localStorage.setItem('nf-view', v); } catch (e) {}
+    if (v === 'grid') layoutColumns();
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     buildGrid();
+    layoutColumns();
     enhanceList();
     initTooltip();
+    var rt;
+    window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(layoutColumns, 120); });
     document.querySelectorAll('.viewbar button').forEach(function (b) {
       b.addEventListener('click', function () { setView(b.getAttribute('data-view')); });
     });

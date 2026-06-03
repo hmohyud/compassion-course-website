@@ -47,3 +47,6 @@ src/pages/GlobePreviewPage.tsx
 src/pages/GlobePreview.css
 
 nul
+# Local-only tooling (copy/paste or run locally; not deployed)
+scripts/duplicate-google-doc-per-email.gs
+scripts/recolor-lessons-to-workbook.cjs

@@ -20,7 +20,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
+  Document, Packer, Paragraph, TextRun, ImageRun, ExternalHyperlink, Table, TableRow, TableCell,
   AlignmentType, LevelFormat, BorderStyle, WidthType, ShadingType,
   HeightRule, HeadingLevel, PageBreak, VerticalAlign,
   Footer, PageNumber, TabStopType, TabStopPosition,
@@ -46,6 +46,8 @@ const WEEK_BANNER = '0F3760';
 // can't make 52 weeks distinct.)
 const HUE_BASE = 36.5;        // so week 1 lands on a teal-ish hue
 const GOLDEN_ANGLE = 137.508;
+const WEEK_SAT = 0.30;        // muted saturation → calm, soothing tones (not vivid)
+const CONTRAST_MIN = 4.8;     // white-on-color must clear this (a little over AA 4.5)
 function hslToHex(h, s, l) {
   h = ((h % 360) + 360) % 360;
   const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -62,13 +64,23 @@ function relLum(hex) {
   const ch = (i) => { const c = parseInt(hex.substr(i, 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
   return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
 }
+function whiteContrast(hex) { return 1.05 / (relLum(hex) + 0.05); }
+// Darken a hue at the given saturation from a starting lightness until white
+// text clears CONTRAST_MIN. Returns { hex, l }.
+function settleTone(hue, sat, lStart) {
+  let l = lStart, hex = hslToHex(hue, sat, l);
+  while (l > 0.13 && whiteContrast(hex) < CONTRAST_MIN) { l -= 0.02; hex = hslToHex(hue, sat, l); }
+  return { hex, l };
+}
+// A distinct, soothing color per week. `primary` is the medium tone shared by
+// the workbook banner/title AND the website --wk-primary; `dark` is a deeper
+// shade of the same hue for the website gradient / hover end.
 function weekColor(n) {
   const hue = (HUE_BASE + n * GOLDEN_ANGLE) % 360;
-  const sat = 0.42;
-  let l = 0.40, hex = hslToHex(hue, sat, l);
-  // Darken until white-on-color contrast ≥ 4.5:1 (AA), with a sensible floor.
-  while (l > 0.14 && (1.05 / (relLum(hex) + 0.05)) < 4.5) { l -= 0.02; hex = hslToHex(hue, sat, l); }
-  return hex;
+  const p = settleTone(hue, WEEK_SAT, 0.46);
+  const primary = p.hex;
+  const dark = hslToHex(hue, WEEK_SAT, Math.max(0.12, p.l - 0.09));
+  return { primary, dark };
 }
 const TEAL_TINT = 'E9F2F0';
 const GOLD = 'B8860B';
@@ -76,6 +88,8 @@ const INK = '2D2D2D';
 const MUTE = '6B6B6B';
 const ANSWER_BG = 'FCFBF7';   // very light cream so the input area reads as fillable
 const RULE = 'CFE3DF';
+const BLANK_FILL = 'E4E7EC';  // light gray field background for fill-in blanks
+const BLANK_LINE = '8A9099';  // soft gray underline beneath a fill-in blank
 
 const CONTENT_W = 9360;       // US Letter, 1" margins
 
@@ -142,59 +156,111 @@ function quoteRuns(text, opts = {}) {
   return runs;
 }
 
+// ── hyperlinks ───────────────────────────────────────────────────────────────
+// Phrases turned into clickable links throughout the workbook. Order matters:
+// longer / more specific phrases are listed first so they win over shorter ones.
+const NEEDS_URL = 'https://compassioncourse.org/needs.html';
+const FEEL_URL  = 'https://compassioncourse.org/feelings.html';
+const GCN_JOIN  = 'https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576';
+const GCN_ACCESS = 'https://www.theglobalcompassionnetwork.com/';
+const EXERCISE_URL = 'http://www.theexercise.org';
+const CC_URL = 'https://www.compassioncourse.org';
+const LINK_COLOR = '1155CC';
+const LINK_RULES = [
+  { phrase: 'New to the GCN? Click Here to Join', url: GCN_JOIN },
+  { phrase: 'GCN Members Click Here to Access it', url: GCN_ACCESS },
+  { phrase: "If you haven't already, Click Here to Join the GCN", url: GCN_JOIN },
+  { phrase: 'www.theexercise.org', url: EXERCISE_URL },
+  { phrase: 'theexercise.org', url: EXERCISE_URL },
+  { phrase: 'www.compassioncourse.org', url: CC_URL },
+  { phrase: 'feelings list', url: FEEL_URL },
+  { phrase: 'needs list', url: NEEDS_URL },
+];
+
+function findLinks(text) {
+  const lower = text.toLowerCase();
+  const matches = [];
+  LINK_RULES.forEach((rule) => {
+    const p = rule.phrase.toLowerCase();
+    let from = 0, i;
+    while ((i = lower.indexOf(p, from)) !== -1) {
+      matches.push({ start: i, end: i + rule.phrase.length, url: rule.url });
+      from = i + rule.phrase.length;
+    }
+  });
+  matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const out = [];
+  let lastEnd = 0;
+  matches.forEach((m) => { if (m.start >= lastEnd) { out.push(m); lastEnd = m.end; } });
+  return out;
+}
+
+// Like quoteRuns, but also turns known phrases (needs list, feelings list, the
+// exercise, GCN, compassioncourse.org) into clickable hyperlinks. Returns a mix
+// of TextRun and ExternalHyperlink for a paragraph's children.
+function richRuns(text, opts = {}) {
+  const links = findLinks(text);
+  if (!links.length) return quoteRuns(text, opts);
+  const size = opts.size ?? 20;
+  const runs = [];
+  let pos = 0;
+  links.forEach((lk) => {
+    if (lk.start > pos) runs.push(...quoteRuns(text.slice(pos, lk.start), opts));
+    runs.push(new ExternalHyperlink({
+      link: lk.url,
+      children: [new TextRun({ text: text.slice(lk.start, lk.end), size, color: LINK_COLOR, underline: { type: 'single' } })],
+    }));
+    pos = lk.end;
+  });
+  if (pos < text.length) runs.push(...quoteRuns(text.slice(pos), opts));
+  return runs;
+}
+
 function bodyPara(text, opts = {}) {
   return new Paragraph({
     spacing: { after: opts.after ?? 60, before: opts.before ?? 0, line: opts.line ?? 276, lineRule: 'auto' },
     keepLines: true,
-    children: quoteRuns(text, opts),
+    children: richRuns(text, opts),
   });
 }
 
-// Render template text with the ____ blanks as UNDERLINE-formatted spaces rather
-// than literal underscore characters. With underscores, typing into the blank
-// leaves the typed text sitting beside the underscores (not on a line); with an
-// underlined run, the text a participant types inherits the underline and sits
-// ON the line, and the line grows with it.
-function blankRuns(text, opts = {}) {
-  const size = opts.size ?? 20;
-  const color = opts.color ?? INK;
-  const out = [];
-  const re = /_{3,}/g;
-  let last = 0, m;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) out.push(new TextRun({ text: text.slice(last, m.index), italics: true, size, color }));
-    out.push(new TextRun({ text: ' '.repeat(Math.max(14, m[0].length + 4)), underline: { type: 'single' }, size, color }));
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) out.push(new TextRun({ text: text.slice(last), italics: true, size, color }));
-  return out;
-}
-
-// A fill-in-the-blank model phrase (one containing ____ blanks) rendered as a
-// clearly editable cream input box — same fill styling as the answer boxes — so
-// participants complete it in a designated space instead of accidentally
-// editing the surrounding instructions. Shown italic with a ✎ cue + curly
-// quotes; the blanks are underlined writing spaces (see blankRuns).
+// A fill-in template, in two stacked rows:
+//   1. a tinted PROMPT row showing the model phrase (greyed, with its ____
+//      blanks for guidance, and any needs/feelings-list references linked); and
+//   2. a clean cream INPUT cell — a real, growable text area to write your own
+//      version, rather than typing over inline underscores.
 function templateBox(text, accent = TEAL) {
+  const promptCell = new TableCell({
+    borders: cellBorders,
+    width: { size: CONTENT_W, type: WidthType.DXA },
+    shading: { fill: 'F1F1EE', type: ShadingType.CLEAR },
+    margins: { top: 70, bottom: 70, left: 130, right: 130 },
+    children: [
+      new Paragraph({ spacing: { before: 0, after: 50, line: 240, lineRule: 'auto' },
+        children: [new TextRun({ text: '✎  Write your version — for example:', bold: true, color: accent, size: 16 })] }),
+      new Paragraph({ spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
+        children: [
+          new TextRun({ text: '“', italics: true, size: 20, color: MUTE }),
+          ...richRuns(text.trim(), { size: 20, color: MUTE, italics: true }),
+          new TextRun({ text: '”', italics: true, size: 20, color: MUTE }),
+        ] }),
+    ],
+  });
+  const inputCell = new TableCell({
+    borders: cellBorders,
+    width: { size: CONTENT_W, type: WidthType.DXA },
+    shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
+    verticalAlign: VerticalAlign.TOP,
+    margins: { top: 80, bottom: 80, left: 130, right: 130 },
+    children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 20 })] })],
+  });
   return new Table({
     width: { size: CONTENT_W, type: WidthType.DXA },
     columnWidths: [CONTENT_W],
-    rows: [new TableRow({ cantSplit: true, children: [
-      new TableCell({
-        borders: cellBorders,
-        width: { size: CONTENT_W, type: WidthType.DXA },
-        shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
-        verticalAlign: VerticalAlign.TOP,
-        margins: { top: 90, bottom: 90, left: 130, right: 130 },
-        children: [new Paragraph({ spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
-          children: [
-            new TextRun({ text: '✎  ', color: accent, size: 18 }),
-            new TextRun({ text: '“', italics: true, size: 20, color: INK }),
-            ...blankRuns(text.trim(), { size: 20, color: INK }),
-            new TextRun({ text: '”', italics: true, size: 20, color: INK }),
-          ] })],
-      })],
-    })],
+    rows: [
+      new TableRow({ cantSplit: true, children: [promptCell] }),
+      new TableRow({ cantSplit: true, height: { value: 520, rule: HeightRule.ATLEAST }, children: [inputCell] }),
+    ],
   });
 }
 
@@ -380,9 +446,10 @@ children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before
 // types.
 weeks.forEach((wk) => {
   const { practiceBox, reflBox } = planWeek(wk);
-  // This week's distinct color (see weekColor). The same deep tone fills the
-  // banner and box headers (white text on it) and colors the lesson title.
-  const wkColor = weekColor(wk.n);
+  // This week's distinct, soothing color (see weekColor). The medium "primary"
+  // tone fills the banner and box headers (white text on it) and colors the
+  // lesson title — and is the same value the website lesson uses for --wk-primary.
+  const wkColor = weekColor(wk.n).primary;
 
   children.push(new Paragraph({
     pageBreakBefore: true,

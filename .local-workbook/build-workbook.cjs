@@ -32,9 +32,28 @@ const heartLogo = fs.readFileSync(path.join(__dirname, '..', 'public', 'logo_hea
 // ── palette ──────────────────────────────────────────────────────────────
 const TEAL = '2A7A6E';
 const TEAL_DARK = '1E5C53';
-// Distinct deep navy (from the logo / heart-globe) for the week banners, so the
-// top-level Week headings stand apart from the teal section/box headers.
+// Distinct deep navy (from the logo / heart-globe); kept as the Heading1 style's
+// fallback banner color, though every week overrides it with its theme color.
 const WEEK_BANNER = '0F3760';
+
+// Per-week theme colors mirrored from the website lessons (each week's
+// --wk-primary / --wk-primary-dark). The lessons cycle 8 themes by (week mod 8);
+// we reproduce that exactly so a week's workbook page matches its website color.
+// Protected weeks (1–4, 10, 22) have no website theme, so they inherit the same
+// (n % 8) slot — keeping the whole book on one consistent cycle. We use the
+// deeper "dark" tone for the filled banner/box headers so white text stays
+// readable on all eight.
+const THEME_CYCLE = [
+  { name: 'plum',       primary: '6E4870', dark: '4F3252' }, // n % 8 === 0
+  { name: 'teal',       primary: '2A7A6E', dark: '1F5C52' }, // 1
+  { name: 'amber',      primary: 'A16A2C', dark: '7A4F1D' }, // 2
+  { name: 'slate',      primary: '456A85', dark: '324D61' }, // 3
+  { name: 'rose',       primary: 'A06168', dark: '7A474D' }, // 4
+  { name: 'forest',     primary: '3F6A4A', dark: '2C4D35' }, // 5
+  { name: 'terracotta', primary: '9A5638', dark: '724026' }, // 6
+  { name: 'gold',       primary: 'A8843E', dark: '7A5F2C' }, // 7
+];
+function weekTheme(n) { return THEME_CYCLE[n % 8]; }
 const TEAL_TINT = 'E9F2F0';
 const GOLD = 'B8860B';
 const INK = '2D2D2D';
@@ -50,14 +69,14 @@ const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, rig
 
 // One answer box: a shaded header row (the label / anchor) + a single empty
 // row the participant types into. `widths` sums to CONTENT_W.
-function answerTable(prompt, widths, height) {
+function answerTable(prompt, widths, height, headerFill = TEAL) {
   const headers = Array.isArray(prompt) ? prompt : [prompt];
   const single = !Array.isArray(prompt);
   const headerCells = headers.map((p, i) =>
     new TableCell({
       borders: cellBorders,
       width: { size: widths[i], type: WidthType.DXA },
-      shading: { fill: TEAL, type: ShadingType.CLEAR },
+      shading: { fill: headerFill, type: ShadingType.CLEAR },
       margins: { top: 40, bottom: 40, left: 110, right: 110 },
       children: [new Paragraph({ spacing: { before: 0, after: 0 },
         children: [new TextRun({ text: (single ? '✎  ' : '') + p, bold: true, color: 'FFFFFF', size: 18 })] })],
@@ -115,12 +134,32 @@ function bodyPara(text, opts = {}) {
   });
 }
 
+// Render template text with the ____ blanks as UNDERLINE-formatted spaces rather
+// than literal underscore characters. With underscores, typing into the blank
+// leaves the typed text sitting beside the underscores (not on a line); with an
+// underlined run, the text a participant types inherits the underline and sits
+// ON the line, and the line grows with it.
+function blankRuns(text, opts = {}) {
+  const size = opts.size ?? 20;
+  const color = opts.color ?? INK;
+  const out = [];
+  const re = /_{3,}/g;
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) out.push(new TextRun({ text: text.slice(last, m.index), italics: true, size, color }));
+    out.push(new TextRun({ text: ' '.repeat(Math.max(14, m[0].length + 4)), underline: { type: 'single' }, size, color }));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(new TextRun({ text: text.slice(last), italics: true, size, color }));
+  return out;
+}
+
 // A fill-in-the-blank model phrase (one containing ____ blanks) rendered as a
 // clearly editable cream input box — same fill styling as the answer boxes — so
 // participants complete it in a designated space instead of accidentally
 // editing the surrounding instructions. Shown italic with a ✎ cue + curly
-// quotes; the underscores are the spots to type over.
-function templateBox(text) {
+// quotes; the blanks are underlined writing spaces (see blankRuns).
+function templateBox(text, accent = TEAL) {
   return new Table({
     width: { size: CONTENT_W, type: WidthType.DXA },
     columnWidths: [CONTENT_W],
@@ -133,8 +172,10 @@ function templateBox(text) {
         margins: { top: 90, bottom: 90, left: 130, right: 130 },
         children: [new Paragraph({ spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
           children: [
-            new TextRun({ text: '✎  ', color: TEAL, size: 18 }),
-            new TextRun({ text: '“' + text.trim() + '”', italics: true, size: 20, color: INK }),
+            new TextRun({ text: '✎  ', color: accent, size: 18 }),
+            new TextRun({ text: '“', italics: true, size: 20, color: INK }),
+            ...blankRuns(text.trim(), { size: 20, color: INK }),
+            new TextRun({ text: '”', italics: true, size: 20, color: INK }),
           ] })],
       })],
     })],
@@ -145,7 +186,7 @@ function templateBox(text) {
 // phrase containing ____ blanks), split it: the lead-in instruction stays as
 // body text, the template becomes a designated input box, and any trailing text
 // follows as body. Otherwise it's an ordinary body paragraph.
-function pushDesc(out, d) {
+function pushDesc(out, d, accent = TEAL) {
   if (!/_{3,}/.test(d)) { out.push(bodyPara(d)); return; }
   const open = d.indexOf('"');
   if (open === -1) { out.push(bodyPara(d)); return; }
@@ -156,7 +197,7 @@ function pushDesc(out, d) {
   const lead = d.slice(0, open).trim();
   const tail = (close === -1 ? '' : rest.slice(close + 1)).replace(/^[.\s]+/, '').trim();
   if (lead) out.push(bodyPara(lead, { after: 80 }));
-  out.push(templateBox(template));
+  out.push(templateBox(template, accent));
   if (tail) out.push(bodyPara(tail, { before: 80 }));
 }
 
@@ -323,19 +364,26 @@ children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before
 // types.
 weeks.forEach((wk) => {
   const { practiceBox, reflBox } = planWeek(wk);
+  // This week's theme color (matches its website page). The deep "dark" tone
+  // fills the banner and box headers (white text stays readable on all eight)
+  // and colors the lesson title.
+  const theme = weekTheme(wk.n);
+  const wkColor = theme.dark;
 
   children.push(new Paragraph({
     pageBreakBefore: true,
     heading: HeadingLevel.HEADING_1,
     spacing: { before: 0, after: 40 },
+    // Override the Heading1 style's fallback banner color with this week's theme.
+    shading: { fill: wkColor, type: ShadingType.CLEAR },
     children: [new TextRun(`Week ${wk.n}`)],
   }));
   if (wk.title) {
-    // Lesson title reads as the week's theme: navy (tied to the banner above,
-    // distinct from the teal practice headings), larger, and hung tight under
+    // Lesson title carries this week's theme color — tied to the banner above,
+    // distinct from the charcoal practice headings — larger and hung tight under
     // the banner so the two read as one masthead unit.
     children.push(new Paragraph({ spacing: { before: 60, after: 170 }, keepNext: true,
-      children: [new TextRun({ text: wk.title, italics: true, color: WEEK_BANNER, size: 28, font: 'Georgia' })] }));
+      children: [new TextRun({ text: wk.title, italics: true, color: wkColor, size: 28, font: 'Georgia' })] }));
   }
 
   if (!wk.practices.length) {
@@ -347,10 +395,10 @@ weeks.forEach((wk) => {
       keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' + pr.title : ''}`)] }));
     // Constant comfortable body size + line spacing (bodyPara defaults).
     // Fill-in-the-blank templates are split out into designated input boxes.
-    pr.desc.forEach((d) => pushDesc(children, d));
+    pr.desc.forEach((d) => pushDesc(children, d, wkColor));
     // Answer box. Header text doubles as the automation anchor
     // ("Week N · Practice #X"). Sized by planWeek; grows in Google Docs.
-    children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox));
+    children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox, wkColor));
   });
 
   // Reflections & Notes (3 columns)
@@ -360,6 +408,7 @@ weeks.forEach((wk) => {
     ['Insights', 'A real-life situation I approached in a new way', 'My intentions for next week'],
     [3120, 3120, 3120],
     reflBox,
+    wkColor,
   ));
 });
 
@@ -379,9 +428,11 @@ const doc = new Document({
           // gold hairline accent beneath the navy banner
           border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: GOLD, space: 1 } },
           indent: { left: 140 } } },
-      // Practice / section heading with a gold accent bar on the left.
+      // Practice / section heading: neutral charcoal text with a gold accent bar
+      // on the left. Charcoal (not teal) so the per-week colored lesson title
+      // always stands apart from the practice headings — including on teal weeks.
       { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-        run: { size: 23, bold: true, color: TEAL_DARK, font: 'Arial' },
+        run: { size: 23, bold: true, color: INK, font: 'Arial' },
         paragraph: { spacing: { before: 160, after: 70 }, outlineLevel: 1, keepNext: true,
           indent: { left: 180 },
           border: { left: { style: BorderStyle.SINGLE, size: 24, color: GOLD, space: 10 } } } },

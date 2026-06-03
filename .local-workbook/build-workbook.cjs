@@ -175,35 +175,40 @@ const children = [];
 
 // ── page 1: styled cover + intro ─────────────────────────────────────────────
 children.push(
-  // thin teal rule above the title
-  new Paragraph({ spacing: { before: 200, after: 60 }, alignment: AlignmentType.CENTER,
-    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: TEAL, space: 1 } },
+  // small gold motif crowning the cover
+  new Paragraph({ spacing: { before: 220, after: 30 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: '❖', color: GOLD, size: 30, font: 'Georgia' })] }),
+  // teal rule above the title
+  new Paragraph({ spacing: { before: 0, after: 70 }, alignment: AlignmentType.CENTER,
+    border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: TEAL, space: 1 } },
     children: [new TextRun({ text: '', size: 2 })] }),
-  new Paragraph({ spacing: { before: 60, after: 0 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: 'The Compassion Course', bold: true, color: TEAL, size: 48, font: 'Georgia' })] }),
-  new Paragraph({ spacing: { before: 70, after: 0 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: '2026 – 2027  ·  Participant Workbook', color: GOLD, size: 24, font: 'Georgia' })] }),
-  new Paragraph({ spacing: { before: 60, after: 70 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: 'A year of practicing compassion, one week at a time.', italics: true, color: MUTE, size: 20, font: 'Georgia' })] }),
-  // thin gold divider rule
-  new Paragraph({ spacing: { before: 0, after: 200 }, alignment: AlignmentType.CENTER,
-    border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: GOLD, space: 1 } },
+  new Paragraph({ spacing: { before: 90, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'The Compassion Course', bold: true, color: TEAL, size: 54, font: 'Georgia' })] }),
+  new Paragraph({ spacing: { before: 110, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: '2026 – 2027', color: GOLD, size: 30, font: 'Georgia', characterSpacing: 80 })] }),
+  new Paragraph({ spacing: { before: 40, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'PARTICIPANT WORKBOOK', bold: true, color: TEAL_DARK, size: 19, font: 'Georgia', characterSpacing: 130 })] }),
+  new Paragraph({ spacing: { before: 110, after: 80 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'A year of practicing compassion, one week at a time.', italics: true, color: MUTE, size: 21, font: 'Georgia' })] }),
+  // gold divider rule
+  new Paragraph({ spacing: { before: 0, after: 230 }, alignment: AlignmentType.CENTER,
+    border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: GOLD, space: 1 } },
     children: [new TextRun({ text: '', size: 2 })] }),
 );
 // "This workbook belongs to" card
-children.push(new Paragraph({ spacing: { before: 0, after: 60 }, alignment: AlignmentType.CENTER,
-  children: [new TextRun({ text: 'THIS WORKBOOK BELONGS TO', bold: true, color: TEAL_DARK, size: 17, characterSpacing: 40 })] }));
+children.push(new Paragraph({ spacing: { before: 0, after: 80 }, alignment: AlignmentType.CENTER,
+  children: [new TextRun({ text: 'THIS WORKBOOK BELONGS TO', bold: true, color: TEAL_DARK, size: 17, characterSpacing: 60 })] }));
 children.push(new Table({
-  width: { size: 6600, type: WidthType.DXA },
-  columnWidths: [1500, 5100],
+  width: { size: 6800, type: WidthType.DXA },
+  columnWidths: [1700, 5100],
   alignment: AlignmentType.CENTER,
-  rows: [['Name', ''], ['Email', '']].map(([label]) =>
+  rows: [['Name', ''], ['Email', ''], ['Start date', '']].map(([label]) =>
     new TableRow({
-      height: { value: 460, rule: HeightRule.ATLEAST },
+      height: { value: 480, rule: HeightRule.ATLEAST },
       children: [
-        new TableCell({ borders: cellBorders, width: { size: 1500, type: WidthType.DXA },
+        new TableCell({ borders: cellBorders, width: { size: 1700, type: WidthType.DXA },
           shading: { fill: TEAL_TINT, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
-          margins: { top: 40, bottom: 40, left: 130, right: 110 },
+          margins: { top: 40, bottom: 40, left: 150, right: 110 },
           children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: label, bold: true, color: TEAL_DARK, size: 21 })] })] }),
         new TableCell({ borders: cellBorders, width: { size: 5100, type: WidthType.DXA },
           shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
@@ -214,10 +219,13 @@ children.push(new Table({
 }));
 
 // How to Use
-children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 320, after: 60 },
+children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 340, after: 60 },
   children: [new TextRun('How to Use This Workbook')] }));
 children.push(bodyPara(
-  'This is your personal copy of The Compassion Course workbook — one private copy for each participant, opened from the link we send you. There is nothing to download, install, or back up. Just open your link and type your responses in the shaded boxes; your writing saves automatically and the boxes grow as you type. Please write only inside the boxes so your entries stay easy to find and review.'
+  'This is your own private copy of The Compassion Course workbook, opened from the personal link we send you — there is nothing to download, install, or back up. Your writing saves automatically as you go, and every shaded box grows to fit whatever you type.'
+));
+children.push(bodyPara(
+  'Please write only inside the cream-colored boxes. Everything else on the page is the course’s material; keeping your responses in the boxes is what lets us find and confirm your work at the end of the year.'
 ));
 
 // Certificate of Completion
@@ -288,6 +296,8 @@ const doc = new Document({
         paragraph: { spacing: { before: 120, after: 130, line: 320, lineRule: 'auto' },
           outlineLevel: 0, keepNext: true,
           shading: { fill: TEAL, type: ShadingType.CLEAR },
+          // gold hairline accent beneath the teal banner
+          border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: GOLD, space: 1 } },
           indent: { left: 140 } } },
       // Practice / section heading with a gold accent bar on the left.
       { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,

@@ -32,6 +32,9 @@ const heartLogo = fs.readFileSync(path.join(__dirname, '..', 'public', 'logo_hea
 // ── palette ──────────────────────────────────────────────────────────────
 const TEAL = '2A7A6E';
 const TEAL_DARK = '1E5C53';
+// Distinct deep navy (from the logo / heart-globe) for the week banners, so the
+// top-level Week headings stand apart from the teal section/box headers.
+const WEEK_BANNER = '0F3760';
 const TEAL_TINT = 'E9F2F0';
 const GOLD = 'B8860B';
 const INK = '2D2D2D';
@@ -298,8 +301,8 @@ const doc = new Document({
         run: { size: 30, bold: true, color: 'FFFFFF', font: 'Georgia' },
         paragraph: { spacing: { before: 120, after: 130, line: 320, lineRule: 'auto' },
           outlineLevel: 0, keepNext: true,
-          shading: { fill: TEAL, type: ShadingType.CLEAR },
-          // gold hairline accent beneath the teal banner
+          shading: { fill: WEEK_BANNER, type: ShadingType.CLEAR },
+          // gold hairline accent beneath the navy banner
           border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: GOLD, space: 1 } },
           indent: { left: 140 } } },
       // Practice / section heading with a gold accent bar on the left.

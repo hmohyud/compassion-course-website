@@ -115,6 +115,51 @@ function bodyPara(text, opts = {}) {
   });
 }
 
+// A fill-in-the-blank model phrase (one containing ____ blanks) rendered as a
+// clearly editable cream input box — same fill styling as the answer boxes — so
+// participants complete it in a designated space instead of accidentally
+// editing the surrounding instructions. Shown italic with a ✎ cue + curly
+// quotes; the underscores are the spots to type over.
+function templateBox(text) {
+  return new Table({
+    width: { size: CONTENT_W, type: WidthType.DXA },
+    columnWidths: [CONTENT_W],
+    rows: [new TableRow({ cantSplit: true, children: [
+      new TableCell({
+        borders: cellBorders,
+        width: { size: CONTENT_W, type: WidthType.DXA },
+        shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
+        verticalAlign: VerticalAlign.TOP,
+        margins: { top: 90, bottom: 90, left: 130, right: 130 },
+        children: [new Paragraph({ spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
+          children: [
+            new TextRun({ text: '✎  ', color: TEAL, size: 18 }),
+            new TextRun({ text: '“' + text.trim() + '”', italics: true, size: 20, color: INK }),
+          ] })],
+      })],
+    })],
+  });
+}
+
+// Render one description paragraph. If it embeds a fill-in template (a quoted
+// phrase containing ____ blanks), split it: the lead-in instruction stays as
+// body text, the template becomes a designated input box, and any trailing text
+// follows as body. Otherwise it's an ordinary body paragraph.
+function pushDesc(out, d) {
+  if (!/_{3,}/.test(d)) { out.push(bodyPara(d)); return; }
+  const open = d.indexOf('"');
+  if (open === -1) { out.push(bodyPara(d)); return; }
+  const rest = d.slice(open + 1);
+  const close = rest.indexOf('"');
+  const template = close === -1 ? rest : rest.slice(0, close);
+  if (!/_{3,}/.test(template)) { out.push(bodyPara(d)); return; }
+  const lead = d.slice(0, open).trim();
+  const tail = (close === -1 ? '' : rest.slice(close + 1)).replace(/^[.\s]+/, '').trim();
+  if (lead) out.push(bodyPara(lead, { after: 80 }));
+  out.push(templateBox(template));
+  if (tail) out.push(bodyPara(tail, { before: 80 }));
+}
+
 // ── per-week page-fit planner ────────────────────────────────────────────────
 // One comfortable description size and ONE line spacing for every week — we
 // never shrink the type or squeeze the leading. Instead we size the answer
@@ -286,8 +331,11 @@ weeks.forEach((wk) => {
     children: [new TextRun(`Week ${wk.n}`)],
   }));
   if (wk.title) {
-    children.push(new Paragraph({ spacing: { after: 150 }, keepNext: true,
-      children: [new TextRun({ text: wk.title, italics: true, color: TEAL_DARK, size: 24, font: 'Georgia' })] }));
+    // Lesson title reads as the week's theme: navy (tied to the banner above,
+    // distinct from the teal practice headings), larger, and hung tight under
+    // the banner so the two read as one masthead unit.
+    children.push(new Paragraph({ spacing: { before: 60, after: 170 }, keepNext: true,
+      children: [new TextRun({ text: wk.title, italics: true, color: WEEK_BANNER, size: 28, font: 'Georgia' })] }));
   }
 
   if (!wk.practices.length) {
@@ -298,7 +346,8 @@ weeks.forEach((wk) => {
     children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
       keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' + pr.title : ''}`)] }));
     // Constant comfortable body size + line spacing (bodyPara defaults).
-    pr.desc.forEach((d) => children.push(bodyPara(d)));
+    // Fill-in-the-blank templates are split out into designated input boxes.
+    pr.desc.forEach((d) => pushDesc(children, d));
     // Answer box. Header text doubles as the automation anchor
     // ("Week N · Practice #X"). Sized by planWeek; grows in Google Docs.
     children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox));

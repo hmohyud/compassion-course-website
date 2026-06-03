@@ -36,24 +36,40 @@ const TEAL_DARK = '1E5C53';
 // fallback banner color, though every week overrides it with its theme color.
 const WEEK_BANNER = '0F3760';
 
-// Per-week theme colors mirrored from the website lessons (each week's
-// --wk-primary / --wk-primary-dark). The lessons cycle 8 themes by (week mod 8);
-// we reproduce that exactly so a week's workbook page matches its website color.
-// Protected weeks (1–4, 10, 22) have no website theme, so they inherit the same
-// (n % 8) slot — keeping the whole book on one consistent cycle. We use the
-// deeper "dark" tone for the filled banner/box headers so white text stays
-// readable on all eight.
-const THEME_CYCLE = [
-  { name: 'plum',       primary: '6E4870', dark: '4F3252' }, // n % 8 === 0
-  { name: 'teal',       primary: '2A7A6E', dark: '1F5C52' }, // 1
-  { name: 'amber',      primary: 'A16A2C', dark: '7A4F1D' }, // 2
-  { name: 'slate',      primary: '456A85', dark: '324D61' }, // 3
-  { name: 'rose',       primary: 'A06168', dark: '7A474D' }, // 4
-  { name: 'forest',     primary: '3F6A4A', dark: '2C4D35' }, // 5
-  { name: 'terracotta', primary: '9A5638', dark: '724026' }, // 6
-  { name: 'gold',       primary: 'A8843E', dark: '7A5F2C' }, // 7
-];
-function weekTheme(n) { return THEME_CYCLE[n % 8]; }
+// A distinct color for every one of the 52 weeks. We step the hue by the golden
+// angle (~137.5°) per week so consecutive weeks land far apart on the wheel
+// (never a near-duplicate color close in time) while all 52 stay well spread.
+// Saturation is muted and the lightness is auto-darkened until white text clears
+// a 4.5:1 contrast ratio — so the same tone works as a filled banner/box header
+// (white text on it) and as the lesson-title text (the color on white).
+// (This intentionally no longer mirrors the website's 8-theme cycle — 8 colors
+// can't make 52 weeks distinct.)
+const HUE_BASE = 36.5;        // so week 1 lands on a teal-ish hue
+const GOLDEN_ANGLE = 137.508;
+function hslToHex(h, s, l) {
+  h = ((h % 360) + 360) % 360;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; }
+  else if (h < 180) { g = c; b = x; } else if (h < 240) { g = x; b = c; }
+  else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+  const to = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0').toUpperCase();
+  return to(r) + to(g) + to(b);
+}
+function relLum(hex) {
+  const ch = (i) => { const c = parseInt(hex.substr(i, 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+}
+function weekColor(n) {
+  const hue = (HUE_BASE + n * GOLDEN_ANGLE) % 360;
+  const sat = 0.42;
+  let l = 0.40, hex = hslToHex(hue, sat, l);
+  // Darken until white-on-color contrast ≥ 4.5:1 (AA), with a sensible floor.
+  while (l > 0.14 && (1.05 / (relLum(hex) + 0.05)) < 4.5) { l -= 0.02; hex = hslToHex(hue, sat, l); }
+  return hex;
+}
 const TEAL_TINT = 'E9F2F0';
 const GOLD = 'B8860B';
 const INK = '2D2D2D';
@@ -364,11 +380,9 @@ children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before
 // types.
 weeks.forEach((wk) => {
   const { practiceBox, reflBox } = planWeek(wk);
-  // This week's theme color (matches its website page). The deep "dark" tone
-  // fills the banner and box headers (white text stays readable on all eight)
-  // and colors the lesson title.
-  const theme = weekTheme(wk.n);
-  const wkColor = theme.dark;
+  // This week's distinct color (see weekColor). The same deep tone fills the
+  // banner and box headers (white text on it) and colors the lesson title.
+  const wkColor = weekColor(wk.n);
 
   children.push(new Paragraph({
     pageBreakBefore: true,

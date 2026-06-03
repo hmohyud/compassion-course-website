@@ -148,6 +148,24 @@ body[data-view="grid"] .view-grid { display: block; }
 .word-grid.unmet .word-tile summary::after { color: var(--unmet); }
 .word-grid.unmet .word-tile summary:hover { background: var(--unmet-50); }
 
+/* ── expandable related words (inside an open tile) ── */
+.word-syn-head { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-500); margin: 12px 0 8px; }
+.word-syn-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.syn { border: 1px solid var(--gray-200); border-radius: 999px; background: var(--gray-50); transition: background .12s ease, border-radius .12s ease; }
+.syn[open] { flex-basis: 100%; border-radius: 10px; background: #fff; }
+.syn > summary { list-style: none; cursor: pointer; padding: 5px 12px; font-size: .85rem; font-weight: 600; color: var(--gray-700); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.syn > summary::-webkit-details-marker { display: none; }
+.syn > summary::after { content: '+'; color: var(--gray-400); font-weight: 700; font-size: 1rem; line-height: 1; }
+.syn[open] > summary { white-space: normal; }
+.syn[open] > summary::after { content: '\2013'; }
+.syn > summary:hover { color: var(--ink); }
+.syn-def { padding: 1px 14px 9px; font-size: .82rem; color: var(--gray-600); line-height: 1.45; }
+
+/* ── definitions footnote ── */
+.defs-footnote { max-width: 760px; margin: 30px auto 0; font-size: .8rem; color: var(--gray-500); line-height: 1.55; text-align: center; font-style: italic; }
+.defs-footnote a { color: var(--primary); text-decoration: none; font-style: normal; }
+.defs-footnote a:hover { text-decoration: underline; }
+
 /* ── footer ── */
 footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28px; }
 .footer-inner { max-width: 1080px; margin: 0 auto; padding: 44px 24px 56px; text-align: center; }

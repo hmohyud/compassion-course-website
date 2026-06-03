@@ -71,7 +71,7 @@ const WeeklyViewerPage: React.FC = () => {
         // canViewWeek lets admins through unconditionally; for non-admins
         // it gates on `published && releaseAt <= now`. So a verified
         // member can view a lesson once it's released, but not before.
-        const access = canViewWeek({ content, isAdmin });
+        const access = canViewWeek({ content, isAdmin, hasAccess: hasAccessClaim });
         if (!access.allowed) {
           if (!cancelled)
             setStatus({

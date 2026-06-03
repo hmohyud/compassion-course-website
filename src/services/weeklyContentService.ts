@@ -224,9 +224,13 @@ export function canViewWeek(opts: {
   content: WeeklyContent;
   isAdmin: boolean;
   userRole?: RequiredRole | null;
+  /** True when the visitor arrived with the access hash (the course's single
+   *  password). Such a visitor may view any published, released week regardless
+   *  of its requiredRole tier. */
+  hasAccess?: boolean;
   now?: Date;
 }): { allowed: boolean; reason?: 'unpublished' | 'not-released' | 'role' } {
-  const { content, isAdmin, userRole, now } = opts;
+  const { content, isAdmin, userRole, hasAccess, now } = opts;
   if (isAdmin) return { allowed: true };
   if (!content.published) return { allowed: false, reason: 'unpublished' };
   // Prefer the exact unlock timestamp if present; fall back to deriving
@@ -236,6 +240,7 @@ export function canViewWeek(opts: {
   const release = releaseAtIso ? new Date(releaseAtIso) : new Date(content.releaseDate);
   const today = now ?? new Date();
   if (release > today) return { allowed: false, reason: 'not-released' };
+  if (hasAccess) return { allowed: true };
   if (content.requiredRole === 'public') return { allowed: true };
   if (content.requiredRole === 'student' && userRole === 'student') return { allowed: true };
   return { allowed: false, reason: 'role' };

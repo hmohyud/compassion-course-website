@@ -212,3 +212,26 @@ footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28
 .footer-brand a:hover { color: var(--primary); }
 .totop { display: inline-block; padding: 8px 18px; border: 1px solid var(--gray-300); border-radius: 999px; color: var(--gray-600); font-weight: 600; font-size: .85rem; text-decoration: none; transition: all .15s ease; }
 .totop:hover { border-color: var(--primary-light); color: var(--primary); background: var(--primary-50); }
+
+/* ── Save/Print as PDF button + print styles ── */
+.pdf-btn {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
+  padding: 9px 20px; border-radius: 999px; border: 1px solid var(--primary-light);
+  background: var(--primary-50); color: var(--primary); font: inherit; font-weight: 600; font-size: .9rem;
+  cursor: pointer; transition: all .15s ease;
+}
+.pdf-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+@media print {
+  .topbar, .viewbar, .crosslink, .pdf-btn, .hero .eyebrow, .hero p { display: none !important; }
+  .view-grid { display: none !important; }
+  .view-list { display: block !important; }
+  body { background: #fff; }
+  .hero { padding: 0 24px 6px; }
+  .hero h1 { margin: 0; }
+  .section { padding: 6px 24px 12px; }
+  .lede { margin-top: 0; }
+  .card { box-shadow: none; break-inside: avoid; }
+  footer { margin-top: 14px; border-top: 1px solid var(--gray-300); }
+  .footer-logo { display: none; }
+}

@@ -224,43 +224,74 @@ function bodyPara(text, opts = {}) {
   });
 }
 
-// A fill-in template, in two stacked rows:
-//   1. a tinted PROMPT row showing the model phrase (greyed, with its ____
-//      blanks for guidance, and any needs/feelings-list references linked); and
-//   2. a clean cream INPUT cell — a real, growable text area to write your own
-//      version, rather than typing over inline underscores.
+// Heading version of richRuns: link runs are styled, but the surrounding runs
+// carry no run-props so they inherit the heading's own style (bold/charcoal).
+function headingRuns(text) {
+  const links = findLinks(text);
+  if (!links.length) return [new TextRun(text)];
+  const runs = [];
+  let pos = 0;
+  links.forEach((lk) => {
+    if (lk.start > pos) runs.push(new TextRun(text.slice(pos, lk.start)));
+    runs.push(new ExternalHyperlink({ link: lk.url, children: [new TextRun({ text: text.slice(lk.start, lk.end), color: LINK_COLOR, underline: { type: 'single' } })] }));
+    pos = lk.end;
+  });
+  if (pos < text.length) runs.push(new TextRun(text.slice(pos)));
+  return runs;
+}
+
+// Runs for a fill-in template: each ____ blank becomes an INLINE shaded, lightly
+// underlined input field (no underscores) that the participant types directly
+// into — the highlight grows with the text, so it clearly contains the answer.
+// needs/feelings-list references inside the phrase are linked too.
+function templateRuns(text, opts = {}) {
+  const size = opts.size ?? 20;
+  const color = opts.color ?? INK;
+  const specials = [];
+  let m; const re = /_{3,}/g;
+  while ((m = re.exec(text)) !== null) specials.push({ start: m.index, end: m.index + m[0].length, type: 'blank' });
+  findLinks(text).forEach((lk) => specials.push({ start: lk.start, end: lk.end, type: 'link', url: lk.url }));
+  specials.sort((a, b) => a.start - b.start);
+  const clean = []; let lastEnd = 0;
+  specials.forEach((s) => { if (s.start >= lastEnd) { clean.push(s); lastEnd = s.end; } });
+  const runs = []; let pos = 0;
+  clean.forEach((s) => {
+    if (s.start > pos) runs.push(new TextRun({ text: text.slice(pos, s.start), italics: true, size, color }));
+    if (s.type === 'blank') {
+      runs.push(new TextRun({ text: ' '.repeat(10), shading: { fill: BLANK_FILL, type: ShadingType.CLEAR }, underline: { type: 'single', color: BLANK_LINE }, size, color }));
+    } else {
+      runs.push(new ExternalHyperlink({ link: s.url, children: [new TextRun({ text: text.slice(s.start, s.end), size, color: LINK_COLOR, underline: { type: 'single' } })] }));
+    }
+    pos = s.end;
+  });
+  if (pos < text.length) runs.push(new TextRun({ text: text.slice(pos), italics: true, size, color }));
+  return runs;
+}
+
+// A fill-in template: the model phrase in a cream box, with each blank rendered
+// as an INLINE shaded + underlined input field (see templateRuns) that the
+// participant types straight into — the field is obviously there for input and
+// stretches with the text. The ✎ cue marks it as fillable.
 function templateBox(text, accent = TEAL) {
-  const promptCell = new TableCell({
-    borders: cellBorders,
-    width: { size: CONTENT_W, type: WidthType.DXA },
-    shading: { fill: 'F1F1EE', type: ShadingType.CLEAR },
-    margins: { top: 70, bottom: 70, left: 130, right: 130 },
-    children: [
-      new Paragraph({ spacing: { before: 0, after: 50, line: 240, lineRule: 'auto' },
-        children: [new TextRun({ text: '✎  Write your version — for example:', bold: true, color: accent, size: 16 })] }),
-      new Paragraph({ spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
-        children: [
-          new TextRun({ text: '“', italics: true, size: 20, color: MUTE }),
-          ...richRuns(text.trim(), { size: 20, color: MUTE, italics: true }),
-          new TextRun({ text: '”', italics: true, size: 20, color: MUTE }),
-        ] }),
-    ],
-  });
-  const inputCell = new TableCell({
-    borders: cellBorders,
-    width: { size: CONTENT_W, type: WidthType.DXA },
-    shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
-    verticalAlign: VerticalAlign.TOP,
-    margins: { top: 80, bottom: 80, left: 130, right: 130 },
-    children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 20 })] })],
-  });
   return new Table({
     width: { size: CONTENT_W, type: WidthType.DXA },
     columnWidths: [CONTENT_W],
-    rows: [
-      new TableRow({ cantSplit: true, children: [promptCell] }),
-      new TableRow({ cantSplit: true, height: { value: 520, rule: HeightRule.ATLEAST }, children: [inputCell] }),
-    ],
+    rows: [new TableRow({ cantSplit: true, children: [
+      new TableCell({
+        borders: cellBorders,
+        width: { size: CONTENT_W, type: WidthType.DXA },
+        shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
+        verticalAlign: VerticalAlign.TOP,
+        margins: { top: 100, bottom: 100, left: 130, right: 130 },
+        children: [new Paragraph({ spacing: { before: 0, after: 0, line: 320, lineRule: 'auto' },
+          children: [
+            new TextRun({ text: '✎  ', color: accent, size: 18 }),
+            new TextRun({ text: '“', italics: true, size: 20, color: INK }),
+            ...templateRuns(text.trim(), { size: 20, color: INK }),
+            new TextRun({ text: '”', italics: true, size: 20, color: INK }),
+          ] })],
+      })],
+    })],
   });
 }
 
@@ -473,7 +504,7 @@ weeks.forEach((wk) => {
   wk.practices.forEach((pr, pi) => {
     const num = pi + 1;
     children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
-      keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' + pr.title : ''}`)] }));
+      keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' : ''}`), ...(pr.title ? headingRuns(pr.title) : [])] }));
     // Constant comfortable body size + line spacing (bodyPara defaults).
     // Fill-in-the-blank templates are split out into designated input boxes.
     pr.desc.forEach((d) => pushDesc(children, d, wkColor));

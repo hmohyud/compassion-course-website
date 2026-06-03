@@ -82,11 +82,36 @@ function answerTable(prompt, widths, height) {
   });
 }
 
+// Split a paragraph into runs, rendering double-quoted spans (model phrases the
+// participant might say) as elegant italic with curly “ ” typographic quotes.
+// Quote chars are only added back where we removed them, so the visible length
+// is unchanged (the page-fit estimator stays valid). Paragraphs whose quotes
+// don't balance are left plain so nothing gets mangled.
+function quoteRuns(text, opts = {}) {
+  const size = opts.size ?? 20;
+  const color = opts.color ?? INK;
+  const baseItalic = !!opts.italics;
+  const parts = text.split('"');
+  // N quote chars → N+1 parts; balanced ⟺ even N ⟺ odd part count.
+  if (parts.length % 2 === 0) {
+    return [new TextRun({ text, size, color, italics: baseItalic })];
+  }
+  const runs = [];
+  parts.forEach((seg, i) => {
+    if (i % 2 === 0) {
+      if (seg) runs.push(new TextRun({ text: seg, size, color, italics: baseItalic }));
+    } else {
+      runs.push(new TextRun({ text: '“' + seg + '”', size, color, italics: true }));
+    }
+  });
+  return runs;
+}
+
 function bodyPara(text, opts = {}) {
   return new Paragraph({
     spacing: { after: opts.after ?? 60, before: opts.before ?? 0, line: opts.line ?? 276, lineRule: 'auto' },
     keepLines: true,
-    children: [new TextRun({ text, size: opts.size ?? 20, color: opts.color ?? INK, italics: !!opts.italics })],
+    children: quoteRuns(text, opts),
   });
 }
 

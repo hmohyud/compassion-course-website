@@ -107,6 +107,47 @@ body {
 .crosslink a:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(64,136,196,.25); }
 .crosslink a .arrow { font-size: 1.2em; line-height: 1; }
 
+/* ── view toggle (List / Grid) ── */
+.viewbar { display: flex; justify-content: center; margin: 0 auto 4px; padding: 0 24px; }
+.viewbar .seg { display: inline-flex; background: #fff; border: 1px solid var(--gray-200); border-radius: 999px; padding: 4px; gap: 4px; }
+.viewbar button {
+  border: none; background: transparent; font: inherit; font-weight: 600; font-size: .88rem;
+  color: var(--gray-600); padding: 7px 18px; border-radius: 999px; cursor: pointer;
+  transition: all .15s ease; display: inline-flex; align-items: center; gap: 7px;
+}
+.viewbar button:hover { color: var(--primary); }
+.viewbar button.active { background: var(--primary); color: #fff; }
+
+.view-grid { display: none; }
+body[data-view="grid"] .view-list { display: none; }
+body[data-view="grid"] .view-grid { display: block; }
+
+/* ── word grid (definitions hidden until clicked) ── */
+.view-grid .section { padding-top: 12px; }
+.word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; align-items: start; }
+.word-tile { background: #fff; border: 1px solid var(--gray-200); border-left: 4px solid var(--primary); border-radius: 12px; overflow: hidden; }
+.word-tile summary {
+  list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 700; color: var(--ink);
+  font-size: .98rem; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  transition: background .12s ease;
+}
+.word-tile summary::-webkit-details-marker { display: none; }
+.word-tile summary::after { content: '+'; color: var(--primary); font-weight: 700; font-size: 1.15rem; line-height: 1; }
+.word-tile[open] summary::after { content: '\2013'; }
+.word-tile summary:hover { background: var(--primary-50); }
+.word-body { padding: 0 14px 14px; border-top: 1px solid var(--gray-100); }
+.word-def { margin: 12px 0 10px; color: var(--gray-700); font-size: .92rem; line-height: 1.5; }
+.word-syn { margin: 0; color: var(--gray-600); font-size: .88rem; line-height: 1.5; }
+.word-syn b { color: var(--gray-500); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: .7rem; display: block; margin-bottom: 3px; }
+.word-grid.needs .word-tile { border-left-color: var(--primary); }
+.word-grid.needs .word-tile summary::after { color: var(--primary); }
+.word-grid.met .word-tile { border-left-color: var(--met); }
+.word-grid.met .word-tile summary::after { color: var(--met); }
+.word-grid.met .word-tile summary:hover { background: var(--met-50); }
+.word-grid.unmet .word-tile { border-left-color: var(--unmet); }
+.word-grid.unmet .word-tile summary::after { color: var(--unmet); }
+.word-grid.unmet .word-tile summary:hover { background: var(--unmet-50); }
+
 /* ── footer ── */
 footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28px; }
 .footer-inner { max-width: 1080px; margin: 0 auto; padding: 44px 24px 56px; text-align: center; }

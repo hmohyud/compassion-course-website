@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/needs-feelings.css" />
 </head>
-<body>
+<body data-view="list">
 
 <div class="topbar" id="top">
   <div class="topbar-inner">
@@ -29,7 +29,14 @@
   <p>Words for what's alive in you — grouped by whether your needs are being met.</p>
 </header>
 
-<section class="section feelings">
+<div class="viewbar">
+  <div class="seg">
+    <button type="button" data-view="list">☰&nbsp; List</button>
+    <button type="button" data-view="grid">▦&nbsp; Grid</button>
+  </div>
+</div>
+
+<section class="section feelings view-list">
   <p class="lede">These are genuine feeling words. Words like “abandoned,” “misled,” or “let down” are left off — they describe what we think someone else is doing to us, rather than what we are actually feeling inside.</p>
 
   <div class="group feelings-met">
@@ -81,5 +88,6 @@
   </div>
 </footer>
 
+<script src="/needs-feelings.js" defer></script>
 </body>
 </html>

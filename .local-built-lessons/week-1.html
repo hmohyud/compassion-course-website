@@ -16,6 +16,111 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<style>
+    body[data-week="1"] {
+      --wk-primary: #407772;
+      --wk-primary-dark: #305a55;
+      --wk-accent: #b08a4a;
+      --wk-tint: rgba(64,119,114,0.08);
+      --wk-hero-a: #305a55;
+      --wk-hero-b: #407772;
+    }
+    body[data-week="1"] .hero {
+      background: linear-gradient(135deg, var(--wk-hero-a), var(--wk-hero-b));
+    }
+    body[data-week="1"] .hero-week-label {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+    }
+    body[data-week="1"] .key-concept {
+      background: var(--wk-tint);
+      border-left: 3px solid var(--wk-primary);
+      padding: 12px 16px;
+      display: block;
+      border-radius: 0 8px 8px 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    body[data-week="1"] .story-title {
+      position: relative;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: var(--wk-primary-dark);
+      padding: 0 1.6em;
+      text-align: center;
+      margin: 1rem 0 1.4rem;
+    }
+    body[data-week="1"] .story-title::before,
+    body[data-week="1"] .story-title::after {
+      content: '\201C';
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.4em;
+      color: var(--wk-accent);
+      opacity: 0.5;
+      position: absolute;
+      line-height: 0.8;
+      top: 0.1em;
+    }
+    body[data-week="1"] .story-title::before { content: '\201C'; left: 0; }
+    body[data-week="1"] .story-title::after  { content: '\201D'; right: 0; }
+    body[data-week="1"] .story-lede::first-letter {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 0.04em 0.08em 0 0;
+      color: var(--wk-primary);
+      font-weight: 700;
+    }
+    body[data-week="1"] .pull-quote {
+      margin: 1.6rem 0;
+      padding: 0.6rem 1rem 0.6rem 1.4rem;
+      border-left: 3px solid var(--wk-accent);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 1.18rem;
+      line-height: 1.55;
+      color: var(--wk-primary-dark);
+      letter-spacing: 0.005em;
+    }
+    body.dark-mode[data-week="1"] .pull-quote {
+      color: #f3e9d2;
+    }
+    body[data-week="1"] .nvc-word {
+      border-bottom: 1px dotted var(--wk-accent);
+      padding-bottom: 1px;
+    }
+    body[data-week="1"] .practices-intro {
+      border-left-color: var(--wk-primary);
+      background: var(--wk-tint);
+    }
+    body[data-week="1"] .story-title em.subtitle-or {
+      font-size: 0.78em;
+      color: var(--wk-accent);
+      opacity: 0.78;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin: 0 0.4em;
+    }
+    body[data-week="1"] .lesson-poem {
+      margin: 1.4rem auto;
+      max-width: 30em;
+      padding: 1.1rem 1.5rem;
+      background: var(--wk-tint);
+      border-radius: 10px;
+      border-left: 3px solid var(--wk-primary);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      line-height: 1.7;
+      text-align: center;
+    }
+    body[data-week="1"] .lesson-poem p {
+      margin: 0.05rem 0;
+      font-size: 1.05rem;
+      color: var(--wk-primary-dark);
+    }
+    body.dark-mode[data-week="1"] .lesson-poem p { color: #f3e9d2; }
+  </style>
 </head>
 <body data-week="1">
 

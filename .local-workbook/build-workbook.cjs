@@ -524,15 +524,23 @@ weeks.forEach((wk) => {
   ));
 
   // Empathy hours — a small number field at the bottom of every week after
-  // week 10 (empathy-hour tracking starts then). Title + a short inline
-  // shaded blank to type the number into.
+  // week 10 (empathy-hour tracking starts then). A "Empathy hours" label next
+  // to a small bordered box to write the number into.
   if (wk.n > 10) {
-    children.push(new Paragraph({
-      spacing: { before: 150, after: 0 },
-      children: [
-        new TextRun({ text: 'Empathy hours:  ', bold: true, size: 20, color: INK }),
-        new TextRun({ text: ' '.repeat(8), shading: { fill: BLANK_FILL, type: ShadingType.CLEAR }, underline: { type: 'single', color: BLANK_LINE }, size: 20, color: INK }),
-      ],
+    const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+    const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+    children.push(new Paragraph({ spacing: { before: 150, after: 0 }, children: [] }));
+    children.push(new Table({
+      width: { size: 3000, type: WidthType.DXA },
+      columnWidths: [1650, 1350],
+      rows: [new TableRow({ cantSplit: true, children: [
+        new TableCell({ borders: noBorders, width: { size: 1650, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 40, bottom: 40, left: 0, right: 100 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Empathy hours', bold: true, size: 20, color: INK })] })] }),
+        new TableCell({ borders: cellBorders, width: { size: 1350, type: WidthType.DXA }, shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
+          margins: { top: 80, bottom: 80, left: 110, right: 110 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })] }),
+      ] })],
     }));
   }
 });

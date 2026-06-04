@@ -14,7 +14,7 @@ const DEFAULT_DESKTOP_BREAKPOINT = 1260;
 // islands approach it symmetrically from both sides. Counted on BOTH sides, so
 // the effective breakpoint moves by 2× this. Kept modest so the nav uses the
 // available width before collapsing rather than collapsing with lots of slack.
-const NAV_ISLAND_PADDING = 72;
+const NAV_ISLAND_PADDING = 28;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,16 +57,53 @@ const Navigation: React.FC = () => {
     const menu = menuRef.current;
     if (!nav || !menu) return;
 
+    // Measure the menu's true HORIZONTAL (desktop-row) width regardless of its
+    // current state. When collapsed, .nav-menu is a position:fixed, full-width
+    // VERTICAL dropdown, so menu.scrollWidth would return the dropdown width
+    // (~viewport-wide) — and the mobile-only items appended in that state would
+    // inflate it further. Measuring that as "menuWidth" makes `needed` balloon
+    // once collapsed, so re-expanding requires a much wider viewport than the
+    // width at which it collapsed (the on-load vs resize hysteresis). To avoid
+    // that, force a temporary off-screen row layout and sum only the
+    // always-present desktop items. This runs inside useLayoutEffect and is
+    // reverted before paint, so there's no visible flicker.
+    function measureDesktopMenuWidth(): number {
+      if (!menu) return 0;
+      const prev = menu.getAttribute('style');
+      menu.style.cssText =
+        (prev ? prev + ';' : '') +
+        'position:absolute!important;left:-99999px!important;top:0!important;right:auto!important;bottom:auto!important;' +
+        'display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;' +
+        'width:auto!important;max-width:none!important;height:auto!important;max-height:none!important;' +
+        'transform:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;';
+      let w = 0;
+      for (const child of Array.from(menu.children)) {
+        const el = child as HTMLElement;
+        // Skip the mobile-only entries that get appended when collapsed so the
+        // measurement is identical in both states.
+        if (
+          el.querySelector('.nav-link--external, .nav-link--admin-mobile') ||
+          el.classList.contains('nav-menu-account-item')
+        ) {
+          continue;
+        }
+        w += el.getBoundingClientRect().width;
+      }
+      if (prev === null) menu.removeAttribute('style');
+      else menu.setAttribute('style', prev);
+      return Math.round(w);
+    }
+
     function remeasure() {
       if (!nav || !menu) return;
       const logo = nav.querySelector<HTMLElement>('.nav-logo');
       const right = nav.querySelector<HTMLElement>('.nav-right');
       const translate = document.getElementById('google-translate-portal');
-      if (menu.scrollWidth < 50) return;
       // Use live widths directly. Peak-tracking is gone so the breakpoint
       // drops if items are removed from the menu (e.g. feature-flagged
       // buttons) and the nav doesn't stay stuck in hamburger needlessly.
-      const menuWidth = menu.scrollWidth;
+      const menuWidth = measureDesktopMenuWidth();
+      if (menuWidth < 50) return;
       const rightWidth = right?.scrollWidth ?? 0;
       // Translate widget is position:fixed; measure from the logo's right
       // edge so we capture both the 8px gap GoogleTranslate.tsx leaves

@@ -522,6 +522,19 @@ weeks.forEach((wk) => {
     reflBox,
     wkColor,
   ));
+
+  // Empathy hours — a small number field at the bottom of every week after
+  // week 10 (empathy-hour tracking starts then). Title + a short inline
+  // shaded blank to type the number into.
+  if (wk.n > 10) {
+    children.push(new Paragraph({
+      spacing: { before: 150, after: 0 },
+      children: [
+        new TextRun({ text: 'Empathy hours:  ', bold: true, size: 20, color: INK }),
+        new TextRun({ text: ' '.repeat(8), shading: { fill: BLANK_FILL, type: ShadingType.CLEAR }, underline: { type: 'single', color: BLANK_LINE }, size: 20, color: INK }),
+      ],
+    }));
+  }
 });
 
 // ── document ────────────────────────────────────────────────────────────────

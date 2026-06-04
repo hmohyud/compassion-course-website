@@ -67,7 +67,7 @@ const CommunityPage: React.FC = () => {
         </button>
         <h1 className="community-header-title">
           <i className="fas fa-globe-americas community-header-icon"></i>
-          2025/26 Global Compassion Network (GCN)
+          Global Compassion Network (GCN)
         </h1>
         <div className="community-header-spacer" />
       </header>

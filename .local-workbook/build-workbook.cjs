@@ -392,11 +392,15 @@ function planWeek(wk) {
         return a + H_PRACTICE + (headLen > 50 ? H_PRACTICE_WRAP : 0) + BOX_HEADER;
       }, 0);
   const available = PAGE_USABLE - FIT_SAFETY - headFixed - descTwips(wk.practices);
-  let reflBox = Math.min(MAX_REFL_BOX, Math.max(MIN_REFL_BOX, Math.round(available * 0.22)));
+  // Weeks > 10 also carry the empathy box on the reflections heading line; give
+  // their boxes a slightly lower floor so a borderline week still fits one page.
+  const minR = wk.n > 10 ? 320 : MIN_REFL_BOX;
+  const minP = wk.n > 10 ? 240 : MIN_PRACTICE_BOX;
+  let reflBox = Math.min(MAX_REFL_BOX, Math.max(minR, Math.round(available * 0.22)));
   let practiceBox = n > 0 ? Math.round((available - reflBox) / n) : 0;
-  practiceBox = Math.min(MAX_PRACTICE_BOX, Math.max(MIN_PRACTICE_BOX, practiceBox));
+  practiceBox = Math.min(MAX_PRACTICE_BOX, Math.max(minP, practiceBox));
   if (n > 0 && practiceBox * n + reflBox > available) {
-    practiceBox = Math.max(MIN_PRACTICE_BOX, Math.floor((available - reflBox) / n));
+    practiceBox = Math.max(minP, Math.floor((available - reflBox) / n));
   }
   return { practiceBox, reflBox, overflow: false };
 }
@@ -539,6 +543,10 @@ weeks.forEach((wk) => {
           children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })] }),
       ] })],
     }));
+    // Controlled minimal separator between this heading-row table and the answer
+    // table below: without it Word auto-inserts a full blank line between two
+    // adjacent tables, which is enough to spill a borderline week onto page 2.
+    children.push(new Paragraph({ spacing: { before: 0, after: 0, line: 24, lineRule: 'exact' }, children: [new TextRun({ text: '', size: 2 })] }));
   } else {
     children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
       keepNext: true, children: [new TextRun('Reflections & Notes')] }));

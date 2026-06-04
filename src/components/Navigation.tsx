@@ -11,8 +11,10 @@ import GoogleTranslate from './GoogleTranslate';
 const DEFAULT_DESKTOP_BREAKPOINT = 1260;
 // Safety padding so islands never "touch" — extra breathing room because
 // .nav-menu is absolutely-positioned and centered, so the left and right
-// islands approach it symmetrically from both sides.
-const NAV_ISLAND_PADDING = 200;
+// islands approach it symmetrically from both sides. Counted on BOTH sides, so
+// the effective breakpoint moves by 2× this. Kept modest so the nav uses the
+// available width before collapsing rather than collapsing with lots of slack.
+const NAV_ISLAND_PADDING = 72;
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

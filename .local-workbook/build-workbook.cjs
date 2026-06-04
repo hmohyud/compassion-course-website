@@ -340,6 +340,9 @@ const H_TITLE = 470;            // italic lesson title
 const H_PRACTICE = 540;         // "Practice #N — …" heading (1 line + spacing)
 const H_PRACTICE_WRAP = 270;    // extra if that heading wraps to a 2nd line
 const H_REFL = 480;             // "Reflections & Notes" heading
+const H_EMPATHY = 180;          // extra height on weeks > 10: the reflections heading
+                                // row is a touch taller because it also carries the
+                                // small Empathy-hours box (it shares that line).
 const BOX_HEADER = 400;         // a box's shaded label row
 const REFL_HEADER = 600;        // reflections 3-col header row (can be 2 lines)
 // Low floor: a borderline week (one that would otherwise spill only its
@@ -383,6 +386,7 @@ function planWeek(wk) {
   // so the fill never overshoots and tips the week over; borderline weeks
   // fall back to the small floor (and still fit, per the probe).
   const headFixed = H_WEEK + (wk.title ? H_TITLE : 0) + H_REFL + REFL_HEADER
+    + (wk.n > 10 ? H_EMPATHY : 0)
     + wk.practices.reduce((a, pr) => {
         const headLen = (`Practice #9 — ${pr.title || ''}`).length;
         return a + H_PRACTICE + (headLen > 50 ? H_PRACTICE_WRAP : 0) + BOX_HEADER;
@@ -513,36 +517,38 @@ weeks.forEach((wk) => {
     children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox, wkColor));
   });
 
-  // Reflections & Notes (3 columns)
-  children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
-    keepNext: true, children: [new TextRun('Reflections & Notes')] }));
+  // Reflections & Notes (3 columns). On weeks after 10 the heading line also
+  // carries a small "Empathy hours" box on the right — so empathy tracking
+  // costs no extra vertical space and never tips a week onto a second page.
+  if (wk.n > 10) {
+    const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+    const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+    children.push(new Paragraph({ spacing: { before: 0, after: 0, line: 150, lineRule: 'exact' }, children: [] }));
+    children.push(new Table({
+      width: { size: CONTENT_W, type: WidthType.DXA },
+      columnWidths: [6760, 1500, 1100],
+      rows: [new TableRow({ cantSplit: true, children: [
+        // Left: the "Reflections & Notes" heading, styled to match Heading2
+        // (charcoal bold + gold left bar).
+        new TableCell({ borders: { left: { style: BorderStyle.SINGLE, size: 24, color: GOLD, space: 10 }, top: noBorder, right: noBorder, bottom: noBorder }, width: { size: 6760, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 140, right: 80 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Reflections & Notes', bold: true, size: 23, color: INK, font: 'Arial' })] })] }),
+        // Right: "Empathy hours" label + a small bordered box, sharing this line.
+        new TableCell({ borders: noBorders, width: { size: 1500, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 0, right: 90 },
+          children: [new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Empathy hours', bold: true, size: 20, color: INK })] })] }),
+        new TableCell({ borders: cellBorders, shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, width: { size: 1100, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 45, bottom: 45, left: 90, right: 90 },
+          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })] }),
+      ] })],
+    }));
+  } else {
+    children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 50 },
+      keepNext: true, children: [new TextRun('Reflections & Notes')] }));
+  }
   children.push(answerTable(
     ['Insights', 'A real-life situation I approached in a new way', 'My intentions for next week'],
     [3120, 3120, 3120],
     reflBox,
     wkColor,
   ));
-
-  // Empathy hours — a small number field at the bottom of every week after
-  // week 10 (empathy-hour tracking starts then). A "Empathy hours" label next
-  // to a small bordered box to write the number into.
-  if (wk.n > 10) {
-    const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
-    const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
-    children.push(new Paragraph({ spacing: { before: 150, after: 0 }, children: [] }));
-    children.push(new Table({
-      width: { size: 3000, type: WidthType.DXA },
-      columnWidths: [1650, 1350],
-      rows: [new TableRow({ cantSplit: true, children: [
-        new TableCell({ borders: noBorders, width: { size: 1650, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER,
-          margins: { top: 40, bottom: 40, left: 0, right: 100 },
-          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Empathy hours', bold: true, size: 20, color: INK })] })] }),
-        new TableCell({ borders: cellBorders, width: { size: 1350, type: WidthType.DXA }, shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
-          margins: { top: 80, bottom: 80, left: 110, right: 110 },
-          children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })] }),
-      ] })],
-    }));
-  }
 });
 
 // ── document ────────────────────────────────────────────────────────────────

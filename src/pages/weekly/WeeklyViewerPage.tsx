@@ -207,12 +207,7 @@ const WeeklyViewerPage: React.FC = () => {
             </span>
           </div>
           <p className="weekly-loading-text" role="status" aria-live="polite">
-            Loading Week {weekNum}
-            <span className="weekly-loading-dots" aria-hidden="true">
-              <span>.</span>
-              <span>.</span>
-              <span>.</span>
-            </span>
+            Loading Week&nbsp;{weekNum}
           </p>
         </div>
       </Layout>

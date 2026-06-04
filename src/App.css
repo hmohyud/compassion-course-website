@@ -7518,8 +7518,9 @@ section {
 
 /* ==========================================
    WEEKLY LESSON LOADING ANIMATION
-   A gently "breathing" orb with the week number, ringed by expanding ripples,
-   tinted with that week's own palette color (see src/utils/weekColor.ts).
+   The logo heart "fills up" with the real logo map (rising, gently sloshing
+   liquid via an SVG mask), then holds full and drains, on a loop. The week
+   label below uses that week's own palette color (see src/utils/weekColor.ts).
    ========================================== */
 .weekly-loading {
     min-height: 58vh;
@@ -7527,60 +7528,14 @@ section {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2.25rem;
+    gap: 1.5rem;
     padding: 5rem 1.5rem;
     text-align: center;
 }
-.weekly-loading-orb {
-    position: relative;
-    width: 132px;
-    height: 132px;
-    display: grid;
-    place-items: center;
-}
-.weekly-loading-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 96px;
-    height: 96px;
-    margin: -48px 0 0 -48px;
-    border-radius: 50%;
-    border: 2px solid var(--wk-loading-primary, #5fa9e3);
-    opacity: 0;
-    transform: scale(0.6);
-    animation: weekly-loading-ripple 2.6s ease-out infinite;
-}
-.weekly-loading-ring:nth-child(2) { animation-delay: 0.87s; }
-.weekly-loading-ring:nth-child(3) { animation-delay: 1.73s; }
-.weekly-loading-core {
-    position: relative;
-    z-index: 2;
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    color: #fff;
-    background: linear-gradient(140deg, var(--wk-loading-primary, #5fa9e3), var(--wk-loading-dark, #4088c4));
-    box-shadow: 0 14px 34px -10px rgba(17, 24, 39, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28);
-    animation: weekly-loading-breathe 2.6s ease-in-out infinite;
-}
-.weekly-loading-core-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 600;
-    opacity: 0.88;
-}
-.weekly-loading-core-num {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 2.4rem;
-    font-weight: 700;
-    line-height: 1;
+.weekly-loading-heart {
+    width: 150px;
+    aspect-ratio: 319 / 261;
+    overflow: visible;
 }
 .weekly-loading-text {
     margin: 0;
@@ -7588,18 +7543,6 @@ section {
     font-weight: 600;
     letter-spacing: 0.01em;
     color: var(--wk-loading-dark, #2d6a9e);
-}
-@keyframes weekly-loading-ripple {
-    0%   { opacity: 0.5;  transform: scale(0.6); }
-    100% { opacity: 0;    transform: scale(1.75); }
-}
-@keyframes weekly-loading-breathe {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.07); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .weekly-loading-core { animation: none; }
-    .weekly-loading-ring { display: none; }
 }
 
 /* ==========================================

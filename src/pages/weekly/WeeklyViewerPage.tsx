@@ -197,15 +197,35 @@ const WeeklyViewerPage: React.FC = () => {
             } as React.CSSProperties
           }
         >
-          <div className="weekly-loading-orb" aria-hidden="true">
-            <span className="weekly-loading-ring" />
-            <span className="weekly-loading-ring" />
-            <span className="weekly-loading-ring" />
-            <span className="weekly-loading-core">
-              <span className="weekly-loading-core-label">Week</span>
-              <span className="weekly-loading-core-num">{weekNum}</span>
-            </span>
-          </div>
+          <svg className="weekly-loading-heart" viewBox="0 0 319 261" aria-hidden="true">
+            <defs>
+              <mask id="weekly-loading-mask" maskUnits="userSpaceOnUse" x="-60" y="-120" width="440" height="560">
+                <g>
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    dur="3s"
+                    repeatCount="indefinite"
+                    calcMode="spline"
+                    keyTimes="0;0.55;0.74;0.9;1"
+                    values="0 0;0 -340;0 -340;0 0;0 0"
+                    keySplines="0.45 0.05 0.4 1;0 0 1 1;0.55 0 0.3 1;0 0 1 1"
+                  />
+                  <rect x="-220" y="261" width="760" height="520" rx="230" fill="#fff">
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      dur="2s"
+                      repeatCount="indefinite"
+                      from="0 160 521"
+                      to="360 160 521"
+                    />
+                  </rect>
+                </g>
+              </mask>
+            </defs>
+            <image href="/logo_heart.png" x="0" y="0" width="319" height="261" mask="url(#weekly-loading-mask)" />
+          </svg>
           <p className="weekly-loading-text" role="status" aria-live="polite">
             Loading Week&nbsp;{weekNum}
           </p>

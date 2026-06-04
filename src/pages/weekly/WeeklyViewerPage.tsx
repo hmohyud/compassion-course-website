@@ -12,6 +12,7 @@ import {
 } from '../../services/weeklyContentService';
 import { processWeeklyAccessLink, hasWeeklyAccess } from '../../services/weeklyAccess';
 import { formatReleaseDate } from '../../utils/formatReleaseDate';
+import { weekColor } from '../../utils/weekColor';
 
 // Weekly viewer: a normal React page (like LearnMorePage or AboutPage),
 // Layout-wrapped, with the bundle rendered inside a srcdoc iframe for CSS
@@ -184,10 +185,35 @@ const WeeklyViewerPage: React.FC = () => {
   if (!hasAccessClaim) return <Navigate to="/weekly" replace />;
 
   if (status.kind === 'loading') {
+    const wc = weekColor(Number(weekNum) || 1);
     return (
       <Layout>
-        <div style={{ padding: '6rem 1rem', textAlign: 'center' }}>
-          Loading week {weekNum}…
+        <div
+          className="weekly-loading"
+          style={
+            {
+              '--wk-loading-primary': wc.primary,
+              '--wk-loading-dark': wc.dark,
+            } as React.CSSProperties
+          }
+        >
+          <div className="weekly-loading-orb" aria-hidden="true">
+            <span className="weekly-loading-ring" />
+            <span className="weekly-loading-ring" />
+            <span className="weekly-loading-ring" />
+            <span className="weekly-loading-core">
+              <span className="weekly-loading-core-label">Week</span>
+              <span className="weekly-loading-core-num">{weekNum}</span>
+            </span>
+          </div>
+          <p className="weekly-loading-text" role="status" aria-live="polite">
+            Loading Week {weekNum}
+            <span className="weekly-loading-dots" aria-hidden="true">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </p>
         </div>
       </Layout>
     );

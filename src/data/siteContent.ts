@@ -171,7 +171,7 @@ export const siteContent = {
           icon: 'fas fa-users',
           heading: 'Global Compassion Network',
           description:
-            'The multilingual, multi-cultural connnected community where participants connect worldwide \u2014 discussion groups, empathy buddies, practice partners, mentors, empathy caf\u00E9s, and more.',
+            'The multilingual, multi-cultural connected community where participants connect worldwide \u2014 discussion groups, empathy buddies, practice partners, mentors, empathy caf\u00E9s, and more.',
           linkText: 'See community options',
           linkHref: '/learn-more#options-extras',
         },
@@ -187,7 +187,7 @@ export const siteContent = {
           icon: 'fas fa-star',
           heading: 'Options & Extras',
           description:
-            'Practice groups led by CCO facilitators, an optional Certificate of Completion, one-on-one mentoring with alumni, and an Empathy Program, including Empathy Cafes, Empathy Buddyships and Epathy Circles for year-round support.',
+            'Practice groups led by CCO facilitators, an optional Certificate of Completion, one-on-one mentoring with alumni, and an Empathy Program, including Empathy Cafes, Empathy Buddyships and Empathy Circles for year-round support.',
           linkText: 'Explore options & extras',
           linkHref: '/learn-more#options-extras',
         },
@@ -668,7 +668,7 @@ export const siteContent = {
         'The Leadership Track is a wonderful way to provide an important service to the community, experience growth, and even make some money.',
       requirements: {
         heading: 'Requirements',
-        facilitator: 'Practice Group Facilitation experience is not necessary for this track. However, previous completion of a practice group, Compassion Course, and Facilitation agreement are required.',
+        facilitator: 'Practice Group Facilitation experience is not necessary for this track. However, previous participation in a practice group, completion of The Compassion Course, and agreement to the Facilitation Agreement are required.',
         mentor: 'To become a CCO Mentor, you must have a Certificate of Completion and have had at least 6 mentoring sessions.',
       },
       tuition:

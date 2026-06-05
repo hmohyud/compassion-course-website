@@ -373,37 +373,20 @@ function descTwips(practices) {
 // re-run the probe to refresh this set.
 const GENUINE_OVERFLOW = new Set([6, 14, 23, 24, 45, 50]);
 
-function planWeek(wk) {
-  const n = wk.practices.length;
-
-  if (GENUINE_OVERFLOW.has(wk.n)) {
-    // Let it overflow with generous boxes so the 2nd page carries real
-    // writing space rather than looking blank.
-    return { practiceBox: COMF_PRACTICE_BOX, reflBox: COMF_REFL_BOX, overflow: true };
-  }
-
-  // Fits on one page. Size boxes from a deliberately conservative estimate
-  // so the fill never overshoots and tips the week over; borderline weeks
-  // fall back to the small floor (and still fit, per the probe).
-  const headFixed = H_WEEK + (wk.title ? H_TITLE : 0) + H_REFL + REFL_HEADER
-    + (wk.n > 10 ? H_EMPATHY : 0)
-    + wk.practices.reduce((a, pr) => {
-        const headLen = (`Practice #9 — ${pr.title || ''}`).length;
-        return a + H_PRACTICE + (headLen > 50 ? H_PRACTICE_WRAP : 0) + BOX_HEADER;
-      }, 0);
-  const available = PAGE_USABLE - FIT_SAFETY - headFixed - descTwips(wk.practices);
-  // Weeks > 10 also carry the empathy box on the reflections heading line; give
-  // their boxes a slightly lower floor so a borderline week still fits one page.
-  const minR = wk.n > 10 ? 320 : MIN_REFL_BOX;
-  const minP = wk.n > 10 ? 240 : MIN_PRACTICE_BOX;
-  let reflBox = Math.min(MAX_REFL_BOX, Math.max(minR, Math.round(available * 0.22)));
-  let practiceBox = n > 0 ? Math.round((available - reflBox) / n) : 0;
-  practiceBox = Math.min(MAX_PRACTICE_BOX, Math.max(minP, practiceBox));
-  if (n > 0 && practiceBox * n + reflBox > available) {
-    practiceBox = Math.max(minP, Math.floor((available - reflBox) / n));
-  }
-  return { practiceBox, reflBox, overflow: false };
+// Per Thom's feedback: every answer box is a uniform SINGLE line. The boxes
+// grow as the participant types (in Google Docs), so a consistent one-line
+// start looks cleaner than the old auto-fit which made some weeks' boxes much
+// taller than others. (The earlier page-fit machinery above is left in place
+// but no longer used.)
+const ONE_LINE_BOX = 340; // ATLEAST height ≈ one comfortable typing line
+function planWeek() {
+  return { practiceBox: ONE_LINE_BOX, reflBox: ONE_LINE_BOX, overflow: false };
 }
+
+// Stray GCN join/access lines that the extractor pulled from the weekly
+// message's GCN section into the practice text (Thom flagged Week 19 / Practice
+// 2; the same lines, duplicated, appear under weeks 19–52). Removed at build.
+const STRAY_DESC_RE = /^(new to the gcn\?\s*click here to join|gcn members click here to access(?:\s+it)?)\s*\.?$/i;
 
 // ── load content ─────────────────────────────────────────────────────────
 const content = JSON.parse(fs.readFileSync(path.join(__dirname, 'content.json'), 'utf8'));
@@ -423,7 +406,7 @@ children.push(
   new Paragraph({ spacing: { before: 90, after: 0 }, alignment: AlignmentType.CENTER,
     children: [new TextRun({ text: 'The Compassion Course', bold: true, color: TEAL, size: 54, font: 'Georgia' })] }),
   new Paragraph({ spacing: { before: 110, after: 0 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: '2026 – 2027', color: GOLD, size: 30, font: 'Georgia', characterSpacing: 80 })] }),
+    children: [new TextRun({ text: '2026-27', color: GOLD, size: 30, font: 'Georgia', characterSpacing: 80 })] }),
   new Paragraph({ spacing: { before: 40, after: 0 }, alignment: AlignmentType.CENTER,
     children: [new TextRun({ text: 'PARTICIPANT WORKBOOK', bold: true, color: TEAL_DARK, size: 19, font: 'Georgia', characterSpacing: 130 })] }),
   new Paragraph({ spacing: { before: 110, after: 80 }, alignment: AlignmentType.CENTER,
@@ -515,7 +498,10 @@ weeks.forEach((wk) => {
       keepNext: true, children: [new TextRun(`Practice #${num}${pr.title ? ' — ' : ''}`), ...(pr.title ? headingRuns(pr.title) : [])] }));
     // Constant comfortable body size + line spacing (bodyPara defaults).
     // Fill-in-the-blank templates are split out into designated input boxes.
-    pr.desc.forEach((d) => pushDesc(children, d, wkColor));
+    // Drop the stray GCN join/access lines that leaked in from the weekly
+    // message's GCN section (they don't belong in the practice text and were
+    // appearing — duplicated — under weeks 19–52).
+    pr.desc.filter((d) => !STRAY_DESC_RE.test(d.trim())).forEach((d) => pushDesc(children, d, wkColor));
     // Answer box. Header text doubles as the automation anchor
     // ("Week N · Practice #X"). Sized by planWeek; grows in Google Docs.
     children.push(answerTable(`Your response  ·  Week ${wk.n} · Practice #${num}`, [CONTENT_W], practiceBox, wkColor));
@@ -530,15 +516,15 @@ weeks.forEach((wk) => {
     children.push(new Paragraph({ spacing: { before: 0, after: 0, line: 150, lineRule: 'exact' }, children: [] }));
     children.push(new Table({
       width: { size: CONTENT_W, type: WidthType.DXA },
-      columnWidths: [6760, 1500, 1100],
+      columnWidths: [5560, 2700, 1100],
       rows: [new TableRow({ cantSplit: true, children: [
         // Left: the "Reflections & Notes" heading, styled to match Heading2
         // (charcoal bold + gold left bar).
-        new TableCell({ borders: { left: { style: BorderStyle.SINGLE, size: 24, color: GOLD, space: 10 }, top: noBorder, right: noBorder, bottom: noBorder }, width: { size: 6760, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 140, right: 80 },
+        new TableCell({ borders: { left: { style: BorderStyle.SINGLE, size: 24, color: GOLD, space: 10 }, top: noBorder, right: noBorder, bottom: noBorder }, width: { size: 5560, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 140, right: 80 },
           children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Reflections & Notes', bold: true, size: 23, color: INK, font: 'Arial' })] })] }),
-        // Right: "Empathy hours" label + a small bordered box, sharing this line.
-        new TableCell({ borders: noBorders, width: { size: 1500, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 0, right: 90 },
-          children: [new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Empathy hours', bold: true, size: 20, color: INK })] })] }),
+        // Right: "Empathy practice hours" label + a small bordered box, sharing this line.
+        new TableCell({ borders: noBorders, width: { size: 2700, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 40, bottom: 40, left: 0, right: 90 },
+          children: [new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: 'Empathy practice hours', bold: true, size: 20, color: INK })] })] }),
         new TableCell({ borders: cellBorders, shading: { fill: ANSWER_BG, type: ShadingType.CLEAR }, width: { size: 1100, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 45, bottom: 45, left: 90, right: 90 },
           children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [] })] }),
       ] })],
@@ -562,7 +548,7 @@ weeks.forEach((wk) => {
 // ── document ────────────────────────────────────────────────────────────────
 const doc = new Document({
   creator: 'The Compassion Course',
-  title: 'The Compassion Course 2026–2027 Workbook',
+  title: 'The Compassion Course 2026-27 Workbook',
   styles: {
     default: { document: { run: { font: 'Arial', size: 20, color: INK } } },
     paragraphStyles: [
@@ -595,7 +581,7 @@ const doc = new Document({
         tabStops: [{ type: TabStopType.RIGHT, position: 9360 }],
         border: { top: { style: BorderStyle.SINGLE, size: 4, color: RULE, space: 6 } },
         children: [
-          new TextRun({ text: 'The Compassion Course  ·  2026–2027 Workbook', color: MUTE, size: 16 }),
+          new TextRun({ text: 'The Compassion Course 2026-27 Workbook', color: MUTE, size: 16 }),
           new TextRun({ text: '\t', size: 16 }),
           new TextRun({ children: ['Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
         ],

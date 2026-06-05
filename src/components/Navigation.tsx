@@ -297,6 +297,15 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           )}
+          {/* Internal-staff-only: the weekly Lesson Library (the "Message
+              Library"). Hidden from the public nav, which is hash/email-gated. */}
+          {user && showLeadership && (
+            <li className="nav-item">
+              <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
+                Lesson Library
+              </Link>
+            </li>
+          )}
           <li className="nav-item">
             <a href="https://compassioncf.com/donate" target="_blank" rel="noopener noreferrer" className="nav-link nav-link--donate" onClick={() => setIsMenuOpen(false)}>
               <i className="fas fa-heart nav-donate-icon"></i> Donate

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { usePermissions } from '../../context/PermissionsContext';
 import Layout from '../../components/Layout';
 import {
   listAllWeeklyContent,
@@ -21,11 +22,15 @@ import { formatReleaseDate } from '../../utils/formatReleaseDate';
 
 const WeeklyListPage: React.FC = () => {
   const { isAdmin } = useAuth();
+  const { role } = usePermissions();
+  // Internal staff (admins + leadership) can view the library without the email
+  // hash — e.g. to audit the weekly messages and their practice links.
+  const isStaff = isAdmin || role === 'manager' || role === 'admin';
 
   // Process a ?hash=… access link synchronously on first render (before we
   // read the access flag), so a fresh email link unlocks immediately.
   const [accessGranted] = useState(() => processWeeklyAccessLink());
-  const unlocked = isAdmin || accessGranted || hasWeeklyAccess();
+  const unlocked = isStaff || accessGranted || hasWeeklyAccess();
 
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
   const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('idle');

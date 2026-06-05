@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { usePermissions } from '../../context/PermissionsContext';
 import Layout from '../../components/Layout';
 import {
   getWeeklyContent,
@@ -39,6 +40,9 @@ const WeeklyViewerPage: React.FC = () => {
 
   const { weekNum } = useParams<{ weekNum: string }>();
   const { user, isAdmin, loading, adminLoading } = useAuth();
+  const { role } = usePermissions();
+  // Internal staff (admins + leadership) may view weeks without the email hash.
+  const isStaff = isAdmin || role === 'manager' || role === 'admin';
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // The injected early script inside the iframe posts a height message on
@@ -49,9 +53,10 @@ const WeeklyViewerPage: React.FC = () => {
   const [iframeBooted, setIframeBooted] = useState(false);
   const [iframeStuck, setIframeStuck] = useState(false);
 
-  // Access claim: admin, or anyone who arrived with (or previously used) the
-  // access hash. The single hash is the access password — no email roster.
-  const hasAccessClaim = isAdmin || hasWeeklyAccess();
+  // Access claim: internal staff (admins + leadership), or anyone who arrived
+  // with (or previously used) the access hash. The single hash is the access
+  // password — no email roster.
+  const hasAccessClaim = isStaff || hasWeeklyAccess();
 
   useEffect(() => {
     if (loading || adminLoading) return;

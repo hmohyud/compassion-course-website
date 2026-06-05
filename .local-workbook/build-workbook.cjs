@@ -539,7 +539,9 @@ weeks.forEach((wk) => {
   }
   children.push(answerTable(
     ['Insights', 'A real-life situation I approached in a new way', 'My intentions for next week'],
-    [3120, 3120, 3120],
+    // Unequal columns: widen the middle so its label stays on ONE line
+    // (per Thom's feedback) while the side labels also fit on one line.
+    [2000, 4660, 2700],
     reflBox,
     wkColor,
   ));

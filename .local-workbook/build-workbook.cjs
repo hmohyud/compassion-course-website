@@ -99,7 +99,7 @@ const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, rig
 
 // One answer box: a shaded header row (the label / anchor) + a single empty
 // row the participant types into. `widths` sums to CONTENT_W.
-function answerTable(prompt, widths, height, headerFill = TEAL) {
+function answerTable(prompt, widths, height, headerFill = TEAL, opts = {}) {
   const headers = Array.isArray(prompt) ? prompt : [prompt];
   const single = !Array.isArray(prompt);
   const headerCells = headers.map((p, i) =>
@@ -111,15 +111,20 @@ function answerTable(prompt, widths, height, headerFill = TEAL) {
       children: [new Paragraph({ spacing: { before: 0, after: 0 },
         children: [new TextRun({ text: (single ? '✎  ' : '') + p, bold: true, color: 'FFFFFF', size: 18 })] })],
     }));
-  const bodyCells = widths.map((w) =>
-    new TableCell({
-      borders: cellBorders,
-      width: { size: w, type: WidthType.DXA },
-      shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
-      verticalAlign: VerticalAlign.TOP,
-      margins: { top: 70, bottom: 70, left: 110, right: 110 },
-      children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 20 })] })],
-    }));
+  // mergeBody: one full-width answer cell under a multi-column header (the
+  // column labels are just guides, not separate required answers).
+  const emptyCell = (w, span) => new TableCell({
+    borders: cellBorders,
+    width: { size: w, type: WidthType.DXA },
+    ...(span ? { columnSpan: span } : {}),
+    shading: { fill: ANSWER_BG, type: ShadingType.CLEAR },
+    verticalAlign: VerticalAlign.TOP,
+    margins: { top: 70, bottom: 70, left: 110, right: 110 },
+    children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: '', size: 20 })] })],
+  });
+  const bodyCells = (opts.mergeBody && widths.length > 1)
+    ? [emptyCell(CONTENT_W, widths.length)]
+    : widths.map((w) => emptyCell(w));
   return new Table({
     width: { size: CONTENT_W, type: WidthType.DXA },
     columnWidths: widths,
@@ -543,6 +548,9 @@ weeks.forEach((wk) => {
     [2000, 4660, 2700],
     reflBox,
     wkColor,
+    // One merged answer box under the three-column header — the labels are
+    // guides, not three separate required answers (per Thom's feedback).
+    { mergeBody: true },
   ));
 });
 
@@ -583,7 +591,10 @@ const doc = new Document({
         border: { top: { style: BorderStyle.SINGLE, size: 4, color: RULE, space: 6 } },
         children: [
           new TextRun({ text: 'The Compassion Course 2026-27 Workbook', color: MUTE, size: 16 }),
-          new TextRun({ text: '\t', size: 16 }),
+          // Non-breaking spaces guarantee a visible gap even if the right-tab
+          // collapses (e.g. in Google Docs); the tab still right-aligns the
+          // page number in Word. (Per Thom: Workbook & Page were touching.)
+          new TextRun({ text: '      \t', size: 16 }),
           new TextRun({ children: ['Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
         ],
       })] }),

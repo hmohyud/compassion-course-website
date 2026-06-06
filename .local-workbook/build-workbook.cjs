@@ -594,8 +594,7 @@ const doc = new Document({
           // Non-breaking spaces guarantee a visible gap even if the right-tab
           // collapses (e.g. in Google Docs); the tab still right-aligns the
           // page number in Word. (Per Thom: Workbook & Page were touching.)
-          new TextRun({ text: '      \t', size: 16 }),
-          new TextRun({ children: ['Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
+          new TextRun({ children: ['      Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
         ],
       })] }),
     },

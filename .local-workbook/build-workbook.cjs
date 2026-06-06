@@ -586,16 +586,42 @@ const doc = new Document({
       margin: { top: 1440, right: 1440, bottom: 1296, left: 1440 },
     } },
     footers: {
-      default: new Footer({ children: [new Paragraph({
-        tabStops: [{ type: TabStopType.RIGHT, position: 9360 }],
-        border: { top: { style: BorderStyle.SINGLE, size: 4, color: RULE, space: 6 } },
-        children: [
-          new TextRun({ text: 'The Compassion Course 2026-27 Workbook', color: MUTE, size: 16 }),
-          // Non-breaking spaces guarantee a visible gap even if the right-tab
-          // collapses (e.g. in Google Docs); the tab still right-aligns the
-          // page number in Word. (Per Thom: Workbook & Page were touching.)
-          new TextRun({ children: ['      Page ', PageNumber.CURRENT], color: MUTE, size: 16 }),
-        ],
+      // Footer as a borderless 2-cell table: title hugs the left margin, the
+      // page number is hard right-aligned in its own cell. A table (rather than
+      // a tab stop) survives Google Docs conversion intact — tabs/nbsp collapse
+      // on import, tables + paragraph alignment do not.
+      default: new Footer({ children: [new Table({
+        width: { size: 9360, type: WidthType.DXA },
+        columnWidths: [6000, 3360],
+        borders: {
+          top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE },
+        },
+        rows: [new TableRow({ children: [
+          new TableCell({
+            width: { size: 6000, type: WidthType.DXA },
+            margins: { top: 60, left: 0, right: 0, bottom: 0 },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 4, color: RULE },
+              bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
+            },
+            children: [new Paragraph({ children: [
+              new TextRun({ text: "The Compassion Course 2026-27 Workbook", color: MUTE, size: 16 }),
+            ] })],
+          }),
+          new TableCell({
+            width: { size: 3360, type: WidthType.DXA },
+            margins: { top: 60, left: 0, right: 0, bottom: 0 },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 4, color: RULE },
+              bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
+            },
+            children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [
+              new TextRun({ children: ["Page ", PageNumber.CURRENT], color: MUTE, size: 16 }),
+            ] })],
+          }),
+        ] })],
       })] }),
     },
     children,

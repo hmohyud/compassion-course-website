@@ -86,7 +86,7 @@ const TEAL_TINT = 'E9F2F0';
 const GOLD = 'B8860B';
 const INK = '2D2D2D';
 const MUTE = '6B6B6B';
-const ANSWER_BG = 'FCFBF7';   // very light cream so the input area reads as fillable
+const ANSWER_BG = 'F2ECDC';   // warm cream — clearly distinct from the white page (per Thom: was too faint)
 const RULE = 'CFE3DF';
 const BLANK_FILL = 'E4E7EC';  // light gray field background for fill-in blanks
 const BLANK_LINE = '8A9099';  // soft gray underline beneath a fill-in blank
@@ -220,6 +220,7 @@ function bodyPara(text, opts = {}) {
   return new Paragraph({
     spacing: { after: opts.after ?? 60, before: opts.before ?? 0, line: opts.line ?? 276, lineRule: 'auto' },
     keepLines: true,
+    ...(opts.bullet ? { bullet: { level: 0 } } : {}),
     children: richRuns(text, opts),
   });
 }
@@ -439,26 +440,24 @@ children.push(new Table({
     })),
 }));
 
-// How to Use
+// How to Use (consolidated copy per Thom's COC doc)
 children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 340, after: 60 },
   children: [new TextRun('How to Use This Workbook')] }));
 children.push(bodyPara(
-  'This is your own private copy of The Compassion Course workbook, opened from the personal link we send you — there is nothing to download, install, or back up. Your writing saves automatically as you go, and every shaded box grows to fit whatever you type.'
+  'This is your own private copy of The Compassion Course Certificate of Completion (COC) workbook. Use it to record and track your weekly progress through the course:',
+  { after: 90 }
 ));
-children.push(bodyPara(
-  'Please write only inside the cream-colored boxes. Everything else on the page is the course’s material; keeping your responses in the boxes is what lets us find and confirm your work at the end of the year.'
-));
-
-// Certificate of Completion
-children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 60 },
-  children: [new TextRun('Certificate of Completion (COC)')] }));
 [
-  'Use this workbook to record and track your weekly progress through the course.',
-  'We will email you weekly reminders and helpful hints to keep you on track.',
-  'If you registered for the Certificate of Completion, please fill out every prompt.',
-  'At the end of the course year, a Compassion Course faculty member will confidentially confirm that you completed your work. This is a completion check — it does not include mentoring or feedback.',
-  'Completing your workbook is part of qualifying to become a Mentor the following year.',
-].forEach((t) => children.push(bodyPara(t, { after: 60 })));
+  'There is nothing to download, install, or back up.',
+  'Please write only inside the cream-colored boxes.',
+  'Your writing saves automatically as you go, and every cream-colored box grows to fit whatever you type.',
+  'Everything else on the page is the course’s material; keeping your responses in the cream-colored boxes is what lets us find and confirm your work at the end of the year.',
+  'Please fill out every prompt.',
+].forEach((t) => children.push(bodyPara(t, { bullet: true, after: 60 })));
+children.push(bodyPara(
+  'We will email you weekly reminders and helpful hints to keep you on track. At the end of the course year, a Compassion Course faculty member will confidentially confirm that you completed your work. This is a completion verification — it does not include mentoring or feedback.',
+  { before: 120 }
+));
 
 // ── per-week sections (each week starts on its own page) ─────────────────────
 // Each week starts on a fresh page. Answer-box heights are computed per week

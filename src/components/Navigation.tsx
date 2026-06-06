@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { getUserProfile } from '../services/userProfileService';
+import { hasWeeklyAccess } from '../services/weeklyAccess';
 import type { UserProfile } from '../types/platform';
 import GoogleTranslate from './GoogleTranslate';
 
@@ -38,6 +39,10 @@ const Navigation: React.FC = () => {
   const { openAuthModal } = useAuthModal();
   const { role, isAdmin } = usePermissions();
   const showLeadership = role === 'manager' || role === 'admin' || isAdmin;
+  // Whether this visitor has unlocked the weekly Lesson Library via the emailed
+  // ?hash=… link (saved in localStorage). Re-read each render; the component
+  // re-renders on navigation (useLocation), so it picks up a fresh unlock.
+  const weeklyUnlocked = hasWeeklyAccess();
 
   // When translated, force hamburger regardless of screen size
   const isDesktop = isScreenDesktop && !isTranslated;
@@ -297,9 +302,11 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           )}
-          {/* Internal-staff-only: the weekly Lesson Library (the "Message
-              Library"). Hidden from the public nav, which is hash/email-gated. */}
-          {user && showLeadership && (
+          {/* Weekly Lesson Library (the "Message Library"). Shown to internal
+              staff (admins + leadership) AND to anyone who has unlocked it via
+              the emailed ?hash=… link (saved access) — so participants get a
+              persistent way back to it. Still hidden from the general public. */}
+          {((user && showLeadership) || weeklyUnlocked) && (
             <li className="nav-item">
               <Link to="/weekly" className={`nav-link ${isActivePrefix('/weekly') ? 'active' : ''}`} onClick={() => setIsMenuOpen(false)}>
                 Lesson Library

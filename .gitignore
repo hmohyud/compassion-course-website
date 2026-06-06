@@ -50,3 +50,6 @@ nul
 # Local-only tooling (copy/paste or run locally; not deployed)
 scripts/duplicate-google-doc-per-email.gs
 scripts/recolor-lessons-to-workbook.cjs
+
+# Local-only preview playgrounds (open in a browser; not deployed)
+.local-previews/

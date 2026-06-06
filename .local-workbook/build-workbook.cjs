@@ -168,15 +168,14 @@ const NEEDS_URL = 'https://compassioncourse.org/needs.html';
 const FEEL_URL  = 'https://compassioncourse.org/feelings.html';
 const GCN_JOIN  = 'https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576';
 const GCN_ACCESS = 'https://www.theglobalcompassionnetwork.com/';
-const EXERCISE_URL = 'http://www.theexercise.org';
+const EXERCISE_URL = 'https://www.nycnvc.org/the-exercise';
 const CC_URL = 'https://www.compassioncourse.org';
 const LINK_COLOR = '1155CC';
 const LINK_RULES = [
   { phrase: 'New to the GCN? Click Here to Join', url: GCN_JOIN },
   { phrase: 'GCN Members Click Here to Access it', url: GCN_ACCESS },
   { phrase: "If you haven't already, Click Here to Join the GCN", url: GCN_JOIN },
-  { phrase: 'www.theexercise.org', url: EXERCISE_URL },
-  { phrase: 'theexercise.org', url: EXERCISE_URL },
+  { phrase: 'nycnvc.org/the-exercise', url: EXERCISE_URL },
   { phrase: 'www.compassioncourse.org', url: CC_URL },
   { phrase: 'feelings list', url: FEEL_URL },
   { phrase: 'needs list', url: NEEDS_URL },
@@ -414,7 +413,9 @@ children.push(
   new Paragraph({ spacing: { before: 110, after: 0 }, alignment: AlignmentType.CENTER,
     children: [new TextRun({ text: '2026-27', color: GOLD, size: 30, font: 'Georgia', characterSpacing: 80 })] }),
   new Paragraph({ spacing: { before: 40, after: 0 }, alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: 'PARTICIPANT WORKBOOK', bold: true, color: TEAL_DARK, size: 19, font: 'Georgia', characterSpacing: 130 })] }),
+    children: [new TextRun({ text: 'CERTIFICATE OF COMPLETION (COC)', bold: true, color: TEAL_DARK, size: 18, font: 'Georgia', characterSpacing: 90 })] }),
+  new Paragraph({ spacing: { before: 28, after: 0 }, alignment: AlignmentType.CENTER,
+    children: [new TextRun({ text: 'PARTICIPANT WORKBOOK', bold: true, color: TEAL_DARK, size: 18, font: 'Georgia', characterSpacing: 130 })] }),
   new Paragraph({ spacing: { before: 110, after: 80 }, alignment: AlignmentType.CENTER,
     children: [new TextRun({ text: 'A year of practicing compassion, one week at a time.', italics: true, color: MUTE, size: 21, font: 'Georgia' })] }),
   // gold divider rule
@@ -557,7 +558,7 @@ weeks.forEach((wk) => {
 // ── document ────────────────────────────────────────────────────────────────
 const doc = new Document({
   creator: 'The Compassion Course',
-  title: 'The Compassion Course 2026-27 Workbook',
+  title: 'Compassion Course 2026-27 Certificate of Completion (COC) Workbook',
   styles: {
     default: { document: { run: { font: 'Arial', size: 20, color: INK } } },
     paragraphStyles: [
@@ -607,7 +608,7 @@ const doc = new Document({
               bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
             },
             children: [new Paragraph({ children: [
-              new TextRun({ text: "The Compassion Course 2026-27 Workbook", color: MUTE, size: 16 }),
+              new TextRun({ text: "The Compassion Course 2026-27 COC Workbook", color: MUTE, size: 16 }),
             ] })],
           }),
           new TableCell({

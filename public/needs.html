@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/needs-feelings.css?v=4" />
+<link rel="stylesheet" href="/needs-feelings.css?v=5" />
 </head>
 <body data-view="list">
 
@@ -28,22 +28,26 @@
   <span class="eyebrow">Compassion Course Reference</span>
   <h1>Needs</h1>
   <p>The universal needs we all share. Use it to find the need underneath a feeling.</p>
-  <a class="pdf-btn" href="/printable-needs-list.pdf" target="_blank" rel="noopener">⤓&nbsp; Printable Needs List (PDF)</a>
 </header>
 
-<details class="intro-accordion" open>
-  <summary><span class="ia-label">Our Needs</span></summary>
-  <div class="intro-body">
-    <figure class="intro-figure">
-      <img src="/nvcchart.webp" alt="Diagram: Feelings and Needs sit at the center as our common ground, encircled by the conflict zone — judgment, strategy, opinion, evaluation and blame." />
-    </figure>
-    <p>In compassionate thinking we can create a forum for all parties&rsquo; needs to be fully seen and heard &mdash; and thereafter choicefully and powerfully met OR unmet.</p>
-    <p>Needs are universal to all of us. In fact, we can see them as the basis for everything all of us humans do &mdash; everything. From scratching our heads, to eating meals, to getting married, to killing someone. We share these things we call needs with every other human being on the earth.</p>
-    <p>When we learn to see and relate based on these universal needs, it is way more possible to connect with other human beings, regardless of their age, ethnicity, language, social status, political position or history.</p>
-    <p>When the needs (not the strategies or stories) of people are deeply understood, new strategies almost always appear.</p>
-    <p>In times when new strategies don&rsquo;t appear, parties are much more inclined to choicefully have certain needs seen and <strong>NOT MET</strong>. In short, the process brings out the compassion in us resulting in more harmony.</p>
+<div class="intro">
+  <div class="intro-actions">
+    <a class="pdf-btn" href="/printable-needs-list.pdf" target="_blank" rel="noopener">⤓&nbsp; Printable Needs List (PDF)</a>
+    <button type="button" class="our-needs-tab is-open" id="ourNeedsTab" aria-expanded="true" aria-controls="ourNeedsPanel">Our Needs</button>
   </div>
-</details>
+  <div class="intro-panel" id="ourNeedsPanel">
+    <div class="intro-body">
+      <figure class="intro-figure">
+        <img src="/nvcchart.webp" alt="Diagram: Feelings and Needs sit at the center as our common ground, encircled by the conflict zone — judgment, strategy, opinion, evaluation and blame." />
+      </figure>
+      <p>In compassionate thinking we can create a forum for all parties&rsquo; needs to be fully seen and heard &mdash; and thereafter choicefully and powerfully met OR unmet.</p>
+      <p>Needs are universal to all of us. In fact, we can see them as the basis for everything all of us humans do &mdash; everything. From scratching our heads, to eating meals, to getting married, to killing someone. We share these things we call needs with every other human being on the earth.</p>
+      <p>When we learn to see and relate based on these universal needs, it is way more possible to connect with other human beings, regardless of their age, ethnicity, language, social status, political position or history.</p>
+      <p>When the needs (not the strategies or stories) of people are deeply understood, new strategies almost always appear.</p>
+      <p>In times when new strategies don&rsquo;t appear, parties are much more inclined to choicefully have certain needs seen and <strong>NOT MET</strong>. In short, the process brings out the compassion in us resulting in more harmony.</p>
+    </div>
+  </div>
+</div>
 
 <div class="viewbar">
   <div class="seg">
@@ -79,18 +83,24 @@
 
 <script src="/needs-feelings.js" defer></script>
 <script>
-  /* Remember whether the "Our Needs" accordion is open or closed across visits. */
+  /* Toggle the "Our Needs" folder panel and remember its state across visits. */
   (function () {
-    var acc = document.querySelector('.intro-accordion');
-    if (!acc) return;
+    var tab = document.getElementById('ourNeedsTab');
+    var panel = document.getElementById('ourNeedsPanel');
+    if (!tab || !panel) return;
     var KEY = 'cc-our-needs-open';
-    try {
-      var saved = localStorage.getItem(KEY);
-      if (saved === 'closed') acc.removeAttribute('open');
-      else if (saved === 'open') acc.setAttribute('open', '');
-    } catch (e) {}
-    acc.addEventListener('toggle', function () {
-      try { localStorage.setItem(KEY, acc.open ? 'open' : 'closed'); } catch (e) {}
+    function apply(open) {
+      tab.classList.toggle('is-open', open);
+      tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      panel.hidden = !open;
+    }
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    apply(saved !== 'closed'); /* default: open */
+    tab.addEventListener('click', function () {
+      var open = panel.hidden; /* hidden now → we're opening */
+      apply(open);
+      try { localStorage.setItem(KEY, open ? 'open' : 'closed'); } catch (e) {}
     });
   })();
 </script>

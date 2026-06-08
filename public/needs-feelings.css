@@ -222,8 +222,53 @@ footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28
 }
 .pdf-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
+/* ── "Our Needs" intro accordion (needs page) ── */
+details.intro-accordion {
+  width: auto;
+  max-width: 920px;
+  margin: 22px 24px 4px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: 0 6px 22px rgba(28,25,23,.05);
+  overflow: hidden;
+}
+@media (min-width: 968px) {
+  details.intro-accordion { margin: 22px auto 4px; }
+}
+details.intro-accordion > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 24px;
+  font-family: var(--display); font-weight: 700; font-size: 1.35rem;
+  color: var(--primary);
+}
+details.intro-accordion > summary::-webkit-details-marker { display: none; }
+details.intro-accordion > summary::after {
+  content: '+';
+  flex: none; width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 999px; background: var(--primary-50); color: var(--primary);
+  font-weight: 700; font-size: 1.25rem; line-height: 1;
+  transition: background .15s ease, color .15s ease;
+}
+details.intro-accordion[open] > summary::after { content: '\2013'; }
+details.intro-accordion > summary:hover::after { background: var(--primary); color: #fff; }
+details.intro-accordion[open] > summary { border-bottom: 1px solid var(--gray-100); }
+.intro-body { padding: 22px 24px 24px; }
+.intro-figure { float: right; width: 290px; max-width: 44%; margin: 2px 0 16px 24px; }
+.intro-figure img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--gray-200); background: var(--gray-50); }
+.intro-body p { color: var(--gray-700); font-size: 1.02rem; line-height: 1.62; margin: 0 0 14px; }
+.intro-body p:last-child { margin-bottom: 0; }
+.intro-body strong { color: var(--unmet); letter-spacing: .02em; }
+@media (max-width: 640px) {
+  .intro-figure { float: none; width: 100%; max-width: 340px; margin: 0 auto 18px; }
+  details.intro-accordion > summary { font-size: 1.2rem; }
+}
+
 @media print {
-  .topbar, .viewbar, .crosslink, .pdf-btn, .hero .eyebrow, .hero p { display: none !important; }
+  .topbar, .viewbar, .crosslink, .pdf-btn, .hero .eyebrow, .hero p, .intro-accordion { display: none !important; }
   .view-grid { display: none !important; }
   .view-list { display: block !important; }
   body { background: #fff; }

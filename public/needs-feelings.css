@@ -223,48 +223,50 @@ footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28
 .pdf-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
 /* ── "Our Needs" intro accordion (needs page) ── */
+/* Aligned to the same content width as the needs grid below, so its edges
+   line up with the cards. Disclosure marker sits next to the title (not
+   stranded across an empty bar). */
 details.intro-accordion {
-  width: auto;
-  max-width: 920px;
-  margin: 22px 24px 4px;
+  max-width: 1032px;            /* matches .section content width (1080 − 2×24) */
+  margin: 4px 24px 0;
   background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 16px;
-  box-shadow: 0 6px 22px rgba(28,25,23,.05);
+  box-shadow: 0 4px 18px rgba(28,25,23,.05);
   overflow: hidden;
 }
-@media (min-width: 968px) {
-  details.intro-accordion { margin: 22px auto 4px; }
+@media (min-width: 1080px) {
+  details.intro-accordion { margin: 4px auto 0; }
 }
 details.intro-accordion > summary {
   list-style: none;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 16px 24px;
-  font-family: var(--display); font-weight: 700; font-size: 1.35rem;
+  display: flex; align-items: center; gap: 13px;
+  padding: 15px 22px;
+  font-family: var(--display); font-weight: 700; font-size: 1.3rem;
   color: var(--primary);
 }
 details.intro-accordion > summary::-webkit-details-marker { display: none; }
-details.intro-accordion > summary::after {
+details.intro-accordion > summary::before {
   content: '+';
-  flex: none; width: 30px; height: 30px;
+  flex: none; width: 26px; height: 26px;
   display: grid; place-items: center;
   border-radius: 999px; background: var(--primary-50); color: var(--primary);
-  font-weight: 700; font-size: 1.25rem; line-height: 1;
+  font-weight: 700; font-size: 1.15rem; line-height: 1;
   transition: background .15s ease, color .15s ease;
 }
-details.intro-accordion[open] > summary::after { content: '\2013'; }
-details.intro-accordion > summary:hover::after { background: var(--primary); color: #fff; }
+details.intro-accordion[open] > summary::before { content: '\2013'; }
+details.intro-accordion > summary:hover::before { background: var(--primary); color: #fff; }
 details.intro-accordion[open] > summary { border-bottom: 1px solid var(--gray-100); }
-.intro-body { padding: 22px 24px 24px; }
-.intro-figure { float: right; width: 290px; max-width: 44%; margin: 2px 0 16px 24px; }
+.intro-body { padding: 20px 24px 24px; }
+.intro-figure { float: right; width: 280px; max-width: 42%; margin: 2px 0 14px 26px; }
 .intro-figure img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--gray-200); background: var(--gray-50); }
 .intro-body p { color: var(--gray-700); font-size: 1.02rem; line-height: 1.62; margin: 0 0 14px; }
 .intro-body p:last-child { margin-bottom: 0; }
 .intro-body strong { color: var(--unmet); letter-spacing: .02em; }
 @media (max-width: 640px) {
   .intro-figure { float: none; width: 100%; max-width: 340px; margin: 0 auto 18px; }
-  details.intro-accordion > summary { font-size: 1.2rem; }
+  details.intro-accordion > summary { font-size: 1.15rem; }
 }
 
 @media print {

@@ -222,69 +222,9 @@ footer { background: #fff; border-top: 1px solid var(--gray-200); margin-top: 28
 }
 .pdf-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-/* ── "Our Needs" folder-tab panel (needs page) ── */
-/* The "Our Needs" tab sits inline with the Printable PDF button. Opening it
-   reveals a panel directly below that the tab fuses into like a file-folder
-   tab — the tab keeps its place and merges seamlessly with the panel's top. */
-.intro {
-  max-width: 1080px;
-  margin: 4px auto 24px;        /* 24px bottom = clear gap before List/Grid */
-  padding: 0 24px;
-}
-.intro-actions {
-  display: flex; justify-content: center; align-items: flex-start; gap: 12px;
-  position: relative; z-index: 2;     /* keep buttons above the panel seam */
-}
-.intro-actions .pdf-btn { margin-top: 0; }   /* drop the legacy top margin so both buttons top-align */
-.our-needs-tab {
-  font: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 9px 22px; border-radius: 999px;
-  border: 1px solid var(--primary-light); background: var(--primary-50);
-  color: var(--primary);
-  font-family: var(--display); font-weight: 700; font-size: 1.02rem;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
-}
-.our-needs-tab::before { content: '+'; flex: none; font-weight: 700; font-size: 1.15rem; line-height: 1; }
-.our-needs-tab:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-/* open → the tab extends down OVER the panel's top edge with no bottom border,
-   so it merges seamlessly into the box (no line at the join). It keeps the same
-   label height as the PDF button (margin-bottom cancels the extension), so the
-   two buttons stay inline while only this tab overlaps the panel. */
-.our-needs-tab.is-open {
-  background: #fff; color: var(--primary);
-  border: 1px solid var(--gray-200); border-bottom: none;
-  border-radius: 14px 14px 0 0;
-  /* Extra bottom padding makes the tab the tallest item in the row, so the
-     panel (which follows with margin-top:-1px) lands exactly at the tab's
-     bottom — a flow-driven flush touch, no per-pixel tuning. The label stays
-     top-aligned with the PDF button; the extra space below = the PDF's clearance. */
-  padding-bottom: 21px;
-  position: relative; z-index: 2;
-}
-.our-needs-tab.is-open::before { content: '\2013'; }
-.our-needs-tab.is-open:hover { background: #fff; color: var(--primary); border-color: var(--gray-200); border-bottom: none; }
-.intro-panel {
-  position: relative;
-  margin-top: -1px;                     /* land flush at the tab's bottom, hiding the 1px border seam */
-  background: #fff;
-  border: 1px solid var(--gray-200);
-  border-radius: 16px;
-  box-shadow: 0 6px 22px rgba(28,25,23,.05);
-}
-.intro-panel[hidden] { display: none; }
-.intro-body { padding: 24px 26px; text-align: left; }
-.intro-figure { float: right; width: 280px; max-width: 42%; margin: 2px 0 14px 26px; }
-.intro-figure img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--gray-200); background: var(--gray-50); }
-.intro-body p { color: var(--gray-700); font-size: 1.02rem; line-height: 1.62; margin: 0 0 14px; }
-.intro-body p:last-child { margin-bottom: 0; }
-.intro-body strong { color: var(--unmet); letter-spacing: .02em; }
-@media (max-width: 640px) {
-  .intro-figure { float: none; width: 100%; max-width: 340px; margin: 0 auto 18px; }
-}
 
 @media print {
-  .topbar, .viewbar, .crosslink, .pdf-btn, .hero .eyebrow, .hero p, .intro { display: none !important; }
+  .topbar, .viewbar, .crosslink, .pdf-btn, .hero .eyebrow, .hero p { display: none !important; }
   .view-grid { display: none !important; }
   .view-list { display: block !important; }
   body { background: #fff; }

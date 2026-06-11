@@ -166,7 +166,9 @@ function quoteRuns(text, opts = {}) {
 // longer / more specific phrases are listed first so they win over shorter ones.
 const NEEDS_URL = 'https://compassioncourse.org/needs.html';
 const FEEL_URL  = 'https://compassioncourse.org/feelings.html';
-const GCN_JOIN  = 'https://www.theglobalcompassionnetwork.com/join?invitation_token=e053480a86c7ad069056c28076c9522b563c4c6e-52da4f65-7b2c-42e1-b0cc-5f972d350576';
+// Join links route through our gateway/help page (sign-up vs sign-in triage)
+// rather than straight to Circle's auth, per Thom's support-call concern.
+const GCN_JOIN  = 'https://compassioncourse.org/gcn.html';
 const GCN_ACCESS = 'https://www.theglobalcompassionnetwork.com/';
 const EXERCISE_URL = 'https://www.nycnvc.org/the-exercise';
 const CC_URL = 'https://www.compassioncourse.org';
@@ -629,7 +631,7 @@ const doc = new Document({
   }],
 });
 
-const outPath = path.join(__dirname, 'The Compassion Course 2026-2027 Workbook.docx');
+const outPath = path.join(__dirname, 'Compassion Course 2026-27 Certificate of Completion (COC) Workbook.docx');
 Packer.toBuffer(doc).then((buf) => {
   fs.writeFileSync(outPath, buf);
   console.log('wrote', outPath, '(' + (buf.length / 1024).toFixed(0) + ' KB)');

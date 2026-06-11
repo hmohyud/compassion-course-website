@@ -166,9 +166,10 @@ function quoteRuns(text, opts = {}) {
 // longer / more specific phrases are listed first so they win over shorter ones.
 const NEEDS_URL = 'https://compassioncourse.org/needs.html';
 const FEEL_URL  = 'https://compassioncourse.org/feelings.html';
-// Join links route through our gateway/help page (sign-up vs sign-in triage)
-// rather than straight to Circle's auth, per Thom's support-call concern.
-const GCN_JOIN  = 'https://compassioncourse.org/gcn.html';
+const GCN_JOIN  = 'https://login.circle.so/sign_up?request_host=www.theglobalcompassionnetwork.com&user[invitation_token]=584f363c68a038a187f7c8f1e6e120dfdf873e7b-b86df0d6-0a4c-4485-8637-16962d336b72';
+// Help/triage page for people unsure whether to sign up or sign in (per Thom's
+// support-call concern) — linked from a "need help" line under each join link.
+const GCN_HELP  = 'https://compassioncourse.org/gcn.html';
 const GCN_ACCESS = 'https://www.theglobalcompassionnetwork.com/';
 const EXERCISE_URL = 'https://www.nycnvc.org/the-exercise';
 const CC_URL = 'https://www.compassioncourse.org';
@@ -177,6 +178,7 @@ const LINK_RULES = [
   { phrase: 'New to the GCN? Click Here to Join', url: GCN_JOIN },
   { phrase: 'GCN Members Click Here to Access it', url: GCN_ACCESS },
   { phrase: "If you haven't already, Click Here to Join the GCN", url: GCN_JOIN },
+  { phrase: 'If you need help joining or signing in, Click Here', url: GCN_HELP },
   { phrase: 'nycnvc.org/the-exercise', url: EXERCISE_URL },
   { phrase: 'www.compassioncourse.org', url: CC_URL },
   { phrase: 'feelings list', url: FEEL_URL },

@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Layout from '../components/Layout';
+import Seo from '../components/Seo';
+import VideoPlayer from '../components/VideoPlayer';
 import Globe from '../components/Globe';
 import StarrySky from '../components/StarrySky';
 import JotformPopup from '../components/JotformPopup';
@@ -79,8 +81,24 @@ const HomePage: React.FC = () => {
   const chatbotContainerRef = useRef<HTMLDivElement>(null);
   const heroLogoRef = useRef<HTMLImageElement>(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const journeyInfo = getJourneyInfo(Date.now());
-  const { phase: journeyPhase, progress: journeyProgress } = journeyInfo;
+  // The journey block is time-dependent. During SSR (the static prerender) and
+  // the very first client render we must NOT compute a phase from the build
+  // clock — that would bake a frozen "Registration is open / 47%" into the
+  // static HTML. We render a neutral, stable version until mount, then compute
+  // the live phase. `mounted` starts false on both server and client so the
+  // first client render matches the server markup (no hydration mismatch).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Live, time-derived phase/progress — only meaningful after mount. Before
+  // mount we render a neutral, stable baseline (the pre-registration view:
+  // 0% progress, no "you are here" marker, no phase-specific "open now" text)
+  // so the prerendered HTML is never frozen to the build date.
+  const liveJourney = getJourneyInfo(Date.now());
+  const journeyPhase: JourneyPhase = mounted ? liveJourney.phase : 'before';
+  const journeyProgress = mounted ? liveJourney.progress : 0;
   const { containerRef: statsRef, displayValues: statValues, finalValues: statFinals } = useCountUpStats(
     home.peaceEducation.stats.map((s) => s.number),
     2200
@@ -156,6 +174,7 @@ const HomePage: React.FC = () => {
 
   return (
     <Layout>
+      <Seo path="/" />
       {/* Hero Section — Globe + Title */}
       <section className="hero">
         <StarrySky />
@@ -370,13 +389,7 @@ const HomePage: React.FC = () => {
               <p>{home.peaceEducation.para2}</p>
             </div>
             <div className="home-impact-video">
-              <video
-                controls
-                preload="none"
-                poster="/images/how-it-works-video.jpg"
-              >
-                <source src={home.peaceEducation.videoSrc} type="video/mp4" />
-              </video>
+              <VideoPlayer src={home.peaceEducation.videoSrc} poster="/images/how-it-works-video.jpg" />
             </div>
           </div>
           <div className="home-impact-stats" ref={statsRef}>
@@ -454,9 +467,7 @@ const HomePage: React.FC = () => {
         <div className="container">
           <div className="social-proof-layout">
             <div className="social-proof-video-side">
-              <video controls preload="none">
-                <source src={home.socialProof.videoSrc} type="video/mp4" />
-              </video>
+              <VideoPlayer src={home.socialProof.videoSrc} />
             </div>
             <div className="social-proof-text-side">
               <div className="social-proof-quote-mark">&ldquo;</div>

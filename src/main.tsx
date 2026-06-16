@@ -1,10 +1,7 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
+import { ViteReactSSG } from 'vite-react-ssg'
+import { routes } from './App'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+// vite-react-ssg owns the router. The same entry powers both the client
+// hydration and the Node prerender pass that bakes the 6 public routes.
+export const createRoot = ViteReactSSG({ routes, basename: '/' })

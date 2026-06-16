@@ -13,22 +13,10 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://compassioncourse.org/programs</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://compassioncourse.org/learn-more</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://compassioncourse.org/compass-companion</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://compassioncourse.org/contact</loc>

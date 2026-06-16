@@ -14,9 +14,8 @@ const Footer: React.FC = () => {
             <h4>Quick Links</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/programs">Programs</Link></li>
               <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/compass-companion">Compass Companions</Link></li>
+              <li><a href="https://www.compass-companions.com/" target="_blank" rel="noopener noreferrer">Compass Companions</a></li>
               <li><a href="https://compassioncf.com/donate" target="_blank" rel="noopener noreferrer">Donate</a></li>
             </ul>
           </div>

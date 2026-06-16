@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import Seo from '../components/Seo';
 import { useContent } from '../context/ContentContext';
 
 const ContactPage: React.FC = () => {
@@ -49,6 +50,7 @@ const ContactPage: React.FC = () => {
 
   return (
     <Layout>
+      <Seo path="/contact" />
       <section className="contact-page">
         <div className="container">
           <div className="contact-layout">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import Seo from '../components/Seo';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useTeamData } from '../hooks/useTeamData';
 import { TeamMember } from '../services/contentService';
@@ -23,6 +24,7 @@ const AboutPage: React.FC = () => {
 
   return (
     <Layout>
+      <Seo path="/about" />
       <section className="team-page">
         {/* Page Header */}
         <div className="team-page-header">

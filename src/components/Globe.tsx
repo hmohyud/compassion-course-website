@@ -69,7 +69,13 @@ interface TooltipData {
 
 const MOBILE_BREAKPOINT = 1080;
 
-const Globe: React.FC = () => {
+// True only in a real browser. During the Node prerender (vite-react-ssg) both
+// `document` and `window` are undefined, so the WebGL/canvas code below must
+// not run. The `Globe` wrapper renders a sized placeholder in that case and
+// only mounts `GlobeClient` (which touches document/window/three) on the client.
+const isBrowser = typeof document !== 'undefined' && typeof window !== 'undefined';
+
+const GlobeClient: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cloudCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -693,6 +699,42 @@ const Globe: React.FC = () => {
       </div>
     </div>
   );
+};
+
+/**
+ * Globe — SSR-safe wrapper. On the server (and the very first client render,
+ * before hydration settles) it renders a responsive, sized placeholder that
+ * matches the real globe wrap (width 100%, 1:1 aspect ratio, capped at 720px)
+ * so there's no layout shift (CLS) when the WebGL globe paints in. The real
+ * three.js/canvas implementation lives in `GlobeClient`, which only mounts once
+ * we know we're in a browser.
+ */
+const Globe: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isBrowser || !mounted) {
+    return (
+      <div className="globe-container notranslate" translate="no">
+        <div
+          className="globe-canvas-wrap"
+          style={{
+            width: '100%',
+            aspectRatio: '1 / 1',
+            maxWidth: 720,
+            position: 'relative',
+          }}
+        >
+          <div className="globe-glow" />
+        </div>
+      </div>
+    );
+  }
+
+  return <GlobeClient />;
 };
 
 export default Globe;

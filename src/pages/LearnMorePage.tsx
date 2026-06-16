@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import Seo from '../components/Seo';
+import VideoPlayer from '../components/VideoPlayer';
 import JotformPopup from '../components/JotformPopup';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { getGuestTrainerNames } from '../services/contentService';
@@ -487,6 +489,7 @@ const LearnMorePage: React.FC = () => {
 
   return (
     <Layout>
+      <Seo path="/learn-more" />
       {/* Hero Section — with image background */}
       <section className="learn-hero">
         <img
@@ -527,9 +530,7 @@ const LearnMorePage: React.FC = () => {
           <h2 className="section-title">{learnMore.origin.title}</h2>
           <div className="learn-origin-inner">
             <div className="learn-origin-image">
-              <video controls preload="none" poster="/images/origin-conversation.jpg">
-                <source src={learnMore.origin.videoSrc} type="video/mp4" />
-              </video>
+              <VideoPlayer src={learnMore.origin.videoSrc} poster="/images/origin-conversation.jpg" />
             </div>
             <div className="learn-origin-timeline">
               {learnMore.origin.timeline.map((item) => (
@@ -721,9 +722,7 @@ const LearnMorePage: React.FC = () => {
           <h2 className="section-title">{learnMore.whatMakesDifferent.heading}</h2>
           <p className="section-description">{learnMore.whatMakesDifferent.subtitle}</p>
           <div className="learn-different-video">
-            <video controls preload="none" poster="/images/hero-community.jpg">
-              <source src={learnMore.whatMakesDifferent.videoSrc} type="video/mp4" />
-            </video>
+            <VideoPlayer src={learnMore.whatMakesDifferent.videoSrc} poster="/images/hero-community.jpg" />
           </div>
           <div className="learn-different-flip-grid">
             {learnMore.whatMakesDifferent.cards.map((card) => (

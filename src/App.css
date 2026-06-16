@@ -2500,6 +2500,48 @@ section {
     border-radius: calc(var(--radius-2xl) - 4px);
 }
 
+/* Minimal inline video controls (play/pause + mute) — see VideoPlayer.tsx.
+   We drop the native controls because these clips aren't reliably seekable. */
+.cc-video {
+    position: relative;
+    width: 100%;
+    line-height: 0;
+}
+.cc-video-controls {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    gap: 8px;
+    line-height: normal;
+    z-index: 2;
+}
+.cc-video-btn {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+.cc-video-btn:hover {
+    background: rgba(0, 0, 0, 0.78);
+    transform: scale(1.06);
+}
+.cc-video-btn:focus-visible {
+    outline: 2px solid var(--color-white);
+    outline-offset: 2px;
+}
+
 /* ==========================================
    INTERACTIVE EFFECTS — Border Beam + Tilt + Flip + Typing
    ========================================== */

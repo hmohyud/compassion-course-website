@@ -7,7 +7,7 @@
     "predev": "node scripts/generate-firebase-config.js",
     "prebuild": "node scripts/generate-firebase-config.js",
     "dev": "vite --host",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite-react-ssg build",
     "preview": "vite preview",
     "start": "npm run preview",
     "clean": "rm -rf node_modules package-lock.json dist && npm install",
@@ -38,7 +38,8 @@
     "react-router-dom": "^6.23.0",
     "three": "^0.182.0",
     "three-globe": "^2.45.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite-react-ssg": "^0.9.1-beta.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.47",

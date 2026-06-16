@@ -5,6 +5,7 @@ import { AuthModalProvider } from './context/AuthModalContext'
 import { PermissionsProvider } from './context/PermissionsContext'
 import { ContentProvider } from './context/ContentContext'
 import ScrollToTop from './components/ScrollToTop'
+import RouteMeta from './components/RouteMeta'
 import UserProtectedRoute from './components/UserProtectedRoute'
 import LeadershipProtectedRoute from './components/LeadershipProtectedRoute'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -55,6 +56,7 @@ function App() {
         <ContentProvider>
           <Router>
           <ScrollToTop />
+          <RouteMeta />
           <AuthModalProvider>
           <div className="App">
             <Routes>

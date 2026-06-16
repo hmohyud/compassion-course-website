@@ -1,0 +1,15 @@
+# https://compassioncourse.org/robots.txt
+# Public marketing pages are open to all crawlers. Private/auth areas are
+# excluded (they require sign-in and hold no public content).
+User-agent: *
+Allow: /
+Disallow: /portal
+Disallow: /admin
+Disallow: /platform
+Disallow: /weekly
+Disallow: /login
+Disallow: /register
+Disallow: /change-password
+Disallow: /unauthorized
+
+Sitemap: https://compassioncourse.org/sitemap.xml

@@ -373,7 +373,7 @@
     return synStr.split(',').map(function (w) { return w.trim(); }).filter(Boolean);
   }
   function synList(words) {
-    var html = '<div class="word-syn-head">Related</div><div class="word-syn-list">';
+    var html = '<div class="word-syn-list">';
     words.forEach(function (w) {
       var def = defFor(w);
       html += '<details class="syn"><summary>' + escapeHtml(w) + '</summary>' +

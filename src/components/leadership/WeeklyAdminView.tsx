@@ -5,13 +5,8 @@ import {
   listAllWeeklyContent,
   saveWeeklyContent,
   deleteWeeklyContent,
-  uploadWeeklyFile,
-  deleteWeeklyFile,
   type WeeklyContent,
   type RequiredRole,
-  STORAGE_HTML_PREFIX,
-  STORAGE_AUDIO_PREFIX,
-  STORAGE_ASSETS_PREFIX,
 } from '../../services/weeklyContentService';
 import LessonContentEditor from './LessonContentEditor';
 
@@ -74,63 +69,6 @@ const WeeklyAdminView: React.FC = () => {
     }
   };
 
-  const handleHtmlUpload = async (file: File) => {
-    if (!editing || !user?.email) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const path = `${STORAGE_HTML_PREFIX}/week-${editing.weekNumber}.html`;
-      await uploadWeeklyFile(path, file, 'text/html');
-      setEditing({ ...editing, htmlStoragePath: path });
-      setSuccess('HTML uploaded.');
-      setTimeout(() => setSuccess(null), 2500);
-    } catch (err: any) {
-      setError(`Upload failed: ${err?.message || err}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAudioUpload = async (files: FileList) => {
-    if (!editing) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const uploaded: string[] = [];
-      for (const f of Array.from(files)) {
-        const path = `${STORAGE_AUDIO_PREFIX}/${f.name}`;
-        await uploadWeeklyFile(path, f, 'audio/mpeg');
-        uploaded.push(path);
-      }
-      setEditing({
-        ...editing,
-        audioStoragePaths: [...new Set([...editing.audioStoragePaths, ...uploaded])],
-      });
-      setSuccess(`Uploaded ${uploaded.length} audio file(s).`);
-      setTimeout(() => setSuccess(null), 2500);
-    } catch (err: any) {
-      setError(`Audio upload failed: ${err?.message || err}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSharedAssetUpload = async (file: File, kind: 'styles.css' | 'script.js') => {
-    setSaving(true);
-    setError(null);
-    try {
-      const path = `${STORAGE_ASSETS_PREFIX}/${kind}`;
-      const ct = kind === 'styles.css' ? 'text/css' : 'application/javascript';
-      await uploadWeeklyFile(path, file, ct);
-      setSuccess(`Uploaded ${kind}.`);
-      setTimeout(() => setSuccess(null), 2500);
-    } catch (err: any) {
-      setError(`Asset upload failed: ${err?.message || err}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <div className="weekly-admin-view" style={{ maxWidth: 1100 }}>
       <header style={{ marginBottom: '1.5rem' }}>
@@ -142,20 +80,6 @@ const WeeklyAdminView: React.FC = () => {
 
       {success && <div style={{ padding: '0.7rem 1rem', background: '#ecfdf5', color: '#065f46', borderRadius: 6, marginBottom: '1rem', fontSize: '0.9rem' }}>{success}</div>}
       {error && <div style={{ padding: '0.7rem 1rem', background: '#fef2f2', color: '#991b1b', borderRadius: 6, marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</div>}
-
-      <details style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: 8 }}>
-        <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Upload shared styles.css / script.js</summary>
-        <div style={{ marginTop: '0.75rem', display: 'grid', gap: '0.75rem' }}>
-          <label>
-            <strong>styles.css</strong> (shared across all weekly pages):
-            <input type="file" accept=".css" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSharedAssetUpload(f, 'styles.css'); }} disabled={saving} style={{ display: 'block', marginTop: 4 }} />
-          </label>
-          <label>
-            <strong>script.js</strong> (shared across all weekly pages):
-            <input type="file" accept=".js" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSharedAssetUpload(f, 'script.js'); }} disabled={saving} style={{ display: 'block', marginTop: 4 }} />
-          </label>
-        </div>
-      </details>
 
       {fetchState === 'loading' && <div style={{ color: '#71717a' }}>Loading weeks…</div>}
       {fetchState === 'error' && <div style={{ color: '#991b1b' }}>Failed to load weekly content.</div>}
@@ -216,8 +140,6 @@ const WeeklyAdminView: React.FC = () => {
           setValue={setEditing}
           onSave={handleSave}
           onCancel={() => setEditing(null)}
-          onHtmlUpload={handleHtmlUpload}
-          onAudioUpload={handleAudioUpload}
           saving={saving}
         />
       )}
@@ -238,12 +160,10 @@ interface EditorProps {
   setValue: (v: WeeklyContent) => void;
   onSave: () => void;
   onCancel: () => void;
-  onHtmlUpload: (f: File) => void;
-  onAudioUpload: (fl: FileList) => void;
   saving: boolean;
 }
 
-const WeeklyEditorModal: React.FC<EditorProps> = ({ value, setValue, onSave, onCancel, onHtmlUpload, onAudioUpload, saving }) => {
+const WeeklyEditorModal: React.FC<EditorProps> = ({ value, setValue, onSave, onCancel, saving }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }} onClick={onCancel}>
       <div style={{ background: '#fff', borderRadius: 12, maxWidth: 640, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '1.5rem' }} onClick={(e) => e.stopPropagation()}>
@@ -281,29 +201,19 @@ const WeeklyEditorModal: React.FC<EditorProps> = ({ value, setValue, onSave, onC
             ) : (
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>(no HTML uploaded yet)</div>
             )}
-            <input type="file" accept=".html" onChange={(e) => { const f = e.target.files?.[0]; if (f) onHtmlUpload(f); }} disabled={saving} style={{ marginTop: 6 }} />
           </fieldset>
 
           <fieldset style={{ border: '1px solid #e5e7eb', padding: '0.75rem', borderRadius: 8 }}>
             <legend><strong>Audio files ({value.audioStoragePaths.length})</strong></legend>
-            {value.audioStoragePaths.length > 0 && (
-              <ul style={{ fontSize: '0.85rem', margin: '0 0 0.5rem', padding: 0, listStyle: 'none' }}>
+            {value.audioStoragePaths.length > 0 ? (
+              <ul style={{ fontSize: '0.85rem', margin: 0, padding: 0, listStyle: 'none' }}>
                 {value.audioStoragePaths.map((p) => (
-                  <li key={p} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
-                    <span>{p}</span>
-                    <button type="button" onClick={async () => {
-                      if (!window.confirm(`Remove ${p} from this week?`)) return;
-                      if (window.confirm(`Also delete the file from Storage? (Cancel = remove link only)`)) {
-                        try { await deleteWeeklyFile(p); } catch {}
-                      }
-                      setValue({ ...value, audioStoragePaths: value.audioStoragePaths.filter((x) => x !== p) });
-                    }} style={{ background: 'none', border: 'none', color: '#b91c1c', cursor: 'pointer' }}>remove</button>
-                  </li>
+                  <li key={p} style={{ padding: '0.25rem 0' }}>{p}</li>
                 ))}
               </ul>
+            ) : (
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>(none registered yet)</div>
             )}
-            <input type="file" accept="audio/*" multiple onChange={(e) => { const fl = e.target.files; if (fl && fl.length) onAudioUpload(fl); }} disabled={saving} />
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 6 }}>Audio filenames should match what the week's HTML expects (typically hash-based like <code>lcuwkj_part1.mp3</code>).</p>
           </fieldset>
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: '1rem' }}>

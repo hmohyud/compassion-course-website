@@ -55,6 +55,14 @@ const HOLD_MS = 900;
 // editor surfaces an error instead of spinning forever. Resets on every clip.
 const AUDIO_STUCK_MS = 120000;
 
+/** Make a user-typed link target usable: pass through absolute URLs, mailto/
+ *  tel, in-page anchors and root paths; otherwise assume https. */
+function normalizeLinkUrl(input: string): string {
+  const t = input.trim();
+  if (/^(https?:|mailto:|tel:|\/|#)/i.test(t)) return t;
+  return 'https://' + t;
+}
+
 interface Props {
   week: WeeklyContent;
   onClose: () => void;
@@ -387,6 +395,55 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     return htmlRef.current;
   }, []);
 
+  // Add / edit / remove a hyperlink on the current selection in the Visual
+  // editor: select words and click to link them; click inside an existing link
+  // to change its URL (or clear the URL to unlink). Flushes like a normal edit
+  // so the change round-trips into the kept document.
+  const insertOrEditLink = useCallback(() => {
+    const iframe = editIframeRef.current;
+    const idoc = iframe?.contentDocument;
+    const win = iframe?.contentWindow;
+    if (!idoc || !win || !docRef.current) return;
+    const sel = win.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+      setMsg({ type: 'info', text: 'Click into the text first — select words to link, or click inside a link to edit it.' });
+      return;
+    }
+    const range = sel.getRangeAt(0).cloneRange();
+    let node: Node | null = sel.anchorNode;
+    let anchor: HTMLAnchorElement | null = null;
+    while (node && node !== idoc.body) {
+      if (node.nodeType === 1 && (node as Element).tagName === 'A') { anchor = node as HTMLAnchorElement; break; }
+      node = node.parentNode;
+    }
+    if (anchor) {
+      const next = window.prompt('Edit link URL (leave empty to remove the link):', anchor.getAttribute('href') || '');
+      if (next === null) return;
+      if (!next.trim()) {
+        const parent = anchor.parentNode;
+        if (parent) {
+          while (anchor.firstChild) parent.insertBefore(anchor.firstChild, anchor);
+          parent.removeChild(anchor);
+        }
+      } else {
+        anchor.setAttribute('href', normalizeLinkUrl(next));
+      }
+    } else {
+      if (range.collapsed) {
+        setMsg({ type: 'info', text: 'Select the words you want to turn into a link first.' });
+        return;
+      }
+      const url = window.prompt('Link URL:', 'https://');
+      if (url === null || !url.trim()) return;
+      win.focus();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      (idoc as any).execCommand?.('createLink', false, normalizeLinkUrl(url));
+    }
+    applyRegionEdits(docRef.current, readRegionEdits(idoc));
+    applyHtml(serializeClean(docRef.current), { dirty: true });
+  }, [applyHtml]);
+
   const switchMode = useCallback(
     (next: Mode) => {
       if (next === mode) return;
@@ -578,12 +635,23 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
 
         <div className="lce-subbar">
           <div className="lce-hint">
-            {mode === 'visual' && (<><i className="fas fa-hand-pointer" aria-hidden="true" /> Click any text in the page below to edit it directly.</>)}
+            {mode === 'visual' && (<><i className="fas fa-hand-pointer" aria-hidden="true" /> Click any text to edit it. To add a link, select words and click <strong>Link</strong>; to change one, click inside it and press <strong>Link</strong>.</>)}
             {mode === 'html' && (<><i className="fas fa-code" aria-hidden="true" /> Advanced: edit the raw HTML. The safety check still runs as you type.</>)}
             {mode === 'preview' && (<><i className="fas fa-eye" aria-hidden="true" /> This is exactly what members will see — switch to “Edit text” to make changes.</>)}
             {mode === 'audio' && (<><i className="fas fa-headphones" aria-hidden="true" /> Generate the spoken-audio clips for each section. Regenerate a section after you change its words.</>)}
           </div>
           <div className="lce-subbar-right">
+            {mode === 'visual' && (
+              <button
+                type="button"
+                className="lce-btn lce-btn-sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={insertOrEditLink}
+                title="Select text to add a link, or click inside a link to edit/remove it"
+              >
+                <i className="fas fa-link" aria-hidden="true" /> Link
+              </button>
+            )}
             <span className={`lce-savestate ${dirty ? 'is-dirty' : ''}`}>
               <i className={`fas ${dirty ? 'fa-circle' : 'fa-circle-check'}`} aria-hidden="true" /> {dirty ? 'Unsaved changes' : 'All changes saved'}
             </span>

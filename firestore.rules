@@ -75,6 +75,13 @@ service cloud.firestore {
       }
     }
 
+    // Lesson audio-generation jobs. The editor creates a job + watches it live;
+    // the onAudioJobCreated background function (admin SDK, bypasses rules)
+    // writes progress back. Admin-only.
+    match /audioJobs/{jobId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
     // 2026 cohort member roster — used by the email-only Member Portal
     // gate. Doc id is the lowercase email.
     //   `get`  → public: visitors look up their own email by typing it

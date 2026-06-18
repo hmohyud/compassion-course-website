@@ -12784,6 +12784,57 @@ div.weekly-list-card[aria-disabled="true"] {
 }
 .lce-loading { margin: auto; color: #64748b; font-size: 0.95rem; }
 
+/* ── Audio tab ──────────────────────────────────────────────────────────── */
+.lce-aud { flex: 1; min-width: 0; overflow-y: auto; padding: 1.1rem 1.3rem 1.6rem; }
+.lce-aud-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.lce-aud-head h3 { margin: 0 0 0.25rem; font-size: 1.05rem; color: #0f172a; }
+.lce-aud-hint { margin: 0; max-width: 62ch; font-size: 0.85rem; line-height: 1.5; color: #64748b; }
+.lce-aud-head .lce-btn { flex-shrink: 0; white-space: nowrap; }
+
+.lce-aud-progress { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1rem; }
+.lce-aud-progress-bar { flex: 1; height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+.lce-aud-progress-bar > span { display: block; height: 100%; background: #0d9488; border-radius: 999px; transition: width 0.4s ease; }
+.lce-aud-progress-label { font-size: 0.82rem; color: #0f766e; white-space: nowrap; }
+.lce-aud-empty { color: #64748b; font-size: 0.9rem; }
+
+.lce-aud-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.lce-aud-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+.lce-aud-row:last-child { border-bottom: 0; }
+.lce-aud-row-main { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+.lce-aud-name { font-weight: 600; color: #1e293b; font-size: 0.92rem; }
+.lce-aud-count { font-size: 0.78rem; color: #94a3b8; }
+.lce-aud-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: #cbd5e1; }
+.lce-aud-dot--full { background: #0d9488; }
+.lce-aud-dot--partial { background: #f59e0b; }
+.lce-aud-dot--none { background: #cbd5e1; }
+.lce-aud-row-side { flex-shrink: 0; }
+.lce-aud-chunkstat { display: inline-flex; gap: 0.3rem; align-items: center; }
+.lce-aud-cs { font-size: 0.9rem; color: #cbd5e1; }
+.lce-aud-cs--done, .lce-aud-cs--skipped { color: #0d9488; }
+.lce-aud-cs--error { color: #e11d48; }
+.lce-aud-cs--pending { color: #0f766e; }
+
 .lce-cp-panel {
     width: 320px;
     flex-shrink: 0;

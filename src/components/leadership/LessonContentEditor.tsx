@@ -26,6 +26,13 @@ import {
   applyRegionEdits,
   type SanityResult,
 } from '../../utils/lessonHtml';
+import { extractNarratedSections, type AudioSection, type AudioChunk } from '../../utils/lessonAudio';
+import {
+  createAudioJob,
+  watchAudioJob,
+  listExistingWeeklyAudio,
+  type AudioJob,
+} from '../../services/weeklyAudioService';
 import { rewriteWeeklyHtml } from '../../pages/weekly/WeeklyViewerPage';
 
 // Full-screen, admin-only editor for one week's lesson HTML.
@@ -39,7 +46,7 @@ import { rewriteWeeklyHtml } from '../../pages/weekly/WeeklyViewerPage';
 //   localStorage autosave of the last known-good state.
 // - Checkpoints panel: manual save / restore / click-and-hold delete.
 
-type Mode = 'visual' | 'html' | 'preview';
+type Mode = 'visual' | 'html' | 'preview' | 'audio';
 type Msg = { type: 'success' | 'error' | 'info'; text: string } | null;
 
 const HOLD_MS = 900;
@@ -71,6 +78,11 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
   const [renderToken, setRenderToken] = useState(0);
   const [holdingId, setHoldingId] = useState<string | null>(null);
   const [recoveryDraft, setRecoveryDraft] = useState<string | null>(null);
+  const [audioSections, setAudioSections] = useState<AudioSection[]>([]);
+  const [existingAudio, setExistingAudio] = useState<Set<string>>(new Set());
+  const [activeJob, setActiveJob] = useState<AudioJob | null>(null);
+  const [audioBusy, setAudioBusy] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
 
   const docRef = useRef<Document | null>(null);
   const htmlRef = useRef('');
@@ -80,6 +92,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
   const sanityTimer = useRef<number | null>(null);
   const inputTimer = useRef<number | null>(null);
   const holdTimer = useRef<number | null>(null);
+  const jobUnsub = useRef<null | (() => void)>(null);
 
   const SAFE_KEY = `lessonEditor:safe:week-${week.weekNumber}`;
   const htmlPath = week.htmlStoragePath || `${STORAGE_HTML_PREFIX}/week-${week.weekNumber}.html`;
@@ -182,12 +195,13 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [week.weekNumber]);
 
-  // Cleanup timers on unmount.
+  // Cleanup timers + job listener on unmount.
   useEffect(
     () => () => {
       if (sanityTimer.current) window.clearTimeout(sanityTimer.current);
       if (inputTimer.current) window.clearTimeout(inputTimer.current);
       if (holdTimer.current) window.clearTimeout(holdTimer.current);
+      if (jobUnsub.current) jobUnsub.current();
     },
     [],
   );
@@ -243,6 +257,81 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       iframe.srcdoc = '<p style="padding:2rem;font-family:sans-serif">Preview failed to render.</p>';
     }
   }, [mode, currentHtml, cssUrl, scriptUrl, audioMap]);
+
+  // ── Audio tab: load the narrated sections + which clips already exist ────────
+  useEffect(() => {
+    if (mode !== 'audio' || loading) return;
+    let cancelled = false;
+    (async () => {
+      setAudioLoading(true);
+      try {
+        const sections = extractNarratedSections(htmlRef.current);
+        const existing = await listExistingWeeklyAudio();
+        (week.audioStoragePaths || []).forEach((p) => existing.add(p));
+        if (cancelled) return;
+        setAudioSections(sections);
+        setExistingAudio(existing);
+      } catch (e: any) {
+        if (!cancelled) setMsg({ type: 'error', text: 'Could not load audio status: ' + (e?.message || e) });
+      } finally {
+        if (!cancelled) setAudioLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, loading]);
+
+  const generateChunks = useCallback(
+    async (chunks: AudioChunk[]) => {
+      const email = user?.email;
+      if (!email) {
+        setMsg({ type: 'error', text: 'You must be signed in.' });
+        return;
+      }
+      const toGen = chunks.filter((c) => !existingAudio.has(c.storagePath));
+      if (!toGen.length) {
+        setMsg({ type: 'info', text: 'Those sections already have audio.' });
+        return;
+      }
+      setAudioBusy(true);
+      setMsg(null);
+      try {
+        const jobId = await createAudioJob(week.weekNumber, toGen, email);
+        if (jobUnsub.current) jobUnsub.current();
+        jobUnsub.current = watchAudioJob(jobId, (job) => {
+          setActiveJob(job);
+          if (!job) return;
+          if (job.status === 'complete' || job.status === 'completed_with_errors' || job.status === 'error') {
+            setAudioBusy(false);
+            setExistingAudio((prev) => {
+              const next = new Set(prev);
+              (job.items || []).forEach((it) => {
+                if (it.status === 'done' || it.status === 'skipped') next.add(it.storagePath);
+              });
+              return next;
+            });
+            if (job.status === 'complete') setMsg({ type: 'success', text: 'Audio generated. Save the lesson if you haven’t, so it matches the published text.' });
+            else if (job.status === 'completed_with_errors') setMsg({ type: 'error', text: 'Some clips failed — see the statuses below.' });
+            else setMsg({ type: 'error', text: 'Audio job failed: ' + (job.error || 'unknown error') });
+            if (jobUnsub.current) {
+              jobUnsub.current();
+              jobUnsub.current = null;
+            }
+          }
+        });
+      } catch (e: any) {
+        setAudioBusy(false);
+        setMsg({ type: 'error', text: 'Could not start generation: ' + (e?.message || e) });
+      }
+    },
+    [user, existingAudio, week.weekNumber],
+  );
+
+  const generateAll = useCallback(() => {
+    generateChunks(audioSections.flatMap((s) => s.chunks));
+  }, [generateChunks, audioSections]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const flushVisual = useCallback((): string => {
@@ -408,6 +497,12 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     );
   }
 
+  const audioMissingCount = audioSections.reduce(
+    (n, s) => n + s.chunks.filter((c) => !existingAudio.has(c.storagePath)).length,
+    0,
+  );
+  const jobRunning = !!activeJob && (activeJob.status === 'queued' || activeJob.status === 'running');
+
   return (
     <div className="lce-overlay" role="dialog" aria-modal="true" aria-label={`Edit Week ${week.weekNumber}`}>
       <div className="lce-panel">
@@ -426,6 +521,9 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
             <button type="button" role="tab" aria-selected={mode === 'preview'} className={mode === 'preview' ? 'active' : ''} onClick={() => switchMode('preview')}>
               <i className="fas fa-eye" aria-hidden="true" /> Preview
             </button>
+            <button type="button" role="tab" aria-selected={mode === 'audio'} className={mode === 'audio' ? 'active' : ''} onClick={() => switchMode('audio')}>
+              <i className="fas fa-headphones" aria-hidden="true" /> Audio
+            </button>
           </div>
           <div className="lce-bar-right">
             <button type="button" className="lce-btn lce-btn-primary" onClick={() => doSave()} disabled={saving || loading} title="Upload your changes to the live site">
@@ -442,6 +540,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
             {mode === 'visual' && (<><i className="fas fa-hand-pointer" aria-hidden="true" /> Click any text in the page below to edit it directly.</>)}
             {mode === 'html' && (<><i className="fas fa-code" aria-hidden="true" /> Advanced: edit the raw HTML. The safety check still runs as you type.</>)}
             {mode === 'preview' && (<><i className="fas fa-eye" aria-hidden="true" /> This is exactly what members will see — switch to “Edit text” to make changes.</>)}
+            {mode === 'audio' && (<><i className="fas fa-headphones" aria-hidden="true" /> Generate the spoken-audio clips for each section. Regenerate a section after you change its words.</>)}
           </div>
           <div className="lce-subbar-right">
             <span className={`lce-savestate ${dirty ? 'is-dirty' : ''}`}>
@@ -502,6 +601,103 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
                 value={currentHtml}
                 onChange={(e) => applyHtml(e.target.value, { dirty: true })}
               />
+            ) : mode === 'audio' ? (
+              <div className="lce-aud">
+                <div className="lce-aud-head">
+                  <div>
+                    <h3><i className="fas fa-headphones" aria-hidden="true" /> Narration audio</h3>
+                    <p className="lce-aud-hint">
+                      These are the spoken clips members hear from the “Listen” buttons, in the course voice. A clip is
+                      matched to its section by the section’s exact words — if you edit the text, regenerate that section
+                      so the audio stays in sync.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="lce-btn lce-btn-primary"
+                    onClick={generateAll}
+                    disabled={audioBusy || audioLoading || audioMissingCount === 0}
+                    title="Generate every clip that doesn't exist yet"
+                  >
+                    <i className="fas fa-wand-magic-sparkles" aria-hidden="true" />{' '}
+                    {audioMissingCount > 0 ? `Generate all missing (${audioMissingCount})` : 'All sections have audio'}
+                  </button>
+                </div>
+
+                {jobRunning && activeJob && (
+                  <div className="lce-aud-progress">
+                    <div className="lce-aud-progress-bar">
+                      <span style={{ width: `${activeJob.total ? Math.round((activeJob.done / activeJob.total) * 100) : 0}%` }} />
+                    </div>
+                    <span className="lce-aud-progress-label">
+                      <i className="fas fa-spinner fa-spin" aria-hidden="true" /> Generating {activeJob.done}/{activeJob.total}…
+                    </span>
+                  </div>
+                )}
+
+                {audioLoading ? (
+                  <div className="lce-loading"><i className="fas fa-spinner fa-spin" aria-hidden="true" /> Checking which sections have audio…</div>
+                ) : audioSections.length === 0 ? (
+                  <p className="lce-aud-empty">No narratable sections found in this lesson.</p>
+                ) : (
+                  <ul className="lce-aud-list">
+                    {audioSections.map((s) => {
+                      const total = s.chunks.length;
+                      const have = s.chunks.filter((c) => existingAudio.has(c.storagePath)).length;
+                      const state = have === 0 ? 'none' : have === total ? 'full' : 'partial';
+                      const jobItems = activeJob?.items || [];
+                      const inJob = jobItems.some((it) => s.chunks.some((c) => c.storagePath === it.storagePath));
+                      return (
+                        <li key={s.sectionName} className="lce-aud-row">
+                          <div className="lce-aud-row-main">
+                            <span className={`lce-aud-dot lce-aud-dot--${state}`} aria-hidden="true" />
+                            <span className="lce-aud-name">{s.sectionName}</span>
+                            <span className="lce-aud-count">
+                              {total > 1 ? `${have}/${total} clips` : state === 'full' ? 'has audio' : 'no audio yet'}
+                            </span>
+                          </div>
+                          <div className="lce-aud-row-side">
+                            {jobRunning && inJob ? (
+                              <span className="lce-aud-chunkstat" aria-hidden="true">
+                                {s.chunks.map((c) => {
+                                  const it = jobItems.find((x) => x.storagePath === c.storagePath);
+                                  const st = it?.status;
+                                  const icon =
+                                    st === 'done' || st === 'skipped'
+                                      ? 'fa-circle-check'
+                                      : st === 'error'
+                                      ? 'fa-circle-xmark'
+                                      : st === 'pending'
+                                      ? 'fa-spinner fa-spin'
+                                      : 'fa-circle';
+                                  return (
+                                    <i
+                                      key={c.storagePath}
+                                      className={`fas ${icon} lce-aud-cs lce-aud-cs--${st || 'idle'}`}
+                                      title={`${c.label}${it?.error ? ': ' + it.error : ''}`}
+                                    />
+                                  );
+                                })}
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="lce-btn lce-btn-sm"
+                                onClick={() => generateChunks(s.chunks)}
+                                disabled={audioBusy || state === 'full'}
+                                title={state === 'full' ? 'This section already has audio' : 'Generate the audio for this section'}
+                              >
+                                <i className="fas fa-microphone" aria-hidden="true" />{' '}
+                                {state === 'none' ? 'Generate' : state === 'partial' ? 'Finish' : 'Done'}
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             ) : (
               <iframe ref={previewIframeRef} className="lce-preview-frame" title={`Preview Week ${week.weekNumber}`} />
             )}

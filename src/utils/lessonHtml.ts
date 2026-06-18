@@ -13,11 +13,21 @@
  *  exact node. Stripped from anything we save. */
 export const LCE_EDIT_ID_ATTR = 'data-lce-edit-id';
 
-/** Prose regions that become editable hosts in Visual mode: each section's
- *  accordion-content (Concept, In Practice, Practices, Info, Resources + any
- *  bonus sections) and the hero title. Structural wrappers, nav and scripts
- *  are deliberately NOT editable. */
-export const EDITABLE_SELECTORS = ['header.hero h1', '.accordion-content'];
+/** Regions that become editable hosts in Visual mode: the hero title, the
+ *  "In This Week" table-of-contents heading / buttons / links, every section's
+ *  accordion title (the header <h2>) and its accordion-content prose. The
+ *  TOC/accordion controls are <button>/<a> in the real lesson; in the edit view
+ *  they're neutralized + re-tagged so their text is editable without toggling
+ *  or navigating (see serializeForDisplay). Structural wrappers and scripts are
+ *  deliberately NOT editable. */
+export const EDITABLE_SELECTORS = [
+  'header.hero h1',
+  '.toc-header h2',
+  '.toc-btn',
+  '.toc-list a',
+  '.accordion-header h2',
+  '.accordion-content',
+];
 
 export function parseLesson(raw: string): Document {
   return new DOMParser().parseFromString(raw, 'text/html');
@@ -57,7 +67,7 @@ const EDIT_AFFORDANCE_CSS = `
   html, body { padding-top: 0 !important; }
   /* Force every accordion open so all text is visible+editable without JS. */
   .accordion-body, .accordion-body.open { max-height: none !important; overflow: visible !important; transition: none !important; }
-  [${LCE_EDIT_ID_ATTR}] { outline: 1px dashed rgba(13,148,136,0.35); outline-offset: 4px; border-radius: 2px; }
+  [${LCE_EDIT_ID_ATTR}] { outline: 1px dashed rgba(13,148,136,0.35); outline-offset: 4px; border-radius: 2px; cursor: text; -webkit-user-select: text !important; user-select: text !important; }
   [${LCE_EDIT_ID_ATTR}]:hover { outline-color: rgba(13,148,136,0.6); }
   [${LCE_EDIT_ID_ATTR}]:focus, [${LCE_EDIT_ID_ATTR}]:focus-visible { outline: 2px solid #0d9488; }
 `;
@@ -65,7 +75,13 @@ const EDIT_AFFORDANCE_CSS = `
 /** Serialize for the editable iframe: stylesheet pointed at the signed Storage
  *  URL (so it looks like the real lesson), scripts removed (so they don't fight
  *  contentEditable), all accordions forced open, editable regions made
- *  contentEditable. */
+ *  contentEditable. Edit mode is for editing text, not interacting, so it also
+ *  neutralizes the page's actions: inline handlers (e.g. Print's window.print)
+ *  are stripped, the TOC links' in-page navigation is dropped, and the
+ *  accordion headers + TOC buttons — which are <button>s that swallow caret
+ *  placement for their editable children — are re-tagged as styled <div>s. None
+ *  of this touches the kept document, so preview and the saved file keep the
+ *  real <button>/<a> elements and their behavior. */
 export function serializeForDisplay(doc: Document, cssUrl: string): string {
   const clone = doc.cloneNode(true) as Document;
   clone.querySelectorAll('link[rel="stylesheet"]').forEach((lnk) => {
@@ -77,6 +93,26 @@ export function serializeForDisplay(doc: Document, cssUrl: string): string {
     el.setAttribute('contenteditable', 'true');
     el.setAttribute('spellcheck', 'true');
   });
+
+  // Strip inline event handlers (kills Print's onclick=window.print(), etc.).
+  clone.querySelectorAll('*').forEach((el) => {
+    for (const attr of Array.from(el.attributes)) {
+      if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+    }
+  });
+  // Drop the TOC links' in-page jump so clicking one just edits its text.
+  clone.querySelectorAll('.toc-list a[href]').forEach((a) => a.removeAttribute('href'));
+  // A <button> won't host a text caret in its editable children, so render the
+  // accordion headers and TOC buttons as <div>s with the same class (styling is
+  // class-based, so they look identical) and carry their edit id over.
+  clone.querySelectorAll('button.accordion-header, button.toc-btn').forEach((btn) => {
+    const div = clone.createElement('div');
+    for (const attr of Array.from(btn.attributes)) div.setAttribute(attr.name, attr.value);
+    div.setAttribute('role', 'button');
+    div.innerHTML = btn.innerHTML;
+    btn.replaceWith(div);
+  });
+
   const style = clone.createElement('style');
   style.id = '__lce_edit_style';
   style.textContent = EDIT_AFFORDANCE_CSS;

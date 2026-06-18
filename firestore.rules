@@ -67,6 +67,12 @@ service cloud.firestore {
     match /weeklyContent/{weekId} {
       allow read: if true;
       allow write: if isAdmin();
+
+      // Lesson-editor checkpoints — admin-only snapshots of a week's full HTML.
+      // Internal editorial tooling, so read is admin-only too.
+      match /checkpoints/{checkpointId} {
+        allow read, create, update, delete: if isAdmin();
+      }
     }
 
     // 2026 cohort member roster — used by the email-only Member Portal

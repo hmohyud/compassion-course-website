@@ -13,6 +13,7 @@ import {
   STORAGE_AUDIO_PREFIX,
   STORAGE_ASSETS_PREFIX,
 } from '../../services/weeklyContentService';
+import LessonContentEditor from './LessonContentEditor';
 
 // Embeddable weekly-content admin view. Same workflows as the standalone
 // /admin-portal/weekly page, but without Layout/route guards — meant to
@@ -24,6 +25,7 @@ const WeeklyAdminView: React.FC = () => {
   const [weeks, setWeeks] = useState<WeeklyContent[]>([]);
   const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('loading');
   const [editing, setEditing] = useState<WeeklyContent | null>(null);
+  const [editingContentWeek, setEditingContentWeek] = useState<WeeklyContent | null>(null);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -132,9 +134,9 @@ const WeeklyAdminView: React.FC = () => {
   return (
     <div className="weekly-admin-view" style={{ maxWidth: 1100 }}>
       <header style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#0d9488', margin: 0 }}>Weekly Content</h2>
+        <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#0d9488', margin: 0 }}>Manage Lessons</h2>
         <p style={{ color: '#52525b', fontSize: '0.9rem', margin: '0.25rem 0 0' }}>
-          Manage the 52 weekly lessons. All files served from Firebase Storage under admin-only rules.
+          Edit the 52 weekly lessons. "Edit content" opens the visual / HTML editor with checkpoints; "Settings" edits the release date, role, and publish state. All files served from Firebase Storage under admin-only rules.
         </p>
       </header>
 
@@ -186,7 +188,8 @@ const WeeklyAdminView: React.FC = () => {
                   <td style={{ padding: '0.6rem' }}>{w.requiredRole}</td>
                   <td style={{ padding: '0.6rem' }}>{w.published ? '✓' : '—'}</td>
                   <td style={{ padding: '0.6rem' }}>
-                    <button className="btn-secondary" onClick={() => setEditing({ ...w })} style={{ marginRight: 8 }}>Edit</button>
+                    <button className="btn-primary" onClick={() => setEditingContentWeek({ ...w })} style={{ marginRight: 8 }}>Edit content</button>
+                    <button className="btn-secondary" onClick={() => setEditing({ ...w })} style={{ marginRight: 8 }}>Settings</button>
                     <Link to={`/weekly/${w.weekNumber}`} className="btn-secondary" style={{ marginRight: 8 }}>View</Link>
                     <button className="btn-secondary" onClick={() => handleDelete(w)} style={{ color: '#b91c1c' }}>Delete</button>
                   </td>
@@ -206,6 +209,14 @@ const WeeklyAdminView: React.FC = () => {
           onHtmlUpload={handleHtmlUpload}
           onAudioUpload={handleAudioUpload}
           saving={saving}
+        />
+      )}
+
+      {editingContentWeek && (
+        <LessonContentEditor
+          week={editingContentWeek}
+          onClose={() => setEditingContentWeek(null)}
+          onSaved={() => { refresh(); }}
         />
       )}
     </div>

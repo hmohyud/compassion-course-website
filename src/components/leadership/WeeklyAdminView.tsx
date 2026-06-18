@@ -188,10 +188,20 @@ const WeeklyAdminView: React.FC = () => {
                   <td style={{ padding: '0.6rem' }}>{w.requiredRole}</td>
                   <td style={{ padding: '0.6rem' }}>{w.published ? '✓' : '—'}</td>
                   <td style={{ padding: '0.6rem' }}>
-                    <button className="btn-primary" onClick={() => setEditingContentWeek({ ...w })} style={{ marginRight: 8 }}>Edit content</button>
-                    <button className="btn-secondary" onClick={() => setEditing({ ...w })} style={{ marginRight: 8 }}>Settings</button>
-                    <Link to={`/weekly/${w.weekNumber}`} className="btn-secondary" style={{ marginRight: 8 }}>View</Link>
-                    <button className="btn-secondary" onClick={() => handleDelete(w)} style={{ color: '#b91c1c' }}>Delete</button>
+                    <div className="wk-actions">
+                      <button type="button" className="wk-act wk-act-primary" onClick={() => setEditingContentWeek({ ...w })}>
+                        <i className="fas fa-pen" aria-hidden="true" /> Edit content
+                      </button>
+                      <button type="button" className="wk-act" onClick={() => setEditing({ ...w })}>
+                        <i className="fas fa-gear" aria-hidden="true" /> Settings
+                      </button>
+                      <Link to={`/weekly/${w.weekNumber}`} className="wk-act">
+                        <i className="fas fa-eye" aria-hidden="true" /> View
+                      </Link>
+                      <button type="button" className="wk-act wk-act-danger" onClick={() => handleDelete(w)}>
+                        <i className="fas fa-trash" aria-hidden="true" /> Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

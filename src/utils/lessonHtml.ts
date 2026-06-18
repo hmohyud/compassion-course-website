@@ -50,6 +50,11 @@ export function serializeClean(doc: Document): string {
 }
 
 const EDIT_AFFORDANCE_CSS = `
+  /* Hide the lesson's own top nav (dark toggle, language picker, brand) and
+     progress bar — the live viewer hides these too, so the edit view matches
+     what members actually see. */
+  .top-nav, #progress-bar { display: none !important; }
+  html, body { padding-top: 0 !important; }
   /* Force every accordion open so all text is visible+editable without JS. */
   .accordion-body, .accordion-body.open { max-height: none !important; overflow: visible !important; transition: none !important; }
   [${LCE_EDIT_ID_ATTR}] { outline: 1px dashed rgba(13,148,136,0.35); outline-offset: 4px; border-radius: 2px; }

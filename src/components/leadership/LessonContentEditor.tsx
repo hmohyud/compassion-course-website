@@ -50,6 +50,10 @@ type Mode = 'visual' | 'html' | 'preview' | 'audio';
 type Msg = { type: 'success' | 'error' | 'info'; text: string } | null;
 
 const HOLD_MS = 900;
+// If a running audio job makes no progress for this long, treat it as stuck
+// (e.g. the function lacks permissions and can't even write the job doc) so the
+// editor surfaces an error instead of spinning forever. Resets on every clip.
+const AUDIO_STUCK_MS = 120000;
 
 interface Props {
   week: WeeklyContent;
@@ -93,6 +97,8 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
   const inputTimer = useRef<number | null>(null);
   const holdTimer = useRef<number | null>(null);
   const jobUnsub = useRef<null | (() => void)>(null);
+  const jobTimer = useRef<number | null>(null);
+  const jobSig = useRef<string>('');
 
   const SAFE_KEY = `lessonEditor:safe:week-${week.weekNumber}`;
   const htmlPath = week.htmlStoragePath || `${STORAGE_HTML_PREFIX}/week-${week.weekNumber}.html`;
@@ -201,6 +207,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       if (sanityTimer.current) window.clearTimeout(sanityTimer.current);
       if (inputTimer.current) window.clearTimeout(inputTimer.current);
       if (holdTimer.current) window.clearTimeout(holdTimer.current);
+      if (jobTimer.current) window.clearTimeout(jobTimer.current);
       if (jobUnsub.current) jobUnsub.current();
     },
     [],
@@ -297,14 +304,44 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       }
       setAudioBusy(true);
       setMsg(null);
+
+      const stopWatching = () => {
+        if (jobUnsub.current) {
+          jobUnsub.current();
+          jobUnsub.current = null;
+        }
+        if (jobTimer.current) {
+          window.clearTimeout(jobTimer.current);
+          jobTimer.current = null;
+        }
+      };
+      // (Re)arm the stuck-job watchdog — called on each bit of progress.
+      const armStuckTimer = () => {
+        if (jobTimer.current) window.clearTimeout(jobTimer.current);
+        jobTimer.current = window.setTimeout(() => {
+          setAudioBusy(false);
+          setActiveJob(null);
+          stopWatching();
+          setMsg({
+            type: 'error',
+            text:
+              'Generation didn’t progress. The audio service may be missing permissions or unavailable — ' +
+              'no clips were produced. Check the onAudioJobCreated function logs, then try again.',
+          });
+        }, AUDIO_STUCK_MS);
+      };
+
       try {
         const jobId = await createAudioJob(week.weekNumber, toGen, email);
-        if (jobUnsub.current) jobUnsub.current();
+        stopWatching();
+        jobSig.current = '';
+        armStuckTimer();
         jobUnsub.current = watchAudioJob(jobId, (job) => {
           setActiveJob(job);
           if (!job) return;
           if (job.status === 'complete' || job.status === 'completed_with_errors' || job.status === 'error') {
             setAudioBusy(false);
+            stopWatching();
             setExistingAudio((prev) => {
               const next = new Set(prev);
               (job.items || []).forEach((it) => {
@@ -315,14 +352,18 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
             if (job.status === 'complete') setMsg({ type: 'success', text: 'Audio generated. Save the lesson if you haven’t, so it matches the published text.' });
             else if (job.status === 'completed_with_errors') setMsg({ type: 'error', text: 'Some clips failed — see the statuses below.' });
             else setMsg({ type: 'error', text: 'Audio job failed: ' + (job.error || 'unknown error') });
-            if (jobUnsub.current) {
-              jobUnsub.current();
-              jobUnsub.current = null;
-            }
+            return;
+          }
+          // Still running: reset the watchdog whenever status or progress moves.
+          const sig = `${job.status}:${job.done}`;
+          if (sig !== jobSig.current) {
+            jobSig.current = sig;
+            armStuckTimer();
           }
         });
       } catch (e: any) {
         setAudioBusy(false);
+        stopWatching();
         setMsg({ type: 'error', text: 'Could not start generation: ' + (e?.message || e) });
       }
     },

@@ -225,8 +225,12 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       if (idoc) attachIframeListeners(idoc);
     };
     iframe.srcdoc = serializeForDisplay(docRef.current, cssUrl);
+    // `loading` is in the deps so this re-runs once the iframe actually mounts:
+    // during load, cssUrl/renderToken settle while loading is still true (iframe
+    // not yet rendered), and loading flips to false in a later batch — without it
+    // here, the effect would never fire after the iframe exists, leaving it blank.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, renderToken, cssUrl]);
+  }, [mode, renderToken, cssUrl, loading]);
 
   // ── Preview iframe ──────────────────────────────────────────────────────────
   useEffect(() => {

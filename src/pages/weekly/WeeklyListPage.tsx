@@ -10,7 +10,6 @@ import {
 import {
   processWeeklyAccessLink,
   hasWeeklyAccess,
-  clearWeeklyAccess,
 } from '../../services/weeklyAccess';
 import { formatReleaseDate } from '../../utils/formatReleaseDate';
 
@@ -50,11 +49,6 @@ const WeeklyListPage: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [unlocked]);
-
-  function signOut() {
-    clearWeeklyAccess();
-    window.location.reload();
-  }
 
   // ── Locked: no access hash. Lessons are delivered by email. ──────────────
   if (!unlocked) {
@@ -103,11 +97,6 @@ const WeeklyListPage: React.FC = () => {
                 <Link to="/portal/leadership?tab=adminPortal&adminTab=weekly" className="btn-secondary">
                   Manage lessons
                 </Link>
-              )}
-              {!isAdmin && accessGranted && (
-                <button type="button" onClick={signOut} className="btn-secondary">
-                  Sign out
-                </button>
               )}
             </div>
           </header>

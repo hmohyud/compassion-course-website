@@ -6,15 +6,13 @@ import { usePermissions } from '../../context/PermissionsContext';
 // Admin page components (rendered as embedded views)
 import UserManagement from '../../pages/admin/UserManagement';
 import ContentManagement from '../../pages/admin/ContentManagement';
-import MembersAdminView from './MembersAdminView';
 import WeeklyAdminView from './WeeklyAdminView';
-type AdminSubTab = 'users' | 'content' | 'members' | 'weekly';
-const VALID_SUBTABS: AdminSubTab[] = ['users', 'content', 'members', 'weekly'];
+type AdminSubTab = 'users' | 'content' | 'weekly';
+const VALID_SUBTABS: AdminSubTab[] = ['users', 'content', 'weekly'];
 
 const ADMIN_SUBTABS: { id: AdminSubTab; label: string; icon: string }[] = [
   { id: 'users', label: 'Users & Teams', icon: 'fas fa-users-cog' },
   { id: 'content', label: 'Content', icon: 'fas fa-edit' },
-  { id: 'members', label: '2026 Members', icon: 'fas fa-id-card' },
   { id: 'weekly', label: 'Weekly Lessons', icon: 'fas fa-calendar-week' },
 ];
 
@@ -79,7 +77,6 @@ const AdminTabView: React.FC = () => {
       <div className="ld-admin-subtab-content">
         {activeSubTab === 'users' && <UserManagement />}
         {activeSubTab === 'content' && <ContentManagement />}
-        {activeSubTab === 'members' && <MembersAdminView />}
         {activeSubTab === 'weekly' && <WeeklyAdminView />}
       </div>
     </div>

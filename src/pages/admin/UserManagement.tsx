@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
-import { approveUser as approveUserService, grantAdmin as grantAdminService, revokeAdmin as revokeAdminService } from '../../services/adminService';
+import { grantAdmin as grantAdminService, revokeAdmin as revokeAdminService } from '../../services/adminService';
 import { useAuth } from '../../context/AuthContext';
-import { listUserProfiles, getUserProfile, createUserProfile, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
-import { listUsersByStatus, updateUserRole, type UserDoc, type UserRole } from '../../services/usersService';
+import { listUserProfiles, updateUserProfile, deleteUserProfile } from '../../services/userProfileService';
+import { updateUserRole, type UserRole } from '../../services/usersService';
 import { listTeams, getTeam, createTeamWithBoard, updateTeam, deleteTeamWithData } from '../../services/leadershipTeamsService';
 import { UserProfile, PortalRole } from '../../types/platform';
 import type { LeadershipTeam } from '../../types/leadership';
@@ -14,17 +14,14 @@ import type { LeadershipTeam } from '../../types/leadership';
 
 const GOOGLE_ADMIN_CONSOLE_URL = 'https://admin.google.com';
 
-const APPROVE_ROLES: PortalRole[] = ['viewer', 'contributor', 'manager', 'admin'];
-
-export type AdminUserTab = 'directory' | 'teams' | 'pending';
+export type AdminUserTab = 'directory' | 'teams';
 
 const UserManagement: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('userTab');
-  const activeTab: AdminUserTab =
-    tabParam === 'teams' || tabParam === 'pending' ? tabParam : 'directory';
+  const activeTab: AdminUserTab = tabParam === 'teams' ? 'teams' : 'directory';
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [adminIds, setAdminIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -62,11 +59,6 @@ const UserManagement: React.FC = () => {
   const [updatingTeamId, setUpdatingTeamId] = useState<string | null>(null);
   const [editTeamName, setEditTeamName] = useState('');
   const [editTeamMemberIds, setEditTeamMemberIds] = useState<Set<string>>(new Set());
-
-  const [pendingUsers, setPendingUsers] = useState<UserDoc[]>([]);
-  const [pendingLoading, setPendingLoading] = useState(false);
-  const [approvingUid, setApprovingUid] = useState<string | null>(null);
-  const [openingEditPendingUid, setOpeningEditPendingUid] = useState<string | null>(null);
 
   const setTab = (t: AdminUserTab) => {
     const params = new URLSearchParams(searchParams);
@@ -110,87 +102,6 @@ const UserManagement: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'teams') loadTeams();
   }, [activeTab]);
-
-  const loadPendingUsers = async () => {
-    setPendingLoading(true);
-    try {
-      const list = await listUsersByStatus('pending');
-      setPendingUsers(list);
-    } catch (e) {
-      console.error('Load pending users failed:', e);
-      setPendingUsers([]);
-    } finally {
-      setPendingLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'pending') loadPendingUsers();
-  }, [activeTab]);
-
-  const openEditForPendingUser = async (u: UserDoc) => {
-    setOpeningEditPendingUid(u.uid);
-    setError('');
-    try {
-      let profile = await getUserProfile(u.uid);
-      if (!profile) {
-        profile = await createUserProfile(u.uid, u.email, u.displayName || '');
-      }
-      setEditingProfile(profile);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to open edit';
-      setError(message);
-    } finally {
-      setOpeningEditPendingUid(null);
-    }
-  };
-
-  const approveUser = async (uid: string, role: PortalRole) => {
-    setApprovingUid(uid);
-    setError('');
-    setSuccess('');
-    try {
-      // First flip status from pending → active with the requested role.
-      await approveUserService(uid, role);
-
-      // If approving directly as admin, also create the admins/{uid} doc so
-      // the user gets full admin access without a second step.
-      // grantAdminService re-syncs the role too — safe to call after
-      // approveUserService.
-      if (role === 'admin') {
-        const pending = pendingUsers.find((p) => p.uid === uid);
-        const email = pending?.email?.toLowerCase().trim() || '';
-        if (!email) {
-          setError(
-            'User approved, but no email on file to create admin record. Use the role buttons after refreshing.',
-          );
-        } else {
-          try {
-            await grantAdminService(uid, email);
-            setAdminIds((prev) => new Set([...prev, uid, email]));
-          } catch (e) {
-            console.error('Approve-as-admin: grant step failed', e);
-            setError(
-              'User approved, but admin record creation failed. Re-click "admin" in the directory to retry.',
-            );
-          }
-        }
-      }
-
-      setSuccess(`User approved with role ${role}.`);
-      await loadPendingUsers();
-      await loadData();
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code ?? '';
-      const message = (err as { message?: string })?.message ?? 'Failed to approve.';
-      if (code === 'functions/permission-denied') setError('Only admins can approve users.');
-      else if (code === 'functions/not-found') setError('User not found.');
-      else setError(message);
-    } finally {
-      setApprovingUid(null);
-    }
-  };
-
 
   const loadData = async () => {
     setLoading(true);
@@ -246,7 +157,6 @@ const UserManagement: React.FC = () => {
       await deleteUserProfile(profile.id);
       setSuccess('User removed from directory.');
       await loadData();
-      loadPendingUsers();
       onSuccess?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to remove user';
@@ -299,7 +209,6 @@ const UserManagement: React.FC = () => {
         setAdminIds((prev) => new Set([...prev, userId, profileEmail]));
         setSuccess(`Admin rights granted to ${profileEmail}.`);
         await loadData();
-        loadPendingUsers();
         return;
       }
 
@@ -326,7 +235,6 @@ const UserManagement: React.FC = () => {
         });
         setSuccess(`Admin rights revoked. Role set to ${role}.`);
         await loadData();
-        loadPendingUsers();
         return;
       }
 
@@ -338,7 +246,6 @@ const UserManagement: React.FC = () => {
       ]);
       setSuccess(`Role updated to ${role}.`);
       await loadData();
-      loadPendingUsers();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to update role';
       setError(message);
@@ -501,7 +408,7 @@ const UserManagement: React.FC = () => {
     <div className="ld-admin-view">
       <div style={{ marginBottom: '24px', borderBottom: '1px solid #e5e7eb' }}>
         <nav style={{ display: 'flex', gap: '0' }}>
-          {(['directory', 'teams', 'pending'] as const).map((t) => (
+          {(['directory', 'teams'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -517,7 +424,7 @@ const UserManagement: React.FC = () => {
                 fontSize: '1rem',
               }}
             >
-              {t === 'directory' ? 'User Directory' : t === 'teams' ? 'Team Management' : 'Pending approvals'}
+              {t === 'directory' ? 'User Directory' : 'Team Management'}
             </button>
           ))}
         </nav>
@@ -689,85 +596,6 @@ const UserManagement: React.FC = () => {
                   </div>
                 );
               })}
-            </div>
-          )}
-        </div>
-        )}
-
-        {activeTab === 'pending' && (
-        <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-          <h2 style={{ color: '#002B4D', marginBottom: '16px' }}>Pending approvals</h2>
-          <p style={{ marginBottom: '20px', color: '#6b7280', fontSize: '0.9rem' }}>
-            Users with pending status need approval before they can access portal features. Assign a role and approve to grant access.
-          </p>
-          {pendingLoading ? (
-            <p style={{ color: '#6b7280' }}>Loading…</p>
-          ) : pendingUsers.length === 0 ? (
-            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>No pending users.</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #e5e7eb', textAlign: 'left' }}>
-                    <th style={{ padding: '10px 12px', color: '#374151' }}>Email</th>
-                    <th style={{ padding: '10px 12px', color: '#374151' }}>Name</th>
-                    <th style={{ padding: '10px 12px', color: '#374151' }}>Role</th>
-                    <th style={{ padding: '10px 12px', color: '#374151' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingUsers.map((u) => (
-                    <tr key={u.uid} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '10px 12px' }}>{u.email}</td>
-                      <td style={{ padding: '10px 12px' }}>{u.displayName || '—'}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <select
-                          id={`role-${u.uid}`}
-                          defaultValue="viewer"
-                          style={{ padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '13px' }}
-                        >
-                          {APPROVE_ROLES.map((r) => (
-                            <option key={r} value={r}>{r}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            disabled={openingEditPendingUid === u.uid}
-                            onClick={() => openEditForPendingUser(u)}
-                            style={{
-                              padding: '6px 12px',
-                              fontSize: '13px',
-                              background: 'none',
-                              color: '#002B4D',
-                              border: '1px solid #002B4D',
-                              borderRadius: '6px',
-                              cursor: openingEditPendingUid === u.uid ? 'not-allowed' : 'pointer',
-                            }}
-                          >
-                            {openingEditPendingUid === u.uid ? '…' : 'Edit'}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            disabled={approvingUid === u.uid}
-                            onClick={() => {
-                              const sel = document.getElementById(`role-${u.uid}`) as HTMLSelectElement;
-                              const role = (sel?.value ?? 'viewer') as PortalRole;
-                              approveUser(u.uid, role);
-                            }}
-                            style={{ padding: '6px 14px', fontSize: '13px' }}
-                          >
-                            {approvingUid === u.uid ? 'Approving…' : 'Approve'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           )}
         </div>
@@ -968,10 +796,8 @@ const UserManagement: React.FC = () => {
     </div>
 
       {editingProfile && (() => {
-        const isPending = pendingUsers.some((p) => p.uid === editingProfile.id);
         const closeModal = () => {
           setEditingProfile(null);
-          loadPendingUsers();
         };
         return (
         <div
@@ -1010,11 +836,6 @@ const UserManagement: React.FC = () => {
                 </span>
               )}
             </p>
-            {isPending && (
-              <p style={{ marginBottom: '16px', fontSize: '0.875rem', color: '#6b7280' }}>
-                User is pending. Use Approve in the Pending tab to activate.
-              </p>
-            )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
               <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Portal role</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -1039,7 +860,7 @@ const UserManagement: React.FC = () => {
                   </button>
                 ))}
               </div>
-              {!isPending && isAdmin(editingProfile) && (
+              {isAdmin(editingProfile) && (
                 <button
                   type="button"
                   disabled={revokingId === editingProfile.id}
@@ -1073,7 +894,7 @@ const UserManagement: React.FC = () => {
               >
                 {removingId === editingProfile.id ? 'Removing...' : 'Remove from directory'}
               </button>
-              {!isPending && (['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
+              {(['manager', 'admin'] as const).includes(editingProfile.role ?? 'viewer') && editingProfile.email && (
                 <button
                   type="button"
                   onClick={() => {

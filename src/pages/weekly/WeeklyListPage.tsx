@@ -72,14 +72,14 @@ const WeeklyListPage: React.FC = () => {
                   __html: `
                   <div style="max-width:620px;margin:1.75rem auto 0;padding:1.25rem 1.5rem;background:#fdf6e3;border:1px solid #f0e2b6;border-radius:14px;text-align:left;color:#6b5618;line-height:1.55;">
                     <p style="font-weight:700;margin:0 0 .5rem;font-size:1.05rem;">Clicked your email link but your lessons didn't load?</p>
-                    <p style="margin:0 0 .75rem;">This page needs <strong>JavaScript</strong> to open your lessons, and your browser (or a privacy / ad-blocker extension) is currently blocking it. Any one of these usually fixes it:</p>
-                    <ul style="margin:0 0 .75rem;padding-left:1.25rem;">
-                      <li>Turn <strong>JavaScript on</strong> in your browser settings.</li>
-                      <li>Disable strict privacy tools for this site — e.g. <strong>Brave Shields</strong>, <strong>NoScript</strong>, ad/tracker blockers, or "Enhanced Tracking Protection".</li>
-                      <li>Open the email link in a <strong>different browser</strong> (Chrome, Safari, Firefox, or Edge).</li>
-                      <li>Try a <strong>different device</strong> (phone, tablet, or computer).</li>
-                    </ul>
-                    <p style="margin:0;">Still stuck? Email <a href="mailto:coursecoordinator@nycnvc.org" style="color:#8a6d1a;font-weight:600;">coursecoordinator@nycnvc.org</a> and we'll help you get in.</p>
+                    <p style="margin:0 0 .75rem;">Don't worry — nothing is wrong with your account, and this is almost always a quick fix. Try these in order; the very first one works for most people.</p>
+                    <ol style="margin:0 0 .75rem;padding-left:1.4rem;">
+                      <li style="margin-bottom:.6rem;"><strong>Open it in your normal web browser.</strong> When you tap a link inside an email app (Gmail, Outlook, Apple Mail, Yahoo), it often opens in a small built-in window that can't show your lessons. Look for a <strong>three-dots menu (⋮)</strong> or a <strong>share icon</strong> in a corner of that window, then tap <strong>“Open in browser,” “Open in Safari,”</strong> or <strong>“Open in Chrome.”</strong> Your lessons should then load.</li>
+                      <li style="margin-bottom:.6rem;"><strong>Try a different browser or device.</strong> If you can't find that menu, open your everyday browser yourself (Chrome, Safari, Firefox, or Edge), or try another device (phone, tablet, or computer) and use your email link from there.</li>
+                      <li style="margin-bottom:.6rem;"><strong>Turn JavaScript on.</strong> Your lessons need a browser feature called JavaScript, which is occasionally switched off. This short guide finds your browser and shows you exactly where the setting is, with pictures: <a href="https://www.enable-javascript.com/" target="_blank" rel="noopener noreferrer" style="color:#8a6d1a;font-weight:600;">how to turn JavaScript on</a>.</li>
+                      <li style="margin-bottom:0;"><strong>Using the Brave browser?</strong> Its built-in “Shields” can block the page. Here's how to turn Shields off for this site, with pictures: <a href="https://support.brave.com/hc/en-us/articles/360023646212-How-do-I-configure-global-and-site-specific-Shields-settings" target="_blank" rel="noopener noreferrer" style="color:#8a6d1a;font-weight:600;">Brave Shields guide</a>. (If you don't use Brave, skip this step.)</li>
+                    </ol>
+                    <p style="margin:0;">Still stuck? Email <a href="mailto:coursecoordinator@nycnvc.org" style="color:#8a6d1a;font-weight:600;">coursecoordinator@nycnvc.org</a> and a real person will help you get in.</p>
                   </div>`,
                 }}
               />

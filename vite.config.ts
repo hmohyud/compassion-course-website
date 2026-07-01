@@ -30,6 +30,11 @@ export default defineConfig(({ isSsrBuild }) => ({
       '/about',
       '/contact',
       '/learn-more',
+      // Prerender the Lesson Library's locked shell (public — no lesson data,
+      // just the "delivered by email" notice) so its <noscript> fallback
+      // reaches visitors whose browser blocks JavaScript. The app itself still
+      // hydrates + unlocks normally for everyone else.
+      '/weekly',
     ],
   },
   build: {

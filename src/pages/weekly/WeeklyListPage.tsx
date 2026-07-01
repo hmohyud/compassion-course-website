@@ -83,12 +83,6 @@ const WeeklyListPage: React.FC = () => {
                   </div>`,
                 }}
               />
-              <div className="member-portal-actions" style={{ marginTop: '2rem' }}>
-                <Link to="/portal/community" className="btn-secondary">
-                  <i className="fas fa-globe-americas" aria-hidden="true" />
-                  &nbsp;Enter the GCN
-                </Link>
-              </div>
             </div>
           </div>
         </section>

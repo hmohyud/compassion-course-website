@@ -12727,6 +12727,23 @@ div.weekly-list-card[aria-disabled="true"] {
 .lce-status--bad { background: #fef2f2; color: #991b1b; }
 .lce-dirty { font-size: 0.72rem; color: #b45309; font-weight: 600; }
 
+/* Publish-time narration notifier: whether "Save & publish" will (re)generate
+   audio, and for how many changed sections. */
+.lce-audiostate {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.lce-audiostate i { font-size: 0.85em; flex-shrink: 0; }
+.lce-audiostate.is-pending { background: #eff6ff; color: #1d4ed8; }
+.lce-audiostate.is-generating { background: #f0fdfa; color: #0f766e; }
+.lce-audiostate.is-ok { background: #ecfdf5; color: #065f46; }
+
 .lce-modes { display: inline-flex; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
 .lce-modes button {
     border: 0;

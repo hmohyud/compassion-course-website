@@ -186,6 +186,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
         htmlRef.current = html;
         setCurrentHtml(html);
         rebuildDocFrom(html);
+        setAudioSections(extractNarratedSections(html));
         lastSafeRef.current = html;
         setSanity(sanityCheck(html, week.weekNumber));
         try {
@@ -273,45 +274,61 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     }
   }, [mode, currentHtml, cssUrl, scriptUrl, audioMap]);
 
-  // ── Audio tab: load the narrated sections + which clips already exist ────────
-  useEffect(() => {
-    if (mode !== 'audio' || loading) return;
-    let cancelled = false;
-    (async () => {
-      setAudioLoading(true);
-      try {
-        const sections = extractNarratedSections(htmlRef.current);
-        const existing = await listExistingWeeklyAudio();
-        (week.audioStoragePaths || []).forEach((p) => existing.add(p));
-        if (cancelled) return;
-        setAudioSections(sections);
-        setExistingAudio(existing);
-      } catch (e: any) {
-        if (!cancelled) setMsg({ type: 'error', text: 'Could not load audio status: ' + (e?.message || e) });
-      } finally {
-        if (!cancelled) setAudioLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, loading]);
+  // ── Which narration clips already exist in Storage. Loaded when the editor
+  //    opens (not only in the Audio tab) so the publish-time "audio will be
+  //    generated" notice is always accurate, and re-listed on entering the
+  //    Audio tab in case clips were added elsewhere. ───────────────────────────
+  const refreshExistingAudio = useCallback(async () => {
+    setAudioLoading(true);
+    try {
+      const existing = await listExistingWeeklyAudio();
+      (week.audioStoragePaths || []).forEach((p) => existing.add(p));
+      setExistingAudio(existing);
+    } catch (e: any) {
+      setMsg({ type: 'error', text: 'Could not load audio status: ' + (e?.message || e) });
+    } finally {
+      setAudioLoading(false);
+    }
+  }, [week.audioStoragePaths]);
 
-  const generateChunks = useCallback(
-    async (chunks: AudioChunk[]) => {
+  useEffect(() => {
+    if (!loading) refreshExistingAudio();
+  }, [loading, refreshExistingAudio]);
+
+  useEffect(() => {
+    if (mode === 'audio' && !loading) refreshExistingAudio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  // ── The narrated sections + their content hashes, recomputed (debounced) as
+  //    the lesson text changes. Drives both the Audio tab and the publish-time
+  //    notifier. Cheap — audioHash() is a synchronous string hash. ─────────────
+  useEffect(() => {
+    if (loading) return;
+    const t = window.setTimeout(() => {
+      try {
+        setAudioSections(extractNarratedSections(currentHtml));
+      } catch {
+        /* a transient parse error shouldn't blow up the editor */
+      }
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [currentHtml, loading]);
+
+  // Create an audio job for the given chunks and watch it to completion,
+  // updating the known-audio set + status message. Shared by the Audio tab and
+  // the publish flow. `opts.startMsg` (when provided) is shown while the job is
+  // queued; `opts.completeMsg` overrides the success message.
+  const runAudioJob = useCallback(
+    async (chunks: AudioChunk[], opts?: { startMsg?: Msg; completeMsg?: string }) => {
       const email = user?.email;
       if (!email) {
         setMsg({ type: 'error', text: 'You must be signed in.' });
         return;
       }
-      const toGen = chunks.filter((c) => !existingAudio.has(c.storagePath));
-      if (!toGen.length) {
-        setMsg({ type: 'info', text: 'Those sections already have audio.' });
-        return;
-      }
+      if (!chunks.length) return;
       setAudioBusy(true);
-      setMsg(null);
+      if (opts && opts.startMsg !== undefined) setMsg(opts.startMsg);
 
       const stopWatching = () => {
         if (jobUnsub.current) {
@@ -340,7 +357,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       };
 
       try {
-        const jobId = await createAudioJob(week.weekNumber, toGen, email);
+        const jobId = await createAudioJob(week.weekNumber, chunks, email);
         stopWatching();
         jobSig.current = '';
         armStuckTimer();
@@ -357,7 +374,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
               });
               return next;
             });
-            if (job.status === 'complete') setMsg({ type: 'success', text: 'Audio generated. Save the lesson if you haven’t, so it matches the published text.' });
+            if (job.status === 'complete') setMsg({ type: 'success', text: opts?.completeMsg || 'Audio generated. Save the lesson if you haven’t, so it matches the published text.' });
             else if (job.status === 'completed_with_errors') setMsg({ type: 'error', text: 'Some clips failed — see the statuses below.' });
             else setMsg({ type: 'error', text: 'Audio job failed: ' + (job.error || 'unknown error') });
             return;
@@ -375,7 +392,21 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
         setMsg({ type: 'error', text: 'Could not start generation: ' + (e?.message || e) });
       }
     },
-    [user, existingAudio, week.weekNumber],
+    [user, week.weekNumber],
+  );
+
+  // Audio tab: generate the clips a set of sections is missing.
+  const generateChunks = useCallback(
+    async (chunks: AudioChunk[]) => {
+      const toGen = chunks.filter((c) => !existingAudio.has(c.storagePath));
+      if (!toGen.length) {
+        setMsg({ type: 'info', text: 'Those sections already have audio.' });
+        return;
+      }
+      setMsg(null);
+      await runAudioJob(toGen);
+    },
+    [existingAudio, runAudioJob],
   );
 
   const generateAll = useCallback(() => {
@@ -476,21 +507,40 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
         lastSafeRef.current = html;
         persistSafe(html);
         setSanity(sanityCheck(html, week.weekNumber));
-        setMsg({
-          type: checkpoints.length === 0 ? 'info' : 'success',
-          text:
-            checkpoints.length === 0
-              ? 'Saved & live on next page load. Tip: use "Save checkpoint" to keep restore points.'
-              : 'Saved. Live on next page load — open lessons need a refresh.',
-        });
         onSaved?.();
+
+        // Publishing also (re)generates the narration for any section whose text
+        // changed: its content hash no longer matches an existing clip. Sections
+        // that didn't change — and non-narrated sections (Info/Resources/
+        // Practices) — produce no new hash, so nothing is generated for them.
+        const sections = extractNarratedSections(html);
+        const pending = sections.flatMap((s) => s.chunks).filter((c) => !existingAudio.has(c.storagePath));
+        const pendingSections = sections.filter((s) => s.chunks.some((c) => !existingAudio.has(c.storagePath))).length;
+
+        if (pending.length > 0) {
+          await runAudioJob(pending, {
+            startMsg: {
+              type: 'info',
+              text: `Published. Generating narration audio for ${pendingSections} section${pendingSections === 1 ? '' : 's'}${pending.length !== pendingSections ? ` (${pending.length} clips)` : ''}…`,
+            },
+            completeMsg: 'Published — narration audio is up to date.',
+          });
+        } else {
+          setMsg({
+            type: checkpoints.length === 0 ? 'info' : 'success',
+            text:
+              checkpoints.length === 0
+                ? 'Saved & live on next page load. Tip: use "Save checkpoint" to keep restore points.'
+                : 'Saved. Live on next page load — open lessons need a refresh.',
+          });
+        }
       } catch (e: any) {
         setMsg({ type: 'error', text: `Save failed: ${e?.message || e}` });
       } finally {
         setSaving(false);
       }
     },
-    [user, mode, flushVisual, week.weekNumber, week.title, htmlPath, checkpoints.length, persistSafe, onSaved],
+    [user, mode, flushVisual, week.weekNumber, week.title, htmlPath, checkpoints.length, persistSafe, onSaved, existingAudio, runAudioJob],
   );
 
   const handleSaveCheckpoint = useCallback(async () => {
@@ -595,10 +645,10 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     );
   }
 
-  const audioMissingCount = audioSections.reduce(
-    (n, s) => n + s.chunks.filter((c) => !existingAudio.has(c.storagePath)).length,
-    0,
-  );
+  const pendingChunks = audioSections.flatMap((s) => s.chunks).filter((c) => !existingAudio.has(c.storagePath));
+  const audioMissingCount = pendingChunks.length;
+  const pendingAudioSections = audioSections.filter((s) => s.chunks.some((c) => !existingAudio.has(c.storagePath))).length;
+  const narratedChunkTotal = audioSections.reduce((n, s) => n + s.chunks.length, 0);
   const jobRunning = !!activeJob && (activeJob.status === 'queued' || activeJob.status === 'running');
 
   return (
@@ -624,7 +674,17 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
             </button>
           </div>
           <div className="lce-bar-right">
-            <button type="button" className="lce-btn lce-btn-primary" onClick={() => doSave()} disabled={saving || loading} title="Upload your changes to the live site">
+            <button
+              type="button"
+              className="lce-btn lce-btn-primary"
+              onClick={() => doSave()}
+              disabled={saving || loading}
+              title={
+                pendingAudioSections > 0
+                  ? `Publish your changes and generate narration audio for ${pendingAudioSections} changed section${pendingAudioSections === 1 ? '' : 's'}`
+                  : 'Upload your changes to the live site'
+              }
+            >
               <i className="fas fa-cloud-arrow-up" aria-hidden="true" /> {saving ? 'Saving…' : 'Save & publish'}
             </button>
             <button type="button" className="lce-btn lce-btn-ghost" onClick={attemptClose} aria-label="Close editor" title="Close">
@@ -655,6 +715,25 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
             <span className={`lce-savestate ${dirty ? 'is-dirty' : ''}`}>
               <i className={`fas ${dirty ? 'fa-circle' : 'fa-circle-check'}`} aria-hidden="true" /> {dirty ? 'Unsaved changes' : 'All changes saved'}
             </span>
+            {narratedChunkTotal > 0 && (
+              jobRunning ? (
+                <span className="lce-audiostate is-generating" title="Narration audio is being generated in the background.">
+                  <i className="fas fa-spinner fa-spin" aria-hidden="true" /> Generating audio{activeJob ? ` ${activeJob.done}/${activeJob.total}` : ''}…
+                </span>
+              ) : pendingAudioSections > 0 ? (
+                <span
+                  className="lce-audiostate is-pending"
+                  title="These narrated sections were edited (or have no audio yet). Publishing regenerates their spoken audio automatically."
+                >
+                  <i className="fas fa-headphones" aria-hidden="true" /> Publish generates audio: {pendingAudioSections} section{pendingAudioSections === 1 ? '' : 's'}
+                  {audioMissingCount !== pendingAudioSections ? ` (${audioMissingCount} clips)` : ''}
+                </span>
+              ) : (
+                <span className="lce-audiostate is-ok" title="Every narrated section already has matching audio — nothing will be generated on publish.">
+                  <i className="fas fa-circle-check" aria-hidden="true" /> Narration up to date
+                </span>
+              )
+            )}
             <span className={`lce-status lce-status--${sanity.ok ? 'ok' : 'bad'}`} title={sanity.reason || 'Structure looks intact'}>
               <i className={`fas ${sanity.ok ? 'fa-circle-check' : 'fa-triangle-exclamation'}`} aria-hidden="true" /> {sanity.ok ? 'Looks good' : sanity.reason}
             </span>
@@ -717,8 +796,9 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
                     <h3><i className="fas fa-headphones" aria-hidden="true" /> Narration audio</h3>
                     <p className="lce-aud-hint">
                       These are the spoken clips members hear from the “Listen” buttons, in the course voice. A clip is
-                      matched to its section by the section’s exact words — if you edit the text, regenerate that section
-                      so the audio stays in sync.
+                      matched to its section by the section’s exact words. You don’t have to generate here —
+                      <strong> “Save &amp; publish” already generates any changed or missing clips automatically.</strong>{' '}
+                      Use this tab to generate them ahead of time or retry a failed one.
                     </p>
                   </div>
                   <button

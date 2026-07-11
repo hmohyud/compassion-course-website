@@ -35,7 +35,7 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
-          VITE_JOTFORM_FORM_ID: "260544078267159"
+          VITE_JOTFORM_FORM_ID: "261905076159058"
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools

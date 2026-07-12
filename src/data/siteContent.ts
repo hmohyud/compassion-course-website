@@ -50,7 +50,7 @@ export const siteContent = {
         ' Changing Lives for 15 years, in over 120 countries, in 20 languages.  Check out our interactive community member globe.',
       ctaPrimaryDefault: 'Learn More',
       ctaPrimaryLink: '/learn-more',
-      ctaSecondaryDefault: 'Register Now',
+      ctaSecondaryDefault: 'Info for 2027-28 Course',
     },
 
     peaceEducation: {
@@ -246,7 +246,7 @@ export const siteContent = {
       heading: 'Registration Opens March 1st, 2026',
       description:
         'The next Compassion Course begins June 24th, 2026. Join 50,000+ people who have taken this journey toward more compassionate living.',
-      buttonPrimary: 'Register for the Course',
+      buttonPrimary: 'Info for 2027-28 Course',
       buttonSecondary: 'Learn More',
       buttonSecondaryLink: '/learn-more',
     },
@@ -263,7 +263,7 @@ export const siteContent = {
       heading: '52 Weeks That Change How You Relate to Yourself and Others',
       description:
         'Since 2011, The Compassion Course guides people through a practical, week-by-week path to deeper empathy, honest communication, and real connection \u2014 built on the work of Marshall Rosenberg and Nonviolent Communication.',
-      buttonPrimary: 'Register Now',
+      buttonPrimary: 'Info for 2027-28 Course',
       buttonSecondary: 'See How It Works',
       buttonSecondaryHref: '#how-it-works',
       stats: [
@@ -770,7 +770,7 @@ export const siteContent = {
     cta: {
       heading: 'Registration Opens March 1st',
       text: 'The next Compassion Course begins in June. Join 50,000+ people who have taken this journey toward more compassionate living.',
-      buttonPrimary: 'Register for the Course',
+      buttonPrimary: 'Info for 2027-28 Course',
       linkText: 'Meet the Team',
       linkHref: '/about',
     },

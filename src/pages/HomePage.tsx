@@ -283,7 +283,7 @@ const HomePage: React.FC = () => {
                           <div className="beam-border"></div>
                           <JotformPopup
                             formId={JOTFORM_FORM_ID}
-                            buttonText="Register Now"
+                            buttonText="Info for 2027-28 Course"
                             className="home-journey-register-btn"
                           />
                         </div>

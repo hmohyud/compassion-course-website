@@ -357,6 +357,12 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   const hideBundleNavCss = `
 <style>
   .top-nav, #progress-bar { display: none !important; }
+  /* Soft one-shot glow on the section a TOC click lands on. */
+  @keyframes weeklyJumpGlow {
+    0% { box-shadow: 0 0 0 3px rgba(42,122,110,0.5); }
+    100% { box-shadow: 0 0 0 3px rgba(42,122,110,0); }
+  }
+  .weekly-jump-glow { animation: weeklyJumpGlow 1.5s ease-out 1; }
   html, body {
     padding-top: 0 !important;
     overflow: visible !important;
@@ -771,6 +777,21 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
       var target = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
       if (target) {
         e.preventDefault();
+        // Land on content, not a closed header: expand a collapsed section
+        // through the bundle's own accordion toggle. (Expanding grows the
+        // card downward, so the scroll target's top is unaffected.)
+        try {
+          var hd = target.querySelector ? target.querySelector('.accordion-header') : null;
+          if (hd && !hd.classList.contains('active')) hd.click();
+        } catch (err) { /* non-accordion target — fine */ }
+        // Brief glow so the eye lands on the right section.
+        try {
+          if (target.__glowT) clearTimeout(target.__glowT);
+          target.classList.remove('weekly-jump-glow');
+          void target.offsetWidth; // reflow restarts the animation on re-click
+          target.classList.add('weekly-jump-glow');
+          target.__glowT = setTimeout(function () { target.classList.remove('weekly-jump-glow'); }, 1600);
+        } catch (err) { /* cosmetic only */ }
         // In the auto-sized member iframe (scrolling="no") the iframe never
         // scrolls itself, so scrollIntoView scrolls the PARENT page and
         // aligns the section's top with the top of the parent viewport —

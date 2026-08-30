@@ -12819,6 +12819,9 @@ div.weekly-list-card[aria-disabled="true"] {
 .lce-aud-progress-bar > span { display: block; height: 100%; background: #0d9488; border-radius: 999px; transition: width 0.4s ease; }
 .lce-aud-progress-label { font-size: 0.82rem; color: #0f766e; white-space: nowrap; }
 .lce-aud-empty { color: #64748b; font-size: 0.9rem; }
+/* Grayed-out audio symbol on sections whose clip no longer matches the
+   current wording (or was never generated). */
+.lce-aud-ghosticon { color: #b6bcc6; font-size: 0.85rem; flex-shrink: 0; }
 
 .lce-aud-list {
     list-style: none;

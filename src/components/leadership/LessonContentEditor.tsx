@@ -285,7 +285,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
       } catch {
         /* a transient parse error shouldn't blow up the editor */
       }
-    }, 400);
+    }, 1000);
     return () => window.clearTimeout(t);
   }, [currentHtml, loading]);
 
@@ -898,8 +898,15 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
                           <div className="lce-aud-row-main">
                             <span className={`lce-aud-dot lce-aud-dot--${state}`} aria-hidden="true" />
                             <span className="lce-aud-name">{s.sectionName}</span>
+                            {state !== 'full' && (
+                              <i
+                                className="fas fa-headphones lce-aud-ghosticon"
+                                aria-hidden="true"
+                                title="No clip matches the section's current wording — if it had audio before, a text edit outdated it. Generate (or Save & publish) creates fresh audio."
+                              />
+                            )}
                             <span className="lce-aud-count">
-                              {total > 1 ? `${have}/${total} clips` : state === 'full' ? 'has audio' : 'no audio yet'}
+                              {total > 1 ? `${have}/${total} clips` : state === 'full' ? 'has audio' : 'no audio for current text'}
                             </span>
                           </div>
                           <div className="lce-aud-row-side">

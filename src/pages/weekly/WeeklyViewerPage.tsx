@@ -357,12 +357,14 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
   const hideBundleNavCss = `
 <style>
   .top-nav, #progress-bar { display: none !important; }
-  /* Soft one-shot glow on the section a TOC click lands on. */
+  /* Soft one-shot glow on the section a TOC click lands on. Holds at full
+     strength before fading, and keeps the card's own ambient shadow
+     (base .section-card box-shadow is var(--shadow-md)) underneath. */
   @keyframes weeklyJumpGlow {
-    0% { box-shadow: 0 0 0 3px rgba(42,122,110,0.5); }
-    100% { box-shadow: 0 0 0 3px rgba(42,122,110,0); }
+    0%, 40% { box-shadow: var(--shadow-md), 0 0 0 4px rgba(42,122,110,0.55); }
+    100% { box-shadow: var(--shadow-md), 0 0 0 4px rgba(42,122,110,0); }
   }
-  .weekly-jump-glow { animation: weeklyJumpGlow 1.5s ease-out 1; }
+  .weekly-jump-glow { animation: weeklyJumpGlow 1.8s ease-out 1; }
   html, body {
     padding-top: 0 !important;
     overflow: visible !important;
@@ -784,13 +786,18 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
           var hd = target.querySelector ? target.querySelector('.accordion-header') : null;
           if (hd && !hd.classList.contains('active')) hd.click();
         } catch (err) { /* non-accordion target — fine */ }
-        // Brief glow so the eye lands on the right section.
+        // Brief glow so the eye lands on the right section. Started only
+        // after the smooth scroll has (mostly) arrived — fired immediately,
+        // the pulse would have faded before the section was even on screen.
         try {
           if (target.__glowT) clearTimeout(target.__glowT);
+          if (target.__glowT2) clearTimeout(target.__glowT2);
           target.classList.remove('weekly-jump-glow');
-          void target.offsetWidth; // reflow restarts the animation on re-click
-          target.classList.add('weekly-jump-glow');
-          target.__glowT = setTimeout(function () { target.classList.remove('weekly-jump-glow'); }, 1600);
+          target.__glowT = setTimeout(function () {
+            void target.offsetWidth; // reflow restarts the animation on re-click
+            target.classList.add('weekly-jump-glow');
+            target.__glowT2 = setTimeout(function () { target.classList.remove('weekly-jump-glow'); }, 1900);
+          }, 500);
         } catch (err) { /* cosmetic only */ }
         // In the auto-sized member iframe (scrolling="no") the iframe never
         // scrolls itself, so scrollIntoView scrolls the PARENT page and

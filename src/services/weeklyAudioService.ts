@@ -1,5 +1,5 @@
 import { collection, addDoc, doc, onSnapshot, Timestamp } from 'firebase/firestore';
-import { ref as storageRef, listAll } from 'firebase/storage';
+import { ref as storageRef, listAll, getMetadata } from 'firebase/storage';
 import { db, storage } from '../firebase/firebaseConfig';
 import type { AudioChunk } from '../utils/lessonAudio';
 
@@ -84,7 +84,9 @@ export function watchAudioJob(jobId: string, cb: (job: AudioJob | null) => void)
 
 /** Storage paths of audio files that already exist under weekly-audio/.
  *  Falls back to an empty set if listing isn't permitted (the caller can union
- *  this with the week's audioStoragePaths). */
+ *  this with the week's audioStoragePaths). NOTE: storage.rules grant read on
+ *  individual /weekly-audio files but no `list` on the folder, so in practice
+ *  this fails and returns the empty set — prefer checkWeeklyAudioExists. */
 export async function listExistingWeeklyAudio(): Promise<Set<string>> {
   if (!storage) return new Set();
   try {
@@ -93,4 +95,23 @@ export async function listExistingWeeklyAudio(): Promise<Set<string>> {
   } catch {
     return new Set();
   }
+}
+
+/** Which of the given storage paths actually exist right now. Probes each file
+ *  directly (public read on /weekly-audio files — the same primitive the
+ *  member-facing lesson uses), so it needs no folder `list` permission and
+ *  can't drift from what members experience. */
+export async function checkWeeklyAudioExists(paths: string[]): Promise<Set<string>> {
+  if (!storage || paths.length === 0) return new Set();
+  const found = await Promise.all(
+    paths.map(async (p) => {
+      try {
+        await getMetadata(storageRef(storage!, p));
+        return p;
+      } catch {
+        return null; // object-not-found (or transient error) → treat as missing
+      }
+    }),
+  );
+  return new Set(found.filter((p): p is string => p !== null));
 }

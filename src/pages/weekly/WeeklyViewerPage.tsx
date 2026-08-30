@@ -771,7 +771,29 @@ export function rewriteWeeklyHtml(html: string, opts: RewriteOptions): string {
       var target = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
       if (target) {
         e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // In the auto-sized member iframe (scrolling="no") the iframe never
+        // scrolls itself, so scrollIntoView scrolls the PARENT page and
+        // aligns the section's top with the top of the parent viewport —
+        // i.e. hidden underneath the parent's fixed navbar. A collapsed
+        // section card is about navbar-height tall, so the clicked section
+        // vanished behind the bar and the NEXT section appeared on top.
+        // Scroll the parent manually instead, offset by the navbar's real
+        // height. (The lesson editor's preview iframe scrolls internally,
+        // so it keeps the plain scrollIntoView path.)
+        var scrolled = false;
+        try {
+          var fe = window.frameElement;
+          if (fe && fe.getAttribute('scrolling') === 'no' && window.parent && window.parent !== window) {
+            var pw = window.parent;
+            var nav = pw.document.querySelector('.navbar');
+            var navOffset = nav ? Math.max(nav.getBoundingClientRect().bottom, 0) : 80;
+            var top = fe.getBoundingClientRect().top + pw.scrollY +
+              target.getBoundingClientRect().top - navOffset - 12;
+            pw.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+            scrolled = true;
+          }
+        } catch (err) { /* cross-origin or detached — fall back below */ }
+        if (!scrolled) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   }, true);

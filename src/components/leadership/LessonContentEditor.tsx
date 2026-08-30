@@ -30,7 +30,7 @@ import { extractNarratedSections, type AudioSection, type AudioChunk } from '../
 import {
   createAudioJob,
   watchAudioJob,
-  listExistingWeeklyAudio,
+  checkWeeklyAudioExists,
   type AudioJob,
 } from '../../services/weeklyAudioService';
 import { rewriteWeeklyHtml } from '../../pages/weekly/WeeklyViewerPage';
@@ -274,32 +274,6 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     }
   }, [mode, currentHtml, cssUrl, scriptUrl, audioMap]);
 
-  // ── Which narration clips already exist in Storage. Loaded when the editor
-  //    opens (not only in the Audio tab) so the publish-time "audio will be
-  //    generated" notice is always accurate, and re-listed on entering the
-  //    Audio tab in case clips were added elsewhere. ───────────────────────────
-  const refreshExistingAudio = useCallback(async () => {
-    setAudioLoading(true);
-    try {
-      const existing = await listExistingWeeklyAudio();
-      (week.audioStoragePaths || []).forEach((p) => existing.add(p));
-      setExistingAudio(existing);
-    } catch (e: any) {
-      setMsg({ type: 'error', text: 'Could not load audio status: ' + (e?.message || e) });
-    } finally {
-      setAudioLoading(false);
-    }
-  }, [week.audioStoragePaths]);
-
-  useEffect(() => {
-    if (!loading) refreshExistingAudio();
-  }, [loading, refreshExistingAudio]);
-
-  useEffect(() => {
-    if (mode === 'audio' && !loading) refreshExistingAudio();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
-
   // ── The narrated sections + their content hashes, recomputed (debounced) as
   //    the lesson text changes. Drives both the Audio tab and the publish-time
   //    notifier. Cheap — audioHash() is a synchronous string hash. ─────────────
@@ -314,6 +288,74 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
     }, 400);
     return () => window.clearTimeout(t);
   }, [currentHtml, loading]);
+
+  // ── Which of those clips exist in Storage. Each path is probed directly
+  //    (a public per-file read — the same check the member page makes), NOT
+  //    via folder listing: storage.rules grant no `list` on weekly-audio, so
+  //    listAll silently failed and the tab fell back to the week doc's
+  //    audioStoragePaths — a field nothing updated after generation. That's
+  //    what made the admin view disagree with what members experience.
+  //    Probe results are cached per path; entering the Audio tab re-verifies.
+  const probedRef = useRef<Map<string, boolean>>(new Map());
+  const [probeNonce, setProbeNonce] = useState(0);
+  const dirtyRef = useRef(false);
+  useEffect(() => { dirtyRef.current = dirty; }, [dirty]);
+  const syncedPathsRef = useRef<string>(
+    JSON.stringify((week.audioStoragePaths || []).slice().sort()),
+  );
+
+  // Persist the week's real clip list to Firestore when it has drifted —
+  // the member page builds its audio URL map from audioStoragePaths, so a
+  // stale list means members silently lose regenerated clips. Only called
+  // with path sets derived from the PUBLISHED lesson text.
+  const syncAudioPathsToDoc = useCallback((paths: string[]) => {
+    const email = user?.email;
+    if (!email) return;
+    const sig = JSON.stringify(paths.slice().sort());
+    if (sig === syncedPathsRef.current) return;
+    syncedPathsRef.current = sig;
+    updateWeeklyContent(week.weekNumber, { audioStoragePaths: paths }, email)
+      .catch(() => { /* non-fatal: display stays correct; retried next open */ });
+  }, [user, week.weekNumber]);
+
+  useEffect(() => {
+    if (mode === 'audio') {
+      probedRef.current.clear();
+      setProbeNonce((n) => n + 1);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (loading || audioSections.length === 0) return;
+    const allPaths = audioSections.flatMap((s) => s.chunks.map((c) => c.storagePath));
+    const unknown = allPaths.filter((p) => !probedRef.current.has(p));
+    let cancelled = false;
+    (async () => {
+      if (unknown.length) {
+        setAudioLoading(true);
+        try {
+          const found = await checkWeeklyAudioExists(unknown);
+          if (cancelled) return;
+          unknown.forEach((p) => probedRef.current.set(p, found.has(p)));
+        } catch {
+          /* transient network failure — paths stay unknown and re-probe later */
+        }
+        if (cancelled) return;
+        setAudioLoading(false);
+      }
+      setExistingAudio((prev) => {
+        const next = new Set(prev);
+        allPaths.forEach((p) => { if (probedRef.current.get(p)) next.add(p); });
+        return next;
+      });
+      // Editor content matches the published lesson (no unsaved edits) →
+      // safe to heal the week doc's clip list to what actually exists.
+      if (!dirtyRef.current) {
+        syncAudioPathsToDoc(allPaths.filter((p) => probedRef.current.get(p)));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [audioSections, loading, probeNonce, syncAudioPathsToDoc]);
 
   // Create an audio job for the given chunks and watch it to completion,
   // updating the known-audio set + status message. Shared by the Audio tab and
@@ -367,13 +409,24 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
           if (job.status === 'complete' || job.status === 'completed_with_errors' || job.status === 'error') {
             setAudioBusy(false);
             stopWatching();
+            const donePaths = (job.items || [])
+              .filter((it) => it.status === 'done' || it.status === 'skipped')
+              .map((it) => it.storagePath);
+            donePaths.forEach((p) => probedRef.current.set(p, true));
             setExistingAudio((prev) => {
               const next = new Set(prev);
-              (job.items || []).forEach((it) => {
-                if (it.status === 'done' || it.status === 'skipped') next.add(it.storagePath);
-              });
+              donePaths.forEach((p) => next.add(p));
               return next;
             });
+            // With no unsaved edits, the freshly generated clips belong to the
+            // published text — record them on the week doc so the member page
+            // (whose audio map is built from audioStoragePaths) can play them.
+            if (!dirtyRef.current) {
+              const secs = extractNarratedSections(htmlRef.current);
+              const all = secs.flatMap((s) => s.chunks.map((c) => c.storagePath));
+              const done = new Set(donePaths);
+              syncAudioPathsToDoc(all.filter((p) => done.has(p) || probedRef.current.get(p)));
+            }
             if (job.status === 'complete') setMsg({ type: 'success', text: opts?.completeMsg || 'Audio generated. Save the lesson if you haven’t, so it matches the published text.' });
             else if (job.status === 'completed_with_errors') setMsg({ type: 'error', text: 'Some clips failed — see the statuses below.' });
             else setMsg({ type: 'error', text: 'Audio job failed: ' + (job.error || 'unknown error') });
@@ -392,7 +445,7 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
         setMsg({ type: 'error', text: 'Could not start generation: ' + (e?.message || e) });
       }
     },
-    [user, week.weekNumber],
+    [user, week.weekNumber, syncAudioPathsToDoc],
   );
 
   // Audio tab: generate the clips a set of sections is missing.
@@ -719,6 +772,10 @@ const LessonContentEditor: React.FC<Props> = ({ week, onClose, onSaved }) => {
               jobRunning ? (
                 <span className="lce-audiostate is-generating" title="Narration audio is being generated in the background.">
                   <i className="fas fa-spinner fa-spin" aria-hidden="true" /> Generating audio{activeJob ? ` ${activeJob.done}/${activeJob.total}` : ''}…
+                </span>
+              ) : audioLoading ? (
+                <span className="lce-audiostate" title="Checking which narration clips exist in Storage.">
+                  <i className="fas fa-spinner fa-spin" aria-hidden="true" /> Checking narration…
                 </span>
               ) : pendingAudioSections > 0 ? (
                 <span
